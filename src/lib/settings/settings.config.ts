@@ -1,22 +1,66 @@
-// Every currency the Skinport price feed accepts (https://docs.skinport.com/items).
+// Every fiat currency in the CSGOTrader exchange-rate feed.
 export const CURRENCIES = [
+  "AED",
+  "ARS",
   "AUD",
+  "BGN",
   "BRL",
   "CAD",
   "CHF",
+  "CLP",
   "CNY",
+  "COP",
+  "CRC",
   "CZK",
   "DKK",
   "EUR",
   "GBP",
+  "GEL",
+  "HKD",
+  "HUF",
+  "IDR",
+  "ILS",
+  "INR",
+  "ISK",
+  "JPY",
+  "KRW",
+  "KWD",
+  "KZT",
+  "MXN",
+  "MYR",
   "NOK",
+  "NZD",
+  "PEN",
+  "PHP",
   "PLN",
+  "QAR",
+  "RON",
   "RUB",
+  "SAR",
   "SEK",
+  "SGD",
+  "THB",
   "TRY",
+  "TWD",
+  "UAH",
   "USD",
+  "UYU",
+  "VND",
+  "ZAR",
 ] as const;
 export const DEFAULT_CURRENCY = "USD";
+export const MARKETPLACES = [
+  "skinport",
+  "steam",
+  "buff163",
+  "csfloat",
+  "csmoney",
+  "youpin",
+  "swapgg",
+  "lisskins",
+] as const;
+/** Matches the source value history was recorded against before marketplaces existed. */
+export const DEFAULT_MARKETPLACE = "skinport";
 export const THEMES = ["system", "light", "dark"] as const;
 export const DEFAULT_THEME = "system";
 export const SETTINGS_STORAGE_KEY = "openinventory:settings";
