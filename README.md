@@ -65,7 +65,7 @@ Stack: React 19, TanStack Router and Virtual, Tailwind 4, Zustand, Vite+. The se
 ## Data sources
 
 - Item names, rarities and images: [ByMykel/CSGO-API](https://github.com/ByMykel/CSGO-API) (images are served from Steam's CDN).
-- Prices: the public [Skinport](https://skinport.com) item list (lowest listing). Items with no listing count as zero.
+- Prices: [CSGOTrader](https://prices.csgotrader.app) marketplace feeds (Buff163 by default; Skinport, Steam, CSFloat, CS.MONEY, Youpin898 and LIS-SKINS selectable in Settings), converted with its exchange rates. Items with no listing count as zero.
 - Value history is recorded hourly while OpenInventory runs, for every currency you've viewed the dashboard in, starting from your first sign-in; there is no way to backfill it.
 
 OpenInventory is not affiliated with or endorsed by Valve, Steam or Skinport.
