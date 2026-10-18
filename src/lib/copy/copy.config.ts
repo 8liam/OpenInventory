@@ -153,6 +153,20 @@ export const COPY = {
     themes: { system: "System", light: "Light", dark: "Dark" },
     currencyTitle: "Currency",
     currency: "Display currency",
+    marketplaceTitle: "Pricing",
+    marketplace: "Default marketplace",
+    marketplaceHint:
+      "Prices come from CSGOTrader's hourly marketplace feeds and are converted to your currency. History is kept separately per marketplace.",
+    marketplaces: {
+      skinport: "Skinport",
+      steam: "Steam Market (24h average)",
+      buff163: "Buff163",
+      csfloat: "CSFloat",
+      csmoney: "CS.MONEY",
+      youpin: "Youpin898",
+      swapgg: "Swap.gg",
+      lisskins: "LIS-SKINS",
+    },
     dataTitle: "Data",
     dataBody:
       "OpenInventory caches item data, prices, storage unit contents and value history in a local SQLite database.",

@@ -5,15 +5,16 @@ import { Panel } from "~/components/panel/panel.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { callStorageApi } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
-import { CURRENCIES, THEMES } from "~/lib/settings/settings.config";
-import { useSettings } from "~/lib/settings/settings.store";
+import { CURRENCIES, MARKETPLACES, THEMES } from "~/lib/settings/settings.config";
+import { usePriceQuery, useSettings } from "~/lib/settings/settings.store";
 
 export const Route = createFileRoute("/settings")({ component: SettingsPage });
 
 const SELECT_CLASS = "h-8 rounded-md border border-input bg-card px-2.5 outline-none";
 
 function SettingsPage() {
-  const { currency, theme, setCurrency, setTheme } = useSettings();
+  const { currency, marketplace, theme, setCurrency, setMarketplace, setTheme } = useSettings();
+  const priceQuery = usePriceQuery();
   const copy = COPY.settings;
   return (
     <>
@@ -55,11 +56,29 @@ function SettingsPage() {
             </select>
           </label>
         </Panel>
+        <Panel title={copy.marketplaceTitle}>
+          <label className="flex items-center justify-between gap-4">
+            {copy.marketplace}
+            <select
+              value={marketplace}
+              onChange={(e) => {
+                const next = MARKETPLACES.find((m) => m === e.target.value);
+                if (next) setMarketplace(next);
+              }}
+              className={SELECT_CLASS}
+            >
+              {MARKETPLACES.map((m) => (
+                <option key={m} value={m}>
+                  {copy.marketplaces[m]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <p className="mt-3 text-muted-foreground">{copy.marketplaceHint}</p>
+        </Panel>
         <Panel title={copy.dataTitle}>
           <p className="mb-3 text-muted-foreground">{copy.dataBody}</p>
-          <Button
-            onClick={() => void callStorageApi(`${STORAGE_API.refresh}?currency=${currency}`)}
-          >
+          <Button onClick={() => void callStorageApi(`${STORAGE_API.refresh}?${priceQuery}`)}>
             {copy.refreshData}
           </Button>
         </Panel>
