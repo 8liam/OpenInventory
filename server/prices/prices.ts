@@ -39,7 +39,6 @@ const PRICE_EXTRACTORS: Readonly<Record<Marketplace, (raw: unknown) => number | 
     asPrice(field(raw, "price")) ?? asPrice(field(field(raw, "starting_at"), "price")),
   csmoney: (raw) => asPrice(field(raw, "price")),
   youpin: asPrice,
-  swapgg: asPrice,
   lisskins: (raw) => asPrice(field(raw, "price")),
 };
 
