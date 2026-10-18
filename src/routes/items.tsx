@@ -10,7 +10,7 @@ import { itemRowKey } from "~/lib/items/item-key";
 import type { InventoryResponse } from "~/lib/items/item.types";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
-import { useSettings } from "~/lib/settings/settings.store";
+import { usePriceQuery } from "~/lib/settings/settings.store";
 
 export const Route = createFileRoute("/items")({ component: ItemsPage });
 
@@ -20,9 +20,9 @@ const SELECT_CLASS =
 
 function ItemsPage() {
   const snapshot = useStorageSnapshot();
-  const currency = useSettings((s) => s.currency);
+  const priceQuery = usePriceQuery();
   const data = useRemoteData<InventoryResponse>(
-    `${STORAGE_API.items}?currency=${currency}`,
+    `${STORAGE_API.items}?${priceQuery}`,
     snapshot.revision,
   );
   const [query, setQuery] = useState("");
