@@ -1,5 +1,13 @@
 import { Link, Outlet } from "@tanstack/react-router";
-import { ArrowLeftRight, Boxes, LayoutDashboard, LogOut, Package, Settings } from "lucide-react";
+import {
+  ArrowLeftRight,
+  Boxes,
+  LayoutDashboard,
+  LogOut,
+  Package,
+  PackageOpen,
+  Settings,
+} from "lucide-react";
 import type { ComponentType } from "react";
 import { AuthGate } from "~/components/auth-gate/auth-gate.component";
 import { Logo } from "~/components/logo/logo.component";
@@ -17,6 +25,7 @@ const ICONS: Record<
   dashboard: LayoutDashboard,
   items: Boxes,
   storage: Package,
+  cases: PackageOpen,
   tradeup: ArrowLeftRight,
   settings: Settings,
 };
