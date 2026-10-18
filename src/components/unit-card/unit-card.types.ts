@@ -6,6 +6,8 @@ export type UnitCardProps = {
   readonly items: readonly ItemView[];
   readonly currency: string;
   readonly selected: boolean;
+  /** Value and preview are still being worked out; show placeholders, not a misleading $0. */
+  readonly loading?: boolean;
   readonly onSelect: () => void;
   readonly onRename: (name: string) => Promise<void>;
 };
