@@ -1,26 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RefreshCw } from "lucide-react";
 import { useState } from "react";
-import { BarList } from "~/components/bar-list/bar-list.component";
 import { Button } from "~/components/button/button.component";
-import { ChangeLine } from "~/components/change-line/change-line.component";
 import { HoldingsTable } from "~/components/holdings-table/holdings-table.component";
+import { BreakdownPanel } from "~/components/breakdown-panel/breakdown-panel.component";
+import { DashboardSkeleton } from "~/components/dashboard-skeleton/dashboard-skeleton.component";
 import { Insights } from "~/components/insights/insights.component";
-import { Metric } from "~/components/metric/metric.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { Panel } from "~/components/panel/panel.component";
-import { StackedBar } from "~/components/stacked-bar/stacked-bar.component";
-import { ValueChart } from "~/components/value-chart/value-chart.component";
+import { PortfolioHero } from "~/components/portfolio-hero/portfolio-hero.component";
 import { COPY } from "~/lib/copy/copy.config";
 import type { Dashboard } from "~/lib/items/dashboard.types";
 import { callStorageApi, useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { useSettings } from "~/lib/settings/settings.store";
-import { formatInteger, formatMoney } from "~/utils/format";
 
 export const Route = createFileRoute("/")({ component: DashboardPage });
-
-const MIN_HISTORY_POINTS = 3; // two persisted snapshots plus the live value
 
 function DashboardPage() {
   const snapshot = useStorageSnapshot();
@@ -61,7 +56,7 @@ function DashboardPage() {
         </Button>
       </PageHeader>
 
-      {data.status === "loading" && <p className="text-muted-foreground">{COPY.common.loading}</p>}
+      {data.status === "loading" && <DashboardSkeleton />}
       {data.status === "error" && (
         <p role="alert" className="text-destructive">
           {COPY.common.errorPrefix} {data.message}
@@ -69,62 +64,26 @@ function DashboardPage() {
       )}
 
       {dashboard && (
-        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-2">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-4 [&>*]:shrink-0">
           {dashboard.totals.unitsLoaded < dashboard.totals.unitsTotal && (
             <p className="text-xs text-warning">{copy.unitsPartial}</p>
           )}
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <Metric
-              label={copy.totalValue}
-              value={formatMoney(dashboard.totals.value, currency)}
-              detail={<ChangeLine change={dashboard.change} currency={currency} />}
-              tone="neutral"
-            />
-            <Metric
-              label={copy.inventory}
-              value={formatMoney(dashboard.totals.inventoryValue, currency)}
-            />
-            <Metric
-              label={copy.storage}
-              value={formatMoney(dashboard.totals.storageValue, currency)}
-              detail={`${dashboard.totals.unitsLoaded}/${dashboard.totals.unitsTotal} units`}
-            />
-            <Metric label={copy.items} value={formatInteger(dashboard.totals.itemCount)} />
-          </div>
+          <PortfolioHero dashboard={dashboard} currency={currency} />
 
-          <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-            <Panel title={copy.historyTitle} className="lg:col-span-2">
-              {dashboard.history.length >= MIN_HISTORY_POINTS ? (
-                <ValueChart points={dashboard.history} currency={currency} />
-              ) : (
-                <p className="py-10 text-center text-muted-foreground">{copy.historyEmpty}</p>
-              )}
-            </Panel>
-            <Panel title={copy.locationTitle}>
-              <BarList slices={dashboard.byLocation} currency={currency} limit={6} />
-            </Panel>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-            <Panel title={copy.categoryTitle}>
-              <BarList slices={dashboard.byCategory} currency={currency} limit={7} />
-            </Panel>
-            <Panel title={copy.rarityTitle}>
-              <StackedBar slices={dashboard.byRarity} currency={currency} />
-            </Panel>
-            <Panel title={copy.wearTitle}>
-              <BarList slices={dashboard.byWear} currency={currency} />
-            </Panel>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-            <Panel title={copy.holdingsTitle} className="lg:col-span-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
+            <Panel title={copy.holdingsTitle} className="lg:col-span-3">
               <HoldingsTable holdings={dashboard.topHoldings} currency={currency} />
             </Panel>
-            <Panel title={copy.insightsTitle}>
-              <Insights insights={dashboard.insights} currency={currency} />
-            </Panel>
+            <BreakdownPanel
+              dashboard={dashboard}
+              currency={currency}
+              className="self-start lg:col-span-2"
+            />
           </div>
+
+          <Panel title={copy.insightsTitle}>
+            <Insights insights={dashboard.insights} currency={currency} />
+          </Panel>
         </div>
       )}
     </>

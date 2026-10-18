@@ -44,10 +44,8 @@ export const COPY = {
     historyTitle: "Value over time",
     historyEmpty:
       "History builds up as OpenInventory records an hourly snapshot while it runs. Check back later.",
-    locationTitle: "Where it is",
-    categoryTitle: "By type",
-    rarityTitle: "By rarity",
-    wearTitle: "By wear",
+    breakdownTitle: "Breakdown",
+    otherLabel: "Other",
     holdingsTitle: "Top holdings",
     holdingsColumns: { item: "Item", qty: "Qty", unit: "Each", total: "Total" },
     insightsTitle: "Insights",
