@@ -1,0 +1,18 @@
+services:
+  openinventory:
+    build: .
+    image: openinventory:latest
+    container_name: openinventory
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Strongly recommended when the port is reachable by anyone but you.
+      # The browser will ask for any username and this password.
+      OPENINVENTORY_PASSWORD: ${OPENINVENTORY_PASSWORD:-}
+    volumes:
+      # SQLite cache, value history and the Steam session live here.
+      - openinventory-data:/data
+
+volumes:
+  openinventory-data:
