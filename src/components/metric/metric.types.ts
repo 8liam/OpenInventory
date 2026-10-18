@@ -8,3 +8,5 @@ export type MetricProps = {
   readonly detail?: ReactNode;
   readonly tone?: MetricTone;
 };
+
+export type MetricSkeletonProps = { readonly label: string };

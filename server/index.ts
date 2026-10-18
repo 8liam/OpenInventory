@@ -12,6 +12,10 @@ import type {
   RenameUnitRequest,
   TransferRequest,
 } from "../src/lib/storage/storage.types.ts";
+import { DEFAULT_OPENING_KIND, OPENING_KINDS } from "../src/lib/cases/cases.config.ts";
+import type { OpeningKind } from "../src/lib/cases/cases.types.ts";
+import { buildCaseStats } from "./cases/case-stats.ts";
+import { createHistorySync } from "./cases/history-sync.ts";
 import { openDatabase } from "./db/db.ts";
 import { buildDashboard, summarizeValue } from "./dashboard.ts";
 import { collectItems } from "./items/collect.ts";
@@ -60,6 +64,7 @@ const settings = readSettings();
 const db = openDatabase(settings.dataDir);
 const catalog = await loadCatalog(db);
 const gateway = createRealGateway(db, settings.dataDir, (raw) => catalog.describe(raw).view.name);
+const historySync = createHistorySync(db, gateway);
 
 function sendJson(res: ServerResponse, status: number, body: unknown): void {
   res.writeHead(status, { "content-type": "application/json" });
@@ -136,6 +141,13 @@ function parseCurrency(url: URL): string {
   const value = url.searchParams.get("currency") ?? DEFAULT_CURRENCY;
   if (!CURRENCY_PATTERN.test(value)) throw new UserFacingError("Invalid currency", HTTP.badRequest);
   return value;
+}
+
+function parseOpeningKind(url: URL): OpeningKind {
+  const value = url.searchParams.get("kind") ?? DEFAULT_OPENING_KIND;
+  const kind = OPENING_KINDS.find((k) => k === value);
+  if (!kind) throw new UserFacingError("Invalid kind", HTTP.badRequest);
+  return kind;
 }
 
 async function loadPrices(currency: string, force = false) {
@@ -298,6 +310,15 @@ const server = createServer(async (req, res) => {
       );
     }
 
+    if (path === STORAGE_API.cases && method === "GET") {
+      const steamId = requireReady();
+      historySync.start(steamId, { onlyIfStale: true });
+      return sendJson(res, HTTP.ok, {
+        stats: buildCaseStats(db.loadHistoryEvents(steamId), parseOpeningKind(url)),
+        sync: historySync.status(steamId),
+      });
+    }
+
     if (path === STORAGE_API.tradeUp && method === "GET") {
       requireReady();
       const currency = parseCurrency(url);
@@ -323,6 +344,10 @@ const server = createServer(async (req, res) => {
         const { id, name } = parseRenameRequest(await readBody(req));
         await gateway.renameUnit(id, name);
         return void res.writeHead(HTTP.noContent).end();
+      }
+      if (path === STORAGE_API.casesSync) {
+        historySync.start(requireReady());
+        return void res.writeHead(HTTP.accepted).end();
       }
       if (path === STORAGE_API.transferCancel) {
         gateway.cancelTransfer();

@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useDeferredValue, useMemo, useState } from "react";
 import { ItemTable } from "~/components/item-table/item-table.component";
+import { ItemTableSkeleton } from "~/components/item-table/item-table.skeleton";
+import { LoadingRegion } from "~/components/loading-region/loading-region.component";
 import { TransferBar } from "~/components/transfer-bar/transfer-bar.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { COPY } from "~/lib/copy/copy.config";
@@ -87,7 +89,11 @@ function ItemsPage() {
           ))}
         </select>
       </PageHeader>
-      {data.status === "loading" && <p className="text-muted-foreground">{COPY.common.loading}</p>}
+      {data.status === "loading" && (
+        <LoadingRegion className="flex min-h-0 flex-1 flex-col">
+          <ItemTableSkeleton selectable />
+        </LoadingRegion>
+      )}
       {data.status === "error" && (
         <p role="alert" className="text-destructive">
           {COPY.common.errorPrefix} {data.message}
