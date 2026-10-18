@@ -1,0 +1,55 @@
+{
+  "name": "openinventory",
+  "version": "0.0.0",
+  "private": true,
+  "description": "OpenInventory: self-hosted CS2 inventory and storage unit tracker",
+  "type": "module",
+  "scripts": {
+    "dev": "vp dev",
+    "build": "tsc -b && vp build",
+    "lint": "vp lint",
+    "preview": "vp preview",
+    "prepare": "vp config",
+    "api": "node server/index.ts",
+    "test": "node --test \"server/**/*.test.ts\""
+  },
+  "dependencies": {
+    "globaloffensive": "^3.3.0",
+    "qrcode": "^1.5.4",
+    "steam-session": "^1.9.4",
+    "steam-user": "^5.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@tanstack/react-router": "^1.170.44",
+    "@tanstack/react-virtual": "^3.14.21",
+    "@tanstack/router-plugin": "^1.168.46",
+    "@types/node": "^24.13.3",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@types/steam-user": "^5.1.1",
+    "@vitejs/plugin-react": "^6.1.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.58.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "tailwind-merge": "^3.7.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~6.0.2",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "zod": "^4.6.7",
+    "zustand": "^5.0.15"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.14.0",
+      "onFail": "download"
+    }
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
