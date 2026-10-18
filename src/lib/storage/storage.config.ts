@@ -106,6 +106,7 @@ export const GC_ATTRIBUTE = {
   musicId: 166,
   sprayTintId: 233,
   keychainId: 299,
+  keychainPattern: 306,
   keychainHighlight: 314,
   keychainSticker: 321,
 } as const;
