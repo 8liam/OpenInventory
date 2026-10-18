@@ -7,7 +7,7 @@ import {
   STEAM_ECONOMY_IMAGE_MARKER,
   WEAR_BANDS,
 } from "../../src/lib/storage/storage.config.ts";
-import type { StickerView } from "../../src/lib/items/item.types.ts";
+import type { CharmView, StickerView } from "../../src/lib/items/item.types.ts";
 import type { Database } from "../db/db.types.ts";
 import type { GcItem } from "../steam/steam.types.ts";
 import type {
@@ -192,6 +192,20 @@ export async function loadCatalog(db: Database): Promise<Catalog> {
     });
   }
 
+  /** Charm attached to a weapon: souvenir highlight charms use the highlight attribute. */
+  function charmViews(item: GcItem): CharmView[] {
+    const pattern = readUInt32(item, GC_ATTRIBUTE.keychainPattern) ?? null;
+    const highlight = readUInt32(item, GC_ATTRIBUTE.keychainHighlight);
+    const charm = readUInt32(item, GC_ATTRIBUTE.keychainId);
+    const record =
+      highlight !== undefined
+        ? highlightById.get(highlight)
+        : charm === undefined
+          ? undefined
+          : keychainById.get(charm);
+    return record ? [{ name: record.name, imageUrl: sizedImage(record.image), pattern }] : [];
+  }
+
   function describe(item: GcItem): DescribedItem {
     const float = item.paint_wear;
     const isStatTrak = hasAttribute(item, GC_ATTRIBUTE.killEater);
@@ -291,6 +305,11 @@ export async function loadCatalog(db: Database): Promise<Catalog> {
         isStatTrak,
         isSouvenir,
         stickers: item.paint_index === undefined ? [] : stickerViews(item),
+        charms: item.paint_index === undefined ? [] : charmViews(item),
+        pattern:
+          item.def_index === ITEM_DEF.charm
+            ? (readUInt32(item, GC_ATTRIBUTE.keychainPattern) ?? null)
+            : null,
         tradableAfter:
           item.tradable_after && item.tradable_after.getTime() > Date.now()
             ? item.tradable_after.getTime()
