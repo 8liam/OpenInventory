@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { ItemLabel } from "~/components/item-label/item-label.component";
+import { TradeUpSkeleton } from "~/components/tradeup-skeleton/tradeup-skeleton.component";
 import { ItemCell } from "~/components/item-cell/item-cell.component";
 import { Metric } from "~/components/metric/metric.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
@@ -46,9 +47,7 @@ function TradeUpPage() {
           </select>
         </label>
       </PageHeader>
-      {result.status === "loading" && (
-        <p className="text-muted-foreground">{COPY.common.loading}</p>
-      )}
+      {result.status === "loading" && <TradeUpSkeleton />}
       {result.status === "error" && (
         <p role="alert" className="text-destructive">
           {COPY.common.errorPrefix} {result.message}
