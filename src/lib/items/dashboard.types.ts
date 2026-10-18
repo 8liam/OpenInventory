@@ -16,7 +16,12 @@ export type Holding = {
 
 export type LocationSlice = Slice & { readonly id: string };
 
-export type HistoryPoint = { readonly takenAt: number; readonly totalValue: number };
+export type HistoryPoint = {
+  readonly takenAt: number;
+  readonly totalValue: number;
+  readonly inventoryValue: number;
+  readonly storageValue: number;
+};
 
 export type ValueChange = {
   readonly day: number | null;

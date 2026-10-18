@@ -50,6 +50,8 @@ export function createRealGateway(
   let steamId: string | undefined;
   /** Kept across reconnects; only cleared on sign-out or a rejected token. */
   let activeSession: SavedSession | undefined;
+  /** Steam Community cookies for the current connection; refreshed on demand. */
+  let webCookies: readonly string[] | undefined;
   let reconnectTimer: NodeJS.Timeout | undefined;
   let reconnectAttempts = 0;
   let unitRefreshTimer: NodeJS.Timeout | undefined;
@@ -77,6 +79,7 @@ export function createRealGateway(
     steam?.logOff();
     steam?.removeAllListeners();
     steam = undefined;
+    webCookies = undefined;
   }
 
   function teardown(): void {
@@ -204,6 +207,9 @@ export function createRealGateway(
       }
       if (gcConnected) store.setAuth({ status: AUTH_STATUS.ready, displayName });
     });
+    client.on("webSession", (_sessionId: string, cookies: string[]) => {
+      webCookies = cookies;
+    });
     client.on("error", (error: Error & { eresult?: number }) => {
       if (error.eresult !== undefined && TOKEN_REJECTED_ERESULTS.includes(error.eresult)) {
         sessionFile.clear();
@@ -270,6 +276,25 @@ export function createRealGateway(
       client.gamesPlayed([CS2_APP_ID]);
     });
     client.logOn({ refreshToken });
+  }
+
+  /** Cookies for steamcommunity.com, requested from the live connection when missing or stale. */
+  function getWebCookies(refresh: boolean): Promise<readonly string[]> {
+    const client = steam;
+    if (!client) return Promise.reject(new UserFacingError("Not connected to Steam.", 409));
+    if (webCookies && !refresh) return Promise.resolve(webCookies);
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        client.removeListener("webSession", onSession);
+        reject(new UserFacingError("Steam did not provide a web session in time.", 504));
+      }, STORAGE_LIMITS.webSessionTimeoutMs);
+      const onSession = (_sessionId: string, cookies: string[]) => {
+        clearTimeout(timer);
+        resolve(cookies);
+      };
+      client.once("webSession", onSession);
+      client.webLogOn();
+    });
   }
 
   function renameUnit(unitId: string, name: string): Promise<void> {
@@ -441,6 +466,7 @@ export function createRealGateway(
     subscribe: (listener) => store.subscribe(listener),
     onReady: (listener) => void readyListeners.push(listener),
     getSteamId: () => steamId,
+    getWebCookies,
 
     async startQrLogin() {
       teardown();

@@ -22,14 +22,14 @@ export function ItemTable({
     const item: DataTableColumn<ItemView> = {
       id: "item",
       header: COPY.itemColumns.item,
-      width: wide ? "4fr" : "minmax(0, 1fr)",
+      width: wide ? ITEM_TABLE.widths.item.wide : ITEM_TABLE.widths.item.narrow,
       sortValue: (r) => r.name,
       cell: (r) => <ItemCell item={r} />,
     };
     const price: DataTableColumn<ItemView> = {
       id: "price",
       header: COPY.itemColumns.price,
-      width: wide ? "0.9fr" : ITEM_TABLE.mobilePriceWidth,
+      width: wide ? ITEM_TABLE.widths.price.wide : ITEM_TABLE.widths.price.narrow,
       align: "right",
       sortValue: (r) => r.price ?? -1,
       cell: (r) => (r.price === null ? COPY.common.empty : formatMoney(r.price, currency)),
@@ -40,7 +40,7 @@ export function ItemTable({
           {
             id: "location",
             header: COPY.itemColumns.location,
-            width: "1.6fr",
+            width: ITEM_TABLE.widths.location,
             sortValue: (r) => r.locationName,
             cell: (r) => <span className="text-muted-foreground">{r.locationName}</span>,
           },
@@ -52,14 +52,14 @@ export function ItemTable({
       {
         id: "type",
         header: COPY.itemColumns.type,
-        width: "1.2fr",
+        width: ITEM_TABLE.widths.type,
         sortValue: (r) => r.category,
         cell: (r) => <span className="text-muted-foreground">{r.category}</span>,
       },
       {
         id: "float",
         header: COPY.itemColumns.float,
-        width: "0.9fr",
+        width: ITEM_TABLE.widths.float,
         align: "right",
         sortValue: (r) => r.wear ?? -1,
         cell: (r) => (r.wear === null ? COPY.common.empty : formatFloat(r.wear)),

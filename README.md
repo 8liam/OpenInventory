@@ -6,9 +6,10 @@
 
 Self-hosted CS2 inventory and storage unit tracker. Sign in once with the Steam mobile app and OpenInventory shows what you own, where it is, and what it's worth, with history that builds up over time. Everything is cached in a local SQLite file on your own server. OpenInventory talks to Steam (with your login), fetches public item data and Skinport prices, and your browser loads item images from Steam's CDN.
 
-- **Dashboard**: total value and change, value history, breakdown by location, type, rarity and wear, top holdings, and your lowest floats, highest floats and largest stacks.
-- **Items**: every item across your inventory and all storage units, searchable and filterable, with images, floats, stickers and prices.
+- **Dashboard**: total value with 24h/7d/30d change, a value history chart you can switch between total, inventory and storage units over 1D to all time, a tabbed breakdown (type, rarity, wear, location) as a donut, top holdings, and your lowest floats, highest floats and largest stacks.
+- **Items**: every item across your inventory and all storage units, searchable and filterable, with images, floats, stickers, charms (with pattern ids) and prices.
 - **Storage units**: all units load automatically; contents are cached so restarts are instant. Capacity (1,000 items) is checked before a move starts.
+- **Cases**: case, souvenir, capsule, trade-up and drop stats read from your Steam inventory history: rarity split, rarest pulls, most opened, per-month volume, and your gold drought. History is synced in the background and stored locally.
 - **Trade-up calculator**: read-only estimate of expected value from your cheapest tradable skins and their collections. OpenInventory can't perform trade-ups.
 
 - **Move items**: select items on the Items or Storage page and move them between your inventory and storage units (unit to unit goes through your inventory). Each move is confirmed by the Game Coordinator, with live progress, cancel, and a per-item error report. Nothing is ever listed or traded.

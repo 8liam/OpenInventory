@@ -3,6 +3,9 @@ import { RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "~/components/button/button.component";
 import { ItemTable } from "~/components/item-table/item-table.component";
+import { ItemTableSkeleton } from "~/components/item-table/item-table.skeleton";
+import { LoadingRegion } from "~/components/loading-region/loading-region.component";
+import { Skeleton } from "~/components/skeleton/skeleton.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { TransferBar } from "~/components/transfer-bar/transfer-bar.component";
 import { UnitCard } from "~/components/unit-card/unit-card.component";
@@ -41,6 +44,10 @@ function StoragePage() {
     return groups;
   }, [data]);
 
+  const dataLoading = data.status === "loading";
+  // A unit the GC has not handed over yet counts as loading only while units are actually loading.
+  const unitPending = (unit: { readonly loaded: boolean }) =>
+    dataLoading || (!unit.loaded && snapshot.loadingUnits);
   const selected = snapshot.units.find((u) => u.id === selectedId) ?? snapshot.units[0];
   const selectedItems = selected ? (byUnit.get(selected.id) ?? []) : [];
   const pickedItems = selectedItems.filter((item) => picked.has(itemRowKey(item)));
@@ -70,6 +77,7 @@ function StoragePage() {
                 items={byUnit.get(unit.id) ?? []}
                 currency={currency}
                 selected={selected?.id === unit.id}
+                loading={unitPending(unit)}
                 onRename={(name) => postJson(STORAGE_API.renameUnit, { id: unit.id, name })}
                 onSelect={() => {
                   setSelectedId(unit.id);
@@ -83,9 +91,13 @@ function StoragePage() {
               <p className="text-muted-foreground">
                 <span className="font-medium text-foreground">{selected.name}</span> ·{" "}
                 {formatInteger(selected.itemCount)} {copy.items} · {copy.value}{" "}
-                <span className="tabular text-foreground">
-                  {formatMoney(selectedValue, currency)}
-                </span>
+                {unitPending(selected) ? (
+                  <Skeleton className="inline-block h-4 w-14 align-middle" />
+                ) : (
+                  <span className="tabular text-foreground">
+                    {formatMoney(selectedValue, currency)}
+                  </span>
+                )}
               </p>
             )}
             {pickedItems.length > 0 && (
@@ -104,6 +116,10 @@ function StoragePage() {
                 selected={picked}
                 onSelectionChange={setPicked}
               />
+            ) : selected && unitPending(selected) ? (
+              <LoadingRegion className="flex min-h-0 flex-1 flex-col">
+                <ItemTableSkeleton showLocation={false} selectable />
+              </LoadingRegion>
             ) : (
               <p className="text-muted-foreground">
                 {selected?.loaded ? copy.unitEmpty : copy.selectUnit}

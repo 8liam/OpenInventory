@@ -12,6 +12,8 @@ const SIGNED_OUT: StorageSnapshot = {
 const REFETCH_DEBOUNCE_MS = 600;
 
 let snapshot: StorageSnapshot = SIGNED_OUT;
+/** False until the server's first push; before that "signed out" is a guess, not a fact. */
+let received = false;
 let source: EventSource | undefined;
 const listeners = new Set<() => void>();
 
@@ -37,7 +39,9 @@ function subscribe(listener: () => void): () => void {
     source = new EventSource(STORAGE_API.events);
     source.onmessage = (event: MessageEvent<string>) => {
       const next = parseSnapshot(event.data);
-      if (next) publish(next);
+      if (!next) return;
+      received = true;
+      publish(next);
     };
   }
   return () => {
@@ -47,6 +51,11 @@ function subscribe(listener: () => void): () => void {
       source = undefined;
     }
   };
+}
+
+/** Whether the server has told us the real auth state yet. */
+export function useSnapshotReceived(): boolean {
+  return useSyncExternalStore(subscribe, () => received);
 }
 
 export function useStorageSnapshot(): StorageSnapshot {
