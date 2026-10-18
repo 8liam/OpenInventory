@@ -1,3 +1,4 @@
+import type { Marketplace } from "../../src/lib/settings/settings.types.ts";
 import { PRICE_DATA } from "../../src/lib/storage/storage.config.ts";
 import type { Database } from "../db/db.types.ts";
 
@@ -5,11 +6,6 @@ export type PriceEntry = { readonly price: number };
 export type PriceBook = {
   readonly byName: ReadonlyMap<string, PriceEntry>;
   readonly fetchedAt: number;
-};
-
-type SkinportItem = {
-  market_hash_name: string;
-  min_price: number | null;
 };
 
 type StoredBook = {
@@ -20,19 +16,53 @@ type StoredBook = {
 const memory = new Map<string, PriceBook>();
 const inFlight = new Map<string, Promise<PriceBook>>();
 
-async function fetchBook(currency: string): Promise<PriceBook> {
-  const url = new URL(PRICE_DATA.url);
-  url.searchParams.set("app_id", String(PRICE_DATA.appId));
-  url.searchParams.set("currency", currency);
-  const response = await fetch(url, {
-    headers: { "accept-encoding": "br" },
+type RawFeed = Record<string, unknown>;
+type ExchangeRates = Readonly<Record<string, number>>;
+
+function asPrice(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value > 0 ? value : null;
+}
+
+function field(value: unknown, key: string): unknown {
+  return typeof value === "object" && value !== null ? (value as RawFeed)[key] : undefined;
+}
+
+/** Each feed shapes its USD price differently; this picks the one we show. */
+const PRICE_EXTRACTORS: Readonly<Record<Marketplace, (raw: unknown) => number | null>> = {
+  skinport: (raw) => asPrice(field(raw, "starting_at")),
+  steam: (raw) =>
+    asPrice(field(raw, "last_24h")) ??
+    asPrice(field(raw, "last_7d")) ??
+    asPrice(field(raw, "last_30d")),
+  buff163: (raw) => asPrice(field(field(raw, "starting_at"), "price")),
+  csfloat: (raw) =>
+    asPrice(field(raw, "price")) ?? asPrice(field(field(raw, "starting_at"), "price")),
+  csmoney: (raw) => asPrice(field(raw, "price")),
+  youpin: asPrice,
+  swapgg: asPrice,
+  lisskins: (raw) => asPrice(field(raw, "price")),
+};
+
+async function fetchJson(file: string): Promise<RawFeed> {
+  const response = await fetch(`${PRICE_DATA.baseUrl}/${file}.json`, {
     signal: AbortSignal.timeout(PRICE_DATA.fetchTimeoutMs),
   });
   if (!response.ok) throw new Error(`Price source returned ${response.status}`);
-  const items = (await response.json()) as SkinportItem[];
+  return (await response.json()) as RawFeed;
+}
+
+async function fetchBook(currency: string, marketplace: Marketplace): Promise<PriceBook> {
+  const [feed, rates] = await Promise.all([
+    fetchJson(marketplace),
+    fetchJson(PRICE_DATA.ratesFile) as Promise<ExchangeRates>,
+  ]);
+  const rate = rates[currency];
+  if (typeof rate !== "number" || !(rate > 0)) throw new Error(`No exchange rate for ${currency}`);
+  const extract = PRICE_EXTRACTORS[marketplace];
   const byName = new Map<string, PriceEntry>();
-  for (const item of items) {
-    if (item.min_price !== null) byName.set(item.market_hash_name, { price: item.min_price });
+  for (const [name, raw] of Object.entries(feed)) {
+    const usd = extract(raw);
+    if (usd !== null) byName.set(name, { price: usd * rate });
   }
   return { byName, fetchedAt: Date.now() };
 }
@@ -49,27 +79,29 @@ function readStored(
 }
 
 /**
- * Per-currency price book: memory -> SQLite -> network. A failed refresh falls
- * back to the last stored book so a source outage never blanks the dashboard.
+ * Per-currency, per-marketplace price book: memory -> SQLite -> network. A failed
+ * refresh falls back to the last stored book so a source outage never blanks the dashboard.
  */
 export async function getPriceBook(
   db: Database,
   currency: string,
+  marketplace: Marketplace,
   force = false,
 ): Promise<PriceBook> {
-  const key = `${PRICE_DATA.cachePrefix}${currency}`;
-  const cached = memory.get(currency);
+  const id = `${currency}:${marketplace}`;
+  const key = `${PRICE_DATA.cachePrefix}${id}`;
+  const cached = memory.get(id);
   if (!force && cached && Date.now() - cached.fetchedAt < PRICE_DATA.cacheTtlMs) return cached;
   if (!force) {
     const stored = readStored(db, key, PRICE_DATA.cacheTtlMs);
     if (stored) {
-      memory.set(currency, stored);
+      memory.set(id, stored);
       return stored;
     }
   }
   const pending =
-    inFlight.get(currency) ??
-    fetchBook(currency)
+    inFlight.get(id) ??
+    fetchBook(currency, marketplace)
       .then((book) => {
         db.setCache(
           key,
@@ -78,7 +110,7 @@ export async function getPriceBook(
             entries: [...book.byName],
           } satisfies StoredBook),
         );
-        memory.set(currency, book);
+        memory.set(id, book);
         return book;
       })
       .catch((error: unknown) => {
@@ -86,7 +118,7 @@ export async function getPriceBook(
         if (stale) return stale;
         throw error;
       })
-      .finally(() => inFlight.delete(currency));
-  inFlight.set(currency, pending);
+      .finally(() => inFlight.delete(id));
+  inFlight.set(id, pending);
   return pending;
 }
