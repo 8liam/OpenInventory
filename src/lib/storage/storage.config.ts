@@ -2,6 +2,8 @@ export const STORAGE_API = {
   refresh: "/api/refresh",
   items: "/api/items",
   dashboard: "/api/dashboard",
+  cases: "/api/cases",
+  casesSync: "/api/cases/sync",
   state: "/api/state",
   events: "/api/events",
   qrLogin: "/api/auth/qr",
@@ -23,6 +25,7 @@ export const AUTH_STATUS = {
 
 export const STORAGE_LIMITS = {
   qrLoginTimeoutMs: 120_000,
+  webSessionTimeoutMs: 15_000,
   gcConnectTimeoutMs: 30_000,
   reconnectBaseMs: 2_000,
   reconnectMaxMs: 5 * 60_000,
