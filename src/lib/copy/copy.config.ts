@@ -164,7 +164,6 @@ export const COPY = {
       csfloat: "CSFloat",
       csmoney: "CS.MONEY",
       youpin: "Youpin898",
-      swapgg: "Swap.gg",
       lisskins: "LIS-SKINS",
     },
     dataTitle: "Data",

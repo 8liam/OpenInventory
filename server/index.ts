@@ -20,7 +20,11 @@ import { openDatabase } from "./db/db.ts";
 import { buildDashboard, summarizeValue } from "./dashboard.ts";
 import { collectItems } from "./items/collect.ts";
 import { loadCatalog } from "./items/catalog.ts";
-import { DEFAULT_MARKETPLACE, MARKETPLACES } from "../src/lib/settings/settings.config.ts";
+import {
+  DEFAULT_MARKETPLACE,
+  LEGACY_HISTORY_MARKETPLACE,
+  MARKETPLACES,
+} from "../src/lib/settings/settings.config.ts";
 import type { Marketplace } from "../src/lib/settings/settings.types.ts";
 import { getPriceBook } from "./prices/prices.ts";
 import { readSettings, SERVER_LIMITS } from "./server.config.ts";
@@ -158,9 +162,9 @@ function parseScope(url: URL): PriceScope {
   return { currency: parseCurrency(url), marketplace: parseMarketplace(url) };
 }
 
-/** History rows are keyed by this; the default marketplace keeps its pre-marketplace rows. */
+/** History rows are keyed by this; the legacy marketplace keeps its pre-marketplace rows. */
 function historyCurrency({ currency, marketplace }: PriceScope): string {
-  return marketplace === DEFAULT_MARKETPLACE ? currency : `${currency}:${marketplace}`;
+  return marketplace === LEGACY_HISTORY_MARKETPLACE ? currency : `${currency}:${marketplace}`;
 }
 
 function parseOpeningKind(url: URL): OpeningKind {
