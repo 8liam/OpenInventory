@@ -13,15 +13,16 @@ import { COPY } from "~/lib/copy/copy.config";
 import type { Dashboard } from "~/lib/items/dashboard.types";
 import { callStorageApi, useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
-import { useSettings } from "~/lib/settings/settings.store";
+import { usePriceQuery, useSettings } from "~/lib/settings/settings.store";
 
 export const Route = createFileRoute("/")({ component: DashboardPage });
 
 function DashboardPage() {
   const snapshot = useStorageSnapshot();
   const currency = useSettings((s) => s.currency);
+  const priceQuery = usePriceQuery();
   const data = useRemoteData<Dashboard>(
-    `${STORAGE_API.dashboard}?currency=${currency}`,
+    `${STORAGE_API.dashboard}?${priceQuery}`,
     snapshot.revision,
   );
   const [refreshing, setRefreshing] = useState(false);
@@ -30,7 +31,7 @@ function DashboardPage() {
   async function refresh() {
     setRefreshing(true);
     try {
-      await callStorageApi(`${STORAGE_API.refresh}?currency=${currency}`);
+      await callStorageApi(`${STORAGE_API.refresh}?${priceQuery}`);
     } finally {
       setRefreshing(false);
     }

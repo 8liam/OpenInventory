@@ -10,7 +10,7 @@ import { COPY } from "~/lib/copy/copy.config";
 import type { TradeUpResponse } from "~/lib/items/item.types";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API, TRADE_UP } from "~/lib/storage/storage.config";
-import { useSettings } from "~/lib/settings/settings.store";
+import { usePriceQuery } from "~/lib/settings/settings.store";
 import { formatFloat, formatMoney, formatPercent } from "~/utils/format";
 
 export const Route = createFileRoute("/tradeup")({ component: TradeUpPage });
@@ -20,10 +20,10 @@ const OUTCOME_IMAGE_SIZE = 40;
 
 function TradeUpPage() {
   const snapshot = useStorageSnapshot();
-  const currency = useSettings((s) => s.currency);
+  const priceQuery = usePriceQuery();
   const [rarity, setRarity] = useState<string>(TRADE_UP.defaultInputRarity);
   const result = useRemoteData<TradeUpResponse>(
-    `${STORAGE_API.tradeUp}?rarity=${rarity}&currency=${currency}`,
+    `${STORAGE_API.tradeUp}?rarity=${rarity}&${priceQuery}`,
     snapshot.revision,
   );
   const copy = COPY.tradeup;

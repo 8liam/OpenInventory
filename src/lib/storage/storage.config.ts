@@ -74,8 +74,9 @@ export const ITEM_DATA = {
 } as const;
 
 export const PRICE_DATA = {
-  url: "https://api.skinport.com/v1/items",
-  appId: 730,
+  /** Static USD price files per marketplace plus an exchange-rate file, all from CSGOTrader. */
+  baseUrl: "https://prices.csgotrader.app/latest",
+  ratesFile: "exchange_rates",
   cachePrefix: "prices:",
   cacheTtlMs: 10 * 60 * 1000,
   fetchTimeoutMs: 30_000,

@@ -19,7 +19,7 @@ import {
   useStorageSnapshot,
 } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
-import { useSettings } from "~/lib/settings/settings.store";
+import { usePriceQuery, useSettings } from "~/lib/settings/settings.store";
 import { formatInteger, formatMoney } from "~/utils/format";
 
 export const Route = createFileRoute("/storage")({ component: StoragePage });
@@ -27,8 +27,9 @@ export const Route = createFileRoute("/storage")({ component: StoragePage });
 function StoragePage() {
   const snapshot = useStorageSnapshot();
   const currency = useSettings((s) => s.currency);
+  const priceQuery = usePriceQuery();
   const data = useRemoteData<InventoryResponse>(
-    `${STORAGE_API.items}?currency=${currency}`,
+    `${STORAGE_API.items}?${priceQuery}`,
     snapshot.revision,
   );
   const [selectedId, setSelectedId] = useState<string>();
@@ -59,7 +60,7 @@ function StoragePage() {
         <Button
           small
           disabled={snapshot.loadingUnits}
-          onClick={() => void callStorageApi(`${STORAGE_API.refresh}?currency=${currency}`)}
+          onClick={() => void callStorageApi(`${STORAGE_API.refresh}?${priceQuery}`)}
         >
           <RefreshCw size={12} className={snapshot.loadingUnits ? "animate-spin" : undefined} />
           {snapshot.loadingUnits ? copy.loadingUnits : copy.refreshUnits}
