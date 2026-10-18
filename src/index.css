@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+ * Design tokens. Values follow T3 Code's neutral palette: near-black canvas,
+ * 6% white hairlines, one indigo primary. Light theme mirrors it on zinc.
+ */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  --background: #fcfcfd;
+  --foreground: #27272a;
+  --card: #ffffff;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --border: #e4e4e7;
+  --input: #d4d4d8;
+  --accent: #f4f4f5;
+  --primary: oklch(48.8% 0.217 264);
+  --primary-foreground: #ffffff;
+  --success: #059669;
+  --destructive: #dc2626;
+  --warning: #b45309;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #0a0a0a;
+  --foreground: #f5f5f5;
+  --card: color-mix(in srgb, #0a0a0a 97%, white);
+  --muted: rgb(255 255 255 / 0.03);
+  --muted-foreground: #818181;
+  --border: rgb(255 255 255 / 0.06);
+  --input: rgb(255 255 255 / 0.08);
+  --accent: rgb(255 255 255 / 0.04);
+  --primary: oklch(57.1% 0.21 264);
+  --primary-foreground: #ffffff;
+  --success: #10b981;
+  --destructive: #f87171;
+  --warning: #fbbf24;
+}
+
+@theme inline {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-accent: var(--accent);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-success: var(--success);
+  --color-destructive: var(--destructive);
+  --color-warning: var(--warning);
+  --radius-lg: 0.625rem;
+  --radius-md: 0.5rem;
+  --radius-sm: 0.375rem;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.45;
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* iOS zooms into focused inputs below 16px. */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
