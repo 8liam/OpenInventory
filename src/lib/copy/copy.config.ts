@@ -127,22 +127,31 @@ export const COPY = {
   },
   tradeup: {
     title: "Trade-up calculator",
-    description: "Read-only estimate from your cheapest tradable skins.",
+    description: "Pick the skins you would trade up and see what you could get. Read-only.",
     rarity: "Input rarity",
     inputs: "Inputs",
     inputCost: "Input cost",
     averageFloat: "Average float",
     expectedValue: "Expected value",
     expectedReturn: "Expected return",
+    chanceToProfit: "Chance to profit",
     outcomes: "Possible outcomes",
+    autoFill: "Pick cheapest",
+    clear: "Clear",
+    remove: "Click to remove",
+    noCandidates: "You have no tradable skins of this rarity.",
+    pickPrompt: "Pick skins above to see what they can turn into.",
+    selectMore: (count: number) =>
+      `Select ${count} more skin${count === 1 ? "" : "s"} to complete the trade-up; odds shown are for the current picks.`,
     formulaNote:
-      "Uses your cheapest 10 tradable skins of the chosen rarity. Odds follow collection counts; output float is the average input float scaled into each skin's range.",
+      "Each skin gives its collection an equal share of the odds, split across that collection's next-tier skins. Covert skins (5 per trade-up) can turn into a knife or gloves from the same case. Output float is the average input float scaled into each output's range.",
     rarities: {
       rarity_common_weapon: "Consumer",
       rarity_uncommon_weapon: "Industrial",
       rarity_rare_weapon: "Mil-Spec",
       rarity_mythical_weapon: "Restricted",
       rarity_legendary_weapon: "Classified",
+      rarity_ancient_weapon: "Covert (→ knife or gloves)",
     },
   },
   settings: {
