@@ -112,3 +112,18 @@ test("ranks rarest pulls gold first, then by rarity, newest first among equals",
     ["★ Karambit | Fade", "AK-47 | Redline", "M4A4 | Howl", "P250 | Sand Dune"],
   );
 });
+
+test("counts a knife as gold even without the ★ prefix or the usual colour", () => {
+  const knife: HistoryEvent = {
+    id: "history5",
+    occurredAt: Date.UTC(2026, 3, 5),
+    description: "Unlocked a container",
+    lost: [container],
+    gained: [
+      { ...base, name: "Bowie Knife | Tiger Tooth", type: "CSGO_Type_Knife", color: "e4ae39" },
+    ],
+  };
+  const stats = buildCaseStats([knife], "case");
+  assert.equal(stats.gold, 1);
+  assert.equal(stats.rarest[0]?.isGold, true);
+});

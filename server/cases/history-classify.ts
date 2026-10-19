@@ -12,8 +12,9 @@ function isWeapon(item: HistoryItem): boolean {
   );
 }
 
-/** A ★ knife or glove pulled in red: the top-tier drop. */
+/** A knife or glove: the top-tier drop. Steam's rarity colour or ★ naming varies, so the type tag decides first. */
 export function isGold(item: HistoryItem): boolean {
+  if (item.type === ITEM_TAGS.knife || item.type === ITEM_TAGS.gloves) return true;
   return item.color === RARITY_COLOR.gold && item.name.includes(ITEM_TAGS.starName);
 }
 
