@@ -31,6 +31,15 @@ export function formatPercentPlain(ratio: number): string {
   );
 }
 
+/** An unsigned chance, precise enough for sub-1% odds, e.g. 0.05%. */
+export function formatChance(ratio: number): string {
+  return getFormatter("chance", {
+    style: "percent",
+    minimumFractionDigits: 1,
+    maximumFractionDigits: PERCENT_FRACTION_DIGITS,
+  }).format(ratio);
+}
+
 /** Signed money, e.g. +$12.40 / −$3.10. */
 export function formatSignedMoney(amount: number, currency: string): string {
   return getFormatter(`signed:${currency}`, {

@@ -52,20 +52,35 @@ export type InventoryResponse = {
 export type TradeUpOutcome = {
   readonly name: string;
   readonly imageUrl: string | null;
+  readonly rarityColor: string | null;
   readonly probability: number;
-  readonly float: number;
+  readonly float: number | null;
   readonly wearName: string;
   readonly price: number | null;
 };
 
-export type TradeUpResponse =
+/** Skins of one rarity that can go into a trade-up, cheapest first. */
+export type TradeUpCandidatesResponse =
   | { readonly ok: false; readonly reason: string }
   | {
       readonly ok: true;
-      readonly inputs: readonly ItemView[];
+      readonly rarityId: string;
+      readonly inputCount: number;
+      readonly candidates: readonly ItemView[];
+      readonly currency: string;
+    };
+
+export type TradeUpOddsResponse =
+  | { readonly ok: false; readonly reason: string }
+  | {
+      readonly ok: true;
+      readonly inputCount: number;
+      readonly selected: number;
       readonly averageFloat: number;
       readonly inputCost: number;
       readonly expectedValue: number;
+      /** Chance the result is worth more than the inputs cost. */
+      readonly chanceToProfit: number;
       readonly outcomes: readonly TradeUpOutcome[];
       readonly currency: string;
     };

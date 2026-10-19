@@ -30,7 +30,7 @@ import { getPriceBook } from "./prices/prices.ts";
 import { readSettings, SERVER_LIMITS } from "./server.config.ts";
 import { createRealGateway } from "./steam/steam.real.ts";
 import { UserFacingError } from "./steam/steam.types.ts";
-import { computeTradeUp, type TradeUpCandidate } from "./tradeup.ts";
+import { computeTradeUp, listTradeUpCandidates, type TradeUpCandidate } from "./tradeup.ts";
 
 const HTTP = {
   ok: 200,
@@ -343,7 +343,7 @@ const server = createServer(async (req, res) => {
       });
     }
 
-    if (path === STORAGE_API.tradeUp && method === "GET") {
+    if ((path === STORAGE_API.tradeUp || path === STORAGE_API.tradeUpOdds) && method === "GET") {
       requireReady();
       const scope = parseScope(url);
       const { currency } = scope;
@@ -352,7 +352,15 @@ const server = createServer(async (req, res) => {
       const candidates: TradeUpCandidate[] = collectItems(gateway, catalog, book).flatMap((c) =>
         c.skin ? [{ view: c.view, skin: c.skin }] : [],
       );
-      return sendJson(res, HTTP.ok, computeTradeUp(candidates, rarity, catalog, book, currency));
+      if (path === STORAGE_API.tradeUp) {
+        return sendJson(res, HTTP.ok, listTradeUpCandidates(candidates, rarity, catalog, currency));
+      }
+      const ids = (url.searchParams.get("ids") ?? "").split(",").filter(Boolean);
+      return sendJson(
+        res,
+        HTTP.ok,
+        computeTradeUp(candidates, ids, rarity, catalog, book, currency),
+      );
     }
 
     if (method === "POST") {
