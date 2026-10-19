@@ -4,6 +4,18 @@
 
 <h1 align="center">OpenInventory</h1>
 
+<table>
+  <tr>
+    <td align="center"><a href="docs/dashboard.png"><img src="docs/dashboard.png" alt="Dashboard" width="280" /></a><br /><sub>Dashboard</sub></td>
+    <td align="center"><a href="docs/items.png"><img src="docs/items.png" alt="Items" width="280" /></a><br /><sub>Items</sub></td>
+    <td align="center"><a href="docs/storage-units.png"><img src="docs/storage-units.png" alt="Storage units" width="280" /></a><br /><sub>Storage units</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="docs/cases.png"><img src="docs/cases.png" alt="Case openings" width="280" /></a><br /><sub>Case openings</sub></td>
+    <td align="center"><a href="docs/tradeup.png"><img src="docs/tradeup.png" alt="Trade-up" width="280" /></a><br /><sub>Trade-up</sub></td>
+  </tr>
+</table>
+
 Self-hosted CS2 inventory and storage unit tracker. Sign in once with the Steam mobile app and OpenInventory shows what you own, where it is, and what it's worth, with history that builds up over time. Everything is cached in a local SQLite file on your own server. OpenInventory talks to Steam (with your login), fetches public item data and Skinport prices, and your browser loads item images from Steam's CDN.
 
 - **Dashboard**: total value with 24h/7d/30d change, a value history chart you can switch between total, inventory and storage units over 1D to all time, a tabbed breakdown (type, rarity, wear, location) as a donut, top holdings, and your lowest floats, highest floats and largest stacks.

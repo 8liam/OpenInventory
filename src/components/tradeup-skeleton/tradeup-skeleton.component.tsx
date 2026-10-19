@@ -34,7 +34,7 @@ export function TradeUpSkeleton() {
         <MetricSkeleton label={copy.expectedReturn} />
       </div>
       <p className="text-xs text-muted-foreground">{copy.formulaNote}</p>
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+      <div className="flex flex-col gap-3">
         <Panel title={copy.inputs}>
           <ul className="flex flex-col gap-2">
             {Array.from({ length: TRADE_UP.inputCount }, (_, row) => (

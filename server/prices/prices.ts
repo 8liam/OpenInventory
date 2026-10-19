@@ -2,7 +2,11 @@ import type { Marketplace } from "../../src/lib/settings/settings.types.ts";
 import { PRICE_DATA } from "../../src/lib/storage/storage.config.ts";
 import type { Database } from "../db/db.types.ts";
 
-export type PriceEntry = { readonly price: number };
+export type PriceEntry = {
+  readonly price: number;
+  /** Doppler-family prices by phase ("Phase 1", "Ruby", ...), when the feed splits them out. */
+  readonly phases?: Readonly<Record<string, number>>;
+};
 export type PriceBook = {
   readonly byName: ReadonlyMap<string, PriceEntry>;
   readonly fetchedAt: number;
@@ -42,6 +46,23 @@ const PRICE_EXTRACTORS: Readonly<Record<Marketplace, (raw: unknown) => number | 
   lisskins: (raw) => asPrice(field(raw, "price")),
 };
 
+/** Feeds that list Doppler-family phase prices, and where they keep them. */
+const PHASE_EXTRACTORS: Partial<Readonly<Record<Marketplace, (raw: unknown) => unknown>>> = {
+  csfloat: (raw) => field(field(raw, "starting_at"), "doppler") ?? field(raw, "doppler"),
+  buff163: (raw) => field(field(raw, "starting_at"), "doppler"),
+  csmoney: (raw) => field(raw, "doppler"),
+};
+
+function phasePrices(raw: unknown, rate: number): Record<string, number> | undefined {
+  if (typeof raw !== "object" || raw === null) return undefined;
+  const phases: Record<string, number> = {};
+  for (const [phase, value] of Object.entries(raw)) {
+    const usd = asPrice(value);
+    if (usd !== null) phases[phase] = usd * rate;
+  }
+  return Object.keys(phases).length > 0 ? phases : undefined;
+}
+
 async function fetchJson(file: string): Promise<RawFeed> {
   const response = await fetch(`${PRICE_DATA.baseUrl}/${file}.json`, {
     signal: AbortSignal.timeout(PRICE_DATA.fetchTimeoutMs),
@@ -61,7 +82,9 @@ async function fetchBook(currency: string, marketplace: Marketplace): Promise<Pr
   const byName = new Map<string, PriceEntry>();
   for (const [name, raw] of Object.entries(feed)) {
     const usd = extract(raw);
-    if (usd !== null) byName.set(name, { price: usd * rate });
+    if (usd === null) continue;
+    const phases = phasePrices(PHASE_EXTRACTORS[marketplace]?.(raw), rate);
+    byName.set(name, phases ? { price: usd * rate, phases } : { price: usd * rate });
   }
   return { byName, fetchedAt: Date.now() };
 }
