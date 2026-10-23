@@ -15,8 +15,8 @@ const CROPS = [
   const src = 'src/assets/items.png';
   const top = 90, height = 520;
   const left = await sharp(src).extract({ left: 248, top, width: 440, height }).toBuffer();
-  const right = await sharp(src).extract({ left: 1385, top, width: 190, height }).toBuffer();
-  await sharp({ create: { width: 630, height, channels: 3, background: '#111113' } })
+  const right = await sharp(src).extract({ left: 1372, top, width: 203, height }).toBuffer();
+  await sharp({ create: { width: 643, height, channels: 3, background: '#111113' } })
     .composite([{ input: left, left: 0, top: 0 }, { input: right, left: 440, top: 0 }])
     .png({ compressionLevel: 9 })
     .toFile('src/assets/crops/items.png');

@@ -8,7 +8,9 @@
 .hdr__brand { display: inline-flex; align-items: center; gap: 0.7rem; font-weight: 600; letter-spacing: -0.01em; min-height: 44px; }
 .hdr__brand img { transition: rotate 0.7s var(--ease-out); }
 .hdr__brand span { transition: color 0.3s; }
-.hdr__brand:hover img, .hdr__brand:focus-visible img { rotate: 360deg; }
+.hdr__brand:hover img, .hdr__brand:focus-visible img { rotate: 360deg; scale: 1.18; }
+.hdr__brand span { background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: color 0.3s, background-size 0.5s var(--ease-out); padding-bottom: 2px; }
+.hdr__brand:hover span, .hdr__brand:focus-visible span { background-size: 100% 1px; }
 .hdr__brand:hover span, .hdr__brand:focus-visible span { color: var(--c-accent); }
 .hdr__nav { display: flex; gap: 2rem; font-size: var(--t-s); color: var(--c-muted); }
 .hdr__nav a:hover, .hdr__nav a:focus-visible { color: var(--c-fg); }
@@ -208,3 +210,12 @@
 
 /* Reserve the headline's four phone lines so the font swap cannot push the page. */
 @media (max-width: 520px) { .hero__title { min-height: calc(var(--t-mega) * 0.93 * 4); } }
+@media (max-width: 520px) { .hero__lede { min-height: calc(var(--t-m) * 1.38 * 4); } }
+
+/* Tap targets and mobile polish */
+.foot__links a { display: inline-block; min-height: 28px; padding-block: 2px; }
+.chapter__fig { display: grid; gap: 0.35rem; margin-top: 2rem; font-size: clamp(3rem, 2rem + 6vw, 4.5rem); line-height: 1; letter-spacing: -0.05em; font-weight: 600; color: var(--c-accent); font-variant-numeric: tabular-nums; }
+.chapter__fig .mono { font-size: var(--t-xs); letter-spacing: 0.04em; font-weight: 400; }
+@media (min-width: 960px) { .chapter__fig { display: none; } }
+.shot--inline { margin-top: 1.5rem; }
+.chapter__fig.is-neg { color: #ff7a6b; }

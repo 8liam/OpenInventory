@@ -20,6 +20,7 @@ const total = String(story.chapters.length).padStart(2, '0');
               {c.points.map((p) => <li>{p}</li>)}
             </ul>
           </div>
+          <p class={`chapter__fig${c.figure.value < 0 ? ' is-neg' : ''}`} aria-hidden="true">{`${c.figure.value < 0 ? '-' : ''}${c.figure.prefix}${Math.abs(c.figure.value).toLocaleString('en-US', { minimumFractionDigits: c.figure.decimals, maximumFractionDigits: c.figure.decimals })}${c.figure.suffix}`}<span class="mono muted">{c.figure.label}</span></p>
           <div class="shot shot--inline">
             <Image src={c.crop} alt={c.alt} widths={[420, 640, 840]} sizes="(min-width: 700px) 640px, 94vw" format="webp" quality={85} loading="lazy" decoding="async" />
           </div>

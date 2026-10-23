@@ -3,14 +3,14 @@
   src: url('/fonts/geist-400_700-normal.woff2') format('woff2');
   font-weight: 400 700;
   font-style: normal;
-  font-display: optional;
+  font-display: swap;
 }
 @font-face {
   font-family: 'Geist Mono';
   src: url('/fonts/geist-mono-400_500-normal.woff2') format('woff2');
   font-weight: 400 500;
   font-style: normal;
-  font-display: optional;
+  font-display: swap;
 }
 
 /* Metric-matched fallbacks so the swap to Geist does not shift layout (size-adjust measured against Arial). */
