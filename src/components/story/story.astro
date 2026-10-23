@@ -20,8 +20,8 @@ const total = String(story.chapters.length).padStart(2, '0');
               {c.points.map((p) => <li>{p}</li>)}
             </ul>
           </div>
-          <div class="shot shot--inline" tabindex="0" role="region" aria-label={`${c.view} screenshot, scrollable`}>
-            <Image src={c.image} alt={c.alt} widths={[640, 960, 1280]} sizes="94vw" format="webp" quality={80} loading="lazy" decoding="async" />
+          <div class="shot shot--inline">
+            <Image src={c.crop} alt={c.alt} widths={[420, 640, 840]} sizes="(min-width: 700px) 640px, 94vw" format="webp" quality={85} loading="lazy" decoding="async" />
           </div>
         </li>
       ))}

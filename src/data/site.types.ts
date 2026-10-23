@@ -12,6 +12,7 @@ export type Chapter = {
   points: readonly string[];
   alt: string;
   image: ImageMetadata;
+  crop: ImageMetadata;
 };
 
 export type Stat = { value: string; label: string; note: string };

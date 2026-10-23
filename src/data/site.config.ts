@@ -3,6 +3,11 @@ import items from '../assets/items.png';
 import storage from '../assets/storage-units.png';
 import cases from '../assets/cases.png';
 import tradeup from '../assets/tradeup.png';
+import cropDashboard from '../assets/crops/dashboard.png';
+import cropItems from '../assets/crops/items.png';
+import cropStorage from '../assets/crops/storage.png';
+import cropCases from '../assets/crops/cases.png';
+import cropTradeup from '../assets/crops/tradeup.png';
 import type { Chapter, ConfigPoint, ConfigRow, Stat } from './site.types';
 
 export const site = {
@@ -56,6 +61,7 @@ export const story = {
       points: ['Breakdown by type, rarity, wear and location', 'Lowest floats, highest floats and largest stacks'],
       alt: 'Dashboard with a $4,045.19 total, a green value history line and a donut breakdown by item type.',
       image: dashboard,
+      crop: cropDashboard,
     },
     {
       id: 'items',
@@ -67,6 +73,7 @@ export const story = {
       points: ['Filter by location and type', 'Sort by float or price'],
       alt: 'Items table of 1,675 rows with float values and prices, topped by a Butterfly Knife Vanilla at $1,062.86.',
       image: items,
+      crop: cropItems,
     },
     {
       id: 'storage',
@@ -78,6 +85,7 @@ export const story = {
       points: ['Per-unit value and item count', 'Contents copied from the Game Coordinator'],
       alt: 'Storage units page listing four units with item counts and values, and a table of the selected unit contents.',
       image: storage,
+      crop: cropStorage,
     },
     {
       id: 'cases',
@@ -89,6 +97,7 @@ export const story = {
       points: ['Rarity split and rarest pulls', 'Most opened and per-month volume'],
       alt: 'Case openings page: 412 cases opened, a rarity donut, cases per month bars and a list of rarest pulls.',
       image: cases,
+      crop: cropCases,
     },
     {
       id: 'tradeup',
@@ -100,6 +109,7 @@ export const story = {
       points: ['Input cost, average float, expected return', 'Chance to profit and every possible outcome'],
       alt: 'Trade-up calculator with five Covert inputs, an expected return of minus 20.03 percent and a list of possible knife outcomes.',
       image: tradeup,
+      crop: cropTradeup,
     },
   ] satisfies readonly Chapter[],
 } as const;

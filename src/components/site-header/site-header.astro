@@ -7,9 +7,12 @@ import { nav, site } from '../../data/site.config';
       <img src="/logo.svg" alt="" width="28" height="28" />
       <span>{site.name}</span>
     </a>
-    <nav aria-label="Primary" class="hdr__nav">
+    <nav aria-label="Primary" class="hdr__nav" id="primary-nav">
       {nav.map((n) => <a class="link" href={n.href}>{n.label}</a>)}
+      <a class="hdr__gh link" href={site.repo} rel="noopener">GitHub<span aria-hidden="true"> ↗</span></a>
     </nav>
-    <a class="hdr__gh link" href={site.repo} rel="noopener">GitHub<span aria-hidden="true"> ↗</span></a>
+    <button type="button" class="hdr__menu" aria-expanded="false" aria-controls="primary-nav" data-menu>
+      <span class="hdr__menu-l" data-menu-label>Menu</span>
+    </button>
   </div>
 </header>

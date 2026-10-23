@@ -22,6 +22,21 @@ document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
   });
 });
 
+/* Mobile menu */
+const menuBtn = document.querySelector<HTMLButtonElement>('[data-menu]');
+const menuNav = document.getElementById('primary-nav');
+if (menuBtn && menuNav) {
+  const label = menuBtn.querySelector<HTMLElement>('[data-menu-label]');
+  const set = (open: boolean) => {
+    menuBtn.setAttribute('aria-expanded', String(open));
+    menuNav.classList.toggle('is-open', open);
+    if (label) label.textContent = open ? 'Close' : 'Menu';
+  };
+  menuBtn.addEventListener('click', () => set(menuBtn.getAttribute('aria-expanded') !== 'true'));
+  menuNav.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => set(false)));
+  addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
+}
+
 const seen = document.documentElement.classList.contains('seen');
 sessionStorage.setItem('oi-seen', '1');
 
@@ -47,7 +62,7 @@ if (!reduced) {
     if (seen) text.textContent = fmt.format(target);
     else {
     text.textContent = fmt.format(0);
-    gsap.to(o, { v: target, duration: 1.8, delay: 0.3, ease: 'expo.out', onUpdate: () => { text.textContent = fmt.format(o.v); } });
+    gsap.to(o, { v: target, duration: 1.2, delay: 0.2, ease: 'expo.out', onUpdate: () => { text.textContent = fmt.format(o.v); } });
     }
   }
 
