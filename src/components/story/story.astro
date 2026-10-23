@@ -1,0 +1,45 @@
+---
+import { Image } from 'astro:assets';
+import { story } from '../../data/site.config';
+const total = String(story.chapters.length).padStart(2, '0');
+---
+<section class="story" id={story.id} aria-labelledby="story-title" data-story>
+  <div class="wrap story__head">
+    <h2 id="story-title" class="h-xl" data-reveal>{story.heading}</h2>
+  </div>
+
+  <div class="wrap story__grid">
+    <ol class="story__chapters">
+      {story.chapters.map((c, i) => (
+        <li class="chapter" data-chapter={i} id={c.id}>
+          <div class="chapter__copy" data-reveal>
+            <p class="mono muted chapter__idx">{String(i + 1).padStart(2, '0')} / {total} <span aria-hidden="true">·</span> {c.view}</p>
+            <h3 class="h-l">{c.title}</h3>
+            <p class="chapter__body">{c.body}</p>
+            <ul class="ticks">
+              {c.points.map((p) => <li>{p}</li>)}
+            </ul>
+          </div>
+          <div class="shot shot--inline">
+            <Image src={c.image} alt={c.alt} widths={[640, 960, 1280]} sizes="94vw" format="webp" quality={80} loading="lazy" decoding="async" />
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <div class="story__stage" aria-hidden="true">
+      <div class="story__sticky">
+        <div class="shot shot--stage">
+          {story.chapters.map((c, i) => (
+            <div class="layer" data-layer={i} data-on={i === 0 ? '' : undefined}>
+              <Image src={c.image} alt="" widths={[960, 1280, 1600]} sizes="(min-width: 1500px) 880px, 56vw" format="webp" quality={82} loading="lazy" decoding="async" />
+            </div>
+          ))}
+        </div>
+        <p class="stage__cap mono" data-stage-cap>
+          <span data-stage-idx>01</span> / {total} <span class="muted" data-stage-route>{story.chapters[0].route}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

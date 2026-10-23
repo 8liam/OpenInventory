@@ -1,0 +1,15 @@
+---
+import { nav, site } from '../../data/site.config';
+---
+<header class="hdr">
+  <div class="wrap hdr__in">
+    <a class="hdr__brand" href="/" aria-label={`${site.name}, home`}>
+      <img src="/logo.svg" alt="" width="28" height="28" />
+      <span>{site.name}</span>
+    </a>
+    <nav aria-label="Primary" class="hdr__nav">
+      {nav.map((n) => <a class="link" href={n.href}>{n.label}</a>)}
+    </nav>
+    <a class="hdr__gh link" href={site.repo} rel="noopener">GitHub<span aria-hidden="true"> ↗</span></a>
+  </div>
+</header>

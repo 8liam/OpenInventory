@@ -1,0 +1,17 @@
+---
+import { numbers } from '../../data/site.config';
+---
+<section class="numbers" aria-labelledby="numbers-title">
+  <div class="wrap">
+    <h2 id="numbers-title" class="h-l numbers__h" data-reveal>{numbers.heading}</h2>
+    <ul class="numbers__grid">
+      {numbers.stats.map((s, i) => (
+        <li class="stat" data-reveal style={`--d:${i * 0.07}s`}>
+          <p class="stat__v"><span class="sr-only">{s.value} {s.label}.</span><span aria-hidden="true">{s.value}</span></p>
+          <p class="stat__l mono" aria-hidden="true">{s.label}</p>
+          <p class="stat__n muted">{s.note}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

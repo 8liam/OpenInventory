@@ -1,0 +1,47 @@
+@font-face {
+  font-family: 'Geist';
+  src: url('/fonts/geist-400_700-normal.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/geist-mono-400_500-normal.woff2') format('woff2');
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Palette, named by role. Emerald is the value line from the product's own chart. */
+  --c-bg: #0a0a0b;
+  --c-surface: #111113;
+  --c-fg: #f3f2ee;
+  --c-muted: #9a9a96;
+  --c-line: rgb(255 255 255 / 0.11);
+  --c-accent: #2bd49a;
+  --c-accent-ink: #04140d;
+
+  --f-body: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --f-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --t-mega: clamp(2.9rem, 0.9rem + 8.4vw, 9.5rem);
+  --t-xl: clamp(2.4rem, 1.2rem + 4.6vw, 5.75rem);
+  --t-l: clamp(1.7rem, 1.2rem + 2vw, 3rem);
+  --t-m: clamp(1.2rem, 1.05rem + 0.6vw, 1.5rem);
+  --t-body: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
+  --t-s: 0.875rem;
+  --t-xs: 0.75rem;
+
+  --u: clamp(0.5rem, 0.35rem + 0.6vw, 1rem);
+  --gutter: clamp(1.25rem, 0.6rem + 2.6vw, 3rem);
+  --max: 92rem;
+  --radius: 14px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
+
+  --z-content: 1;
+  --z-header: 50;
+}

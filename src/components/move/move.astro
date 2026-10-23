@@ -1,0 +1,23 @@
+---
+import { move } from '../../data/site.config';
+---
+<section class="move" id={move.id} aria-labelledby="move-title">
+  <div class="wrap move__grid">
+    <div class="move__lead">
+      <h2 id="move-title" class="h-xl" data-reveal>{move.heading}</h2>
+      <p class="move__body" data-reveal>{move.body}</p>
+    </div>
+    <ol class="steps">
+      {move.steps.map((s, i) => (
+        <li class="step" data-reveal style={`--d:${i * 0.08}s`}>
+          <span class="step__n mono" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          <div>
+            <h3 class="h-m">{s.title}</h3>
+            <p class="muted">{s.body}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+    <p class="move__caveat" data-reveal><span class="mono">Heads up</span> {move.caveat}</p>
+  </div>
+</section>

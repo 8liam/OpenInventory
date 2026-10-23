@@ -1,0 +1,18 @@
+---
+import { footer, site } from '../../data/site.config';
+---
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__top">
+      <a class="btn btn--solid" href={site.repo} rel="noopener">
+        <span class="btn__label"><span data-text={footer.cta}>{footer.cta}</span></span>
+        <span class="btn__arrow" aria-hidden="true">↗</span>
+      </a>
+      <ul class="foot__links">
+        {footer.links.map((l) => <li><a class="link" href={l.href} rel="noopener">{l.label}</a></li>)}
+      </ul>
+    </div>
+    <p class="foot__word" aria-hidden="true">{footer.wordmark}</p>
+    <p class="foot__legal muted">{footer.legal}</p>
+  </div>
+</footer>

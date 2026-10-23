@@ -1,16 +1,19 @@
 ---
+import Base from '../layouts/Base.astro';
+import SiteHeader from '../components/site-header/site-header.astro';
+import Hero from '../components/hero/hero.astro';
+import Story from '../components/story/story.astro';
+import Numbers from '../components/numbers/numbers.astro';
+import Move from '../components/move/move.astro';
+import SelfHost from '../components/self-host/self-host.astro';
+import SiteFooter from '../components/site-footer/site-footer.astro';
 ---
-
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Base>
+  <SiteHeader slot="header" />
+  <Hero />
+  <Story />
+  <Numbers />
+  <Move />
+  <SelfHost />
+  <SiteFooter slot="footer" />
+</Base>
