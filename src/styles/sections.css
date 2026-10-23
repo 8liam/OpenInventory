@@ -3,7 +3,7 @@
 .h-m { font-size: var(--t-m); line-height: 1.2; letter-spacing: -0.02em; font-weight: 600; }
 
 /* Header */
-.hdr { position: fixed; inset: 0 0 auto; z-index: var(--z-header); background: rgb(10 10 11 / 0.97); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--c-line); }
+.hdr { position: fixed; inset: 0 0 auto; z-index: var(--z-header); background: rgb(10 10 11 / 1); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--c-line); }
 .hdr__in { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; height: 4.5rem; }
 .hdr__brand { display: inline-flex; align-items: center; gap: 0.7rem; font-weight: 600; letter-spacing: -0.01em; min-height: 44px; }
 .hdr__brand img { transition: rotate 0.7s var(--ease-out); }
@@ -13,7 +13,7 @@
 .hdr__nav { display: flex; gap: 2rem; font-size: var(--t-s); color: var(--c-muted); }
 .hdr__nav a:hover, .hdr__nav a:focus-visible { color: var(--c-fg); }
 .hdr__gh { font-size: var(--t-s); }
-@media (max-width: 760px) { .hdr__nav { gap: 1.1rem; } .hdr__nav a { font-size: 0.8rem; } .hdr__in { gap: 0.75rem; } .hdr__gh { display: none; } }
+@media (max-width: 760px) { .hdr__nav { gap: 1.1rem; } .hdr__nav { gap: 0.8rem; } .hdr__nav a, .hdr__gh { font-size: 0.78rem; } .hdr__in { gap: 0.6rem; } }
 @media (max-width: 520px) { .hdr__brand span { display: none; } }
 
 /* Hero */
@@ -136,7 +136,7 @@
 .sec { list-style: none; padding: 0; display: grid; gap: 2rem; }
 @media (min-width: 900px) { .sec { grid-template-columns: repeat(3, 1fr); gap: 2.5rem; } }
 .sec li { border-top: 1px solid var(--c-line); padding-top: 1.1rem; }
-.sec p { margin-top: 0.5rem; font-size: var(--t-s); }
+.sec p { margin-top: 0.5rem; font-size: 1rem; }
 
 /* Footer */
 .foot { padding-top: clamp(3rem, 6vw, 6rem); border-top: 1px solid var(--c-line); overflow: clip; }
@@ -152,8 +152,10 @@
 
 /* Phones: crop screenshots to the main panel so the data stays readable. */
 @media (max-width: 959px) {
-  .shot--inline { aspect-ratio: 4 / 3; }
-  .shot--inline img { width: 270%; max-width: none; margin-left: -37.5%; aspect-ratio: 16 / 10; height: auto; }
+  .shot--inline { overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }
+  .shot--inline::-webkit-scrollbar { display: none; }
+  .shot--inline img { width: 230%; max-width: none; aspect-ratio: 16 / 10; height: auto; }
+  .shot--inline::after { content: 'Swipe to pan'; position: sticky; left: 0; display: block; width: max-content; padding: 0.5rem 0.9rem; font-family: var(--f-mono); font-size: var(--t-xs); text-transform: uppercase; letter-spacing: 0.05em; color: var(--c-muted); }
 }
 @media (max-width: 699px) {
   .hero__stage { padding-inline: 0; }
