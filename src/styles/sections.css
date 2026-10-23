@@ -49,7 +49,7 @@
 .hero__row { position: relative; display: grid; gap: 2.5rem; margin-top: clamp(2rem, 1rem + 3vw, 4rem); align-items: end; }
 @media (min-width: 900px) { .hero__row { grid-template-columns: minmax(0, 1fr) minmax(0, 26rem); gap: 4rem; } }
 .hero__lede { font-size: var(--t-m); line-height: 1.38; letter-spacing: -0.015em; max-width: 34ch; color: var(--c-muted); }
-.hero__lede::first-line { color: var(--c-fg); }
+.hero__lede strong { color: var(--c-fg); font-weight: 400; }
 .hero__cta { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
 
 .readout { padding: 1.25rem 1.4rem 1.1rem; border: 1px solid var(--c-line); border-radius: var(--radius); background: rgb(17 17 19 / 0.7); }
@@ -94,22 +94,28 @@
   .story__stage { display: block; }
   .story__sticky { position: sticky; top: 12vh; }
   .shot--stage { position: relative; aspect-ratio: 16 / 10; }
-  .layer { position: absolute; inset: 0; opacity: 0; clip-path: inset(0 0 100% 0); transition: clip-path 0.9s var(--ease-in-out), opacity 0.4s linear 0.45s; }
-  .layer[data-on] { opacity: 1; clip-path: inset(0); transition: clip-path 0.9s var(--ease-in-out), opacity 0.2s linear; z-index: 1; }
-  .layer img { height: 100%; }
+  .layer { position: absolute; inset: 0; pointer-events: none; }
+  .layer__img { position: absolute; inset: 0; border: 1px solid var(--c-line); border-radius: var(--radius); overflow: clip; background: var(--c-surface); box-shadow: 0 40px 120px -30px rgb(43 212 154 / 0.22); opacity: 0; clip-path: inset(0 0 100% 0); transition: clip-path 0.9s var(--ease-in-out), opacity 0.4s linear 0.45s; }
+  .layer[data-on] .layer__img { opacity: 1; clip-path: inset(0); transition: clip-path 0.9s var(--ease-in-out), opacity 0.2s linear; z-index: 1; }
+  .layer__img img { height: 100%; }
+  .lens { position: absolute; z-index: 2; right: 0; bottom: -12%; width: 48%; border: 1px solid rgb(43 212 154 / 0.45); border-radius: var(--radius); overflow: clip; background: var(--c-surface); box-shadow: 0 30px 80px -10px rgb(0 0 0 / 0.85), 0 0 0 6px var(--c-bg); opacity: 0; translate: 24px 24px; transition: opacity 0.5s var(--ease-out) 0.55s, translate 0.9s var(--ease-out) 0.55s; }
+  .layer[data-on] .lens { opacity: 1; translate: 0 0; }
+  .lens img { width: 100%; height: auto; aspect-ratio: auto; }
+  .shot--stage { overflow: visible; border: 0; background: none; box-shadow: none; }
+  .stage__cap { padding-left: 0; margin-top: 3.5rem; }
   .stage__cap { margin-top: 1.25rem; display: grid; gap: 0.35rem; }
   .stage__fig.is-neg { color: #ff7a6b; }
   .stage__fig { font-size: clamp(2.6rem, 1.6rem + 3vw, 5rem); line-height: 1; letter-spacing: -0.05em; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c-accent); }
 }
 
 /* Numbers */
-.numbers { padding-block: clamp(6rem, 4rem + 10vw, 13rem); border-top: 1px solid var(--c-line); margin-top: clamp(3rem, 8vw, 8rem); }
+.numbers { padding-block: clamp(6rem, 4rem + 10vw, 13rem); border-top: 1px solid var(--c-line); margin-top: 0; }
 .numbers__h { margin-bottom: clamp(2rem, 5vw, 5rem); }
 .numbers__grid { list-style: none; padding: 0; display: grid; gap: 3rem 2rem; }
 @media (min-width: 700px) { .numbers__grid { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 1180px) { .numbers__grid { grid-template-columns: repeat(4, 1fr); } }
 .stat { border-top: 1px solid var(--c-line); padding-top: 1.25rem; }
-.stat__v { font-size: clamp(4rem, 2rem + 6.4vw, 8rem); line-height: 0.9; letter-spacing: -0.06em; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c-fg); }
+.stat__v { font-size: clamp(3.5rem, 1.5rem + 5.2vw, 6.75rem); line-height: 0.9; letter-spacing: -0.06em; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c-fg); }
 .stat__l { margin-top: 1rem; color: var(--c-accent); }
 .stat__n { margin-top: 0.75rem; font-size: var(--t-s); max-width: 30ch; }
 
@@ -196,3 +202,6 @@
 
 .skip-link { top: -5rem !important; transform: none !important; }
 .skip-link:focus-visible { top: 5.25rem !important; }
+
+.term__code { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 959px) { .shot--inline { border-radius: var(--radius); } }

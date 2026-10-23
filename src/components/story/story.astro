@@ -32,7 +32,8 @@ const total = String(story.chapters.length).padStart(2, '0');
         <div class="shot shot--stage">
           {story.chapters.map((c, i) => (
             <div class="layer" data-layer={i} data-on={i === 0 ? '' : undefined}>
-              <Image src={c.image} alt="" widths={[960, 1280, 1600]} sizes="(min-width: 1500px) 880px, 56vw" format="webp" quality={82} loading="lazy" decoding="async" />
+              <div class="layer__img"><Image src={c.image} alt="" widths={[960, 1280, 1600]} sizes="(min-width: 1500px) 880px, 56vw" format="webp" quality={82} loading="lazy" decoding="async" /></div>
+              <div class="lens"><Image src={c.crop} alt="" widths={[480, 720]} sizes="460px" format="webp" quality={86} loading="lazy" decoding="async" /></div>
             </div>
           ))}
         </div>

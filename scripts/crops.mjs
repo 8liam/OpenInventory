@@ -7,7 +7,7 @@ const CROPS = [
   { src: 'items', name: 'items', left: 248, top: 90, width: 760, height: 520 },
   { src: 'storage-units', name: 'storage', left: 248, top: 90, width: 640, height: 520 },
   { src: 'cases', name: 'cases', left: 248, top: 200, width: 560, height: 620 },
-  { src: 'tradeup', name: 'tradeup', left: 248, top: 555, width: 620, height: 420 },
+  { src: 'tradeup', name: 'tradeup', left: 248, top: 555, width: 540, height: 420 },
 ];
 
 // Items: name column plus float and price columns, stitched so phones see what each skin is worth.

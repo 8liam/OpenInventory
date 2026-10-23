@@ -15,7 +15,7 @@ const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' 
 
     <div class="hero__row">
       <div class="hero__copy">
-        <p class="hero__lede">{hero.lede}</p>
+        <p class="hero__lede"><strong>{hero.ledeLead}</strong>{hero.lede.slice(hero.ledeLead.length)}</p>
         <div class="hero__cta">
           <a class="btn btn--solid" href={hero.primary.href}>
             <span class="btn__label"><span data-text={hero.primary.label}>{hero.primary.label}</span></span>

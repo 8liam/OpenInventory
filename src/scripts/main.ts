@@ -121,8 +121,8 @@ if (layers.length) {
   document.querySelectorAll<HTMLElement>('[data-chapter]').forEach((ch) => {
     ScrollTrigger.create({
       trigger: ch,
-      start: 'top 55%',
-      end: 'bottom 55%',
+      start: 'top 30%',
+      end: 'bottom 30%',
       onToggle: (st) => { if (st.isActive) activate(Number(ch.dataset.chapter)); },
     });
   });

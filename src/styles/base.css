@@ -64,6 +64,9 @@ html.lenis, html.lenis body { height: auto; }
 }
 .btn:hover::before, .btn:focus-visible::before { transform: none; }
 .btn:hover, .btn:focus-visible { color: var(--c-accent-ink); border-color: var(--c-accent); }
+.btn:hover, .btn:focus-visible { color: var(--c-accent-ink); border-color: var(--c-accent); }
+.btn:not(.btn--solid)::before { background: var(--c-fg); }
+.btn:not(.btn--solid):hover, .btn:not(.btn--solid):focus-visible { color: var(--c-bg); border-color: var(--c-fg); }
 .btn:active { scale: 0.97; }
 .btn__arrow { transition: transform 0.55s var(--ease-out); }
 .btn:hover .btn__arrow, .btn:focus-visible .btn__arrow { transform: translateX(4px); }

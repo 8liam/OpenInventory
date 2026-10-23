@@ -32,6 +32,7 @@ export const nav = [
 export const hero = {
   headline: 'Know what you own, where it sits, and what it is worth.',
   lede: 'OpenInventory is a self-hosted tracker for your CS2 inventory and storage units. Sign in once with the Steam mobile app and it keeps the history for you.',
+  ledeLead: 'OpenInventory is a self-hosted tracker',
   primary: { label: 'Run with Docker', href: '#self-host' },
   secondary: { label: 'View on GitHub', href: site.repo },
   readout: {
