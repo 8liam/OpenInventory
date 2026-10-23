@@ -205,3 +205,6 @@
 
 .term__code { white-space: pre-wrap; overflow-wrap: anywhere; }
 @media (max-width: 959px) { .shot--inline { border-radius: var(--radius); } }
+
+/* Reserve the headline's four phone lines so the font swap cannot push the page. */
+@media (max-width: 520px) { .hero__title { min-height: calc(var(--t-mega) * 0.93 * 4); } }

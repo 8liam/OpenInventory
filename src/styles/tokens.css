@@ -13,6 +13,11 @@
   font-display: swap;
 }
 
+/* Metric-matched fallbacks so the swap to Geist does not shift layout (size-adjust measured against Arial). */
+@font-face { font-family: 'Geist Fallback'; src: local('Arial'); font-weight: 400 500; size-adjust: 102.5%; }
+@font-face { font-family: 'Geist Fallback'; src: local('Arial'); font-weight: 600 700; size-adjust: 99%; }
+@font-face { font-family: 'Geist Mono Fallback'; src: local('Courier New'); size-adjust: 100%; }
+
 :root {
   /* Palette, named by role. Emerald is the value line from the product's own chart. */
   --c-bg: #0a0a0b;
@@ -23,8 +28,8 @@
   --c-accent: #2bd49a;
   --c-accent-ink: #04140d;
 
-  --f-body: 'Geist', ui-sans-serif, system-ui, sans-serif;
-  --f-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --f-body: 'Geist', 'Geist Fallback', ui-sans-serif, system-ui, sans-serif;
+  --f-mono: 'Geist Mono', 'Geist Mono Fallback', ui-monospace, 'SF Mono', Menlo, monospace;
 
   --t-mega: clamp(2.9rem, 0.9rem + 8.4vw, 9.5rem);
   --t-xl: clamp(2.4rem, 1.2rem + 4.6vw, 5.75rem);
