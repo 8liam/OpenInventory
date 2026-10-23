@@ -28,7 +28,7 @@
 .motion .live { animation: live 2.2s ease-out infinite; }
 @keyframes live { 0% { box-shadow: 0 0 0 0 rgb(43 212 154 / 0.6); } 100% { box-shadow: 0 0 0 0.9rem rgb(43 212 154 / 0); } }
 .hero__title { font-size: var(--t-mega); line-height: 0.93; letter-spacing: -0.055em; max-width: 14ch; margin-left: -0.04em; }
-.w { display: inline-block; overflow: clip; vertical-align: top; padding-bottom: 0.1em; margin-bottom: -0.1em; margin-right: 0.22em; }
+.w { display: inline-block; overflow: clip; vertical-align: top; padding-bottom: 0.1em; margin-bottom: -0.1em; }
 .w__in { display: inline-block; animation: word-up 1.2s var(--ease-out) both; animation-delay: calc(var(--i) * 0.055s + 0.05s); }
 @keyframes word-up { from { transform: translateY(105%); } }
 
