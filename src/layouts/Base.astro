@@ -56,6 +56,7 @@ const jsonLd = {
     <link rel="preload" href="/fonts/geist-mono-400_500-normal.woff2" as="font" type="font/woff2" crossorigin />
     <script is:inline>
       document.documentElement.classList.add('js');
+      if (sessionStorage.getItem('oi-seen')) document.documentElement.classList.add('seen');
       if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion');
     </script>
   </head>

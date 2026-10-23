@@ -22,6 +22,9 @@ document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
   });
 });
 
+const seen = document.documentElement.classList.contains('seen');
+sessionStorage.setItem('oi-seen', '1');
+
 if (!reduced) {
   // One clock: Lenis rides the GSAP ticker, ScrollTrigger reads Lenis.
   const lenis = new Lenis({ lerp: 0.1, anchors: true });
@@ -41,8 +44,11 @@ if (!reduced) {
     const target = Number(count.dataset.count);
     const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
     const o = { v: 0 };
+    if (seen) text.textContent = fmt.format(target);
+    else {
     text.textContent = fmt.format(0);
-    gsap.to(o, { v: target, duration: 2.4, delay: 0.5, ease: 'expo.out', onUpdate: () => { text.textContent = fmt.format(o.v); } });
+    gsap.to(o, { v: target, duration: 1.8, delay: 0.3, ease: 'expo.out', onUpdate: () => { text.textContent = fmt.format(o.v); } });
+    }
   }
 
   // Hero screenshot settles flat as you scroll.
