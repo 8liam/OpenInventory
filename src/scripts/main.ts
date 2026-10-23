@@ -76,22 +76,31 @@ if (!reduced) {
   }
 }
 
-/* Story stage: the active chapter picks the screenshot. Works with or without smooth scroll. */
+/* Story stage: the active chapter picks the screenshot and re-reads the ledger figure. */
 const layers = [...document.querySelectorAll<HTMLElement>('[data-layer]')];
-const idx = document.querySelector<HTMLElement>('[data-stage-idx]');
+const fig = document.querySelector<HTMLElement>('[data-fig]');
+const figLabel = document.querySelector<HTMLElement>('[data-fig-label]');
 const route = document.querySelector<HTMLElement>('[data-stage-route]');
+const fmtFig = (f: (typeof story.chapters)[number]['figure'], v: number) =>
+  `${v < 0 ? '-' : ''}${f.prefix}${Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: f.decimals, maximumFractionDigits: f.decimals })}${f.suffix}`;
+const shown = { v: story.chapters[0].figure.value };
 if (layers.length) {
   const activate = (i: number) => {
     layers.forEach((l, n) => (n === i ? l.setAttribute('data-on', '') : l.removeAttribute('data-on')));
-    if (idx) idx.textContent = String(i + 1).padStart(2, '0');
-    if (route) route.textContent = story.chapters[i]?.route ?? '';
+    const c = story.chapters[i];
+    if (!c) return;
+    if (route) route.textContent = c.route;
+    if (figLabel) figLabel.textContent = c.figure.label;
+    if (!fig) return;
+    if (reduced) { fig.textContent = fmtFig(c.figure, c.figure.value); return; }
+    gsap.to(shown, { v: c.figure.value, duration: 1.1, ease: 'expo.out', overwrite: true, onUpdate: () => { fig.textContent = fmtFig(c.figure, shown.v); } });
   };
   document.querySelectorAll<HTMLElement>('[data-chapter]').forEach((ch) => {
     ScrollTrigger.create({
       trigger: ch,
       start: 'top 55%',
       end: 'bottom 55%',
-      onToggle: (s) => { if (s.isActive) activate(Number(ch.dataset.chapter)); },
+      onToggle: (st) => { if (st.isActive) activate(Number(ch.dataset.chapter)); },
     });
   });
 }

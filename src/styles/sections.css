@@ -3,7 +3,7 @@
 .h-m { font-size: var(--t-m); line-height: 1.2; letter-spacing: -0.02em; font-weight: 600; }
 
 /* Header */
-.hdr { position: fixed; inset: 0 0 auto; z-index: var(--z-header); background: rgb(10 10 11 / 0.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--c-line); }
+.hdr { position: fixed; inset: 0 0 auto; z-index: var(--z-header); background: rgb(10 10 11 / 0.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--c-line); }
 .hdr__in { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; height: 4.5rem; }
 .hdr__brand { display: inline-flex; align-items: center; gap: 0.7rem; font-weight: 600; letter-spacing: -0.01em; min-height: 44px; }
 .hdr__brand img { transition: rotate 0.7s var(--ease-out); }
@@ -13,7 +13,8 @@
 .hdr__nav { display: flex; gap: 2rem; font-size: var(--t-s); color: var(--c-muted); }
 .hdr__nav a:hover, .hdr__nav a:focus-visible { color: var(--c-fg); }
 .hdr__gh { font-size: var(--t-s); }
-@media (max-width: 760px) { .hdr__nav { display: none; } }
+@media (max-width: 760px) { .hdr__nav { gap: 1.1rem; } .hdr__nav a:nth-child(2) { display: none; } .hdr__in { gap: 0.75rem; } }
+@media (max-width: 520px) { .hdr__brand span { display: none; } }
 
 /* Hero */
 .hero { position: relative; padding-top: clamp(7rem, 5rem + 8vw, 11rem); overflow: clip; }
@@ -52,7 +53,7 @@
 .readout__parts { display: grid; grid-template-columns: repeat(3, auto); justify-content: space-between; gap: 1rem; padding-top: 0.9rem; border-top: 1px solid var(--c-line); }
 .readout__parts dd { font-variant-numeric: tabular-nums; font-weight: 500; margin-top: 0.15rem; font-size: var(--t-s); }
 
-.hero__stage { position: relative; margin-top: clamp(3rem, 2rem + 5vw, 6rem); padding-inline: var(--gutter); perspective: 1800px; }
+.hero__stage { position: relative; max-height: min(58vw, 760px); overflow: clip; margin-top: clamp(3rem, 2rem + 5vw, 6rem); padding-inline: var(--gutter); perspective: 1800px; }
 .hero__stage::after { content: ''; position: absolute; inset: 55% 0 0; background: linear-gradient(transparent, var(--c-bg) 92%); pointer-events: none; }
 .hero__stage .shot { max-width: 78rem; margin-inline: auto; }
 
@@ -60,7 +61,7 @@
 .shot img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
 
 /* Story */
-.story { padding-top: clamp(5rem, 3rem + 8vw, 11rem); }
+.story { padding-top: clamp(3rem, 2rem + 4vw, 6rem); }
 .story__head { margin-bottom: clamp(1rem, 4vw, 4rem); }
 .story__stage { display: none; }
 .chapter { list-style: none; padding-block: clamp(3rem, 8vw, 5rem); }
@@ -83,7 +84,8 @@
   .layer { position: absolute; inset: 0; opacity: 0; clip-path: inset(0 0 100% 0); transition: clip-path 0.9s var(--ease-in-out), opacity 0.4s linear 0.45s; }
   .layer[data-on] { opacity: 1; clip-path: inset(0); transition: clip-path 0.9s var(--ease-in-out), opacity 0.2s linear; z-index: 1; }
   .layer img { height: 100%; }
-  .stage__cap { display: flex; gap: 0.8rem; margin-top: 1rem; }
+  .stage__cap { margin-top: 1.25rem; display: grid; gap: 0.35rem; }
+  .stage__fig { font-size: clamp(2.6rem, 1.6rem + 3vw, 5rem); line-height: 1; letter-spacing: -0.05em; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c-accent); }
 }
 
 /* Numbers */
@@ -112,7 +114,8 @@
 
 /* Self-host */
 .host { padding-block: clamp(5rem, 3rem + 8vw, 11rem); }
-.host__grid { display: grid; gap: 3.5rem; }
+.host__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 3.5rem; }
+.host__grid > * { min-width: 0; }
 @media (min-width: 960px) { .host__grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 4rem 6rem; } .host__lead { position: sticky; top: 8rem; align-self: start; } .sec { grid-column: 2; } }
 .host__body { margin-top: 1.5rem; color: var(--c-muted); font-size: var(--t-m); line-height: 1.4; max-width: 28ch; }
 .term { border: 1px solid var(--c-line); border-radius: var(--radius); background: var(--c-surface); overflow: clip; margin-bottom: 0.9rem; }
@@ -142,7 +145,7 @@
 .foot__legal { font-size: var(--t-xs); padding-block: 1.5rem 2rem; border-top: 1px solid var(--c-line); max-width: none; }
 
 /* 404 */
-.nf { min-height: 100dvh; display: grid; align-content: center; justify-items: start; gap: 1.5rem; padding-block: 8rem 4rem; }
+.nf { min-height: 100dvh; display: grid; align-content: start; padding-top: clamp(9rem, 20vh, 14rem) !important; justify-items: start; gap: 1.5rem; padding-block: 8rem 4rem; }
 .nf__t { font-size: var(--t-mega); line-height: 0.9; letter-spacing: -0.055em; }
 .nf__b { max-width: 36ch; }
 

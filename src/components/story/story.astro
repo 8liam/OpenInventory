@@ -36,9 +36,10 @@ const total = String(story.chapters.length).padStart(2, '0');
             </div>
           ))}
         </div>
-        <p class="stage__cap mono" data-stage-cap>
-          <span data-stage-idx>01</span> / {total} <span class="muted" data-stage-route>{story.chapters[0].route}</span>
-        </p>
+        <div class="stage__cap" data-stage-cap>
+          <p class="stage__fig" data-fig>{story.chapters[0].figure.prefix}{story.chapters[0].figure.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p class="mono muted"><span data-fig-label>{story.chapters[0].figure.label}</span> <span aria-hidden="true">·</span> <span data-stage-route>{story.chapters[0].route}</span></p>
+        </div>
       </div>
     </div>
   </div>

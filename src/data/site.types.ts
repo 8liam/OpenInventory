@@ -1,6 +1,9 @@
 import type { ImageMetadata } from 'astro';
 
+export type Figure = { label: string; value: number; prefix: string; suffix: string; decimals: number };
+
 export type Chapter = {
+  figure: Figure;
   id: string;
   view: string;
   route: string;

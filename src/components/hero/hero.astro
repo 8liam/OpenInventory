@@ -7,9 +7,9 @@ const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' 
 ---
 <section class="hero" aria-labelledby="hero-title">
   <div class="wrap">
-    <h1 id="hero-title" class="hero__title">
+    <h1 id="hero-title" class="hero__title" aria-label={hero.headline}>
       {words.map((w, i) => (
-        <span class="w"><span class="w__in" style={`--i:${i}`}>{w}</span></span>
+        <><span class="w" aria-hidden="true"><span class="w__in" style={`--i:${i}`}>{w}</span></span>{" "}</>
       ))}
     </h1>
 

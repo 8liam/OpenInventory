@@ -48,6 +48,7 @@ export const story = {
   chapters: [
     {
       id: 'dashboard',
+      figure: { label: 'Total value', value: 4045.19, prefix: '$', suffix: '', decimals: 2 },
       view: 'Dashboard',
       route: '/dashboard',
       title: 'A value you can watch move.',
@@ -58,6 +59,7 @@ export const story = {
     },
     {
       id: 'items',
+      figure: { label: 'Rows, inventory plus units', value: 1675, prefix: '', suffix: '', decimals: 0 },
       view: 'Items',
       route: '/items',
       title: 'One search box over every item.',
@@ -68,6 +70,7 @@ export const story = {
     },
     {
       id: 'storage',
+      figure: { label: 'Value in 4 storage units', value: 364.16, prefix: '$', suffix: '', decimals: 2 },
       view: 'Storage units',
       route: '/storage-units',
       title: 'Open every unit without launching CS2.',
@@ -78,6 +81,7 @@ export const story = {
     },
     {
       id: 'cases',
+      figure: { label: 'Cases opened', value: 412, prefix: '', suffix: '', decimals: 0 },
       view: 'Cases',
       route: '/cases',
       title: 'Your gold drought, in numbers.',
@@ -88,6 +92,7 @@ export const story = {
     },
     {
       id: 'tradeup',
+      figure: { label: 'Expected return', value: -20.03, prefix: '', suffix: '%', decimals: 2 },
       view: 'Trade-up',
       route: '/trade-up',
       title: 'Do the math before you trade up.',
