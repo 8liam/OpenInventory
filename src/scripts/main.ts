@@ -87,6 +87,7 @@ const layers = [...document.querySelectorAll<HTMLElement>('[data-layer]')];
 const fig = document.querySelector<HTMLElement>('[data-fig]');
 const figLabel = document.querySelector<HTMLElement>('[data-fig-label]');
 const route = document.querySelector<HTMLElement>('[data-stage-route]');
+const setTone = (v: number) => fig?.classList.toggle('is-neg', v < 0);
 const fmtFig = (f: (typeof story.chapters)[number]['figure'], v: number) =>
   `${v < 0 ? '-' : ''}${f.prefix}${Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: f.decimals, maximumFractionDigits: f.decimals })}${f.suffix}`;
 const shown = { v: story.chapters[0].figure.value };
@@ -96,6 +97,7 @@ if (layers.length) {
     const c = story.chapters[i];
     if (!c) return;
     if (route) route.textContent = c.route;
+    setTone(c.figure.value);
     if (figLabel) figLabel.textContent = c.figure.label;
     if (!fig) return;
     if (reduced) { fig.textContent = fmtFig(c.figure, c.figure.value); return; }

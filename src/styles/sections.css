@@ -86,17 +86,18 @@
   .layer[data-on] { opacity: 1; clip-path: inset(0); transition: clip-path 0.9s var(--ease-in-out), opacity 0.2s linear; z-index: 1; }
   .layer img { height: 100%; }
   .stage__cap { margin-top: 1.25rem; display: grid; gap: 0.35rem; }
+  .stage__fig.is-neg { color: #ff7a6b; }
   .stage__fig { font-size: clamp(2.6rem, 1.6rem + 3vw, 5rem); line-height: 1; letter-spacing: -0.05em; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c-accent); }
 }
 
 /* Numbers */
 .numbers { padding-block: clamp(6rem, 4rem + 10vw, 13rem); border-top: 1px solid var(--c-line); margin-top: clamp(3rem, 8vw, 8rem); }
-.numbers__h { margin-bottom: clamp(2rem, 5vw, 5rem); color: var(--c-muted); }
+.numbers__h { margin-bottom: clamp(2rem, 5vw, 5rem); }
 .numbers__grid { list-style: none; padding: 0; display: grid; gap: 3rem 2rem; }
 @media (min-width: 700px) { .numbers__grid { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 1180px) { .numbers__grid { grid-template-columns: repeat(4, 1fr); } }
 .stat { border-top: 1px solid var(--c-line); padding-top: 1.25rem; }
-.stat__v { font-size: clamp(4.5rem, 2rem + 8vw, 9rem); line-height: 0.9; letter-spacing: -0.06em; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c-fg); }
+.stat__v { font-size: clamp(4rem, 2rem + 6.4vw, 8rem); line-height: 0.9; letter-spacing: -0.06em; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c-fg); }
 .stat__l { margin-top: 1rem; color: var(--c-accent); }
 .stat__n { margin-top: 0.75rem; font-size: var(--t-s); max-width: 30ch; }
 
