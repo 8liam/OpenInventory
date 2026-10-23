@@ -29,9 +29,9 @@ const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' 
       </div>
 
       <div class="readout">
-        <p class="mono muted">{hero.readout.label}</p>
-        <p class="readout__value" data-count={hero.readout.value} aria-label={fmt.format(hero.readout.value)}>
-          <span aria-hidden="true" data-count-text>{fmt.format(hero.readout.value)}</span>
+        <p class="mono muted readout__label"><span class="live" aria-hidden="true"></span>{hero.readout.label}</p>
+        <p class="readout__value" data-count={hero.readout.value}>
+          <span data-count-text>{fmt.format(hero.readout.value)}</span>
         </p>
         <svg class="spark" viewBox="0 0 400 70" preserveAspectRatio="none" aria-hidden="true" focusable="false">
           <path class="spark__fill" d="M0 62 C60 62 90 62 120 54 C150 44 160 34 190 34 C230 34 250 30 290 14 C320 4 360 8 400 22 L400 70 L0 70Z" />

@@ -3,9 +3,13 @@
 .h-m { font-size: var(--t-m); line-height: 1.2; letter-spacing: -0.02em; font-weight: 600; }
 
 /* Header */
-.hdr { position: fixed; inset: 0 0 auto; z-index: var(--z-header); background: linear-gradient(var(--c-bg), rgb(10 10 11 / 0)); }
+.hdr { position: fixed; inset: 0 0 auto; z-index: var(--z-header); background: rgb(10 10 11 / 0.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--c-line); }
 .hdr__in { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; height: 4.5rem; }
 .hdr__brand { display: inline-flex; align-items: center; gap: 0.7rem; font-weight: 600; letter-spacing: -0.01em; min-height: 44px; }
+.hdr__brand img { transition: rotate 0.7s var(--ease-out); }
+.hdr__brand span { transition: letter-spacing 0.5s var(--ease-out), color 0.3s; }
+.hdr__brand:hover img, .hdr__brand:focus-visible img { rotate: 360deg; }
+.hdr__brand:hover span, .hdr__brand:focus-visible span { letter-spacing: 0.02em; color: var(--c-accent); }
 .hdr__nav { display: flex; gap: 2rem; font-size: var(--t-s); color: var(--c-muted); }
 .hdr__nav a:hover, .hdr__nav a:focus-visible { color: var(--c-fg); }
 .hdr__gh { font-size: var(--t-s); }
@@ -17,6 +21,11 @@
   content: ''; position: absolute; left: 50%; top: 52%; width: min(120vw, 1500px); aspect-ratio: 2 / 1;
   translate: -50% 0; background: radial-gradient(closest-side, rgb(43 212 154 / 0.16), transparent); pointer-events: none;
 }
+.motion .hero::before { animation: drift 16s ease-in-out infinite alternate; }
+@keyframes drift { to { translate: -42% 6%; scale: 1.15; } }
+.live { display: inline-block; width: 0.5rem; height: 0.5rem; margin-right: 0.7rem; border-radius: 50%; background: var(--c-accent); vertical-align: 0.05em; }
+.motion .live { animation: live 2.2s ease-out infinite; }
+@keyframes live { 0% { box-shadow: 0 0 0 0 rgb(43 212 154 / 0.6); } 100% { box-shadow: 0 0 0 0.9rem rgb(43 212 154 / 0); } }
 .hero__title { font-size: var(--t-mega); line-height: 0.93; letter-spacing: -0.055em; max-width: 14ch; margin-left: -0.04em; }
 .w { display: inline-block; overflow: clip; vertical-align: top; padding-bottom: 0.1em; margin-bottom: -0.1em; margin-right: 0.22em; }
 .w__in { display: inline-block; animation: word-up 1.2s var(--ease-out) both; animation-delay: calc(var(--i) * 0.055s + 0.05s); }
@@ -64,16 +73,17 @@
 .story__chapters { padding: 0; }
 
 @media (min-width: 960px) {
-  .story__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 5vw, 6rem); }
+  .story__grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(2rem, 4vw, 5rem); }
+  .story__stage { margin-right: calc(var(--gutter) * -0.5); }
   .chapter { min-height: 92vh; display: flex; align-items: center; padding-block: 0; }
   .chapter .shot--inline { display: none; }
   .story__stage { display: block; }
-  .story__sticky { position: sticky; top: 14vh; }
+  .story__sticky { position: sticky; top: 12vh; }
   .shot--stage { position: relative; aspect-ratio: 16 / 10; }
   .layer { position: absolute; inset: 0; opacity: 0; clip-path: inset(0 0 100% 0); transition: clip-path 0.9s var(--ease-in-out), opacity 0.4s linear 0.45s; }
   .layer[data-on] { opacity: 1; clip-path: inset(0); transition: clip-path 0.9s var(--ease-in-out), opacity 0.2s linear; z-index: 1; }
   .layer img { height: 100%; }
-  .stage__cap { display: flex; gap: 0.6rem; margin-top: 1rem; }
+  .stage__cap { display: flex; gap: 0.8rem; margin-top: 1rem; }
 }
 
 /* Numbers */
@@ -135,3 +145,14 @@
 .nf { min-height: 100dvh; display: grid; align-content: center; justify-items: start; gap: 1.5rem; padding-block: 8rem 4rem; }
 .nf__t { font-size: var(--t-mega); line-height: 0.9; letter-spacing: -0.055em; }
 .nf__b { max-width: 36ch; }
+
+/* Phones: crop screenshots to the main panel so the data stays readable. */
+@media (max-width: 959px) {
+  .shot--inline { aspect-ratio: 5 / 4; }
+  .shot--inline img { width: 195%; max-width: none; margin-left: -27%; aspect-ratio: 16 / 10; height: auto; }
+}
+@media (max-width: 699px) {
+  .hero__stage { padding-inline: 0; }
+  .hero__stage .shot { aspect-ratio: 5 / 4; border-radius: 0; border-inline: 0; }
+  .hero__stage .shot img { width: 195%; max-width: none; margin-left: -27%; aspect-ratio: 16 / 10; }
+}
