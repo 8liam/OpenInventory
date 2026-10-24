@@ -1,16 +1,41 @@
 name: Release
 
+# Every merge to main publishes a new version; develop is where changes are staged.
 on:
   push:
-    tags: ["v*"]
+    branches: [main]
 
 permissions:
   contents: write
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - id: version
+        run: echo "version=$(node scripts/next-version.ts)" >> "$GITHUB_OUTPUT"
+      # Draft until every platform has uploaded; the tag is only created on publish.
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "v${{ steps.version.outputs.version }}" --draft --generate-notes --target "$GITHUB_SHA" --title "v${{ steps.version.outputs.version }}"
+
   build:
+    needs: prepare
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
@@ -27,9 +52,29 @@ jobs:
       - run: pnpm test
       - run: pnpm exec vp build
       - run: pnpm desktop:bundle
-      # The tag is the source of truth for the version the updater compares against.
-      - name: Package and publish
+      - name: Package and upload
         shell: bash
-        run: pnpm exec electron-builder --publish always -c.extraMetadata.version="${GITHUB_REF_NAME#v}"
+        run: pnpm exec electron-builder --publish always -c.extraMetadata.version="${{ needs.prepare.outputs.version }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release edit "v${{ needs.prepare.outputs.version }}" --draft=false --latest
+
+  discard-draft:
+    needs: [prepare, build]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete the unfinished draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release delete "v${{ needs.prepare.outputs.version }}" --yes || true
