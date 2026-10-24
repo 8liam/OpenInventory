@@ -7,16 +7,18 @@ import {
   STEAM_ECONOMY_IMAGE_MARKER,
   WEAR_BANDS,
 } from "../../src/lib/storage/storage.config.ts";
-import type { StickerView } from "../../src/lib/items/item.types.ts";
+import type { CharmView, StickerView } from "../../src/lib/items/item.types.ts";
 import type { Database } from "../db/db.types.ts";
 import type { GcItem } from "../steam/steam.types.ts";
 import type {
   Catalog,
   CollectionRecord,
+  CrateRecord,
   DescribedItem,
   GraffitiRecord,
   NamedRecord,
   SkinRecord,
+  SpecialRecord,
 } from "./catalog.types.ts";
 
 const UNKNOWN_CATEGORY = "Other";
@@ -25,6 +27,7 @@ const NAME_PREFIX = {
   slab: "Sticker Slab | ",
   sticker: "Sticker | ",
   souvenirCharm: "Souvenir Charm | ",
+  souvenirPackage: "Souvenir Package",
   /** Vanilla knives and gloves are listed with a star; the base-weapon data omits it. */
   star: "★ ",
 } as const;
@@ -66,13 +69,17 @@ function byDefIndex<T extends NamedRecord>(records: readonly T[]): Map<number, T
   return map;
 }
 
+/** Element types of the GC item's lists; named so they hold up when a tool checks this file alone. */
+type GcAttribute = NonNullable<GcItem["attribute"]>[number];
+type GcSticker = NonNullable<GcItem["stickers"]>[number];
+
 function readUInt32(item: GcItem, attributeId: number): number | undefined {
-  const bytes = item.attribute?.find((a) => a.def_index === attributeId)?.value_bytes;
+  const bytes = item.attribute?.find((a: GcAttribute) => a.def_index === attributeId)?.value_bytes;
   return bytes && bytes.length >= 4 ? bytes.readUInt32LE(0) : undefined;
 }
 
 function hasAttribute(item: GcItem, attributeId: number): boolean {
-  return item.attribute?.some((a) => a.def_index === attributeId) ?? false;
+  return item.attribute?.some((a: GcAttribute) => a.def_index === attributeId) ?? false;
 }
 
 /**
@@ -99,7 +106,7 @@ export async function loadCatalog(db: Database): Promise<Catalog> {
   ] = await Promise.all([
     loadFile<SkinRecord>(db, "skins_not_grouped"),
     loadFile<NamedRecord>(db, "base_weapons"),
-    loadFile<NamedRecord>(db, "crates"),
+    loadFile<CrateRecord>(db, "crates"),
     loadFile<NamedRecord>(db, "keys"),
     loadFile<NamedRecord>(db, "tools"),
     loadFile<NamedRecord>(db, "agents"),
@@ -124,17 +131,22 @@ export async function loadCatalog(db: Database): Promise<Catalog> {
     (skin.skin_id ? collectionsBySkin.get(skin.skin_id) : undefined) ?? [];
 
   const skinByKey = new Map<string, SkinRecord>();
+  const variantsBySkinId = new Map<string, SkinRecord[]>();
   /** Vanilla knives/gloves carry no rarity of their own; they share their category's skin tier. */
   const rarityByCategory = new Map<string, NonNullable<NamedRecord["rarity"]>>();
   const skinsByBase = new Map<string, SkinRecord[]>();
   const byHash = new Map<string, Omit<NamedRecord, "category"> & { category?: string }>();
   const outputsByPool = new Map<string, SkinRecord[]>();
   for (const skin of skins) {
+    if (skin.skin_id && !skin.souvenir && skin.paint_index === undefined)
+      variantsBySkinId.set(skin.skin_id, [...(variantsBySkinId.get(skin.skin_id) ?? []), skin]);
     if (!skin.weapon || skin.paint_index === undefined) continue;
     const flags = `${skin.stattrak ? 1 : 0}:${skin.souvenir ? 1 : 0}`;
     const base = `${skin.weapon.weapon_id}:${skin.paint_index}:${flags}`;
     skinByKey.set(`${base}:${skin.wear?.name ?? NO_WEAR}`, skin);
     skinsByBase.set(base, [...(skinsByBase.get(base) ?? []), skin]);
+    if (skin.skin_id && !skin.souvenir)
+      variantsBySkinId.set(skin.skin_id, [...(variantsBySkinId.get(skin.skin_id) ?? []), skin]);
     if (skin.market_hash_name)
       byHash.set(skin.market_hash_name, { ...skin, category: skin.category?.name });
     const tier = skin.category?.name;
@@ -143,7 +155,23 @@ export async function loadCatalog(db: Database): Promise<Catalog> {
     if (skin.souvenir) continue;
     for (const collectionId of collectionIdsOf(skin)) {
       const pool = `${collectionId}:${skin.rarity?.id}:${skin.stattrak ? 1 : 0}`;
-      outputsByPool.set(pool, [...(outputsByPool.get(pool) ?? []), skin]);
+      const known = outputsByPool.get(pool) ?? [];
+      // skins_not_grouped has one record per wear; an outcome is the skin, not its wear.
+      if (!known.some((other) => other.skin_id === skin.skin_id))
+        outputsByPool.set(pool, [...known, skin]);
+    }
+  }
+  /** skin id -> the knives/gloves of every (non-souvenir) crate that contains it. */
+  const specialsBySkin = new Map<string, SpecialRecord[]>();
+  for (const crate of crates) {
+    const specials = crate.contains_rare ?? [];
+    if (specials.length === 0 || crate.name.includes(NAME_PREFIX.souvenirPackage)) continue;
+    for (const { id } of crate.contains ?? []) {
+      const known = specialsBySkin.get(id) ?? [];
+      specialsBySkin.set(id, [
+        ...known,
+        ...specials.filter((s) => !known.some((k) => k.id === s.id)),
+      ]);
     }
   }
   const hashSources: readonly (readonly [string, readonly NamedRecord[]])[] = [
@@ -186,10 +214,24 @@ export async function loadCatalog(db: Database): Promise<Catalog> {
   }
 
   function stickerViews(item: GcItem): StickerView[] {
-    return (item.stickers ?? []).flatMap((sticker) => {
+    return (item.stickers ?? []).flatMap((sticker: GcSticker) => {
       const record = stickerByKit.get(sticker.sticker_id);
       return record ? [{ name: record.name, imageUrl: sizedImage(record.image) }] : [];
     });
+  }
+
+  /** Charm attached to a weapon: souvenir highlight charms use the highlight attribute. */
+  function charmViews(item: GcItem): CharmView[] {
+    const pattern = readUInt32(item, GC_ATTRIBUTE.keychainPattern) ?? null;
+    const highlight = readUInt32(item, GC_ATTRIBUTE.keychainHighlight);
+    const charm = readUInt32(item, GC_ATTRIBUTE.keychainId);
+    const record =
+      highlight !== undefined
+        ? highlightById.get(highlight)
+        : charm === undefined
+          ? undefined
+          : keychainById.get(charm);
+    return record ? [{ name: record.name, imageUrl: sizedImage(record.image), pattern }] : [];
   }
 
   function describe(item: GcItem): DescribedItem {
@@ -214,6 +256,7 @@ export async function loadCatalog(db: Database): Promise<Catalog> {
         record = skin;
         category = skin.category?.name ?? "Skin";
         skinFacts = {
+          skinId: skin.skin_id ?? null,
           collectionIds: collectionIdsOf(skin),
           rarityId: skin.rarity?.id ?? "",
           isStatTrak: skin.stattrak === true,
@@ -291,6 +334,11 @@ export async function loadCatalog(db: Database): Promise<Catalog> {
         isStatTrak,
         isSouvenir,
         stickers: item.paint_index === undefined ? [] : stickerViews(item),
+        charms: item.paint_index === undefined ? [] : charmViews(item),
+        pattern:
+          item.def_index === ITEM_DEF.charm
+            ? (readUInt32(item, GC_ATTRIBUTE.keychainPattern) ?? null)
+            : null,
         tradableAfter:
           item.tradable_after && item.tradable_after.getTime() > Date.now()
             ? item.tradable_after.getTime()
@@ -313,6 +361,28 @@ export async function loadCatalog(db: Database): Promise<Catalog> {
     skinImage: (hash) => sizedImage(byHash.get(hash)?.image),
     tradeUpOutputs: (collectionId, rarityId, isStatTrak) =>
       outputsByPool.get(`${collectionId}:${rarityId}:${isStatTrak ? 1 : 0}`) ?? [],
+    specialsFor: (skinId) => specialsBySkin.get(skinId) ?? [],
+    resolveSpecial: (special, isStatTrak, float) => {
+      const variants = variantsBySkinId.get(special.id) ?? [];
+      const pool = variants.filter((v) => (v.stattrak === true) === isStatTrak);
+      const candidates = pool.length > 0 ? pool : variants;
+      const painted = candidates.some((v) => v.wear);
+      const range = candidates.find((v) => v.min_float !== undefined);
+      const min = range?.min_float ?? 0;
+      const max = range?.max_float ?? 1;
+      const wearName = painted ? wearNameFor(min + float * (max - min)) : null;
+      const variant = candidates.find((v) => (wearName ? v.wear?.name === wearName : true));
+      if (!variant?.market_hash_name) return undefined;
+      return {
+        id: special.id,
+        name: variant.name,
+        marketHashName: variant.market_hash_name,
+        imageUrl: sizedImage(variant.image ?? special.image),
+        minFloat: range?.min_float ?? null,
+        maxFloat: range?.max_float ?? null,
+        wearName,
+      };
+    },
     resolveWear: (record, float) => {
       if (!record.weapon || record.paint_index === undefined) return undefined;
       const base = `${record.weapon.weapon_id}:${record.paint_index}:${record.stattrak ? 1 : 0}:${record.souvenir ? 1 : 0}`;

@@ -30,3 +30,19 @@ export type DataTableProps<Row> = {
   readonly selection?: DataTableSelection;
   readonly initialSort?: { readonly columnId: string; readonly direction: SortDirection };
 };
+
+export type DataTableSkeletonColumn = {
+  readonly id: string;
+  readonly header: string;
+  readonly width: string;
+  readonly align?: "left" | "right";
+  /** Placeholder shown in this column's cell of every row. */
+  readonly cell: ReactNode;
+};
+
+export type DataTableSkeletonProps = {
+  readonly columns: readonly DataTableSkeletonColumn[];
+  readonly rowHeight?: number;
+  readonly rows: number;
+  readonly selectable?: boolean;
+};
