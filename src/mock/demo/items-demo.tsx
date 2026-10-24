@@ -9,6 +9,8 @@ import { DemoTransferStatus } from './demo-transfer-status';
 import { useDemoInventory } from './use-demo-inventory';
 
 const ALL = 'all';
+/** The demo shows only the first matches; the real app lists everything. */
+const ROW_CAP = 32;
 const SELECT_CLASS = 'h-8 min-w-0 flex-1 rounded-md border border-input bg-card px-2.5 outline-none sm:flex-none';
 
 /** The real Items page body: search, filters, sortable table and the move bar, on sample data. */
@@ -32,6 +34,7 @@ export default function ItemsDemo() {
       ),
     [items, location, type, deferred],
   );
+  const visible = useMemo(() => rows.slice(0, ROW_CAP), [rows]);
   const selectedItems = useMemo(() => items.filter((i) => selected.has(itemRowKey(i))), [items, selected]);
 
   return (
@@ -61,7 +64,7 @@ export default function ItemsDemo() {
       {selectedItems.length > 0 && (
         <TransferBar selected={selectedItems} units={units} busy={transfer.status === 'running'} onClear={() => setSelected(new Set())} />
       )}
-      <ItemTable items={rows} currency={MOCK_CURRENCY} selected={selected} onSelectionChange={setSelected} />
+      <ItemTable items={visible} currency={MOCK_CURRENCY} selected={selected} onSelectionChange={setSelected} />
     </div>
   );
 }

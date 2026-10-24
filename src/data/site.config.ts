@@ -56,7 +56,7 @@ export const story = {
     {
       id: 'items',
       hint: 'Search, filter and select rows.',
-      figure: { label: 'Rows, inventory plus units', value: 1675, prefix: '', suffix: '', decimals: 0 },
+      figure: { label: 'Items on the sample account', value: 1675, prefix: '', suffix: '', decimals: 0 },
       view: 'Items',
       route: '/items',
       title: 'One search box over every item.',
