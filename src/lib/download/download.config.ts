@@ -14,9 +14,6 @@ export const PLATFORMS = [
 
 export const COPY = {
   fallbackLabel: 'Download',
-  buttonLabel: (label: string) => `Download for ${label}`,
-  altHeading: 'Also for',
-  docker: { label: 'Docker', href: '#self-host' },
 } as const;
 
 /** Pattern the WebGL renderer string matches on Apple Silicon Macs. */

@@ -27,7 +27,7 @@ const [beforeBadge, afterBadge] = [rest.slice(0, cut - hero.ledeBadge.after.leng
     <p class="hero__lede" data-reveal style="--d:0.08s"><strong>{hero.ledeLead}</strong>{beforeBadge}<span class="hero__tie">{hero.ledeBadge.after}<img class="hero__badge" src={hero.ledeBadge.src} width="96" height="96" alt="" /></span>{afterBadge}</p>
 
     <div class="hero__cta" data-reveal style="--d:0.16s">
-      <a class="btn btn--solid btn--dl" data-dl href={RELEASES_PAGE} rel="noopener">
+      <a class="btn btn--solid btn--dl" data-dl data-dl-links={JSON.stringify(release.links)} href={RELEASES_PAGE} rel="noopener">
         <span class="btn__icon" aria-hidden="true">
           {iconNames.map((n) => (
             <svg data-dl-icon={n} hidden viewBox="0 0 24 24" width="18" height="18" fill="currentColor" focusable="false"><path d={ICON_PATHS[n]} /></svg>
@@ -38,12 +38,7 @@ const [beforeBadge, afterBadge] = [rest.slice(0, cut - hero.ledeBadge.after.leng
       </a>
       <GithubLink href={hero.secondary.href} label={hero.secondary.label} stars={stars} />
     </div>
-    <p class="hero__alt mono muted" data-reveal style="--d:0.2s">
-      <span>{COPY.altHeading}</span>
-      {release.links.map((l) => <a class="link" data-dl-alt={l.id} href={l.href} rel="noopener">{l.short}</a>)}
-      <a class="link" href={COPY.docker.href}>{COPY.docker.label}</a>
-    </p>
-  </div>
+</div>
 
   <div class="wrap hero__foot">
     <p class="hero__stat" data-count={hero.stat.value}>
