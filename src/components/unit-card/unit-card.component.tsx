@@ -1,12 +1,21 @@
 import { COPY } from "~/lib/copy/copy.config";
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
+import { Skeleton } from "~/components/skeleton/skeleton.component";
 import { UnitName } from "~/components/unit-name/unit-name.component";
 import { cn } from "~/utils/cn";
 import { formatInteger, formatMoney } from "~/utils/format";
 import { UNIT_CARD } from "./unit-card.config";
 import type { UnitCardProps } from "./unit-card.types";
 
-export function UnitCard({ unit, items, currency, selected, onSelect, onRename }: UnitCardProps) {
+export function UnitCard({
+  unit,
+  items,
+  currency,
+  selected,
+  loading = false,
+  onSelect,
+  onRename,
+}: UnitCardProps) {
   const value = items.reduce((sum, item) => sum + (item.price ?? 0), 0);
   const preview = [...items]
     .sort((a, b) => (b.price ?? 0) - (a.price ?? 0))
@@ -34,18 +43,33 @@ export function UnitCard({ unit, items, currency, selected, onSelect, onRename }
             {formatInteger(unit.itemCount)} {COPY.storage.items}
           </p>
         </div>
-        <p className="tabular shrink-0 font-medium">
-          {unit.loaded ? formatMoney(value, currency) : COPY.common.empty}
-        </p>
+        {loading ? (
+          <Skeleton className="h-lh w-16 shrink-0" />
+        ) : (
+          <p className="tabular shrink-0 font-medium">
+            {unit.loaded ? formatMoney(value, currency) : COPY.common.empty}
+          </p>
+        )}
       </div>
-      {preview.length > 0 && (
+      {loading && unit.itemCount > 0 && (
+        <div className="pointer-events-none relative mt-3 flex gap-1.5">
+          {Array.from({ length: Math.min(unit.itemCount, UNIT_CARD.previewCount) }, (_, slot) => (
+            <Skeleton
+              key={slot}
+              className="rounded-md"
+              style={{ width: UNIT_CARD.thumbSize, height: UNIT_CARD.thumbSize }}
+            />
+          ))}
+        </div>
+      )}
+      {!loading && preview.length > 0 && (
         <div className="pointer-events-none relative mt-3 flex gap-1.5">
           {preview.map((item) => (
             <ItemThumb
               key={item.id}
               imageUrl={item.imageUrl}
               rarityColor={item.rarityColor}
-              size={40}
+              size={UNIT_CARD.thumbSize}
             />
           ))}
         </div>

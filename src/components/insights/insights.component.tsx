@@ -45,7 +45,7 @@ export function Insights({ insights, currency }: InsightsProps) {
     value: `×${formatInteger(s.count)} · ${formatMoney(s.totalValue, currency)}`,
   }));
   return (
-    <div className="flex flex-col gap-5">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
       <Section title={COPY.insights.lowestFloats} rows={insights.lowestFloats.map(floatRow)} />
       <Section title={COPY.insights.highestFloats} rows={insights.highestFloats.map(floatRow)} />
       <Section title={COPY.insights.stacks} rows={stackRows} />

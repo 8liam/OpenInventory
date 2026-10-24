@@ -157,8 +157,13 @@ export function buildDashboard(args: {
     },
     change,
     history: [
-      ...history.map((s) => ({ takenAt: s.takenAt, totalValue: s.totalValue })),
-      { takenAt: now, totalValue },
+      ...history.map((s) => ({
+        takenAt: s.takenAt,
+        totalValue: s.totalValue,
+        inventoryValue: s.inventoryValue,
+        storageValue: s.storageValue,
+      })),
+      { takenAt: now, totalValue, inventoryValue, storageValue },
     ],
     byCategory: toSlices(category),
     byRarity: toSlices(rarity),

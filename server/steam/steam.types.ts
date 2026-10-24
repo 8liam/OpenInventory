@@ -31,6 +31,8 @@ export type StorageGateway = {
   readonly dismissTransfer: () => void;
   readonly onReady: (listener: (steamId: string) => void) => void;
   readonly getSteamId: () => string | undefined;
+  /** Steam Community cookies (`name=value`), for fetching pages that have no GC equivalent. */
+  readonly getWebCookies: (refresh: boolean) => Promise<readonly string[]>;
 };
 
 export class UserFacingError extends Error {

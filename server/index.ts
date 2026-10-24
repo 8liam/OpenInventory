@@ -12,15 +12,25 @@ import type {
   RenameUnitRequest,
   TransferRequest,
 } from "../src/lib/storage/storage.types.ts";
+import { DEFAULT_OPENING_KIND, OPENING_KINDS } from "../src/lib/cases/cases.config.ts";
+import type { OpeningKind } from "../src/lib/cases/cases.types.ts";
+import { buildCaseStats } from "./cases/case-stats.ts";
+import { createHistorySync } from "./cases/history-sync.ts";
 import { openDatabase } from "./db/db.ts";
 import { buildDashboard, summarizeValue } from "./dashboard.ts";
 import { collectItems } from "./items/collect.ts";
 import { loadCatalog } from "./items/catalog.ts";
+import {
+  DEFAULT_MARKETPLACE,
+  LEGACY_HISTORY_MARKETPLACE,
+  MARKETPLACES,
+} from "../src/lib/settings/settings.config.ts";
+import type { Marketplace } from "../src/lib/settings/settings.types.ts";
 import { getPriceBook } from "./prices/prices.ts";
 import { readSettings, SERVER_LIMITS } from "./server.config.ts";
 import { createRealGateway } from "./steam/steam.real.ts";
 import { UserFacingError } from "./steam/steam.types.ts";
-import { computeTradeUp, type TradeUpCandidate } from "./tradeup.ts";
+import { computeTradeUp, listTradeUpCandidates, type TradeUpCandidate } from "./tradeup.ts";
 
 const HTTP = {
   ok: 200,
@@ -54,12 +64,13 @@ const JSON_CONTENT_TYPE = "application/json";
 // eslint-disable-next-line no-control-regex -- rejecting control characters is the point
 const CONTROL_CHARACTERS = /[\u0000-\u001f\u007f]/;
 const ITEM_ID_PATTERN = /^(\d{1,20}|inventory)$/;
-const TRACKED_CURRENCIES_KEY = "pref:currencies";
+const TRACKED_SCOPES_KEY = "pref:price-scopes";
 
 const settings = readSettings();
 const db = openDatabase(settings.dataDir);
 const catalog = await loadCatalog(db);
 const gateway = createRealGateway(db, settings.dataDir, (raw) => catalog.describe(raw).view.name);
+const historySync = createHistorySync(db, gateway);
 
 function sendJson(res: ServerResponse, status: number, body: unknown): void {
   res.writeHead(status, { "content-type": "application/json" });
@@ -138,9 +149,34 @@ function parseCurrency(url: URL): string {
   return value;
 }
 
-async function loadPrices(currency: string, force = false) {
+type PriceScope = { readonly currency: string; readonly marketplace: Marketplace };
+
+function parseMarketplace(url: URL): Marketplace {
+  const value = url.searchParams.get("marketplace") ?? DEFAULT_MARKETPLACE;
+  const marketplace = MARKETPLACES.find((m) => m === value);
+  if (!marketplace) throw new UserFacingError("Invalid marketplace", HTTP.badRequest);
+  return marketplace;
+}
+
+function parseScope(url: URL): PriceScope {
+  return { currency: parseCurrency(url), marketplace: parseMarketplace(url) };
+}
+
+/** History rows are keyed by this; the legacy marketplace keeps its pre-marketplace rows. */
+function historyCurrency({ currency, marketplace }: PriceScope): string {
+  return marketplace === LEGACY_HISTORY_MARKETPLACE ? currency : `${currency}:${marketplace}`;
+}
+
+function parseOpeningKind(url: URL): OpeningKind {
+  const value = url.searchParams.get("kind") ?? DEFAULT_OPENING_KIND;
+  const kind = OPENING_KINDS.find((k) => k === value);
+  if (!kind) throw new UserFacingError("Invalid kind", HTTP.badRequest);
+  return kind;
+}
+
+async function loadPrices({ currency, marketplace }: PriceScope, force = false) {
   try {
-    return await getPriceBook(db, currency, force);
+    return await getPriceBook(db, currency, marketplace, force);
   } catch (error) {
     throw new UserFacingError(
       `Price source unavailable: ${error instanceof Error ? error.message : String(error)}`,
@@ -183,28 +219,27 @@ function requireReady(): string {
 /** Persists a value snapshot at most once per interval so the dashboard can chart history. */
 const snapshotsInFlight = new Set<string>();
 
-async function recordSnapshot(steamId: string, currency: string): Promise<void> {
-  const key = { steamId, currency };
-  const flightKey = `${steamId}:${currency}`;
+async function recordSnapshot(steamId: string, scope: PriceScope): Promise<void> {
+  const key = { steamId, currency: historyCurrency(scope) };
+  const flightKey = `${steamId}:${key.currency}`;
   if (snapshotsInFlight.has(flightKey)) return;
   const last = db.lastSnapshotAt(key);
   if (last !== undefined && Date.now() - last < SERVER_LIMITS.snapshotIntervalMs) return;
   snapshotsInFlight.add(flightKey);
   try {
-    await writeSnapshot(key);
+    await writeSnapshot(key, scope);
   } finally {
     snapshotsInFlight.delete(flightKey);
   }
 }
 
-async function writeSnapshot(key: {
-  readonly steamId: string;
-  readonly currency: string;
-}): Promise<void> {
-  const { currency } = key;
+async function writeSnapshot(
+  key: { readonly steamId: string; readonly currency: string },
+  scope: PriceScope,
+): Promise<void> {
   const snapshot = gateway.getSnapshot();
   if (snapshot.loadingUnits || snapshot.units.some((u) => !u.loaded)) return; // partial storage data would record a false dip
-  const book = await loadPrices(currency);
+  const book = await loadPrices(scope);
   const items = collectItems(gateway, catalog, book).map((c) => c.view);
   if (items.length === 0) return;
   const { inventoryValue, storageValue, totalValue } = summarizeValue(items);
@@ -269,27 +304,28 @@ const server = createServer(async (req, res) => {
 
     if (path === STORAGE_API.items && method === "GET") {
       requireReady();
-      const currency = parseCurrency(url);
-      const book = await loadPrices(currency);
+      const scope = parseScope(url);
+      const { currency } = scope;
+      const book = await loadPrices(scope);
       const items = collectItems(gateway, catalog, book).map((c) => c.view);
       return sendJson(res, HTTP.ok, { items, currency, priceUpdatedAt: book.fetchedAt });
     }
 
     if (path === STORAGE_API.dashboard && method === "GET") {
       const steamId = requireReady();
-      const currency = parseCurrency(url);
-      rememberCurrency(currency);
-      rememberCurrency(currency);
-      const book = await loadPrices(currency);
+      const scope = parseScope(url);
+      const { currency } = scope;
+      rememberScope(scope);
+      const book = await loadPrices(scope);
       const items = collectItems(gateway, catalog, book).map((c) => c.view);
       const units = gateway.getSnapshot().units;
-      void recordSnapshot(steamId, currency).catch((e: unknown) => console.warn("[snapshot]", e));
+      void recordSnapshot(steamId, scope).catch((e: unknown) => console.warn("[snapshot]", e));
       return sendJson(
         res,
         HTTP.ok,
         buildDashboard({
           items,
-          history: db.listSnapshots({ steamId, currency }),
+          history: db.listSnapshots({ steamId, currency: historyCurrency(scope) }),
           currency,
           priceUpdatedAt: book.fetchedAt,
           unitsLoaded: units.filter((u) => u.loaded).length,
@@ -298,15 +334,33 @@ const server = createServer(async (req, res) => {
       );
     }
 
-    if (path === STORAGE_API.tradeUp && method === "GET") {
+    if (path === STORAGE_API.cases && method === "GET") {
+      const steamId = requireReady();
+      historySync.start(steamId, { onlyIfStale: true });
+      return sendJson(res, HTTP.ok, {
+        stats: buildCaseStats(db.loadHistoryEvents(steamId), parseOpeningKind(url)),
+        sync: historySync.status(steamId),
+      });
+    }
+
+    if ((path === STORAGE_API.tradeUp || path === STORAGE_API.tradeUpOdds) && method === "GET") {
       requireReady();
-      const currency = parseCurrency(url);
+      const scope = parseScope(url);
+      const { currency } = scope;
       const rarity = url.searchParams.get("rarity") ?? "";
-      const book = await loadPrices(currency);
+      const book = await loadPrices(scope);
       const candidates: TradeUpCandidate[] = collectItems(gateway, catalog, book).flatMap((c) =>
         c.skin ? [{ view: c.view, skin: c.skin }] : [],
       );
-      return sendJson(res, HTTP.ok, computeTradeUp(candidates, rarity, catalog, book, currency));
+      if (path === STORAGE_API.tradeUp) {
+        return sendJson(res, HTTP.ok, listTradeUpCandidates(candidates, rarity, catalog, currency));
+      }
+      const ids = (url.searchParams.get("ids") ?? "").split(",").filter(Boolean);
+      return sendJson(
+        res,
+        HTTP.ok,
+        computeTradeUp(candidates, ids, rarity, catalog, book, currency),
+      );
     }
 
     if (method === "POST") {
@@ -323,6 +377,10 @@ const server = createServer(async (req, res) => {
         const { id, name } = parseRenameRequest(await readBody(req));
         await gateway.renameUnit(id, name);
         return void res.writeHead(HTTP.noContent).end();
+      }
+      if (path === STORAGE_API.casesSync) {
+        historySync.start(requireReady());
+        return void res.writeHead(HTTP.accepted).end();
       }
       if (path === STORAGE_API.transferCancel) {
         gateway.cancelTransfer();
@@ -342,7 +400,7 @@ const server = createServer(async (req, res) => {
       }
       if (path === STORAGE_API.refresh) {
         requireReady();
-        await loadPrices(parseCurrency(url), true);
+        await loadPrices(parseScope(url), true);
         void gateway.refreshUnits(true);
         return void res.writeHead(HTTP.noContent).end();
       }
@@ -359,17 +417,27 @@ const server = createServer(async (req, res) => {
   }
 });
 
-/** Currencies the dashboard has been viewed in; the background job records history for each. */
-function trackedCurrencies(): string[] {
-  const raw = db.getCacheStale(TRACKED_CURRENCIES_KEY);
+/** Currency/marketplace pairs the dashboard has been viewed in; the background job records history for each. */
+function trackedScopes(): PriceScope[] {
+  const raw = db.getCacheStale(TRACKED_SCOPES_KEY);
   const stored = raw ? (JSON.parse(raw) as string[]) : [];
-  return [...new Set([DEFAULT_CURRENCY, ...stored])];
+  const scopes = new Map<string, PriceScope>();
+  for (const entry of [`${DEFAULT_CURRENCY}:${DEFAULT_MARKETPLACE}`, ...stored]) {
+    const [currency = DEFAULT_CURRENCY, marketplace] = entry.split(":");
+    const known = MARKETPLACES.find((m) => m === marketplace);
+    if (known) scopes.set(entry, { currency, marketplace: known });
+  }
+  return [...scopes.values()];
 }
 
-function rememberCurrency(currency: string): void {
-  const known = trackedCurrencies();
-  if (!known.includes(currency))
-    db.setCache(TRACKED_CURRENCIES_KEY, JSON.stringify([...known, currency]));
+function scopeId({ currency, marketplace }: PriceScope): string {
+  return `${currency}:${marketplace}`;
+}
+
+function rememberScope(scope: PriceScope): void {
+  const known = trackedScopes();
+  if (!known.some((s) => scopeId(s) === scopeId(scope)))
+    db.setCache(TRACKED_SCOPES_KEY, JSON.stringify([...known, scope].map(scopeId)));
 }
 
 // Record history even when nobody has the dashboard open. `onReady` fires on every
@@ -379,8 +447,8 @@ gateway.onReady((steamId) => {
   if (snapshotJobStarted) return;
   snapshotJobStarted = true;
   const tick = () => {
-    for (const currency of trackedCurrencies()) {
-      void recordSnapshot(steamId, currency).catch((e: unknown) => console.warn("[snapshot]", e));
+    for (const scope of trackedScopes()) {
+      void recordSnapshot(steamId, scope).catch((e: unknown) => console.warn("[snapshot]", e));
     }
   };
   setTimeout(tick, SERVER_LIMITS.snapshotInitialDelayMs);

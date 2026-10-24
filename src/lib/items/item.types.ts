@@ -3,6 +3,14 @@ export type StickerView = {
   readonly imageUrl: string | null;
 };
 
+/** A charm attached to a weapon (or, for a loose charm, the charm itself). */
+export type CharmView = {
+  readonly name: string;
+  readonly imageUrl: string | null;
+  /** The charm's pattern seed, when the GC reports one. */
+  readonly pattern: number | null;
+};
+
 /** Decoded from a raw Game Coordinator item; independent of where it lives or its price. */
 export type ItemBase = {
   readonly id: string;
@@ -18,6 +26,9 @@ export type ItemBase = {
   readonly isStatTrak: boolean;
   readonly isSouvenir: boolean;
   readonly stickers: readonly StickerView[];
+  readonly charms: readonly CharmView[];
+  /** Pattern seed of a loose charm; attached charms carry theirs in `charms`. */
+  readonly pattern: number | null;
   /** Epoch ms until which the item is trade-locked, if still locked. */
   readonly tradableAfter: number | null;
 };
@@ -41,20 +52,35 @@ export type InventoryResponse = {
 export type TradeUpOutcome = {
   readonly name: string;
   readonly imageUrl: string | null;
+  readonly rarityColor: string | null;
   readonly probability: number;
-  readonly float: number;
+  readonly float: number | null;
   readonly wearName: string;
   readonly price: number | null;
 };
 
-export type TradeUpResponse =
+/** Skins of one rarity that can go into a trade-up, cheapest first. */
+export type TradeUpCandidatesResponse =
   | { readonly ok: false; readonly reason: string }
   | {
       readonly ok: true;
-      readonly inputs: readonly ItemView[];
+      readonly rarityId: string;
+      readonly inputCount: number;
+      readonly candidates: readonly ItemView[];
+      readonly currency: string;
+    };
+
+export type TradeUpOddsResponse =
+  | { readonly ok: false; readonly reason: string }
+  | {
+      readonly ok: true;
+      readonly inputCount: number;
+      readonly selected: number;
       readonly averageFloat: number;
       readonly inputCost: number;
       readonly expectedValue: number;
+      /** Chance the result is worth more than the inputs cost. */
+      readonly chanceToProfit: number;
       readonly outcomes: readonly TradeUpOutcome[];
       readonly currency: string;
     };
