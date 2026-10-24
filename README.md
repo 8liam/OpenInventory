@@ -74,3 +74,7 @@ Stack: React 19, TanStack Router and Virtual, Tailwind 4, Zustand, Vite+. The se
 - Value history is recorded hourly while OpenInventory runs, for every currency you've viewed the dashboard in, starting from your first sign-in; there is no way to backfill it.
 
 OpenInventory is not affiliated with or endorsed by Valve, Steam or Skinport.
+
+## License
+
+[PolyForm Noncommercial 1.0.0](LICENSE): you can use, modify, fork and share OpenInventory for any noncommercial purpose, but not sell it or use it commercially. That makes it source-available rather than OSI-approved open source. For commercial use, open an issue to ask.

@@ -20,3 +20,5 @@ Use [conventional commits](https://www.conventionalcommits.org): `feat(scope): .
 ## Pull requests
 
 Keep them small and focused, describe what you verified, and don't commit secrets, `.env` files or build output.
+
+By contributing you agree your work is licensed under the project's [PolyForm Noncommercial 1.0.0](LICENSE) license.
