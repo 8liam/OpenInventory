@@ -54,6 +54,7 @@ export const story = {
   chapters: [
     {
       id: 'dashboard',
+      hint: 'Hover the chart. Switch the range.',
       figure: { label: 'Total value', value: 4045.19, prefix: '$', suffix: '', decimals: 2 },
       view: 'Dashboard',
       route: '/dashboard',
@@ -66,6 +67,7 @@ export const story = {
     },
     {
       id: 'items',
+      hint: 'Search, filter and select rows.',
       figure: { label: 'Rows, inventory plus units', value: 1675, prefix: '', suffix: '', decimals: 0 },
       view: 'Items',
       route: '/items',
@@ -78,6 +80,7 @@ export const story = {
     },
     {
       id: 'storage',
+      hint: 'Pick a unit.',
       figure: { label: 'Value in 4 storage units', value: 364.16, prefix: '$', suffix: '', decimals: 2 },
       view: 'Storage units',
       route: '/storage-units',
@@ -90,6 +93,7 @@ export const story = {
     },
     {
       id: 'cases',
+      hint: 'Switch the kind.',
       figure: { label: 'Cases opened', value: 412, prefix: '', suffix: '', decimals: 0 },
       view: 'Cases',
       route: '/cases',
@@ -102,6 +106,7 @@ export const story = {
     },
     {
       id: 'tradeup',
+      hint: 'Swap the inputs.',
       figure: { label: 'Expected return', value: -20.03, prefix: '', suffix: '%', decimals: 2 },
       view: 'Trade-up',
       route: '/trade-up',

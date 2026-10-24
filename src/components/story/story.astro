@@ -1,48 +1,48 @@
 ---
-import { Image } from 'astro:assets';
 import { story } from '../../data/site.config';
+import DashboardDemo from '../../mock/demo/dashboard-demo';
+import ItemsDemo from '../../mock/demo/items-demo';
+import StorageDemo from '../../mock/demo/storage-demo';
+import CasesDemo from '../../mock/demo/cases-demo';
+import TradeUpDemo from '../../mock/demo/tradeup-demo';
+
 const total = String(story.chapters.length).padStart(2, '0');
+const fmtFig = (f: (typeof story.chapters)[number]['figure']) =>
+  `${f.value < 0 ? '-' : ''}${f.prefix}${Math.abs(f.value).toLocaleString('en-US', { minimumFractionDigits: f.decimals, maximumFractionDigits: f.decimals })}${f.suffix}`;
 ---
 <section class="story" id={story.id} aria-labelledby="story-title" data-story>
   <div class="wrap story__head">
     <h2 id="story-title" class="h-xl" data-reveal>{story.heading}</h2>
   </div>
 
-  <div class="wrap story__grid">
-    <ol class="story__chapters">
+  <div class="wrap">
+    <ol class="story__rows">
       {story.chapters.map((c, i) => (
-        <li class="chapter" data-chapter={i} id={c.id}>
-          <div class="chapter__copy" data-reveal>
-            <p class="mono muted chapter__idx">{String(i + 1).padStart(2, '0')} / {total} <span aria-hidden="true">·</span> {c.view}</p>
+        <li class:list={['row', { 'row--flip': i % 2 === 1 }]} id={c.id} data-row={i}>
+          <div class="row__copy" data-reveal>
+            <p class="mono muted row__idx">{String(i + 1).padStart(2, '0')} / {total} <span aria-hidden="true">·</span> {c.view}</p>
             <h3 class="h-l">{c.title}</h3>
-            <p class="chapter__body">{c.body}</p>
+            <p class="row__body">{c.body}</p>
             <ul class="ticks">
               {c.points.map((p) => <li>{p}</li>)}
             </ul>
+            <p class:list={['row__fig', { 'is-neg': c.figure.value < 0 }]} aria-hidden="true"
+               data-fig data-value={c.figure.value} data-prefix={c.figure.prefix} data-suffix={c.figure.suffix} data-decimals={c.figure.decimals}>
+              {fmtFig(c.figure)}<span class="mono">{c.figure.label}</span>
+            </p>
           </div>
-          <p class={`chapter__fig${c.figure.value < 0 ? ' is-neg' : ''}`} aria-hidden="true">{`${c.figure.value < 0 ? '-' : ''}${c.figure.prefix}${Math.abs(c.figure.value).toLocaleString('en-US', { minimumFractionDigits: c.figure.decimals, maximumFractionDigits: c.figure.decimals })}${c.figure.suffix}`}<span class="mono muted">{c.figure.label}</span></p>
-          <div class="shot shot--inline">
-            <Image src={c.crop} alt={c.alt} widths={[420, 640, 840]} sizes="(min-width: 700px) 640px, 94vw" format="webp" quality={85} loading="lazy" decoding="async" />
+          <div class="win">
+            <div class="win__bar mono"><span>{c.route}</span><span class="win__hint">{c.hint}</span></div>
+            <div class="win__body">
+              {c.id === 'dashboard' && <DashboardDemo client:visible />}
+              {c.id === 'items' && <ItemsDemo client:visible />}
+              {c.id === 'storage' && <StorageDemo client:visible />}
+              {c.id === 'cases' && <CasesDemo client:visible />}
+              {c.id === 'tradeup' && <TradeUpDemo client:visible />}
+            </div>
           </div>
         </li>
       ))}
     </ol>
-
-    <div class="story__stage" aria-hidden="true">
-      <div class="story__sticky">
-        <div class="shot shot--stage">
-          {story.chapters.map((c, i) => (
-            <div class="layer" data-layer={i} data-on={i === 0 ? '' : undefined}>
-              <div class="layer__img"><Image src={c.image} alt="" widths={[960, 1280, 1600]} sizes="(min-width: 1500px) 880px, 56vw" format="webp" quality={82} loading="lazy" decoding="async" /></div>
-              <div class="lens"><Image src={c.crop} alt="" widths={[480, 720]} sizes="460px" format="webp" quality={86} loading="lazy" decoding="async" /></div>
-            </div>
-          ))}
-        </div>
-        <div class="stage__cap" data-stage-cap>
-          <p class="stage__fig" data-fig>{story.chapters[0].figure.prefix}{story.chapters[0].figure.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-          <p class="mono muted"><span data-fig-label>{story.chapters[0].figure.label}</span> <span aria-hidden="true">·</span> <span data-stage-route>{story.chapters[0].route}</span></p>
-        </div>
-      </div>
-    </div>
   </div>
 </section>

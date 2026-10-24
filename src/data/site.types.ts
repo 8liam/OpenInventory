@@ -4,6 +4,7 @@ export type Figure = { label: string; value: number; prefix: string; suffix: str
 
 export type Chapter = {
   figure: Figure;
+  hint: string;
   id: string;
   view: string;
   route: string;

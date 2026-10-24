@@ -13,6 +13,8 @@
   font-display: swap;
 }
 
+@view-transition { navigation: auto; }
+
 /* Metric-matched fallbacks so the swap to Geist does not shift layout (size-adjust measured against Arial). */
 @font-face { font-family: 'Geist Fallback'; src: local('Arial'); font-weight: 400 500; size-adjust: 102.5%; }
 @font-face { font-family: 'Geist Fallback'; src: local('Arial'); font-weight: 600 700; size-adjust: 99%; }

@@ -1,8 +1,6 @@
 ---
 import { site } from '../data/site.config';
-import '../styles/tokens.css';
-import '../styles/base.css';
-import '../styles/sections.css';
+import '../styles/index.css';
 
 interface Props { title?: string; description?: string; noindex?: boolean }
 const { title = site.title, description = site.description, noindex = false } = Astro.props;

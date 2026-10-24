@@ -1,7 +1,6 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import { story } from '../data/site.config';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -97,33 +96,24 @@ if (!reduced) {
   }
 }
 
-/* Story stage: the active chapter picks the screenshot and re-reads the ledger figure. */
-const layers = [...document.querySelectorAll<HTMLElement>('[data-layer]')];
-const fig = document.querySelector<HTMLElement>('[data-fig]');
-const figLabel = document.querySelector<HTMLElement>('[data-fig-label]');
-const route = document.querySelector<HTMLElement>('[data-stage-route]');
-const setTone = (v: number) => fig?.classList.toggle('is-neg', v < 0);
-const fmtFig = (f: (typeof story.chapters)[number]['figure'], v: number) =>
-  `${v < 0 ? '-' : ''}${f.prefix}${Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: f.decimals, maximumFractionDigits: f.decimals })}${f.suffix}`;
-const shown = { v: story.chapters[0].figure.value };
-if (layers.length) {
-  const activate = (i: number) => {
-    layers.forEach((l, n) => (n === i ? l.setAttribute('data-on', '') : l.removeAttribute('data-on')));
-    const c = story.chapters[i];
-    if (!c) return;
-    if (route) route.textContent = c.route;
-    setTone(c.figure.value);
-    if (figLabel) figLabel.textContent = c.figure.label;
-    if (!fig) return;
-    if (reduced) { fig.textContent = fmtFig(c.figure, c.figure.value); return; }
-    gsap.to(shown, { v: c.figure.value, duration: 1.1, ease: 'expo.out', overwrite: true, onUpdate: () => { fig.textContent = fmtFig(c.figure, shown.v); } });
-  };
-  document.querySelectorAll<HTMLElement>('[data-chapter]').forEach((ch) => {
-    ScrollTrigger.create({
-      trigger: ch,
-      start: 'top 30%',
-      end: 'bottom 30%',
-      onToggle: (st) => { if (st.isActive) activate(Number(ch.dataset.chapter)); },
-    });
+/* Chapter figures roll up when their row first scrolls into view. */
+document.querySelectorAll<HTMLElement>('[data-fig]').forEach((el) => {
+  const target = Number(el.dataset.value);
+  const decimals = Number(el.dataset.decimals);
+  const prefix = el.dataset.prefix ?? '';
+  const suffix = el.dataset.suffix ?? '';
+  const label = el.querySelector<HTMLElement>('.mono');
+  const node = [...el.childNodes].find((n) => n.nodeType === Node.TEXT_NODE);
+  if (!node || reduced) return;
+  const fmt = (v: number) =>
+    `${v < 0 ? '-' : ''}${prefix}${Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}${suffix}`;
+  const o = { v: 0 };
+  ScrollTrigger.create({
+    trigger: el,
+    start: 'top 85%',
+    once: true,
+    onEnter: () => gsap.to(o, { v: target, duration: 1.4, ease: 'expo.out', onUpdate: () => { node.textContent = fmt(o.v); } }),
   });
-}
+  node.textContent = fmt(0);
+  void label;
+});
