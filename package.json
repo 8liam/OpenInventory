@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "description": "OpenInventory: self-hosted CS2 inventory and storage unit tracker",
+  "license": "PolyForm-Noncommercial-1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vp dev",
