@@ -1,65 +1,45 @@
 ---
-import { Image } from 'astro:assets';
-import { hero } from '../../data/site.config';
-import dashboard from '../../assets/dashboard.png';
+import { hero, lenses } from '../../data/site.config';
+import LensGallery from '../lens/lens-gallery';
+import GithubLink from '../github-link/github-link.astro';
+import { fetchStars } from '../../lib/github-stars/github-stars';
+const stars = await fetchStars();
 const words = hero.headline.split(' ');
-const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+const rest = hero.lede.slice(hero.ledeLead.length);
+const cut = rest.indexOf(hero.ledeBadge.after) + hero.ledeBadge.after.length;
+const [beforeBadge, afterBadge] = [rest.slice(0, cut - hero.ledeBadge.after.length), rest.slice(cut)];
 ---
 <section class="hero" aria-labelledby="hero-title">
-  <div class="wrap">
+  <div class="rules" aria-hidden="true"></div>
+  <div class="hero__bg" aria-hidden="true"></div>
+  <div class="hero__glow" aria-hidden="true"></div>
+  <div class="wrap hero__head">
     <h1 id="hero-title" class="hero__title" aria-label={hero.headline}>
       {words.map((w, i) => (
         <><span class="w" aria-hidden="true"><span class="w__in" style={`--i:${i}`}>{w}</span></span>{" "}</>
       ))}
     </h1>
 
-    <div class="hero__row">
-      <div class="hero__copy">
-        <p class="hero__lede"><strong>{hero.ledeLead}</strong>{hero.lede.slice(hero.ledeLead.length)}</p>
-        <div class="hero__cta">
-          <a class="btn btn--solid" href={hero.primary.href}>
-            <span class="btn__label"><span data-text={hero.primary.label}>{hero.primary.label}</span></span>
-            <span class="btn__arrow" aria-hidden="true">→</span>
-          </a>
-          <a class="btn" href={hero.secondary.href} rel="noopener">
-            <span class="btn__label"><span data-text={hero.secondary.label}>{hero.secondary.label}</span></span>
-            <span class="btn__arrow" aria-hidden="true">↗</span>
-          </a>
-        </div>
-      </div>
+    <p class="hero__lede" data-reveal style="--d:0.08s"><strong>{hero.ledeLead}</strong>{beforeBadge}<span class="hero__tie">{hero.ledeBadge.after}<img class="hero__badge" src={hero.ledeBadge.src} width="96" height="96" alt="" /></span>{afterBadge}</p>
 
-      <div class="readout">
-        <p class="mono muted readout__label"><span class="live" aria-hidden="true"></span>{hero.readout.label}</p>
-        <p class="readout__value" data-count={hero.readout.value}>
-          <span data-count-text>{fmt.format(hero.readout.value)}</span>
-        </p>
-        <svg class="spark" viewBox="0 0 400 70" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-          <path class="spark__fill" d="M0 62 C60 62 90 62 120 54 C150 44 160 34 190 34 C230 34 250 30 290 14 C320 4 360 8 400 22 L400 70 L0 70Z" />
-          <path class="spark__line" pathLength="1" d="M0 62 C60 62 90 62 120 54 C150 44 160 34 190 34 C230 34 250 30 290 14 C320 4 360 8 400 22" />
-          <circle class="spark__dot" cx="396" cy="21" r="3.5" />
-        </svg>
-        <dl class="readout__parts">
-          {hero.readout.parts.map((p) => (
-            <div><dt class="mono muted">{p.label}</dt><dd>{p.value}</dd></div>
-          ))}
-        </dl>
-      </div>
+    <div class="hero__cta" data-reveal style="--d:0.16s">
+      <a class="btn btn--solid" href={hero.primary.href}>
+        <span class="btn__label"><span data-text={hero.primary.label}>{hero.primary.label}</span></span>
+        <span class="btn__arrow" aria-hidden="true">→</span>
+      </a>
+      <GithubLink href={hero.secondary.href} label={hero.secondary.label} stars={stars} />
     </div>
   </div>
 
-  <div class="hero__stage" data-stage>
-    <div class="shot">
-      <Image
-        src={dashboard}
-        alt={hero.screenshotAlt}
-        widths={[800, 1200, 1600]}
-        sizes="(min-width: 1500px) 1400px, 94vw"
-        format="webp"
-        quality={82}
-        loading="eager"
-        fetchpriority="low"
-        decoding="async"
-      />
-    </div>
+  <div class="wrap hero__foot">
+    <p class="hero__stat" data-count={hero.stat.value}>
+      <span class="hero__stat-label mono muted">{hero.stat.label}</span>
+      <span class="hero__stat-value" data-count-text>$4,045.19</span>
+    </p>
+    <p class="hero__note mono muted" data-reveal style="--d:0.24s">{lenses.note}</p>
+  </div>
+
+  <div class="hero__stage">
+    <LensGallery lenses={lenses.items} client:visible />
   </div>
 </section>

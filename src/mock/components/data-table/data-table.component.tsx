@@ -100,7 +100,7 @@ export function DataTable<Row>({
               onClick={() => toggleSort(column)}
               title={column.sortValue ? `Sort by ${column.header}` : undefined}
               className={cn(
-                "flex h-9 items-center gap-1 outline-none enabled:hover:text-foreground",
+                "flex h-9 items-center gap-1 rounded-md px-1.5 outline-none enabled:hover:bg-foreground/10 enabled:hover:text-foreground",
                 column.align === "right" && "justify-end",
               )}
             >

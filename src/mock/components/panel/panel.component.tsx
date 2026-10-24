@@ -6,7 +6,7 @@ export function Panel({ title, action, children, className }: PanelProps) {
     <section className={cn("rounded-xl border bg-card", className)}>
       {title && (
         <header className="flex items-center justify-between gap-3 px-4 pt-3.5">
-          <h4 className="text-[13px] font-medium">{title}</h4>
+          <div className="text-[13px] font-medium">{title}</div>
           {action}
         </header>
       )}

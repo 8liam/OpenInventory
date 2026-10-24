@@ -1,5 +1,8 @@
 ---
 import { nav, site } from '../../data/site.config';
+import GithubLink from '../github-link/github-link.astro';
+import { fetchStars } from '../../lib/github-stars/github-stars';
+const stars = await fetchStars();
 ---
 <header class="hdr">
   <div class="wrap hdr__in">
@@ -9,7 +12,7 @@ import { nav, site } from '../../data/site.config';
     </a>
     <nav aria-label="Primary" class="hdr__nav" id="primary-nav">
       {nav.map((n) => <a class="link" href={n.href}>{n.label}</a>)}
-      <a class="hdr__gh link" href={site.repo} rel="noopener">GitHub<span aria-hidden="true"> ↗</span></a>
+      <GithubLink href={site.repo} label="GitHub" stars={stars} variant="chip" />
     </nav>
     <button type="button" class="hdr__menu" aria-expanded="false" aria-controls="primary-nav" data-menu>
       <span class="hdr__menu-l" data-menu-label>Menu</span>

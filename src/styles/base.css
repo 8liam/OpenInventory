@@ -45,31 +45,40 @@ html.lenis, html.lenis body { height: auto; }
 .mono { font-family: var(--f-mono); font-size: var(--t-xs); letter-spacing: 0.04em; text-transform: uppercase; }
 .muted { color: var(--c-muted); }
 
-/* Buttons: the label rolls like an odometer on hover and focus. */
+/* Buttons: flat. Solid warms to gold, outline gains a tint and brighter border; the arrow leans, press settles. */
 .btn {
   --h: 3.25rem;
-  position: relative; display: inline-flex; align-items: center; gap: 0.75em;
+  position: relative; display: inline-flex; align-items: center; gap: 0.7em;
   min-height: var(--h); padding: 0 1.5rem; border-radius: 999px;
-  font-weight: 500; font-size: var(--t-s); overflow: hidden; isolation: isolate;
-  border: 1px solid var(--c-line);
+  font-weight: 500; font-size: var(--t-s); isolation: isolate;
+  border: 1px solid rgb(255 255 255 / 0.2); background: rgb(255 255 255 / 0.02); color: var(--c-fg);
+  transition: scale 0.2s var(--ease-out), background-color 0.3s var(--ease-out), border-color 0.3s var(--ease-out), color 0.3s var(--ease-out);
 }
 .btn--solid { background: var(--c-fg); color: var(--c-bg); border-color: var(--c-fg); }
-.btn__label { position: relative; display: block; overflow: hidden; height: 1.25em; line-height: 1.25; }
-.btn__label > span { display: block; transition: transform 0.55s var(--ease-out); }
-.btn__label > span::after { content: attr(data-text); position: absolute; left: 0; top: 100%; white-space: nowrap; }
-.btn:hover .btn__label > span, .btn:focus-visible .btn__label > span { transform: translateY(-100%); }
-.btn::before {
-  content: ''; position: absolute; inset: 0; z-index: -1; background: var(--c-accent);
-  transform: translateY(101%); transition: transform 0.55s var(--ease-out);
-}
-.btn:hover::before, .btn:focus-visible::before { transform: none; }
-.btn:hover, .btn:focus-visible { color: var(--c-accent-ink); border-color: var(--c-accent); }
-.btn:hover, .btn:focus-visible { color: var(--c-accent-ink); border-color: var(--c-accent); }
-.btn:not(.btn--solid)::before { background: var(--c-fg); }
-.btn:not(.btn--solid):hover, .btn:not(.btn--solid):focus-visible { color: var(--c-bg); border-color: var(--c-fg); }
-.btn:active { scale: 0.97; }
-.btn__arrow { transition: transform 0.55s var(--ease-out); }
-.btn:hover .btn__arrow, .btn:focus-visible .btn__arrow { transform: translateX(4px); }
+.btn__label { display: block; line-height: 1.25; }
+.btn__label > span { display: block; }
+.btn__arrow { display: inline-block; transition: translate 0.35s var(--ease-out); }
+.btn:hover .btn__arrow, .btn:focus-visible .btn__arrow { translate: 3px 0; }
+.btn--solid:hover, .btn--solid:focus-visible { background: var(--c-accent); border-color: var(--c-accent); color: var(--c-accent-ink); }
+.btn:not(.btn--solid):hover, .btn:not(.btn--solid):focus-visible { background: rgb(255 255 255 / 0.09); border-color: rgb(255 255 255 / 0.55); }
+.btn:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 3px; }
+.btn:active { scale: 0.98; transition-duration: 0.08s; }
+@media (prefers-reduced-motion: reduce) { .btn, .btn__arrow { transition: background-color 0.2s, border-color 0.2s, color 0.2s; } .btn:hover .btn__arrow, .btn:focus-visible .btn__arrow { translate: none; } }
+
+/* GitHub link: mark + label + live star count. Same treatment as .btn; the chip is the compact header form. */
+.ghl { white-space: nowrap; }
+.ghl__icon { flex: none; }
+.ghl__stars { display: inline-flex; align-items: center; gap: 0.3em; padding: 0.2em 0.6em; margin-right: -0.6em; border-radius: 999px; font-family: var(--f-mono); font-size: var(--t-xs); background: rgb(255 255 255 / 0.1); color: inherit; transition: color 0.3s var(--ease-out), background-color 0.3s var(--ease-out); }
+.ghl__stars[hidden] { display: none; }
+.ghl__stars svg { color: var(--c-accent); transition: rotate 0.5s var(--ease-out), scale 0.5s var(--ease-out), color 0.3s var(--ease-out); }
+.ghl:hover .ghl__stars svg, .ghl:focus-visible .ghl__stars svg { rotate: 72deg; scale: 1.2; }
+.btn--solid .ghl__stars, .ghl.btn--solid:hover .ghl__stars { background: rgb(0 0 0 / 0.1); }
+.btn.ghl:hover .ghl__stars svg, .btn.ghl:focus-visible .ghl__stars svg { color: var(--c-accent); }
+.hdr__nav a.ghl--chip { display: inline-flex; align-items: center; gap: 0.5em; margin-inline: 0; padding: 0.4rem 0.5rem 0.4rem 0.8rem; border: 1px solid rgb(255 255 255 / 0.2); border-radius: 999px; color: var(--c-fg); font-size: var(--t-s); transition: background-color 0.3s var(--ease-out), border-color 0.3s var(--ease-out); }
+.hdr__nav a.ghl--chip:hover, .hdr__nav a.ghl--chip:focus-visible { background: rgb(255 255 255 / 0.09); border-color: rgb(255 255 255 / 0.55); color: var(--c-fg); }
+.hdr__nav a.ghl--chip:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 3px; }
+.hdr__nav a.ghl--chip .ghl__stars { margin-right: 0; }
+.hdr__nav a.ghl--chip:not(:has([data-stars-n]:not(:empty))) { padding-right: 0.8rem; }
 
 /* Text links: underline draws in from the left. */
 .link { position: relative; padding-block: 0.25em; }
@@ -84,6 +93,12 @@ html.lenis, html.lenis body { height: auto; }
 /* Reveal: only hidden when JS and motion are both available. */
 .motion [data-reveal] { opacity: 0; transform: translateY(28px); }
 .motion [data-reveal].is-in { opacity: 1; transform: none; transition: opacity 1s var(--ease-out), transform 1.1s var(--ease-out); transition-delay: var(--d, 0s); }
+/* Above-the-fold hero copy animates on CSS alone: it must paint without waiting for the
+   JS bundle, or slow connections hold the LCP element at opacity 0 until it downloads. */
+@keyframes rise-in { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+.motion .hero [data-reveal] { animation: rise-in 0.9s var(--ease-out) both; animation-delay: calc(0.15s + var(--d, 0s)); }
+/* Return visits skip the intro: show the copy immediately, never hide it until JS. */
+.seen .hero [data-reveal] { animation: none; opacity: 1; transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }

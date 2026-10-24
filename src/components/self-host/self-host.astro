@@ -5,8 +5,10 @@ import CopyButton from '../copy-button/copy-button.astro';
 <section class="host" id={selfHost.id} aria-labelledby="host-title">
   <div class="wrap host__grid">
     <div class="host__lead">
-      <h2 id="host-title" class="h-xl" data-reveal>{selfHost.heading}</h2>
-      <p class="host__body" data-reveal>{selfHost.body}</p>
+      <div class="host__lead-in">
+        <h2 id="host-title" class="h-xl" data-reveal>{selfHost.heading}</h2>
+        <p class="host__body" data-reveal>{selfHost.body}</p>
+      </div>
     </div>
 
     <div class="host__main">

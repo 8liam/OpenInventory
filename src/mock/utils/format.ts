@@ -74,6 +74,17 @@ export function formatDate(timestamp: number): string {
   return dateFormatter.format(timestamp);
 }
 
+/** Month and day only — for narrow charts where the year would collide with a neighbour. */
+const dateCompactFormatter = new Intl.DateTimeFormat(FORMAT_LOCALE, {
+  month: "short",
+  day: "numeric",
+  timeZone: "UTC",
+});
+
+export function formatDateCompact(timestamp: number): string {
+  return dateCompactFormatter.format(timestamp);
+}
+
 const dateTimeFormatter = new Intl.DateTimeFormat(FORMAT_LOCALE, {
   month: "short",
   day: "numeric",

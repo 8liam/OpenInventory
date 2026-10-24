@@ -57,6 +57,26 @@ const jsonLd = {
       if (sessionStorage.getItem('oi-seen')) document.documentElement.classList.add('seen');
       if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion');
     </script>
+    <script is:inline>
+      // Collapse the lens gallery to its active panel on first paint. SSR renders all five
+      // panels (so no-JS and crawlers get everything); hiding the rest before first paint
+      // keeps the layout from jumping when the island hydrates, which would shift every
+      // section below it out from under ScrollTrigger's cached positions. If the gallery
+      // markup ever changes, failing open (stacked) is the safe fallback.
+      addEventListener('DOMContentLoaded', function () {
+        try {
+          var stage = document.querySelector('.lens__stage');
+          if (!stage) return;
+          var active = stage.querySelector('.lens__panel.is-on');
+          if (!active) return;
+          var panels = stage.querySelectorAll('.lens__panel');
+          for (var i = 0; i < panels.length; i++) {
+            if (panels[i] !== active) panels[i].setAttribute('hidden', '');
+          }
+          document.querySelector('.lens')?.classList.add('is-enhanced');
+        } catch (e) { /* leave the gallery stacked */ }
+      });
+    </script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>

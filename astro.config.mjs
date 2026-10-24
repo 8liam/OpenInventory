@@ -13,6 +13,7 @@ export default defineConfig({
   image: { layout: 'constrained' },
   vite: {
     plugins: [tailwindcss()],
+    server: { allowedHosts: ['.ts.net'] },
     // `~` is the vendored OpenInventory UI, so its imports stay identical to the source repo.
     resolve: { alias: { '~': fileURLToPath(new URL('./src/mock', import.meta.url)) } },
   },

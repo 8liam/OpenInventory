@@ -22,13 +22,13 @@
 
 :root {
   /* Palette, named by role. Emerald is the value line from the product's own chart. */
-  --c-bg: #0a0a0b;
+  --c-bg: #0b0e12;
   --c-surface: #111113;
   --c-fg: #f3f2ee;
   --c-muted: #c0c0bb;
   --c-line: rgb(255 255 255 / 0.11);
-  --c-accent: #2bd49a;
-  --c-accent-ink: #04140d;
+  --c-accent: #de9b35;
+  --c-accent-ink: #1a1004;
 
   --f-body: 'Geist', 'Geist Fallback', ui-sans-serif, system-ui, sans-serif;
   --f-mono: 'Geist Mono', 'Geist Mono Fallback', ui-monospace, 'SF Mono', Menlo, monospace;
