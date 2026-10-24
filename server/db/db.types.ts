@@ -1,3 +1,4 @@
+import type { HistoryEvent, HistorySyncState } from "../cases/cases.types.ts";
 import type { GcItem } from "../steam/steam.types.ts";
 
 export type ValueSnapshot = {
@@ -29,5 +30,12 @@ export type Database = {
   readonly addSnapshot: (key: SnapshotKey, snapshot: ValueSnapshot) => void;
   readonly lastSnapshotAt: (key: SnapshotKey) => number | undefined;
   readonly listSnapshots: (key: SnapshotKey) => readonly ValueSnapshot[];
+  /** Stores events not seen before and returns how many were new. */
+  readonly saveHistoryEvents: (steamId: string, events: readonly HistoryEvent[]) => number;
+  readonly hasHistoryEvent: (steamId: string, eventId: string) => boolean;
+  /** Every stored event, newest first. */
+  readonly loadHistoryEvents: (steamId: string) => readonly HistoryEvent[];
+  readonly loadHistorySync: (steamId: string) => HistorySyncState | undefined;
+  readonly saveHistorySync: (steamId: string, state: HistorySyncState) => void;
   readonly close: () => void;
 };
