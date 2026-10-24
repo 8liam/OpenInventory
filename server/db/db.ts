@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { SERVER_LIMITS } from "../server.config.ts";
 import type { GcItem } from "../steam/steam.types.ts";
+import type { HistoryEvent, HistorySyncState } from "../cases/cases.types.ts";
 import type { Database, SnapshotKey, ValueSnapshot } from "./db.types.ts";
 
 const DB_FILE = "openinventory.db";
@@ -35,6 +36,17 @@ const SCHEMA = `
     storage_value REAL NOT NULL,
     item_count INTEGER NOT NULL,
     PRIMARY KEY (steam_id, currency, taken_at)
+  );
+  CREATE TABLE IF NOT EXISTS history_events (
+    steam_id TEXT NOT NULL,
+    event_id TEXT NOT NULL,
+    occurred_at INTEGER NOT NULL,
+    event_json TEXT NOT NULL,
+    PRIMARY KEY (steam_id, event_id)
+  );
+  CREATE TABLE IF NOT EXISTS history_sync (
+    steam_id TEXT PRIMARY KEY,
+    state_json TEXT NOT NULL
   );
 `;
 
@@ -84,6 +96,19 @@ export function openDatabase(dataDir: string): Database {
   );
   const listSnapshots = db.prepare(
     "SELECT taken_at, total_value, inventory_value, storage_value, item_count FROM value_snapshots WHERE steam_id = ? AND currency = ? ORDER BY taken_at",
+  );
+  const insertEvent = db.prepare(
+    "INSERT OR IGNORE INTO history_events (steam_id, event_id, occurred_at, event_json) VALUES (?, ?, ?, ?)",
+  );
+  const listEvents = db.prepare(
+    "SELECT event_json FROM history_events WHERE steam_id = ? ORDER BY occurred_at DESC, event_id DESC",
+  );
+  const hasEvent = db.prepare(
+    "SELECT 1 AS present FROM history_events WHERE steam_id = ? AND event_id = ?",
+  );
+  const getSync = db.prepare("SELECT state_json FROM history_sync WHERE steam_id = ?");
+  const putSync = db.prepare(
+    "INSERT INTO history_sync (steam_id, state_json) VALUES (?, ?) ON CONFLICT(steam_id) DO UPDATE SET state_json = excluded.state_json",
   );
   const pruneSnapshots = db.prepare("DELETE FROM value_snapshots WHERE taken_at < ?");
 
@@ -146,6 +171,29 @@ export function openDatabase(dataDir: string): Database {
         storageValue: Number(row.storage_value),
         itemCount: Number(row.item_count),
       }));
+    },
+    saveHistoryEvents(steamId, events) {
+      let added = 0;
+      for (const event of events) {
+        const result = insertEvent.run(steamId, event.id, event.occurredAt, JSON.stringify(event));
+        added += Number(result.changes);
+      }
+      return added;
+    },
+    hasHistoryEvent(steamId, eventId) {
+      return hasEvent.get(steamId, eventId) !== undefined;
+    },
+    loadHistoryEvents(steamId) {
+      return (listEvents.all(steamId) as Row[]).map(
+        (row) => JSON.parse(String(row.event_json)) as HistoryEvent,
+      );
+    },
+    loadHistorySync(steamId) {
+      const row = getSync.get(steamId) as Row | undefined;
+      return row ? (JSON.parse(String(row.state_json)) as HistorySyncState) : undefined;
+    },
+    saveHistorySync(steamId, state) {
+      putSync.run(steamId, JSON.stringify(state));
     },
     close: () => db.close(),
   };

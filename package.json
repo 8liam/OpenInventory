@@ -3,7 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "description": "OpenInventory: self-hosted CS2 inventory and storage unit tracker",
+  "homepage": "https://github.com/8liam/OpenInventory",
+  "author": {
+    "name": "8liam"
+  },
   "type": "module",
+  "main": "electron-dist/main.mjs",
   "scripts": {
     "dev": "vp dev",
     "build": "tsc -b && vp build",
@@ -11,10 +16,15 @@
     "preview": "vp preview",
     "prepare": "vp config",
     "api": "node server/index.ts",
-    "test": "node --test \"server/**/*.test.ts\""
+    "test": "node --test \"server/**/*.test.ts\"",
+    "desktop:bundle": "node scripts/build-electron.ts",
+    "desktop:start": "vp build && pnpm desktop:bundle && electron .",
+    "desktop:dist": "vp build && pnpm desktop:bundle && electron-builder --publish never"
   },
   "dependencies": {
+    "electron-updater": "^6.8.11",
     "globaloffensive": "^3.3.0",
+    "node-html-parser": "^9.0.4",
     "qrcode": "^1.5.4",
     "steam-session": "^1.9.4",
     "steam-user": "^5.3.0"
@@ -31,6 +41,9 @@
     "@types/steam-user": "^5.1.1",
     "@vitejs/plugin-react": "^6.1.1",
     "clsx": "^2.1.1",
+    "electron": "^45.0.0",
+    "electron-builder": "^26.18.0",
+    "esbuild": "^0.28.2",
     "lucide-react": "^1.58.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

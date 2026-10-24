@@ -2,11 +2,14 @@ export const STORAGE_API = {
   refresh: "/api/refresh",
   items: "/api/items",
   dashboard: "/api/dashboard",
+  cases: "/api/cases",
+  casesSync: "/api/cases/sync",
   state: "/api/state",
   events: "/api/events",
   qrLogin: "/api/auth/qr",
   logout: "/api/auth/logout",
   tradeUp: "/api/tradeup",
+  tradeUpOdds: "/api/tradeup/odds",
   transfer: "/api/transfer",
   transferCancel: "/api/transfer/cancel",
   transferDismiss: "/api/transfer/dismiss",
@@ -23,6 +26,7 @@ export const AUTH_STATUS = {
 
 export const STORAGE_LIMITS = {
   qrLoginTimeoutMs: 120_000,
+  webSessionTimeoutMs: 15_000,
   gcConnectTimeoutMs: 30_000,
   reconnectBaseMs: 2_000,
   reconnectMaxMs: 5 * 60_000,
@@ -71,9 +75,11 @@ export const ITEM_DATA = {
 } as const;
 
 export const PRICE_DATA = {
-  url: "https://api.skinport.com/v1/items",
-  appId: 730,
-  cachePrefix: "prices:",
+  /** Static USD price files per marketplace plus an exchange-rate file, all from CSGOTrader. */
+  baseUrl: "https://prices.csgotrader.app/latest",
+  ratesFile: "exchange_rates",
+  /** Bumped when the stored book shape changes (v2 added Doppler phase prices). */
+  cachePrefix: "prices:v2:",
   cacheTtlMs: 10 * 60 * 1000,
   fetchTimeoutMs: 30_000,
 } as const;
@@ -106,6 +112,7 @@ export const GC_ATTRIBUTE = {
   musicId: 166,
   sprayTintId: 233,
   keychainId: 299,
+  keychainPattern: 306,
   keychainHighlight: 314,
   keychainSticker: 321,
 } as const;
@@ -114,6 +121,34 @@ export const SOUVENIR_QUALITY = 12;
 
 export const TRADE_UP = {
   inputCount: 10,
+  /** Covert skins trade up to a knife or glove, five at a time. */
+  covertRarity: "rarity_ancient_weapon",
+  covertInputCount: 5,
+  /** Colour of a knife/glove outcome (same gold as the case-opening list). */
+  specialColor: "#d4af37",
+  /**
+   * Odds of each phase within a Doppler-family finish (the finish itself is one
+   * equal share of its knife). Fitted to a reference trade-up calculator's output.
+   */
+  phaseWeights: {
+    doppler: {
+      "Phase 1": 0.2,
+      "Phase 2": 0.2,
+      "Phase 3": 0.2,
+      "Phase 4": 0.2,
+      Ruby: 0.09,
+      Sapphire: 0.09,
+      "Black Pearl": 0.02,
+    },
+    gammaDoppler: {
+      "Phase 1": 0.23,
+      "Phase 2": 0.23,
+      "Phase 3": 0.23,
+      "Phase 4": 0.23,
+      Emerald: 0.08,
+    },
+  },
+  gammaDopplerName: "Gamma Doppler",
   defaultInputRarity: "rarity_rare_weapon",
   rarityOrder: [
     "rarity_common_weapon",
