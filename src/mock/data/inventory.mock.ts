@@ -40,7 +40,7 @@ const CURATED: readonly Seed[] = [
   { name: '★ Butterfly Knife | Vanilla', price: 1062.86 },
   { name: '★ Karambit | Slaughter (Factory New)', price: 977.66, wear: 0.0452 },
   { name: '★ Sport Gloves | Nocts (Field-Tested)', price: 489.39, wear: 0.1963 },
-  { name: 'Tec-9 | Cut Out (Factory New)', price: 173.23, wear: 0.0681 },
+  { name: 'Tec-9 | Whiteout (Factory New)', price: 173.23, wear: 0.0681 },
   { name: 'M4A1-S | Control Panel (Factory New)', price: 123.95, wear: 0.0501 },
   { name: 'AK-47 | Inheritance (Factory New)', price: 88.93, wear: 0.0653, stickers: ['Sticker | Aerial | Katowice 2019', 'Sticker | ableJ | Katowice 2019', 'Sticker | Aerial | Katowice 2019', 'Sticker | ableJ | Katowice 2019', 'Sticker | Aerial | Katowice 2019'] },
   { name: 'Glock-18 | Gamma Doppler (Factory New)', price: 85.12, wear: 0.0342 },
@@ -78,7 +78,7 @@ const CURATED: readonly Seed[] = [
 const FILLER_SKINS = [
   'AK-47 | Redline (Field-Tested)', 'AWP | Asiimov (Field-Tested)', 'M4A1-S | Decimator (Field-Tested)', 'P90 | Trigon (Field-Tested)',
   'MP7 | Abyssal Apparition (Factory New)', 'Glock-18 | Shinobu (Factory New)', 'USP-S | The Traitor (Field-Tested)', 'FAMAS | Meow 36 (Battle-Scarred)',
-  'Negev | Drop Me (Field-Tested)', 'M4A4 | Poly Mag (Minimal Wear)', 'Tec-9 | Cut Out (Factory New)', 'MP9 | Starlight Protector (Battle-Scarred)',
+  'Negev | Drop Me (Field-Tested)', 'M4A4 | Poly Mag (Minimal Wear)', 'Tec-9 | Whiteout (Factory New)', 'MP9 | Starlight Protector (Battle-Scarred)',
 ] as const;
 const FILLER_STICKERS = [
   'Sticker | Aerial | Katowice 2019', 'Sticker | Miami Stabbyfish', 'Sticker | Blue Lethal', 'Sticker | Green Shark Shooter',

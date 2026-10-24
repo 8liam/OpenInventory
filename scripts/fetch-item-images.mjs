@@ -8,7 +8,7 @@ const stickers = JSON.parse(fs.readFileSync('/tmp/stickers.json', 'utf8'));
 const NAMES = {
   skins: [
     '★ Karambit | Slaughter (Factory New)', '★ Sport Gloves | Nocts (Field-Tested)',
-    'Tec-9 | Cut Out (Factory New)', 'M4A1-S | Control Panel (Factory New)', 'AK-47 | Inheritance (Factory New)',
+    'Tec-9 | Whiteout (Factory New)', 'M4A1-S | Control Panel (Factory New)', 'AK-47 | Inheritance (Factory New)',
     'Glock-18 | Gamma Doppler (Factory New)', 'MP9 | Starlight Protector (Factory New)', 'Desert Eagle | Cobalt Disruption (Factory New)',
     'M4A4 | Temukau (Factory New)', 'R8 Revolver | Fade (Field-Tested)', 'MP9 | Starlight Protector (Battle-Scarred)',
     'AK-47 | Nightwish (Battle-Scarred)', 'Desert Eagle | Printstream (Well-Worn)', 'AK-47 | Aquamarine Revenge (Field-Tested)',

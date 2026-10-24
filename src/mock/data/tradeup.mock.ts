@@ -17,7 +17,7 @@ const CANDIDATE_NAMES = [
   'Glock-18 | Gamma Doppler (Factory New)',
   'AK-47 | Inheritance (Factory New)',
   'M4A1-S | Control Panel (Factory New)',
-  'Tec-9 | Cut Out (Factory New)',
+  'Tec-9 | Whiteout (Factory New)',
 ] as const;
 
 const CANDIDATES: readonly ItemView[] = CANDIDATE_NAMES.map((name) => INVENTORY_MOCK.find((i) => i.locationId === 'inventory' && i.marketHashName === name))

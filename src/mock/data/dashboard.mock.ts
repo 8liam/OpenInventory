@@ -90,7 +90,7 @@ export const DASHBOARD_MOCK: Dashboard = {
     holding('★ Butterfly Knife | Vanilla', 1, 1062.86),
     holding('★ Karambit | Slaughter (Factory New)', 1, 977.66),
     holding('★ Sport Gloves | Nocts (Field-Tested)', 1, 489.39),
-    holding('Tec-9 | Cut Out (Factory New)', 1, 173.23),
+    holding('Tec-9 | Whiteout (Factory New)', 1, 173.23),
     holding('M4A1-S | Control Panel (Factory New)', 1, 123.95),
   ],
   insights: {

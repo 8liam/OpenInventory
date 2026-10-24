@@ -1,26 +1,20 @@
 {
-  "★ Butterfly Knife | Vanilla": {
+  "\u2605 Butterfly Knife | Vanilla": {
     "file": "/demo/butterfly-knife-vanilla.webp",
     "color": "#eb4b4b",
     "rarity": "Extraordinary",
     "kind": "skin"
   },
-  "★ Karambit | Slaughter (Factory New)": {
+  "\u2605 Karambit | Slaughter (Factory New)": {
     "file": "/demo/karambit-slaughter-factory-new.webp",
     "color": "#eb4b4b",
     "rarity": "Covert",
     "kind": "skin"
   },
-  "★ Sport Gloves | Nocts (Field-Tested)": {
+  "\u2605 Sport Gloves | Nocts (Field-Tested)": {
     "file": "/demo/sport-gloves-nocts-field-tested.webp",
     "color": "#eb4b4b",
     "rarity": "Extraordinary",
-    "kind": "skin"
-  },
-  "Tec-9 | Cut Out (Factory New)": {
-    "file": "/demo/tec-9-cut-out-factory-new.webp",
-    "color": "#4b69ff",
-    "rarity": "Mil-Spec Grade",
     "kind": "skin"
   },
   "M4A1-S | Control Panel (Factory New)": {
@@ -95,37 +89,37 @@
     "rarity": "Covert",
     "kind": "skin"
   },
-  "★ Falchion Knife | Slaughter (Minimal Wear)": {
+  "\u2605 Falchion Knife | Slaughter (Minimal Wear)": {
     "file": "/demo/falchion-knife-slaughter-minimal-wear.webp",
     "color": "#eb4b4b",
     "rarity": "Covert",
     "kind": "skin"
   },
-  "★ Falchion Knife | Fade (Factory New)": {
+  "\u2605 Falchion Knife | Fade (Factory New)": {
     "file": "/demo/falchion-knife-fade-factory-new.webp",
     "color": "#eb4b4b",
     "rarity": "Covert",
     "kind": "skin"
   },
-  "★ Falchion Knife | Case Hardened (Battle-Scarred)": {
+  "\u2605 Falchion Knife | Case Hardened (Battle-Scarred)": {
     "file": "/demo/falchion-knife-case-hardened-battle-scarred.webp",
     "color": "#eb4b4b",
     "rarity": "Covert",
     "kind": "skin"
   },
-  "★ Falchion Knife | Crimson Web (Well-Worn)": {
+  "\u2605 Falchion Knife | Crimson Web (Well-Worn)": {
     "file": "/demo/falchion-knife-crimson-web-well-worn.webp",
     "color": "#eb4b4b",
     "rarity": "Covert",
     "kind": "skin"
   },
-  "★ Falchion Knife | Night (Well-Worn)": {
+  "\u2605 Falchion Knife | Night (Well-Worn)": {
     "file": "/demo/falchion-knife-night-well-worn.webp",
     "color": "#eb4b4b",
     "rarity": "Covert",
     "kind": "skin"
   },
-  "★ Bowie Knife | Tiger Tooth (Factory New)": {
+  "\u2605 Bowie Knife | Tiger Tooth (Factory New)": {
     "file": "/demo/bowie-knife-tiger-tooth-factory-new.webp",
     "color": "#eb4b4b",
     "rarity": "Covert",
@@ -155,7 +149,7 @@
     "rarity": "Classified",
     "kind": "skin"
   },
-  "StatTrak™ Five-SeveN | Fowl Play (Factory New)": {
+  "StatTrak\u2122 Five-SeveN | Fowl Play (Factory New)": {
     "file": "/demo/stattrak-five-seven-fowl-play-factory-new.webp",
     "color": "#d32ce6",
     "rarity": "Classified",
@@ -250,5 +244,11 @@
     "color": "#4b69ff",
     "rarity": "High Grade",
     "kind": "sticker"
+  },
+  "Tec-9 | Whiteout (Factory New)": {
+    "file": "/demo/tec-9-whiteout-factory-new.webp",
+    "color": "#8847ff",
+    "rarity": "Restricted",
+    "kind": "skin"
   }
 }
