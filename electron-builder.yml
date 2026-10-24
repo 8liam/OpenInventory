@@ -1,0 +1,37 @@
+appId: com.openinventory.app
+productName: OpenInventory
+artifactName: OpenInventory-${version}-${os}-${arch}.${ext}
+directories:
+  output: release
+# Unpacked on purpose: steam-user & co read data files next to themselves, which asar breaks.
+asar: false
+files:
+  - electron-dist/**
+  - dist/**
+  - package.json
+publish:
+  provider: github
+  owner: 8liam
+  repo: OpenInventory
+mac:
+  category: public.app-category.utilities
+  # Ad-hoc signature: keeps the bundle launchable on Apple Silicon without a paid Developer ID.
+  identity: "-"
+  hardenedRuntime: false
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+    - target: zip
+      arch: [x64, arm64]
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+nsis:
+  oneClick: true
+  perMachine: false
+linux:
+  category: Utility
+  target:
+    - target: AppImage
+      arch: [x64]

@@ -1,3 +1,8 @@
+allowBuilds:
+  electron: true
+  electron-winstaller: false
+  esbuild: true
+  protobufjs: false
 catalog:
   vite: npm:@voidzero-dev/vite-plus-core@1.1.0
   vite-plus: 1.1.0
