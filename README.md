@@ -13,6 +13,12 @@ Self-hosted CS2 inventory and storage unit tracker. Sign in once with the Steam 
 
 - **Move items**: select items on the Items or Storage page and move them between your inventory and storage units (unit to unit goes through your inventory). Each move is confirmed by the Game Coordinator, with live progress, cancel, and a per-item error report. Nothing is ever listed or traded.
 
+## Desktop app
+
+Download the installer for your OS from the [latest release](https://github.com/8liam/OpenInventory/releases/latest): Windows (`.exe`), macOS (`.dmg`) or Linux (`.AppImage`). The app updates itself on Windows and Linux; on macOS it tells you when a new version is out and links to the download.
+
+The builds aren't code-signed (no paid certificates), so the first launch shows a warning: on Windows choose **More info → Run anyway**; on macOS right-click the app and choose **Open** (or run `xattr -cr /Applications/OpenInventory.app`). Every release is built by [GitHub Actions](.github/workflows/release.yml) straight from `main`, so you can verify what you download.
+
 ## Run with Docker
 
 ```sh
