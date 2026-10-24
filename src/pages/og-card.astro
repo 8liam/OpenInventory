@@ -5,16 +5,23 @@ import dashboard from '../assets/dashboard.png';
 ---
 <Base title="OG card" noindex>
   <section class="og">
-    <p class="og__t">Your inventory. Open.</p>
-    <p class="og__s">Self-hosted CS2 inventory and storage unit tracker</p>
-    <div class="og__img"><Image src={dashboard} alt="" width={1100} format="webp" loading="eager" /></div>
+    <div class="og__panel">
+      <div class="og__bg"></div>
+      <p class="og__brand"><img src="/logo.svg" alt="" width="34" height="34" />OpenInventory</p>
+      <p class="og__t">Your inventory.<br />Open.</p>
+      <p class="og__s">Self-hosted CS2 inventory<br />and storage unit tracker</p>
+      <div class="og__img"><Image src={dashboard} alt="" width={1000} format="webp" loading="eager" /></div>
+    </div>
   </section>
 </Base>
 <style is:global>
-  .og { position: relative; width: 1200px; height: 630px; overflow: hidden; padding: 56px 64px; background: radial-gradient(60% 80% at 80% 90%, rgb(222 155 53 / 0.22), transparent), var(--c-bg); }
-  .og__t { font-size: 72px; line-height: 0.95; letter-spacing: -0.055em; font-weight: 600; max-width: 700px; }
-  .og__s { margin-top: 22px; font-family: var(--f-mono); font-size: 18px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--c-accent); }
-  .og__img { position: absolute; left: 330px; top: 360px; width: 1000px; border: 1px solid var(--c-line); border-radius: 14px; overflow: hidden; box-shadow: 0 30px 80px rgb(0 0 0 / 0.7); }
-  .og__img img { width: 100%; }
+  .og { position: relative; width: 1200px; height: 630px; overflow: hidden; padding: 20px; background: var(--c-bg); }
+  .og__panel { position: relative; width: 100%; height: 100%; overflow: hidden; border: 1px solid var(--c-line); border-radius: 36px; isolation: isolate; }
+  .og__bg { position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgb(11 14 18 / 0.9), rgb(11 14 18 / 0.35) 70%), linear-gradient(180deg, rgb(11 14 18 / 0.15), rgb(11 14 18 / 0.7)), url('/hero-warehouse.webp') center / cover no-repeat; }
+  .og__brand { position: absolute; left: 56px; top: 48px; display: flex; align-items: center; gap: 12px; font-size: 24px; font-weight: 600; letter-spacing: -0.01em; }
+  .og__t { position: absolute; left: 52px; top: 128px; font-size: 108px; line-height: 0.95; letter-spacing: -0.055em; font-weight: 600; }
+  .og__s { position: absolute; left: 56px; top: 372px; font-family: var(--f-mono); font-size: 19px; line-height: 1.45; text-transform: uppercase; letter-spacing: 0.05em; color: var(--c-accent); }
+  .og__img { position: absolute; left: 600px; top: 330px; width: 740px; border: 1px solid rgb(255 255 255 / 0.14); border-radius: 18px; overflow: hidden; box-shadow: 0 30px 80px rgb(0 0 0 / 0.75), 0 0 80px -20px rgb(222 155 53 / 0.35); }
+  .og__img img { width: 100%; display: block; }
   .skip-link, .hdr { display: none; }
 </style>
