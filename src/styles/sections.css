@@ -65,6 +65,14 @@
 .hero__lede strong { color: var(--c-fg); font-weight: 400; }
 .hero__cta { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: clamp(1.75rem, 1.5rem + 1vw, 2.5rem); justify-content: center; }
 
+.btn__icon { display: inline-grid; place-items: center; width: 18px; height: 18px; }
+.btn__icon > svg[hidden] { display: none; }
+.btn__icon:not(:has(> svg:not([hidden]))) { display: none; }
+.btn--dl { min-width: 15.5rem; justify-content: center; }
+.hero__alt { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.35rem 1.1rem; margin-top: 1.25rem; font-size: 0.7rem; }
+.hero__alt a { color: var(--c-fg); }
+.hero__alt a[aria-current] { color: var(--c-accent); }
+
 .hero__foot { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.9rem; margin-top: clamp(2.25rem, 2rem + 1.5vw, 3.25rem); }
 .hero__stat { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
 .hero__stat-value { font-size: var(--t-l); font-weight: 600; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1; }

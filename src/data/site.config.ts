@@ -24,7 +24,6 @@ export const hero = {
   lede: 'OpenInventory is a self-hosted tracker for your CS2 inventory and storage units. Sign in once with the Steam mobile app and it keeps the history for you.',
   ledeLead: 'OpenInventory is a self-hosted tracker',
   ledeBadge: { after: 'CS2', src: '/cs2.webp' },
-  primary: { label: 'Run with Docker', href: '#self-host' },
   secondary: { label: 'View on GitHub', href: site.repo },
   stat: { label: 'Tracked across inventory and storage', value: 4045.19 },
   screenshotAlt:

@@ -86,6 +86,8 @@ const jsonLd = {
     <slot name="footer" />
     <script>
       import '../scripts/main';
+      import { inject } from '@vercel/analytics';
+      inject();
     </script>
   </body>
 </html>

@@ -2,6 +2,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import { fetchStars, formatStars } from '../lib/github-stars/github-stars';
+import { initDownload } from '../lib/download/download.client';
 import { githubStarsConfig } from '../lib/github-stars/github-stars.config';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -122,3 +123,5 @@ if (!reduced) {
     }
   }
 }
+
+void initDownload();
