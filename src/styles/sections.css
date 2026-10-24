@@ -14,12 +14,6 @@
 .hdr.is-float .hdr__in { padding-inline: 1.25rem; }
 .hdr__in { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; height: 4.5rem; }
 .hdr__brand { display: inline-flex; align-items: center; gap: 0.7rem; font-weight: 600; letter-spacing: -0.01em; min-height: 44px; }
-.hdr__brand img { transition: rotate 0.7s var(--ease-out); }
-.hdr__brand span { position: relative; transition: color 0.3s; padding-bottom: 2px; }
-.hdr__brand span::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform 0.5s var(--ease-out); }
-.hdr__brand:hover img, .hdr__brand:focus-visible img { rotate: 360deg; scale: 1.18; }
-.hdr__brand:hover span::after, .hdr__brand:focus-visible span::after { transform: scaleX(1); transform-origin: left; }
-.hdr__brand:hover span, .hdr__brand:focus-visible span { color: var(--c-accent); }
 .hdr__nav { display: flex; gap: 2rem; font-size: var(--t-s); color: var(--c-muted); }
 .hdr__nav a:hover, .hdr__nav a:focus-visible { color: var(--c-fg); }
 .hdr__gh { font-size: var(--t-s); }
