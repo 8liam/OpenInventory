@@ -4,6 +4,7 @@
   "private": true,
   "description": "OpenInventory: self-hosted CS2 inventory and storage unit tracker",
   "homepage": "https://github.com/8liam/OpenInventory",
+  "license": "PolyForm-Noncommercial-1.0.0",
   "author": {
     "name": "8liam"
   },
