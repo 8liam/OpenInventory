@@ -159,5 +159,5 @@ export const footer = {
     { label: 'Item data: ByMykel/CSGO-API', href: 'https://github.com/ByMykel/CSGO-API' },
     { label: 'Prices: CSGOTrader', href: 'https://prices.csgotrader.app' },
   ],
-  legal: 'OpenInventory is not affiliated with or endorsed by Valve, Steam or Skinport. Screenshots show a sample account.',
+  legal: 'OpenInventory is not affiliated with or endorsed by Valve, Steam or Skinport. The demo runs on a sample account.',
 } as const;
