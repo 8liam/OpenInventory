@@ -4,8 +4,10 @@ import { move } from '../../data/site.config';
 <section class="move" id={move.id} aria-labelledby="move-title">
   <div class="wrap move__grid">
     <div class="move__lead">
-      <h2 id="move-title" class="h-xl" data-reveal>{move.heading}</h2>
-      <p class="move__body" data-reveal>{move.body}</p>
+      <div class="move__lead-in">
+        <h2 id="move-title" class="h-xl" data-reveal>{move.heading}</h2>
+        <p class="move__body" data-reveal>{move.body}</p>
+      </div>
     </div>
     <ol class="steps">
       {move.steps.map((s, i) => (

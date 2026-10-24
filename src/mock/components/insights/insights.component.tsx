@@ -7,7 +7,7 @@ import type { InsightRow, InsightSectionProps, InsightsProps } from "./insights.
 function Section({ title, rows }: InsightSectionProps) {
   return (
     <div>
-      <h5 className="mb-2 text-xs text-muted-foreground">{title}</h5>
+      <div className="mb-2 text-xs text-muted-foreground">{title}</div>
       {rows.length === 0 ? (
         <p className="text-muted-foreground">{COPY.insights.empty}</p>
       ) : (

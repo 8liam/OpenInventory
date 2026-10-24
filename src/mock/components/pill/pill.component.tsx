@@ -13,7 +13,7 @@ export function Pill({ active, disabled, onClick, children }: PillProps) {
         "rounded-lg border px-3 py-1 text-xs transition-colors disabled:opacity-40",
         active
           ? "border-foreground bg-foreground text-background hover:bg-foreground/85"
-          : "text-muted-foreground hover:text-foreground",
+          : "text-muted-foreground hover:border-foreground/50 hover:bg-foreground/12 hover:text-foreground",
       )}
     >
       {children}

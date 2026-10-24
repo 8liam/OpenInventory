@@ -14,3 +14,10 @@ export type Chapter = {
 export type Stat = { value: string; label: string; note: string };
 export type ConfigRow = { name: string; fallback: string; purpose: string };
 export type ConfigPoint = { title: string; body: string };
+
+/** One tab of the hero segmented control, pointing at the same demo the story uses. */
+export type Lens = { id: string; label: string; caption: string };
+
+export type Step = { title: string; body: string };
+
+export type Faq = { q: string; a: string };

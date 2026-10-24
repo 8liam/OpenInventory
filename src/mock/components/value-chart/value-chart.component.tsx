@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { monotonePath } from "~/utils/smooth-path";
-import { formatCompactMoney, formatDate, formatDateTime, formatMoney } from "~/utils/format";
+import { formatCompactMoney, formatDate, formatDateCompact, formatDateTime, formatMoney } from "~/utils/format";
 import { VALUE_CHART } from "./value-chart.config";
 import type { ValueChartProps } from "./value-chart.types";
 
@@ -57,7 +57,14 @@ export function ValueChart({ points, currency, tone }: ValueChartProps) {
   }
 
   const spanMs = (points[points.length - 1]?.takenAt ?? 0) - (points[0]?.takenAt ?? 0);
-  const formatTick = spanMs < VALUE_CHART.timeLabelSpanMs ? formatDateTime : formatDate;
+  const formatTick =
+    width < 480
+      ? spanMs < VALUE_CHART.timeLabelSpanMs
+        ? formatDateTime
+        : formatDateCompact
+      : spanMs < VALUE_CHART.timeLabelSpanMs
+        ? formatDateTime
+        : formatDate;
   const active = hover === undefined ? undefined : points[hover];
   const last = points[points.length - 1];
   const dotX = active && geometry ? geometry.x(active.takenAt) : undefined;
@@ -116,21 +123,25 @@ export function ValueChart({ points, currency, tone }: ValueChartProps) {
               </text>
             );
           })}
-          {Array.from({ length: VALUE_CHART.xTicks + 1 }, (_, i) => {
-            const t = geometry.t0 + ((geometry.t1 - geometry.t0) * i) / VALUE_CHART.xTicks;
-            return (
-              <text
-                key={i}
-                x={geometry.x(t)}
-                y={height - 6}
-                textAnchor={i === 0 ? "start" : i === VALUE_CHART.xTicks ? "end" : "middle"}
-                fontSize="12"
-                fill="var(--muted-foreground)"
-              >
-                {formatTick(t)}
-              </text>
-            );
-          })}
+          {(() => {
+            // Fewer date labels on narrow panels so they never collide.
+            const xTicks = width < 480 ? 2 : VALUE_CHART.xTicks;
+            return Array.from({ length: xTicks + 1 }, (_, i) => {
+              const t = geometry.t0 + ((geometry.t1 - geometry.t0) * i) / xTicks;
+              return (
+                <text
+                  key={i}
+                  x={geometry.x(t)}
+                  y={height - 6}
+                  textAnchor={i === 0 ? "start" : i === xTicks ? "end" : "middle"}
+                  fontSize="12"
+                  fill="var(--muted-foreground)"
+                >
+                  {formatTick(t)}
+                </text>
+              );
+            });
+          })()}
           <path d={geometry.area} fill={`url(#${fillId})`} />
           <path
             d={geometry.line}

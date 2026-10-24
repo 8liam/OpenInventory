@@ -1,0 +1,26 @@
+---
+import { story } from '../../data/site.config';
+---
+<section class="features" id={story.id} aria-labelledby="features-title">
+  <div class="wrap">
+    <header class="features__head">
+      <h2 id="features-title" class="h-l" data-reveal>{story.heading}</h2>
+      <p class="features__note muted" data-reveal>{story.note}</p>
+    </header>
+
+    <ul class="features__grid">
+      {story.chapters.map((c, i) => (
+        <li class="fcard" data-reveal style={`--d:${(i % 3) * 0.08}s`}>
+          <p class="fcard__idx mono muted">
+            {String(i + 1).padStart(2, '0')} <span aria-hidden="true">·</span> {c.view}
+          </p>
+          <h3 class="fcard__title">{c.title}</h3>
+          <p class="fcard__body muted">{c.body}</p>
+          <ul class="fcard__points">
+            {c.points.map((p) => <li class="muted">{p}</li>)}
+          </ul>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

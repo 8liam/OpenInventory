@@ -1,11 +1,12 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
+import { fetchStars, formatStars } from '../lib/github-stars/github-stars';
+import { githubStarsConfig } from '../lib/github-stars/github-stars.config';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
 
 /* Copy buttons work without motion */
 document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
@@ -20,6 +21,21 @@ document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
     }
   });
 });
+
+/* Star count: the build-time number is refreshed once per session so a static deploy never goes stale. */
+(async () => {
+  const slots = document.querySelectorAll<HTMLElement>(`[${githubStarsConfig.attr}]`);
+  if (!slots.length) return;
+  const cached = sessionStorage.getItem(githubStarsConfig.storageKey);
+  const stars = cached !== null ? Number(cached) : await fetchStars();
+  if (stars === null || Number.isNaN(stars)) return;
+  sessionStorage.setItem(githubStarsConfig.storageKey, String(stars));
+  slots.forEach((el) => {
+    const n = el.querySelector<HTMLElement>('[data-stars-n]');
+    if (n) n.textContent = formatStars(stars);
+    el.hidden = false;
+  });
+})();
 
 /* Mobile menu */
 const menuBtn = document.querySelector<HTMLButtonElement>('[data-menu]');
@@ -51,27 +67,37 @@ if (!reduced) {
     ScrollTrigger.create({ trigger: el, start: 'top 90%', once: true, onEnter: () => el.classList.add('is-in') });
   });
 
+  // Late layout shifts (the hero island collapses five stacked demos into one once it
+  // hydrates) move every section below it after ScrollTrigger has cached its positions.
+  // Refresh once the shift settles so deeper triggers re-measure instead of firing late.
+  const recalc = () => ScrollTrigger.refresh();
+  window.addEventListener('load', recalc);
+  if ('ResizeObserver' in window) {
+    const stage = document.querySelector('.hero__stage');
+    if (stage) new ResizeObserver(recalc).observe(stage);
+  }
+
   // Count-up for the readout. The server-rendered value stays in the DOM for crawlers.
+  // The roll waits until the stat is actually in view — spending it on load means the
+  // "it's alive" moment happens off-screen for anyone who lands and scrolls.
   const count = document.querySelector<HTMLElement>('[data-count]');
   const text = count?.querySelector<HTMLElement>('[data-count-text]');
   if (count && text) {
     const target = Number(count.dataset.count);
     const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
-    const o = { v: 0 };
     if (seen) text.textContent = fmt.format(target);
     else {
-    text.textContent = fmt.format(0);
-    gsap.to(o, { v: target, duration: 1.2, delay: 0.2, ease: 'expo.out', onUpdate: () => { text.textContent = fmt.format(o.v); } });
+      text.textContent = fmt.format(0);
+      ScrollTrigger.create({
+        trigger: count,
+        start: 'top 92%',
+        once: true,
+        onEnter: () => {
+          const o = { v: 0 };
+          gsap.to(o, { v: target, duration: 1.2, ease: 'expo.out', onUpdate: () => { text.textContent = fmt.format(o.v); } });
+        },
+      });
     }
-  }
-
-  // Hero screenshot settles flat as you scroll.
-  const stage = document.querySelector<HTMLElement>('[data-stage] .shot');
-  if (stage) {
-    gsap.fromTo(stage, { rotateX: 16, scale: 0.9, y: 40, transformPerspective: 1800, transformOrigin: '50% 0%' }, {
-      rotateX: 0, scale: 1, y: 0, ease: 'none',
-      scrollTrigger: { trigger: '[data-stage]', start: 'top 95%', end: 'top 25%', scrub: 0.6 },
-    });
   }
 
   // Header hides on scroll down, returns on scroll up
@@ -80,40 +106,4 @@ if (!reduced) {
     const show = gsap.quickTo(hdr, 'yPercent', { duration: 0.5, ease: 'power3.out' });
     ScrollTrigger.create({ start: 0, end: 'max', onUpdate: (s) => show(s.direction === 1 && s.scroll() > 200 ? -100 : 0) });
   }
-
-  // Magnetic primary buttons on fine pointers
-  if (fine) {
-    document.querySelectorAll<HTMLElement>('.btn--solid').forEach((el) => {
-      const x = gsap.quickTo(el, 'x', { duration: 0.6, ease: 'power3.out' });
-      const y = gsap.quickTo(el, 'y', { duration: 0.6, ease: 'power3.out' });
-      el.addEventListener('pointermove', (e) => {
-        const r = el.getBoundingClientRect();
-        x((e.clientX - (r.left + r.width / 2)) * 0.25);
-        y((e.clientY - (r.top + r.height / 2)) * 0.35);
-      });
-      el.addEventListener('pointerleave', () => { x(0); y(0); });
-    });
-  }
 }
-
-/* Chapter figures roll up when their row first scrolls into view. */
-document.querySelectorAll<HTMLElement>('[data-fig]').forEach((el) => {
-  const target = Number(el.dataset.value);
-  const decimals = Number(el.dataset.decimals);
-  const prefix = el.dataset.prefix ?? '';
-  const suffix = el.dataset.suffix ?? '';
-  const label = el.querySelector<HTMLElement>('.mono');
-  const node = [...el.childNodes].find((n) => n.nodeType === Node.TEXT_NODE);
-  if (!node || reduced) return;
-  const fmt = (v: number) =>
-    `${v < 0 ? '-' : ''}${prefix}${Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}${suffix}`;
-  const o = { v: 0 };
-  ScrollTrigger.create({
-    trigger: el,
-    start: 'top 85%',
-    once: true,
-    onEnter: () => gsap.to(o, { v: target, duration: 1.4, ease: 'expo.out', onUpdate: () => { node.textContent = fmt(o.v); } }),
-  });
-  node.textContent = fmt(0);
-  void label;
-});

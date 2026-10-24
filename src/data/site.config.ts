@@ -1,4 +1,4 @@
-import type { Chapter, ConfigPoint, ConfigRow, Stat } from './site.types';
+import type { Chapter, ConfigPoint, ConfigRow, Faq, Lens, Stat, Step } from './site.types';
 
 export const site = {
   name: 'OpenInventory',
@@ -14,28 +14,75 @@ export const site = {
 } as const;
 
 export const nav = [
+  { label: 'Views', href: '#lenses' },
+  { label: 'How it works', href: '#how' },
   { label: 'Features', href: '#features' },
-  { label: 'Moving items', href: '#move' },
   { label: 'Self-host', href: '#self-host' },
 ] as const;
 
 export const hero = {
+  eyebrow: 'Self-hosted · one SQLite file',
   headline: 'Know what you own, where it sits, and what it is worth.',
   lede: 'OpenInventory is a self-hosted tracker for your CS2 inventory and storage units. Sign in once with the Steam mobile app and it keeps the history for you.',
   ledeLead: 'OpenInventory is a self-hosted tracker',
+  ledeBadge: { after: 'CS2', src: '/cs2.webp' },
   primary: { label: 'Run with Docker', href: '#self-host' },
   secondary: { label: 'View on GitHub', href: site.repo },
-  readout: {
-    label: 'Sample inventory, total value',
-    value: 4045.19,
-    parts: [
-      { label: 'Inventory', value: '$3,681.03' },
-      { label: 'Storage units', value: '$364.16' },
-      { label: 'Items', value: '1,675' },
-    ],
-  },
+  stat: { label: 'Tracked across inventory and storage', value: 4045.19 },
   screenshotAlt:
     'OpenInventory dashboard: total value of $4,045.19, a value history chart, top holdings and a breakdown by type.',
+} as const;
+
+/** The hero segmented control. Each lens swaps the framed live view below it. */
+export const lenses = {
+  id: 'lenses',
+  heading: 'The app, running right here.',
+  note: 'Not screenshots. Pick a view; each one is the real OpenInventory running on a sample account in your browser. Click, sort, search and move things around. Nothing leaves the page.',
+  items: [
+    { id: 'dashboard', label: 'Dashboard', caption: 'Total value, history and breakdown for the whole account.' },
+    { id: 'items', label: 'Items', caption: 'One searchable table over every item you own or store.' },
+    { id: 'storage', label: 'Storage', caption: 'Open a unit without launching CS2 and see what is inside.' },
+    { id: 'cases', label: 'Cases', caption: 'What you have opened, and what it cost you, in numbers.' },
+    { id: 'tradeup', label: 'Trade-up', caption: 'Expected value from your cheapest tradable skins.' },
+  ] satisfies readonly Lens[],
+} as const;
+
+export const how = {
+  id: 'how',
+  heading: 'Running in three steps.',
+  body: 'Sign in once from your phone. After that it keeps the history on its own.',
+  steps: [
+    { title: 'Sign in once', body: 'Press Show QR code and scan it in the Steam mobile app. No password stored, no browser extension.' },
+    { title: 'It reads and remembers', body: 'Inventory and storage units sync from the Game Coordinator into one SQLite file, with hourly value snapshots.' },
+    { title: 'Move, never sell', body: 'Reorganise items between your own containers. It reads and moves. It never lists, trades or sells.' },
+  ] satisfies readonly Step[],
+} as const;
+
+export const faq = {
+  id: 'faq',
+  heading: 'Questions, answered.',
+  items: [
+    {
+      q: 'Does it ever sell or trade my items?',
+      a: 'No. OpenInventory reads your inventory and moves items between your own containers. It has no listing, pricing-post or trade feature, and it never will.',
+    },
+    {
+      q: 'Where does my Steam login live?',
+      a: 'In a session.json file on your own server, written with mode 0600 and deleted when you press Sign out. It is never sent to us, because there is no us to send it to.',
+    },
+    {
+      q: 'Do I have to self-host?',
+      a: 'That is the only way it runs. One Docker command starts it on your machine or a box you control. There is no hosted cloud version to sign up for.',
+    },
+    {
+      q: 'What if CS2 is already running?',
+      a: 'Steam allows one game session per account. OpenInventory waits politely and connects when you close the game. It never forces the session.',
+    },
+    {
+      q: 'Where do the prices come from?',
+      a: 'Seven marketplaces, with Buff163 as the default. Skinport, Steam, CSFloat, CS.MONEY, Youpin898 and LIS-SKINS can be enabled in Settings.',
+    },
+  ] satisfies readonly Faq[],
 } as const;
 
 export const story = {
