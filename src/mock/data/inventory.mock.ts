@@ -9,7 +9,6 @@ type Seed = {
   readonly price: number;
   readonly wear?: number;
   readonly loc?: string;
-  readonly custom?: string;
   readonly stickers?: readonly string[];
 };
 
@@ -44,15 +43,15 @@ const CURATED: readonly Seed[] = [
   { name: 'Tec-9 | Cut Out (Factory New)', price: 173.23, wear: 0.0681 },
   { name: 'M4A1-S | Control Panel (Factory New)', price: 123.95, wear: 0.0501 },
   { name: 'AK-47 | Inheritance (Factory New)', price: 88.93, wear: 0.0653, stickers: ['Sticker | Aerial | Katowice 2019', 'Sticker | ableJ | Katowice 2019', 'Sticker | Aerial | Katowice 2019', 'Sticker | ableJ | Katowice 2019', 'Sticker | Aerial | Katowice 2019'] },
-  { name: 'Glock-18 | Gamma Doppler (Factory New)', price: 85.12, wear: 0.0342, custom: '我用微波炉爆玉米花' },
+  { name: 'Glock-18 | Gamma Doppler (Factory New)', price: 85.12, wear: 0.0342 },
   { name: 'MP9 | Starlight Protector (Factory New)', price: 83.56, wear: 0.0668 },
   { name: 'Desert Eagle | Cobalt Disruption (Factory New)', price: 76.98, wear: 0.0385 },
-  { name: 'M4A4 | Temukau (Factory New)', price: 76.16, wear: 0.0687, custom: '我因向警察射精而被通缉' },
+  { name: 'M4A4 | Temukau (Factory New)', price: 76.16, wear: 0.0687 },
   { name: 'AWP | Asiimov (Field-Tested)', price: 58.2, wear: 0.2511 },
   { name: 'MP9 | Starlight Protector (Battle-Scarred)', price: 49.28, wear: 0.6796 },
   { name: 'AK-47 | Nightwish (Battle-Scarred)', price: 48.68, wear: 0.6782 },
   { name: 'FAMAS | Bad Trip (Field-Tested)', price: 37.59, wear: 0.3165 },
-  { name: 'AK-47 | Aquamarine Revenge (Field-Tested)', price: 31.94, wear: 0.2981, custom: 'rapgod' },
+  { name: 'AK-47 | Aquamarine Revenge (Field-Tested)', price: 31.94, wear: 0.2981 },
   { name: 'Desert Eagle | Printstream (Well-Worn)', price: 30.47, wear: 0.4334 },
   { name: 'R8 Revolver | Fade (Field-Tested)', price: 71.46, wear: 0.1712, loc: 'skins' },
   { name: 'Glock-18 | Shinobu (Factory New)', price: 22.5, wear: 0.0291, loc: 'skins' },
@@ -100,7 +99,7 @@ function make(id: string, loc: string, seed: Seed, price: number, rand: () => nu
     rarityColor: itemColor(seed.name),
     rarityName: null,
     category: categoryOf(seed.name),
-    customName: seed.custom ?? null,
+    customName: null,
     wear,
     wearName: wear === null ? null : wearNameOf(wear),
     isStatTrak: seed.name.startsWith('StatTrak'),
