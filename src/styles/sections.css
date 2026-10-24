@@ -3,7 +3,15 @@
 .h-m { font-size: var(--t-m); line-height: 1.2; letter-spacing: -0.02em; font-weight: 600; }
 
 /* Header */
-.hdr { position: fixed; inset: 0 0 auto; z-index: var(--z-header); background: rgb(10 10 11 / 1); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--c-line); }
+/* Cap-style header: flat on the page background in its own space above the hero panel, scrolling away with the page.
+   Past half a screen it is a fixed pill that stays until you scroll back above that line. */
+.hdr { position: absolute; top: 0.75rem; left: 0; right: 0; z-index: var(--z-header); width: calc(100% - 2 * var(--gutter)); margin-inline: auto; border: 1px solid transparent; border-radius: 999px; background: transparent; }
+.hdr.is-float { position: fixed; animation: hdr-in 0.35s var(--ease-out); width: min(74rem, calc(100% - 2 * var(--gutter))); border-color: var(--c-line); background: rgb(14 17 22 / 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 14px 40px -18px rgb(0 0 0 / 0.9); }
+@keyframes hdr-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .hdr.is-float { animation: none; } }
+.hdr.is-fading { opacity: 0; pointer-events: none; transition: opacity 0.35s var(--ease-out); }
+.hdr .hdr__in { max-width: none; height: 3.5rem; padding-inline: 1.5rem; }
+.hdr.is-float .hdr__in { padding-inline: 1.25rem; }
 .hdr__in { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; height: 4.5rem; }
 .hdr__brand { display: inline-flex; align-items: center; gap: 0.7rem; font-weight: 600; letter-spacing: -0.01em; min-height: 44px; }
 .hdr__brand img { transition: rotate 0.7s var(--ease-out); }
@@ -32,19 +40,24 @@
 @media (max-width: 760px) { html:not(.js) .hdr__in { flex-wrap: wrap; height: auto; padding-block: 0.75rem; } }
 
 /* Hero */
-.hero { position: relative; padding-top: clamp(7rem, 5rem + 8vw, 11rem); overflow: clip; }
+/* The hero is an inset rounded panel (Cap-style) with the warehouse photo fading in behind the headline. */
+.hero { position: relative; isolation: isolate; margin: 5rem var(--gutter) 0; padding-top: clamp(3rem, 2rem + 4vw, 6rem); border: 1px solid var(--c-line); border-radius: clamp(1.25rem, 0.5rem + 2vw, 2.25rem); overflow: clip; }
+.hero__bg {
+  position: absolute; inset: 0 0 auto 0; height: min(100%, 62rem); z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, rgb(11 14 18 / 0.35), rgb(11 14 18 / 0.7) 70%, var(--c-bg)), url('/hero-warehouse.webp') center 30% / cover no-repeat;
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent); mask-image: linear-gradient(180deg, #000 55%, transparent);
+}
+.motion .hero__bg { animation: hero-bg-in 2.4s var(--ease-out) 0.15s both; }
+@keyframes hero-bg-in { from { opacity: 0; scale: 1.06; } to { opacity: 1; scale: 1; } }
+@media (max-width: 520px) { .hero { margin-inline: 0.5rem; } .hdr:not(.is-float) { width: calc(100% - 1rem); } .hdr:not(.is-float) .hdr__in { padding-inline: 1rem; } }
 .hero__glow {
-  position: absolute; left: 50%; top: 52%; width: min(120vw, 1500px); aspect-ratio: 2 / 1;
+  position: absolute; left: 50%; top: 34rem; width: min(120vw, 1500px); aspect-ratio: 2 / 1;
   translate: -50% 0; background: radial-gradient(closest-side, rgb(222 155 53 / 0.16), transparent); pointer-events: none;
 }
 .motion .hero__glow { animation: drift 16s ease-in-out infinite alternate; }
 @keyframes drift { to { translate: -42% 6%; scale: 1.15; } }
-.live { display: inline-block; width: 0.5rem; height: 0.5rem; margin-right: 0.7rem; border-radius: 50%; background: var(--c-accent); vertical-align: 0.05em; }
-.motion .live { animation: live 2.2s ease-out infinite; }
-@keyframes live { 0% { box-shadow: 0 0 0 0 rgb(222 155 53 / 0.6); } 100% { box-shadow: 0 0 0 0.9rem rgb(222 155 53 / 0); } }
-.eyebrow { display: inline-flex; align-items: center; gap: 0.15em; color: var(--c-muted); margin-bottom: 1.5rem; }
 .hero__head { display: flex; flex-direction: column; align-items: center; text-align: center; }
-.hero__title { font-size: var(--t-mega); line-height: 0.92; letter-spacing: -0.05em; max-width: 15ch; text-wrap: balance; }
+.hero__title { font-size: var(--t-mega); line-height: 0.92; letter-spacing: -0.05em; max-width: 8em; text-wrap: balance; }
 .w { display: inline-block; overflow: clip; vertical-align: top; padding-bottom: 0.1em; margin-bottom: -0.1em; }
 .seen .w__in { animation: none; }
 .w__in { display: inline-block; animation: word-up 1s var(--ease-out) both; animation-delay: calc(var(--i) * 0.04s + 0.05s); }
@@ -96,11 +109,10 @@
 .seg__btn.is-on:hover::before, .seg__btn.is-on:focus-visible::before { background-position: -30% 0; }
 .seg__btn.is-on { transition: scale 0.4s var(--ease-out), color 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out); }
 .seg__btn.is-on:hover, .seg__btn.is-on:focus-visible { box-shadow: 0 0 0 4px rgb(222 155 53 / 0.22); scale: 1.06; }
-.lens__route { color: var(--c-muted); opacity: 0.7; }
 
 .lens__caption { text-align: center; color: var(--c-muted); font-size: var(--t-s); line-height: 1.5; margin: 1.1rem auto 0; max-width: 46ch; min-height: 3em; }
 
-.lens__stage { position: relative; margin-top: clamp(1.5rem, 1.25rem + 1vw, 2.25rem); border: 1px solid var(--c-line); border-radius: var(--radius); overflow: clip; background: #0a0a0a; box-shadow: 0 40px 120px -30px rgb(222 155 53 / 0.22), 0 0 0 1px rgb(0 0 0 / 0.6); }
+.lens__stage { position: relative; margin-top: clamp(1.5rem, 1.25rem + 1vw, 2.25rem); border: 1px solid var(--c-line); border-radius: var(--radius); overflow: clip; background: #0a0a0a; box-shadow: 0 0 90px -24px rgb(222 155 53 / 0.2), 0 0 0 1px rgb(0 0 0 / 0.6); }
 .lens__panel { position: relative; }
 .lens__panel + .lens__panel { margin-top: 0; }
 /* Without JS all five stack (each keeps its own top rule); with JS only the active one shows. */
@@ -204,7 +216,7 @@
 .numbers, .foot { position: relative; }
 
 /* How it works: Cap-style numbered step band, three steps across. */
-.how { padding-block: clamp(3rem, 2rem + 4vw, 6rem); border-top: 1px solid var(--c-line); }
+.how { padding-block: clamp(3rem, 2rem + 4vw, 6rem); }
 .how__grid { display: grid; gap: clamp(1.5rem, 1rem + 2vw, 3rem); }
 @media (min-width: 900px) { .how__grid { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(2rem, 4vw, 5rem); align-items: start; } }
 .how__body { color: var(--c-muted); margin-top: 1rem; max-width: 32ch; font-size: var(--t-m); line-height: 1.4; }
@@ -262,7 +274,7 @@
 .term__code { white-space: pre-wrap; overflow-wrap: anywhere; }
 
 /* Reserve the headline's four phone lines so the font swap cannot push the page. */
-@media (max-width: 520px) { .hero__title { min-height: calc(var(--t-mega) * 0.93 * 4); } }
+@media (max-width: 520px) { .hero__title { min-height: calc(var(--t-mega) * 0.93 * 2); } }
 @media (max-width: 520px) { .hero__lede { min-height: calc(var(--t-m) * 1.38 * 4); } }
 
 /* Tap targets and mobile polish */
@@ -270,9 +282,11 @@
 .foot__links a:hover, .foot__links a:focus-visible { translate: 4px 0; color: var(--c-accent); }
 
 .nf__card { justify-self: stretch; width: 100%; }
-/* Nav links answer with a pill fill, not a color swap (the CTA treatment, shrunk). */
+/* Nav links: flat tint pill on hover, no underline (same family as the outline buttons). */
 .hdr__nav a { padding: 0.45rem 0.9rem; margin-inline: -0.9rem; border-radius: 999px; transition: background-color 0.4s var(--ease-out), color 0.4s var(--ease-out); }
-.hdr__nav a:not(.ghl--chip):hover, .hdr__nav a:not(.ghl--chip):focus-visible { color: var(--c-accent-ink); background: var(--c-accent); }
+.hdr__nav a:not(.ghl--chip):hover, .hdr__nav a:not(.ghl--chip):focus-visible { color: var(--c-fg); background: rgb(255 255 255 / 0.09); }
+.hdr__nav a:not(.ghl--chip):focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+.hdr__nav a.link::after { display: none; }
 @media (max-width: 760px) { .hdr__nav a { margin-inline: 0; padding-inline: 0.6rem; border-radius: 10px; } }
 @media (max-width: 520px) { .w__in { animation-duration: 0.7s; animation-delay: calc(var(--i) * 0.025s + 0.02s); } }
 /* In the open phone menu the GitHub link is a plain row like its siblings. */

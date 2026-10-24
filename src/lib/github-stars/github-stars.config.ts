@@ -4,4 +4,7 @@ export const githubStarsConfig = {
   attr: 'data-stars',
   storageKey: 'oi:stars',
   locale: 'en',
+  cacheTtlMs: 10 * 60 * 1000,
+  retryBackoffMs: 60 * 1000,
+  tokenEnv: 'GITHUB_TOKEN',
 } as const;

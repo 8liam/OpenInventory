@@ -37,6 +37,28 @@ document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
   });
 })();
 
+/* Header: a fixed pill whenever the page is past half a screen, fading in and out at that line (works with or without motion). */
+const floatHeader = document.querySelector<HTMLElement>('.hdr');
+if (floatHeader) {
+  const sentinel = document.createElement('div');
+  sentinel.setAttribute('aria-hidden', 'true');
+  sentinel.style.cssText = 'position:absolute;top:50vh;left:0;width:1px;height:1px;pointer-events:none';
+  document.body.prepend(sentinel);
+  const FADE_MS = reduced ? 0 : 350;
+  let fadeTimer: number | undefined;
+  new IntersectionObserver(([entry]) => {
+    window.clearTimeout(fadeTimer);
+    if (!entry.isIntersecting && entry.boundingClientRect.top < 0) {
+      floatHeader.classList.remove('is-fading');
+      floatHeader.classList.add('is-float');
+    } else if (floatHeader.classList.contains('is-float')) {
+      // Back above the half-screen mark: fade the pill out, then hand the header back to the page flow.
+      floatHeader.classList.add('is-fading');
+      fadeTimer = window.setTimeout(() => floatHeader.classList.remove('is-float', 'is-fading'), FADE_MS);
+    }
+  }).observe(sentinel);
+}
+
 /* Mobile menu */
 const menuBtn = document.querySelector<HTMLButtonElement>('[data-menu]');
 const menuNav = document.getElementById('primary-nav');
@@ -98,12 +120,5 @@ if (!reduced) {
         },
       });
     }
-  }
-
-  // Header hides on scroll down, returns on scroll up
-  const hdr = document.querySelector<HTMLElement>('.hdr');
-  if (hdr) {
-    const show = gsap.quickTo(hdr, 'yPercent', { duration: 0.5, ease: 'power3.out' });
-    ScrollTrigger.create({ start: 0, end: 'max', onUpdate: (s) => show(s.direction === 1 && s.scroll() > 200 ? -100 : 0) });
   }
 }

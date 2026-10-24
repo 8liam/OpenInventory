@@ -7,7 +7,6 @@ export const site = {
   description:
     'Track every CS2 skin, sticker and storage unit you own, with live value history. Self-hosted, one SQLite file, signed in with the Steam mobile app.',
   repo: 'https://github.com/8liam/OpenInventory',
-  webRepo: 'https://github.com/8liam/openinventory-web',
   themeColor: '#0a0a0b',
   ogImage: '/og.png',
   ogAlt: 'OpenInventory dashboard showing a $4,045.19 CS2 inventory value chart',
@@ -21,8 +20,7 @@ export const nav = [
 ] as const;
 
 export const hero = {
-  eyebrow: 'Self-hosted · one SQLite file',
-  headline: 'Know what you own, where it sits, and what it is worth.',
+  headline: 'Your inventory. Open.',
   lede: 'OpenInventory is a self-hosted tracker for your CS2 inventory and storage units. Sign in once with the Steam mobile app and it keeps the history for you.',
   ledeLead: 'OpenInventory is a self-hosted tracker',
   ledeBadge: { after: 'CS2', src: '/cs2.webp' },
@@ -202,7 +200,6 @@ export const footer = {
   cta: 'Read the source',
   links: [
     { label: 'OpenInventory on GitHub', href: site.repo },
-    { label: 'This site on GitHub', href: site.webRepo },
     { label: 'Item data: ByMykel/CSGO-API', href: 'https://github.com/ByMykel/CSGO-API' },
     { label: 'Prices: CSGOTrader', href: 'https://prices.csgotrader.app' },
   ],

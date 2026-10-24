@@ -11,12 +11,9 @@ const [beforeBadge, afterBadge] = [rest.slice(0, cut - hero.ledeBadge.after.leng
 ---
 <section class="hero" aria-labelledby="hero-title">
   <div class="rules" aria-hidden="true"></div>
+  <div class="hero__bg" aria-hidden="true"></div>
   <div class="hero__glow" aria-hidden="true"></div>
   <div class="wrap hero__head">
-    <p class="eyebrow mono" data-reveal style="--d:0s">
-      <span class="live" aria-hidden="true"></span>{hero.eyebrow}
-    </p>
-
     <h1 id="hero-title" class="hero__title" aria-label={hero.headline}>
       {words.map((w, i) => (
         <><span class="w" aria-hidden="true"><span class="w__in" style={`--i:${i}`}>{w}</span></span>{" "}</>

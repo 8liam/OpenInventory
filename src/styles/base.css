@@ -45,26 +45,25 @@ html.lenis, html.lenis body { height: auto; }
 .mono { font-family: var(--f-mono); font-size: var(--t-xs); letter-spacing: 0.04em; text-transform: uppercase; }
 .muted { color: var(--c-muted); }
 
-/* Buttons: a quiet lift. Solid warms to gold, outline gains a tint; the arrow leans, press settles. */
+/* Buttons: flat. Solid warms to gold, outline gains a tint and brighter border; the arrow leans, press settles. */
 .btn {
   --h: 3.25rem;
   position: relative; display: inline-flex; align-items: center; gap: 0.7em;
   min-height: var(--h); padding: 0 1.5rem; border-radius: 999px;
   font-weight: 500; font-size: var(--t-s); isolation: isolate;
   border: 1px solid rgb(255 255 255 / 0.2); background: rgb(255 255 255 / 0.02); color: var(--c-fg);
-  transition: translate 0.35s var(--ease-out), scale 0.2s var(--ease-out), background-color 0.3s var(--ease-out), border-color 0.3s var(--ease-out), color 0.3s var(--ease-out), box-shadow 0.35s var(--ease-out);
+  transition: scale 0.2s var(--ease-out), background-color 0.3s var(--ease-out), border-color 0.3s var(--ease-out), color 0.3s var(--ease-out);
 }
 .btn--solid { background: var(--c-fg); color: var(--c-bg); border-color: var(--c-fg); }
 .btn__label { display: block; line-height: 1.25; }
 .btn__label > span { display: block; }
 .btn__arrow { display: inline-block; transition: translate 0.35s var(--ease-out); }
-.btn:hover, .btn:focus-visible { translate: 0 -2px; }
 .btn:hover .btn__arrow, .btn:focus-visible .btn__arrow { translate: 3px 0; }
-.btn--solid:hover, .btn--solid:focus-visible { background: var(--c-accent); border-color: var(--c-accent); color: var(--c-accent-ink); box-shadow: 0 12px 32px -12px rgb(222 155 53 / 0.7); }
-.btn:not(.btn--solid):hover, .btn:not(.btn--solid):focus-visible { background: rgb(255 255 255 / 0.09); border-color: rgb(255 255 255 / 0.55); box-shadow: 0 12px 32px -16px rgb(0 0 0 / 0.9); }
+.btn--solid:hover, .btn--solid:focus-visible { background: var(--c-accent); border-color: var(--c-accent); color: var(--c-accent-ink); }
+.btn:not(.btn--solid):hover, .btn:not(.btn--solid):focus-visible { background: rgb(255 255 255 / 0.09); border-color: rgb(255 255 255 / 0.55); }
 .btn:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 3px; }
-.btn:active { translate: 0 0; scale: 0.98; transition-duration: 0.08s; }
-@media (prefers-reduced-motion: reduce) { .btn, .btn__arrow { transition: background-color 0.2s, border-color 0.2s, color 0.2s; } .btn:hover, .btn:focus-visible, .btn:hover .btn__arrow { translate: none; } }
+.btn:active { scale: 0.98; transition-duration: 0.08s; }
+@media (prefers-reduced-motion: reduce) { .btn, .btn__arrow { transition: background-color 0.2s, border-color 0.2s, color 0.2s; } .btn:hover .btn__arrow, .btn:focus-visible .btn__arrow { translate: none; } }
 
 /* GitHub link: mark + label + live star count. Same treatment as .btn; the chip is the compact header form. */
 .ghl { white-space: nowrap; }
@@ -75,8 +74,8 @@ html.lenis, html.lenis body { height: auto; }
 .ghl:hover .ghl__stars svg, .ghl:focus-visible .ghl__stars svg { rotate: 72deg; scale: 1.2; }
 .btn--solid .ghl__stars, .ghl.btn--solid:hover .ghl__stars { background: rgb(0 0 0 / 0.1); }
 .btn.ghl:hover .ghl__stars svg, .btn.ghl:focus-visible .ghl__stars svg { color: var(--c-accent); }
-.hdr__nav a.ghl--chip { display: inline-flex; align-items: center; gap: 0.5em; margin-inline: 0; padding: 0.4rem 0.5rem 0.4rem 0.8rem; border: 1px solid rgb(255 255 255 / 0.2); border-radius: 999px; color: var(--c-fg); font-size: var(--t-s); transition: translate 0.35s var(--ease-out), background-color 0.3s var(--ease-out), border-color 0.3s var(--ease-out), box-shadow 0.35s var(--ease-out); }
-.hdr__nav a.ghl--chip:hover, .hdr__nav a.ghl--chip:focus-visible { background: rgb(255 255 255 / 0.09); border-color: rgb(255 255 255 / 0.55); color: var(--c-fg); translate: 0 -1px; }
+.hdr__nav a.ghl--chip { display: inline-flex; align-items: center; gap: 0.5em; margin-inline: 0; padding: 0.4rem 0.5rem 0.4rem 0.8rem; border: 1px solid rgb(255 255 255 / 0.2); border-radius: 999px; color: var(--c-fg); font-size: var(--t-s); transition: background-color 0.3s var(--ease-out), border-color 0.3s var(--ease-out); }
+.hdr__nav a.ghl--chip:hover, .hdr__nav a.ghl--chip:focus-visible { background: rgb(255 255 255 / 0.09); border-color: rgb(255 255 255 / 0.55); color: var(--c-fg); }
 .hdr__nav a.ghl--chip:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 3px; }
 .hdr__nav a.ghl--chip .ghl__stars { margin-right: 0; }
 .hdr__nav a.ghl--chip:not(:has([data-stars-n]:not(:empty))) { padding-right: 0.8rem; }

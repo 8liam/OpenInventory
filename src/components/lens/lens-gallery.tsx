@@ -17,14 +17,6 @@ const DEMOS: Record<LensId, () => ReactNode> = {
   tradeup: TradeUpDemo,
 };
 
-const ROUTE: Record<LensId, string> = {
-  dashboard: '/dashboard',
-  items: '/items',
-  storage: '/storage-units',
-  cases: '/cases',
-  tradeup: '/trade-up',
-};
-
 /**
  * The hero's live product stage. One sample account, five views.
  * Without JS every view renders stacked so the content is complete. With JS it becomes a
@@ -112,9 +104,6 @@ export default function LensGallery({ lenses }: { lenses: readonly Lens[] }) {
             );
           })}
         </div>
-        <p className="lens__route mono" aria-hidden="true">
-          {ROUTE[active]}
-        </p>
       </div>
 
       <p className="lens__caption" aria-live="polite">
