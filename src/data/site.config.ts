@@ -1,13 +1,3 @@
-import dashboard from '../assets/dashboard.png';
-import items from '../assets/items.png';
-import storage from '../assets/storage-units.png';
-import cases from '../assets/cases.png';
-import tradeup from '../assets/tradeup.png';
-import cropDashboard from '../assets/crops/dashboard.png';
-import cropItems from '../assets/crops/items.png';
-import cropStorage from '../assets/crops/storage.png';
-import cropCases from '../assets/crops/cases.png';
-import cropTradeup from '../assets/crops/tradeup.png';
 import type { Chapter, ConfigPoint, ConfigRow, Stat } from './site.types';
 
 export const site = {
@@ -51,6 +41,7 @@ export const hero = {
 export const story = {
   id: 'features',
   heading: 'Five views of one ledger.',
+  note: 'Not screenshots. This is the app itself, running on a sample account in your browser. Click, sort, search and move things around; nothing leaves the page.',
   chapters: [
     {
       id: 'dashboard',
@@ -61,9 +52,6 @@ export const story = {
       title: 'A value you can watch move.',
       body: 'Total value with 24h, 7d and 30d change. Switch the history chart between total, inventory and storage units, from one day to all time.',
       points: ['Breakdown by type, rarity, wear and location', 'Lowest floats, highest floats and largest stacks'],
-      alt: 'Dashboard with a $4,045.19 total, a green value history line and a donut breakdown by item type.',
-      image: dashboard,
-      crop: cropDashboard,
     },
     {
       id: 'items',
@@ -74,9 +62,6 @@ export const story = {
       title: 'One search box over every item.',
       body: 'Inventory and every storage unit in a single table, with images, floats, stickers, charms with pattern ids, and prices.',
       points: ['Filter by location and type', 'Sort by float or price'],
-      alt: 'Items table of 1,675 rows with float values and prices, topped by a Butterfly Knife Vanilla at $1,062.86.',
-      image: items,
-      crop: cropItems,
     },
     {
       id: 'storage',
@@ -87,9 +72,6 @@ export const story = {
       title: 'Open every unit without launching CS2.',
       body: 'All units load on their own and their contents are cached, so a restart is instant. Capacity of 1,000 items is checked before a move begins.',
       points: ['Per-unit value and item count', 'Contents copied from the Game Coordinator'],
-      alt: 'Storage units page listing four units with item counts and values, and a table of the selected unit contents.',
-      image: storage,
-      crop: cropStorage,
     },
     {
       id: 'cases',
@@ -100,9 +82,6 @@ export const story = {
       title: 'Your gold drought, in numbers.',
       body: 'Case, souvenir, capsule, trade-up and drop stats read from your Steam inventory history, stored locally after a background sync.',
       points: ['Rarity split and rarest pulls', 'Most opened and per-month volume'],
-      alt: 'Case openings page: 412 cases opened, a rarity donut, cases per month bars and a list of rarest pulls.',
-      image: cases,
-      crop: cropCases,
     },
     {
       id: 'tradeup',
@@ -113,9 +92,6 @@ export const story = {
       title: 'Do the math before you trade up.',
       body: 'A read-only estimate of expected value from your cheapest tradable skins and their collections. OpenInventory cannot perform trade-ups.',
       points: ['Input cost, average float, expected return', 'Chance to profit and every possible outcome'],
-      alt: 'Trade-up calculator with five Covert inputs, an expected return of minus 20.03 percent and a list of possible knife outcomes.',
-      image: tradeup,
-      crop: cropTradeup,
     },
   ] satisfies readonly Chapter[],
 } as const;

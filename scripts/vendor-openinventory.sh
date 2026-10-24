@@ -38,5 +38,46 @@ s = s.replace('const [loadedUrl, setLoadedUrl] = useState<string>();', 'const [l
 s = s.replace('<img\n          src={imageUrl}', '<img\n          ref={imgRef}\n          src={imageUrl}')
 p.write_text(s)
 PY
+python3 - <<'PY'
+# Accessibility and landing-page fit. Each replace must match, so a drifting source fails loudly.
+import pathlib, re
+root = pathlib.Path('src/mock/components')
+
+def edit(rel, pairs):
+    f = root / rel
+    text = f.read_text()
+    for old, new in pairs:
+        if old not in text:
+            raise SystemExit(f'patch missed in {rel}: {old[:60]!r}')
+        text = text.replace(old, new)
+    f.write_text(text)
+
+# The landing owns h1..h3; the embedded app starts at h4.
+for f in root.rglob('*.tsx'):
+    t = f.read_text()
+    shift = {'1': '4', '2': '4', '3': '5'}
+    t2 = re.sub(r'<h([123])(\s|>)', lambda m: f'<h{shift[m.group(1)]}{m.group(2)}', t)
+    t2 = re.sub(r'</h([123])>', lambda m: f'</h{shift[m.group(1)]}>', t2)
+    if t2 != t:
+        f.write_text(t2)
+
+# DataTable: plain div grid, so no table roles that need a full table tree; no aria-sort on buttons.
+edit('data-table/data-table.component.tsx', [
+    (' role="rowgroup"', ''),
+    ('                  role="row"\n', ''),
+    ('                  aria-selected={selection ? checked : undefined}\n', ''),
+    ('                      role="cell"\n', ''),
+    ('              aria-sort={active ? (sort.direction === "asc" ? "ascending" : "descending") : "none"}\n', '              title={column.sortValue ? `Sort by ${column.header}` : undefined}\n'),
+])
+edit('tradeup-inputs/tradeup-inputs.component.tsx', [
+    ('title={`${item.name} \u00b7 ${copy.remove}`}', 'title={`${item.name} \u00b7 ${copy.remove}`}\n                  aria-label={`${item.name} \u00b7 ${copy.remove}`}'),
+    ('<ul className={cn("flex flex-col overflow-y-auto"', '<ul data-lenis-prevent className={cn("flex flex-col overflow-y-auto"'),
+])
+# Contrast and hover feedback on already-active controls.
+edit('kind-pills/kind-pills.component.tsx', [('tabular opacity-60', 'tabular opacity-100')])
+edit('pill/pill.component.tsx', [('"border-foreground bg-foreground text-background"', '"border-foreground bg-foreground text-background hover:bg-foreground/85"')])
+edit('breakdown-panel/breakdown-panel.component.tsx', [('"rounded px-2 py-1 text-xs text-muted-foreground transition-colors"', '"rounded px-2 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground"'), ('active === tab.key && "bg-card font-medium text-foreground shadow-sm"', 'active === tab.key && "bg-card font-medium text-foreground shadow-sm hover:bg-accent"')])
+edit('unit-card/unit-card.component.tsx', [('className="absolute inset-0 rounded-lg"', 'className="absolute inset-0 rounded-lg transition-colors hover:bg-foreground/5"')])
+PY
 rm -rf "$TMP"
 echo "vendored from origin/main"

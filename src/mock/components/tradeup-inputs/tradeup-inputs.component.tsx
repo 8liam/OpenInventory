@@ -45,6 +45,7 @@ export function TradeUpInputs({
                 <button
                   type="button"
                   title={`${item.name} · ${copy.remove}`}
+                  aria-label={`${item.name} · ${copy.remove}`}
                   onClick={() => onToggle(item.id)}
                 >
                   <ItemThumb
@@ -66,7 +67,7 @@ export function TradeUpInputs({
       {candidates.length === 0 ? (
         <p className="text-muted-foreground">{copy.noCandidates}</p>
       ) : (
-        <ul className={cn("flex flex-col overflow-y-auto", TRADEUP_INPUTS.listMaxHeightClass)}>
+        <ul data-lenis-prevent className={cn("flex flex-col overflow-y-auto", TRADEUP_INPUTS.listMaxHeightClass)}>
           {candidates.map((item) => {
             const isSelected = selectedIds.has(item.id);
             const disabled =

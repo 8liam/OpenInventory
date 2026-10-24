@@ -12,7 +12,7 @@ export function Pill({ active, disabled, onClick, children }: PillProps) {
       className={cn(
         "rounded-lg border px-3 py-1 text-xs transition-colors disabled:opacity-40",
         active
-          ? "border-foreground bg-foreground text-background"
+          ? "border-foreground bg-foreground text-background hover:bg-foreground/85"
           : "text-muted-foreground hover:text-foreground",
       )}
     >

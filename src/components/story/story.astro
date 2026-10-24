@@ -13,6 +13,7 @@ const fmtFig = (f: (typeof story.chapters)[number]['figure']) =>
 <section class="story" id={story.id} aria-labelledby="story-title" data-story>
   <div class="wrap story__head">
     <h2 id="story-title" class="h-xl" data-reveal>{story.heading}</h2>
+    <p class="story__note" data-reveal>{story.note}</p>
   </div>
 
   <div class="wrap">

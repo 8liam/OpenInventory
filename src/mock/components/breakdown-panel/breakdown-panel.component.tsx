@@ -14,7 +14,7 @@ export function BreakdownPanel({ dashboard, currency, className }: BreakdownPane
   return (
     <section className={cn("rounded-xl border bg-card p-4", className)}>
       <header className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-[13px] font-medium">{COPY.dashboard.breakdownTitle}</h2>
+        <h4 className="text-[13px] font-medium">{COPY.dashboard.breakdownTitle}</h4>
         <div role="tablist" className="flex rounded-md bg-muted p-0.5">
           {BREAKDOWN_PANEL.tabs.map((tab) => (
             <button
@@ -24,8 +24,8 @@ export function BreakdownPanel({ dashboard, currency, className }: BreakdownPane
               aria-selected={active === tab.key}
               onClick={() => setActive(tab.key)}
               className={cn(
-                "rounded px-2 py-1 text-xs text-muted-foreground transition-colors",
-                active === tab.key && "bg-card font-medium text-foreground shadow-sm",
+                "rounded px-2 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground",
+                active === tab.key && "bg-card font-medium text-foreground shadow-sm hover:bg-accent",
               )}
             >
               {tab.label}

@@ -205,3 +205,4 @@
 .nf__card { justify-self: stretch; width: 100%; }
 .hdr__nav a:hover, .hdr__nav a:focus-visible { color: var(--c-accent); }
 @media (max-width: 520px) { .w__in { animation-duration: 0.7s; animation-delay: calc(var(--i) * 0.025s + 0.02s); } }
+.story__note { margin-top: 1.5rem; max-width: 46ch; color: var(--c-muted); font-size: var(--t-m); line-height: 1.4; }

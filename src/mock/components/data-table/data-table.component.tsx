@@ -98,7 +98,7 @@ export function DataTable<Row>({
               type="button"
               disabled={!column.sortValue}
               onClick={() => toggleSort(column)}
-              aria-sort={active ? (sort.direction === "asc" ? "ascending" : "descending") : "none"}
+              title={column.sortValue ? `Sort by ${column.header}` : undefined}
               className={cn(
                 "flex h-9 items-center gap-1 outline-none enabled:hover:text-foreground",
                 column.align === "right" && "justify-end",
@@ -111,7 +111,7 @@ export function DataTable<Row>({
           );
         })}
       </div>
-      <div ref={scrollRef} data-lenis-prevent className="min-h-0 flex-1 overflow-auto" role="rowgroup">
+      <div ref={scrollRef} data-lenis-prevent className="min-h-0 flex-1 overflow-auto">
         {order.length === 0 ? (
           <p className="p-6 text-muted-foreground">{DATA_TABLE.emptyLabel}</p>
         ) : (
@@ -125,8 +125,6 @@ export function DataTable<Row>({
               return (
                 <div
                   key={key}
-                  role="row"
-                  aria-selected={selection ? checked : undefined}
                   onClick={
                     selection
                       ? () => selection.onToggle(key)
@@ -158,7 +156,6 @@ export function DataTable<Row>({
                   {columns.map((column) => (
                     <div
                       key={column.id}
-                      role="cell"
                       className={cn(
                         "truncate",
                         column.align === "right" && "text-right tabular-nums",

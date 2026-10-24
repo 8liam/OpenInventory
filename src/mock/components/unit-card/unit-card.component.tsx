@@ -34,7 +34,7 @@ export function UnitCard({
         onClick={onSelect}
         aria-pressed={selected}
         aria-label={unit.name}
-        className="absolute inset-0 rounded-lg"
+        className="absolute inset-0 rounded-lg transition-colors hover:bg-foreground/5"
       />
       <div className="pointer-events-none relative flex items-start justify-between gap-3">
         <div className="min-w-0">

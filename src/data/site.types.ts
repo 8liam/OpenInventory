@@ -1,5 +1,3 @@
-import type { ImageMetadata } from 'astro';
-
 export type Figure = { label: string; value: number; prefix: string; suffix: string; decimals: number };
 
 export type Chapter = {
@@ -11,9 +9,6 @@ export type Chapter = {
   title: string;
   body: string;
   points: readonly string[];
-  alt: string;
-  image: ImageMetadata;
-  crop: ImageMetadata;
 };
 
 export type Stat = { value: string; label: string; note: string };

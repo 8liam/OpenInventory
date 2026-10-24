@@ -64,7 +64,7 @@
   .oi-app button { cursor: pointer; }
   .oi-app button:disabled { cursor: default; }
   .oi-app table { border-collapse: collapse; text-indent: 0; }
-  .oi-app h1, .oi-app h2, .oi-app h3 { font-size: inherit; font-weight: inherit; letter-spacing: normal; line-height: inherit; }
+  .oi-app h1, .oi-app h2, .oi-app h3, .oi-app h4, .oi-app h5 { font-size: inherit; font-weight: inherit; letter-spacing: normal; line-height: inherit; }
   .oi-app p, .oi-app ul, .oi-app ol, .oi-app dl, .oi-app dd { margin: 0; padding: 0; list-style: none; }
   .oi-app img, .oi-app svg { display: block; }
   .oi-app svg { overflow: visible; }

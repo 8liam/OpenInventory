@@ -18,7 +18,7 @@ export function KindPills({ selected, counts, onSelect }: KindPillsProps) {
         >
           {COPY.cases.kinds[kind].pill}{" "}
           {counts ? (
-            <span className="tabular opacity-60">{formatInteger(counts[kind])}</span>
+            <span className="tabular opacity-100">{formatInteger(counts[kind])}</span>
           ) : (
             <Skeleton className="inline-block h-3.5 w-5 align-middle" />
           )}
