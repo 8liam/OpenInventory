@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Button } from "~/components/button/button.component";
+import { Select } from "~/components/select/select.component";
 import { INVENTORY_LOCATION_ID } from "~/lib/items/item.types";
 import { postJson } from "~/lib/storage/storage.client";
 import { STORAGE_API, STORAGE_LIMITS } from "~/lib/storage/storage.config";
@@ -95,23 +96,20 @@ export function TransferBar({ selected, units, busy, onClear }: TransferBarProps
         </button>
         {!confirming && (
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-1 sm:flex-row sm:items-center sm:justify-end">
-            <label className="flex items-center gap-2 text-muted-foreground sm:w-auto">
+            <div className="flex items-center gap-2 text-muted-foreground sm:w-auto">
               <span className="hidden sm:inline">{TRANSFER_BAR.destination}</span>
-              <select
+              <Select
                 value={destination}
-                onChange={(e) => setDestination(e.target.value)}
+                ariaLabel={TRANSFER_BAR.destination}
                 disabled={blocker !== undefined}
-                aria-label={TRANSFER_BAR.destination}
-                className="h-9 w-full rounded-md border border-input bg-card px-2 text-foreground outline-none disabled:opacity-50 sm:h-8 sm:w-60"
-              >
-                <option value="">{TRANSFER_BAR.choose}</option>
-                {options.map((o) => (
-                  <option key={o.id} value={o.id} disabled={o.disabled}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+                className="w-full sm:w-60"
+                options={[
+                  { id: "", label: TRANSFER_BAR.choose },
+                  ...options.map((o) => ({ id: o.id, label: o.label, disabled: o.disabled })),
+                ]}
+                onChange={setDestination}
+              />
+            </div>
             <Button
               variant="primary"
               className="w-full sm:w-auto"
