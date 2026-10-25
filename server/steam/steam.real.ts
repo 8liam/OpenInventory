@@ -5,13 +5,17 @@ import { EAuthTokenPlatformType, LoginSession } from "steam-session";
 import SteamUser from "steam-user";
 import {
   AUTH_STATUS,
+  CASKET_NOTIFICATION,
   CS2_APP_ID,
+  FINAL_OFFER_POINTS,
+  GC_ATTRIBUTE,
   GC_MESSAGE,
   ITEM_DEF,
   STORAGE_LIMITS,
   SESSION_REPLACED_ERESULT,
   SESSION_REPLACED_MESSAGE,
   TOKEN_REJECTED_ERESULTS,
+  UNLOCK_CRATE_NOTIFICATION,
 } from "../../src/lib/storage/storage.config.ts";
 import type { Database } from "../db/db.types.ts";
 import { createSessionFile, type SavedSession } from "./session-file.ts";
@@ -20,6 +24,7 @@ import { INVENTORY_LOCATION_ID } from "../../src/lib/items/item.types.ts";
 import type { TransferRequest } from "../../src/lib/storage/storage.types.ts";
 import { isPlaceholderItemId } from "./item-ids.ts";
 import { encodeNameItem } from "./rename.ts";
+import { encodeRequestOffer, encodeLoadTerminalOffer, encodeOpenCrate } from "./terminal.ts";
 import { runTransfer } from "./transfer.ts";
 import {
   UserFacingError,
@@ -332,6 +337,114 @@ export function createRealGateway(
     });
   }
 
+  function activateTerminal(terminalId: string): Promise<void> {
+    const gc = csgo;
+    const client = steam;
+    if (!gc || !client || !gc.haveGCSession) {
+      throw new UserFacingError("Not connected to the CS2 Game Coordinator", STATUS.conflict);
+    }
+    if (!looseInventory().some((item) => item.id === terminalId))
+      throw new UserFacingError("Terminal not found in your inventory", STATUS.notFound);
+    return new Promise<void>((resolve, reject) => {
+      const done = (error?: Error) => {
+        clearTimeout(timer);
+        gc.off("itemChanged", onChanged);
+        gc.off("itemCustomizationNotification", onNotification);
+        if (error) reject(error);
+        else resolve();
+      };
+      const onNotification = (_itemIds: readonly string[], type: number) => {
+        if (type === UNLOCK_CRATE_NOTIFICATION) done();
+      };
+      const onChanged = (_old: GcItem, next: GcItem) => {
+        const expiry = next.attribute?.some((a) => a.def_index === GC_ATTRIBUTE.expirationDate);
+        if (next.id === terminalId && expiry) done();
+      };
+      const timer = setTimeout(
+        () => done(new UserFacingError("Steam didn't confirm the activation", STATUS.conflict)),
+        STORAGE_LIMITS.activateConfirmTimeoutMs,
+      );
+      gc.on("itemChanged", onChanged);
+      gc.on("itemCustomizationNotification", onNotification);
+      client.sendToGC(CS2_APP_ID, GC_MESSAGE.openCrate, {}, encodeOpenCrate(terminalId));
+    });
+  }
+
+  /** What an active Terminal currently offers, newest first (older offers can linger in the inventory). */
+  function offeredBy(terminalId: string): readonly GcItem[] {
+    return (csgo?.inventory ?? [])
+      .filter((item) => item.casket_id === terminalId)
+      .sort((a, b) => (BigInt(a.id) < BigInt(b.id) ? 1 : -1));
+  }
+
+  /** The Terminal's points counter; undefined until its first offer exists. */
+  function terminalPoints(terminalId: string): number | undefined {
+    const terminal = looseInventory().find((item) => item.id === terminalId);
+    if (!terminal)
+      throw new UserFacingError("Terminal not found in your inventory", STATUS.notFound);
+    const bytes = terminal.attribute?.find(
+      (a) => a.def_index === GC_ATTRIBUTE.questPointsRemaining,
+    )?.value_bytes;
+    return bytes && bytes.length >= 4 ? bytes.readUInt32LE(0) : undefined;
+  }
+
+  /** Sends one offer message and resolves with the Terminal's offered items once the GC reports them. */
+  function requestOffer(
+    terminalId: string,
+    send: (client: SteamUser) => void,
+  ): Promise<readonly GcItem[]> {
+    const gc = csgo;
+    const client = steam;
+    if (!gc || !client || !gc.haveGCSession) {
+      throw new UserFacingError("Not connected to the CS2 Game Coordinator", STATUS.conflict);
+    }
+    return new Promise<readonly GcItem[]>((resolve, reject) => {
+      const done = (error?: Error) => {
+        clearTimeout(timer);
+        gc.off("itemCustomizationNotification", onNotification);
+        if (error) reject(error);
+        else resolve(offeredBy(terminalId));
+      };
+      const onNotification = (itemIds: readonly string[], type: number) => {
+        if (itemIds[0] === terminalId && type === CASKET_NOTIFICATION.contents) done();
+      };
+      const timer = setTimeout(
+        () => done(new UserFacingError("Steam didn't send the offer", STATUS.conflict)),
+        STORAGE_LIMITS.offerTimeoutMs,
+      );
+      gc.on("itemCustomizationNotification", onNotification);
+      send(client);
+    });
+  }
+
+  function getTerminalOffer(terminalId: string): Promise<readonly GcItem[]> {
+    const points = terminalPoints(terminalId);
+    const existing = offeredBy(terminalId);
+    if (existing.length > 0) return Promise.resolve(existing);
+    // No points yet means the first offer was never generated; otherwise just load it.
+    return requestOffer(terminalId, (client) =>
+      points === undefined
+        ? client.sendToGC(CS2_APP_ID, GC_MESSAGE.openCrate, {}, encodeRequestOffer(terminalId, 0))
+        : client.sendToGC(
+            CS2_APP_ID,
+            GC_MESSAGE.loadTerminalOffer,
+            {},
+            encodeLoadTerminalOffer(terminalId, points),
+          ),
+    );
+  }
+
+  function requestNextOffer(terminalId: string): Promise<readonly GcItem[]> {
+    const points = terminalPoints(terminalId);
+    if (points === undefined)
+      throw new UserFacingError("This Terminal has no offer yet", STATUS.conflict);
+    if (points === FINAL_OFFER_POINTS)
+      throw new UserFacingError("This is the final offer", STATUS.conflict);
+    return requestOffer(terminalId, (client) =>
+      client.sendToGC(CS2_APP_ID, GC_MESSAGE.openCrate, {}, encodeRequestOffer(terminalId, points)),
+    );
+  }
+
   let transferCancelled = false;
 
   const STATUS = { badRequest: 400, notFound: 404, conflict: 409 } as const;
@@ -535,6 +648,9 @@ export function createRealGateway(
 
     refreshUnits,
     renameUnit,
+    activateTerminal,
+    getTerminalOffer,
+    requestNextOffer,
     transferItems,
     cancelTransfer: () => {
       transferCancelled = true;
