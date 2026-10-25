@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RefreshCw } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "~/components/button/button.component";
 import { HoldingsTable } from "~/components/holdings-table/holdings-table.component";
 import { BreakdownPanel } from "~/components/breakdown-panel/breakdown-panel.component";
@@ -14,12 +14,16 @@ import type { Dashboard } from "~/lib/items/dashboard.types";
 import { callStorageApi, useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { usePriceQuery, useSettings } from "~/lib/settings/settings.store";
+import { RELATIVE_TIME } from "~/utils/format.config";
+import { formatRelativeTime } from "~/utils/format";
 
 export const Route = createFileRoute("/")({ component: DashboardPage });
 
 function DashboardPage() {
   const snapshot = useStorageSnapshot();
   const currency = useSettings((s) => s.currency);
+  const marketplace = useSettings((s) => s.marketplace);
+  const [now, setNow] = useState(() => Date.now());
   const priceQuery = usePriceQuery();
   const data = useRemoteData<Dashboard>(
     `${STORAGE_API.dashboard}?${priceQuery}`,
@@ -27,6 +31,12 @@ function DashboardPage() {
   );
   const [refreshing, setRefreshing] = useState(false);
   const copy = COPY.dashboard;
+
+  // Keeps "updated 5 minutes ago" current while the page stays open.
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), RELATIVE_TIME.refreshMs);
+    return () => clearInterval(timer);
+  }, []);
 
   async function refresh() {
     setRefreshing(true);
@@ -38,14 +48,15 @@ function DashboardPage() {
   }
 
   const dashboard = data.status === "ready" ? data.data : undefined;
+  const source = COPY.settings.marketplaces[marketplace];
   return (
     <>
       <PageHeader
         title={copy.title}
         description={
           dashboard?.priceUpdatedAt
-            ? `${copy.updated} ${new Date(dashboard.priceUpdatedAt).toLocaleTimeString()} · ${COPY.common.priceNote}`
-            : COPY.common.priceNote
+            ? copy.pricesUpdated(formatRelativeTime(dashboard.priceUpdatedAt, now), source)
+            : copy.pricesFrom(source)
         }
       >
         {snapshot.loadingUnits && (

@@ -4,7 +4,6 @@ export const COPY = {
     loading: "Loading…",
     errorPrefix: "Something went wrong:",
     empty: "—",
-    priceNote: "Prices are the lowest Skinport listing.",
     refresh: "Refresh",
     refreshing: "Refreshing…",
     searchPlaceholder: "Search items",
@@ -37,7 +36,8 @@ export const COPY = {
   itemColumns: { item: "Item", location: "Location", type: "Type", float: "Float", price: "Price" },
   dashboard: {
     title: "Dashboard",
-    updated: "Prices updated",
+    pricesFrom: (source: string) => `Prices from ${source}`,
+    pricesUpdated: (when: string, source: string) => `Prices updated ${when} from ${source}`,
     totalValue: "Total value",
     inventory: "Inventory",
     storage: "Storage units",
