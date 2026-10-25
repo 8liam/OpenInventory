@@ -2,6 +2,7 @@ import { Link, Outlet } from "@tanstack/react-router";
 import {
   ArrowLeftRight,
   Boxes,
+  Laptop,
   LayoutDashboard,
   LogOut,
   Package,
@@ -26,6 +27,7 @@ const ICONS: Record<
   items: Boxes,
   storage: Package,
   cases: PackageOpen,
+  terminals: Laptop,
   tradeup: ArrowLeftRight,
   settings: Settings,
 };

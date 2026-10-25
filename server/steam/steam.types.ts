@@ -27,6 +27,12 @@ export type StorageGateway = {
   readonly transferItems: (request: TransferRequest) => void;
   /** Renames a storage unit and resolves once the GC reports the new name. */
   readonly renameUnit: (unitId: string, name: string) => Promise<void>;
+  /** Activates a sealed Terminal. Irreversible; resolves once the GC confirms it. */
+  readonly activateTerminal: (terminalId: string) => Promise<void>;
+  /** Asks the GC to present an active Terminal's current offer and returns the offered items. Read-only. */
+  /** Moves an active Terminal on to its next offer. Irreversible; returns the new offered items. */
+  readonly requestNextOffer: (terminalId: string) => Promise<readonly GcItem[]>;
+  readonly getTerminalOffer: (terminalId: string) => Promise<readonly GcItem[]>;
   readonly cancelTransfer: () => void;
   readonly dismissTransfer: () => void;
   readonly onReady: (listener: (steamId: string) => void) => void;

@@ -3,12 +3,14 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { extname, join, normalize, sep } from "node:path";
 import { timingSafeEqual } from "node:crypto";
 import {
+  GC_ATTRIBUTE,
   SSE_KEEP_ALIVE_MS,
   STORAGE_API,
   STORAGE_LIMITS,
 } from "../src/lib/storage/storage.config.ts";
 import type {
   ApiError,
+  ActivateTerminalRequest,
   RenameUnitRequest,
   TransferRequest,
 } from "../src/lib/storage/storage.types.ts";
@@ -19,7 +21,8 @@ import { createHistorySync } from "./cases/history-sync.ts";
 import { openDatabase } from "./db/db.ts";
 import { buildDashboard, summarizeValue } from "./dashboard.ts";
 import { collectItems } from "./items/collect.ts";
-import { loadCatalog } from "./items/catalog.ts";
+import type { TerminalOffer, TerminalOfferResponse } from "../src/lib/items/item.types.ts";
+import { loadCatalog, readUInt32 } from "./items/catalog.ts";
 import {
   DEFAULT_MARKETPLACE,
   LEGACY_HISTORY_MARKETPLACE,
@@ -40,6 +43,7 @@ const HTTP = {
   unauthorized: 401,
   forbidden: 403,
   notFound: 404,
+  conflict: 409,
   methodNotAllowed: 405,
   unsupportedMedia: 415,
   serverError: 500,
@@ -121,6 +125,14 @@ function parseTransferRequest(body: unknown): TransferRequest {
     throw new UserFacingError("Invalid transfer request", HTTP.badRequest);
   }
   return { from, to, itemIds };
+}
+
+function parseActivateRequest(body: unknown): ActivateTerminalRequest {
+  const id = typeof body === "object" && body !== null ? (body as { id?: unknown }).id : undefined;
+  if (typeof id !== "string" || !ITEM_ID_PATTERN.test(id)) {
+    throw new UserFacingError("Invalid activation request", HTTP.badRequest);
+  }
+  return { id };
 }
 
 function parseRenameRequest(body: unknown): RenameUnitRequest {
@@ -377,6 +389,51 @@ const server = createServer(async (req, res) => {
         const { id, name } = parseRenameRequest(await readBody(req));
         await gateway.renameUnit(id, name);
         return void res.writeHead(HTTP.noContent).end();
+      }
+      if (path === STORAGE_API.activateTerminal) {
+        assertJsonBody(req);
+        requireReady();
+        const { id } = parseActivateRequest(await readBody(req));
+        const raw = gateway.getInventory().find((item) => item.id === id);
+        const terminal = raw ? catalog.describe(raw).view.terminal : null;
+        if (!terminal) throw new UserFacingError("That item isn't a Terminal", HTTP.badRequest);
+        if (terminal.isActive)
+          throw new UserFacingError("That Terminal is already active", HTTP.conflict);
+        await gateway.activateTerminal(id);
+        return void res.writeHead(HTTP.noContent).end();
+      }
+      if (path === STORAGE_API.terminalOffer || path === STORAGE_API.terminalNextOffer) {
+        assertJsonBody(req);
+        requireReady();
+        const scope = parseScope(url);
+        const { id } = parseActivateRequest(await readBody(req));
+        const terminalRaw = gateway.getInventory().find((item) => item.id === id);
+        const terminal = terminalRaw ? catalog.describe(terminalRaw).view.terminal : null;
+        if (!terminal?.isActive)
+          throw new UserFacingError("That isn't an active Terminal", HTTP.badRequest);
+        const book = await loadPrices(scope);
+        const offered =
+          path === STORAGE_API.terminalNextOffer
+            ? await gateway.requestNextOffer(id)
+            : await gateway.getTerminalOffer(id);
+        // Asking for an offer changes the Terminal's own points, so describe it again afterwards.
+        const refreshed = gateway.getInventory().find((item) => item.id === id);
+        const offers = offered.map((raw): TerminalOffer => {
+          const { view } = catalog.describe(raw);
+          return {
+            ...view,
+            purchaseCost: readUInt32(raw, GC_ATTRIBUTE.purchasePrice) ?? null,
+            price: view.marketHashName
+              ? (book.byName.get(view.marketHashName)?.price ?? null)
+              : null,
+          };
+        });
+        return sendJson(res, HTTP.ok, {
+          offers,
+          isFinalOffer:
+            (refreshed && catalog.describe(refreshed).view.terminal?.isFinalOffer) ?? false,
+          currency: scope.currency,
+        } satisfies TerminalOfferResponse);
       }
       if (path === STORAGE_API.casesSync) {
         historySync.start(requireReady());

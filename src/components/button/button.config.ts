@@ -1,6 +1,7 @@
 export const BUTTON_VARIANT_CLASS = {
   primary: "bg-primary text-primary-foreground hover:opacity-90",
   secondary: "border border-input bg-card hover:bg-accent",
+  destructive: "bg-destructive text-white hover:opacity-90",
   ghost: "text-muted-foreground hover:bg-accent hover:text-foreground",
 } as const;
 
