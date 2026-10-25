@@ -81,6 +81,16 @@ export async function postJson(path: string, body: unknown): Promise<void> {
   if (!response.ok) throw new Error(await readError(response));
 }
 
+export async function postForJson<T>(path: string, body: unknown): Promise<T> {
+  const response = await fetch(path, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!response.ok) throw new Error(await readError(response));
+  return (await response.json()) as T;
+}
+
 export type RemoteData<T> =
   | { readonly status: "loading" }
   | { readonly status: "error"; readonly message: string }

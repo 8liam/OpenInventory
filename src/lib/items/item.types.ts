@@ -9,6 +9,17 @@ export type CharmView = {
   readonly imageUrl: string | null;
   /** The charm's pattern seed, when the GC reports one. */
   readonly pattern: number | null;
+  /** Highlight reel of a souvenir charm, when it has one. */
+  readonly videoUrl: string | null;
+};
+
+/** The state of a Terminal (the CS2 case system): sealed, or activated and counting down. */
+export type TerminalView = {
+  readonly isActive: boolean;
+  /** Epoch ms at which an active terminal runs out. */
+  readonly expiresAt: number | null;
+  /** True once the Terminal is showing its last offer; there is no next one. */
+  readonly isFinalOffer: boolean;
 };
 
 /** Decoded from a raw Game Coordinator item; independent of where it lives or its price. */
@@ -29,8 +40,27 @@ export type ItemBase = {
   readonly charms: readonly CharmView[];
   /** Pattern seed of a loose charm; attached charms carry theirs in `charms`. */
   readonly pattern: number | null;
+  /** Highlight reel of a loose souvenir charm. */
+  readonly videoUrl: string | null;
+  /** Set for Terminals only. */
+  readonly terminal: TerminalView | null;
   /** Epoch ms until which the item is trade-locked, if still locked. */
   readonly tradableAfter: number | null;
+};
+
+/** An item an active Terminal is offering, with its price in Terminal points. */
+export type TerminalOffer = ItemBase & {
+  /** What the Terminal charges for the offer, in US cents. */
+  readonly purchaseCost: number | null;
+  /** Lowest listing in the requested currency, or null when unpriced. */
+  readonly price: number | null;
+};
+
+export type TerminalOfferResponse = {
+  /** Newest first: the first entry is the offer currently on the table. */
+  readonly offers: readonly TerminalOffer[];
+  readonly isFinalOffer: boolean;
+  readonly currency: string;
 };
 
 /** One inventory/storage-unit item with its location and market value. */

@@ -1,4 +1,5 @@
 import {
+  FINAL_OFFER_POINTS,
   GC_ATTRIBUTE,
   IMAGE_SIZE_SUFFIX,
   ITEM_DATA,
@@ -7,7 +8,7 @@ import {
   STEAM_ECONOMY_IMAGE_MARKER,
   WEAR_BANDS,
 } from "../../src/lib/storage/storage.config.ts";
-import type { CharmView, StickerView } from "../../src/lib/items/item.types.ts";
+import type { CharmView, StickerView, TerminalView } from "../../src/lib/items/item.types.ts";
 import type { Database } from "../db/db.types.ts";
 import type { GcItem } from "../steam/steam.types.ts";
 import type {
@@ -31,6 +32,8 @@ const NAME_PREFIX = {
   /** Vanilla knives and gloves are listed with a star; the base-weapon data omits it. */
   star: "★ ",
 } as const;
+const SOUVENIR_CHARM_CATEGORY = "Souvenir Charm";
+const TERMINAL = { marker: "Terminal", sealed: "Sealed ", active: "Active " } as const;
 const VANILLA_SKIN = "Vanilla";
 const STARRED_CATEGORIES: readonly string[] = ["Knives", "Gloves"];
 
@@ -73,7 +76,7 @@ function byDefIndex<T extends NamedRecord>(records: readonly T[]): Map<number, T
 type GcAttribute = NonNullable<GcItem["attribute"]>[number];
 type GcSticker = NonNullable<GcItem["stickers"]>[number];
 
-function readUInt32(item: GcItem, attributeId: number): number | undefined {
+export function readUInt32(item: GcItem, attributeId: number): number | undefined {
   const bytes = item.attribute?.find((a: GcAttribute) => a.def_index === attributeId)?.value_bytes;
   return bytes && bytes.length >= 4 ? bytes.readUInt32LE(0) : undefined;
 }
@@ -231,7 +234,16 @@ export async function loadCatalog(db: Database): Promise<Catalog> {
         : charm === undefined
           ? undefined
           : keychainById.get(charm);
-    return record ? [{ name: record.name, imageUrl: sizedImage(record.image), pattern }] : [];
+    return record
+      ? [
+          {
+            name: record.name,
+            imageUrl: sizedImage(record.image),
+            pattern,
+            videoUrl: highlight === undefined ? null : (record.video ?? null),
+          },
+        ]
+      : [];
   }
 
   function describe(item: GcItem): DescribedItem {
@@ -290,8 +302,12 @@ export async function loadCatalog(db: Database): Promise<Catalog> {
         category = "Sticker Slab";
       } else if (highlight !== undefined) {
         record = highlightById.get(highlight);
-        category = "Souvenir Charm";
-        if (record) name = `${NAME_PREFIX.souvenirCharm}${record.name}`;
+        category = SOUVENIR_CHARM_CATEGORY;
+        // The highlights data already carries the "Souvenir Charm | " prefix.
+        if (record)
+          name = record.name.startsWith(NAME_PREFIX.souvenirCharm)
+            ? record.name
+            : `${NAME_PREFIX.souvenirCharm}${record.name}`;
       } else if (charm !== undefined) {
         record = keychainById.get(charm);
         category = "Charm";
@@ -313,6 +329,21 @@ export async function loadCatalog(db: Database): Promise<Catalog> {
           marketHashName = starred;
           name = `${starred} | ${VANILLA_SKIN}`;
         }
+      }
+    }
+
+    let terminal: TerminalView | null = null;
+    if (record && category === "Container" && record.name.includes(TERMINAL.marker)) {
+      const expiry = readUInt32(item, GC_ATTRIBUTE.expirationDate);
+      terminal = {
+        isActive: expiry !== undefined,
+        expiresAt: expiry === undefined ? null : expiry * 1000,
+        isFinalOffer: readUInt32(item, GC_ATTRIBUTE.questPointsRemaining) === FINAL_OFFER_POINTS,
+      };
+      if (terminal.isActive) {
+        // Activating a Terminal keeps its def_index; only the listing name changes.
+        name = record.name.replace(TERMINAL.sealed, TERMINAL.active);
+        marketHashName = name;
       }
     }
 
@@ -339,6 +370,8 @@ export async function loadCatalog(db: Database): Promise<Catalog> {
           item.def_index === ITEM_DEF.charm
             ? (readUInt32(item, GC_ATTRIBUTE.keychainPattern) ?? null)
             : null,
+        terminal,
+        videoUrl: category === SOUVENIR_CHARM_CATEGORY ? (record?.video ?? null) : null,
         tradableAfter:
           item.tradable_after && item.tradable_after.getTime() > Date.now()
             ? item.tradable_after.getTime()

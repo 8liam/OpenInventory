@@ -24,7 +24,8 @@ Self-hosted CS2 inventory and storage unit tracker. Sign in once with the Steam 
 - **Cases**: case, souvenir, capsule, trade-up and drop stats read from your Steam inventory history: rarity split, rarest pulls, most opened, per-month volume, and your gold drought. History is synced in the background and stored locally.
 - **Trade-up calculator**: read-only estimate of expected value from your cheapest tradable skins and their collections. OpenInventory can't perform trade-ups.
 
-- **Move items**: select items on the Items or Storage page and move them between your inventory and storage units (unit to unit goes through your inventory). Each move is confirmed by the Game Coordinator, with live progress, cancel, and a per-item error report. Nothing is ever listed or traded.
+- **Terminals**: the Terminals page lists your sealed and active Terminals. Browsing an active Terminal's current offer (the item, what the Terminal charges and its market value) is read-only. Two actions are **destructive and irreversible**, and OpenInventory makes an exception to its read-only rule for them: **activating** a sealed Terminal (it is used up and its expiry timer starts, and an active Terminal can't be traded or moved) and asking for the **next offer** (you can't go back to the offer you were on). Each sits behind a confirmation dialog that spells out the effects and needs a tick box. OpenInventory never buys anything from a Terminal.
+- **Move items**: select items on the Items or Storage page and move them between your inventory and storage units (unit to unit goes through your inventory). Each move is confirmed by the Game Coordinator, with live progress, cancel, and a per-item error report. Nothing is ever listed or traded. Apart from moves, renaming storage units and activating Terminals (above), OpenInventory is read-only.
 
 ## Desktop app
 

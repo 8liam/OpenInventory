@@ -14,6 +14,9 @@ export const STORAGE_API = {
   transferCancel: "/api/transfer/cancel",
   transferDismiss: "/api/transfer/dismiss",
   renameUnit: "/api/units/rename",
+  activateTerminal: "/api/terminals/activate",
+  terminalOffer: "/api/terminals/offer",
+  terminalNextOffer: "/api/terminals/next-offer",
 } as const;
 
 export const AUTH_STATUS = {
@@ -39,6 +42,10 @@ export const STORAGE_LIMITS = {
   unitNameMaxLength: 20,
   /** How long to wait for the GC to report the new name. */
   renameConfirmTimeoutMs: 10_000,
+  /** How long to wait for the GC to confirm a Terminal activation. */
+  activateConfirmTimeoutMs: 15_000,
+  /** How long to wait for the GC to send a Terminal's offer. */
+  offerTimeoutMs: 15_000,
   /** CS2 storage units hold at most this many items. */
   unitCapacity: 1000,
   maxItemsPerTransfer: 1000,
@@ -101,7 +108,7 @@ export const ITEM_DEF = {
 export const CS2_APP_ID = 730;
 
 /** GC message ids sent without a wrapper in globaloffensive. */
-export const GC_MESSAGE = { nameItem: 1006 } as const;
+export const GC_MESSAGE = { nameItem: 1006, openCrate: 2534, loadTerminalOffer: 2536 } as const;
 
 /** EResults meaning the saved refresh token itself is no longer valid (steam-user EResult). */
 export const TOKEN_REJECTED_ERESULTS: readonly number[] = [5, 15, 26, 27, 43, 65];
@@ -121,7 +128,13 @@ export const GC_ATTRIBUTE = {
   keychainPattern: 306,
   keychainHighlight: 314,
   keychainSticker: 321,
+  questPointsRemaining: 169,
+  expirationDate: 183,
+  purchasePrice: 316,
 } as const;
+
+/** A Terminal reports this many points once it is showing its final offer. */
+export const FINAL_OFFER_POINTS = 4_294_967_291;
 
 export const SOUVENIR_QUALITY = 12;
 
@@ -156,6 +169,15 @@ export const TRADE_UP = {
   },
   gammaDopplerName: "Gamma Doppler",
   defaultInputRarity: "rarity_rare_weapon",
+  /** In-game tier colours, as the item data reports them. */
+  rarityColors: {
+    rarity_common_weapon: "#b0c3d9",
+    rarity_uncommon_weapon: "#5e98d9",
+    rarity_rare_weapon: "#4b69ff",
+    rarity_mythical_weapon: "#8847ff",
+    rarity_legendary_weapon: "#d32ce6",
+    rarity_ancient_weapon: "#eb4b4b",
+  },
   rarityOrder: [
     "rarity_common_weapon",
     "rarity_uncommon_weapon",
@@ -185,7 +207,11 @@ export const DASHBOARD = {
 } as const;
 
 /** GC ItemCustomizationNotification ids used to confirm storage unit moves. */
+/** GC ItemCustomizationNotification id confirming a crate/Terminal was opened. */
+export const UNLOCK_CRATE_NOTIFICATION = 1007;
+
 export const CASKET_NOTIFICATION = {
+  contents: 1012,
   tooFull: 1011,
   added: 1013,
   removed: 1014,

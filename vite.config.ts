@@ -6,6 +6,8 @@ import { defineConfig, lazyPlugins } from "vite-plus";
 
 // Local OpenInventory API (see server/index.ts); only the web port is exposed.
 const STORAGE_API_ORIGIN = "http://127.0.0.1:4174";
+// Keep the browser's Host so the API's same-origin check on POSTs passes behind the proxy.
+const STORAGE_API_PROXY = { target: STORAGE_API_ORIGIN, changeOrigin: false } as const;
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -36,8 +38,8 @@ export default defineConfig({
   resolve: {
     alias: { "~": fileURLToPath(new URL("./src", import.meta.url)) },
   },
-  preview: { allowedHosts: [".ts.net"], proxy: { "/api": STORAGE_API_ORIGIN } },
-  server: { allowedHosts: [".ts.net"], proxy: { "/api": STORAGE_API_ORIGIN } },
+  preview: { allowedHosts: [".ts.net"], proxy: { "/api": STORAGE_API_PROXY } },
+  server: { allowedHosts: [".ts.net"], proxy: { "/api": STORAGE_API_PROXY } },
   build: { target: "es2023", sourcemap: false },
   plugins: lazyPlugins(() => [
     tanstackRouter({ target: "react", autoCodeSplitting: true }),

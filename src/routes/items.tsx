@@ -5,18 +5,19 @@ import { ItemTableSkeleton } from "~/components/item-table/item-table.skeleton";
 import { LoadingRegion } from "~/components/loading-region/loading-region.component";
 import { TransferBar } from "~/components/transfer-bar/transfer-bar.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
+import { Select } from "~/components/select/select.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
 import type { InventoryResponse } from "~/lib/items/item.types";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { usePriceQuery } from "~/lib/settings/settings.store";
+import { formatInteger } from "~/utils/format";
 
 export const Route = createFileRoute("/items")({ component: ItemsPage });
 
 const ALL = "all";
-const SELECT_CLASS =
-  "h-8 min-w-0 flex-1 rounded-md border border-input bg-card px-2.5 outline-none sm:flex-none";
+const SELECT_WIDTH = "min-w-0 flex-1 sm:w-48 sm:flex-none";
 
 function ItemsPage() {
   const snapshot = useStorageSnapshot();
@@ -32,11 +33,32 @@ function ItemsPage() {
   const deferred = useDeferredValue(query.trim().toLowerCase());
   const items = data.status === "ready" ? data.data.items : undefined;
 
-  const locations = useMemo(
-    () => [...new Map((items ?? []).map((i) => [i.locationId, i.locationName]))],
-    [items],
-  );
-  const types = useMemo(() => [...new Set((items ?? []).map((i) => i.category))].sort(), [items]);
+  const locationOptions = useMemo(() => {
+    const counts = new Map<string, { name: string; count: number }>();
+    for (const item of items ?? []) {
+      const known = counts.get(item.locationId);
+      if (known) known.count += 1;
+      else counts.set(item.locationId, { name: item.locationName, count: 1 });
+    }
+    return [
+      { id: ALL, label: COPY.items.allLocations, detail: formatInteger(items?.length ?? 0) },
+      ...[...counts].map(([id, { name, count }]) => ({
+        id,
+        label: name,
+        detail: formatInteger(count),
+      })),
+    ];
+  }, [items]);
+  const typeOptions = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const item of items ?? []) counts.set(item.category, (counts.get(item.category) ?? 0) + 1);
+    return [
+      { id: ALL, label: COPY.items.allTypes, detail: formatInteger(items?.length ?? 0) },
+      ...[...counts]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([id, count]) => ({ id, label: id, detail: formatInteger(count) })),
+    ];
+  }, [items]);
   const rows = useMemo(
     () =>
       items?.filter(
@@ -64,30 +86,20 @@ function ItemsPage() {
           placeholder={COPY.common.searchPlaceholder}
           className="h-8 w-full rounded-md border border-input bg-card px-2.5 outline-none placeholder:text-muted-foreground focus:border-primary sm:w-56"
         />
-        <select
+        <Select
           value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          className={SELECT_CLASS}
-          aria-label={COPY.itemColumns.location}
-        >
-          <option value={ALL}>{COPY.items.allLocations}</option>
-          {locations.map(([id, name]) => (
-            <option key={id} value={id}>
-              {name}
-            </option>
-          ))}
-        </select>
-        <select
+          ariaLabel={COPY.itemColumns.location}
+          className={SELECT_WIDTH}
+          options={locationOptions}
+          onChange={setLocation}
+        />
+        <Select
           value={type}
-          onChange={(e) => setType(e.target.value)}
-          className={SELECT_CLASS}
-          aria-label={COPY.itemColumns.type}
-        >
-          <option value={ALL}>{COPY.items.allTypes}</option>
-          {types.map((t) => (
-            <option key={t}>{t}</option>
-          ))}
-        </select>
+          ariaLabel={COPY.itemColumns.type}
+          className={SELECT_WIDTH}
+          options={typeOptions}
+          onChange={setType}
+        />
       </PageHeader>
       {data.status === "loading" && (
         <LoadingRegion className="flex min-h-0 flex-1 flex-col">

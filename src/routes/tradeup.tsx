@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Metric } from "~/components/metric/metric.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
+import { RarityPicker } from "~/components/rarity-picker/rarity-picker.component";
 import { TradeUpInputs } from "~/components/tradeup-inputs/tradeup-inputs.component";
 import { TradeUpOutcomes } from "~/components/tradeup-outcomes/tradeup-outcomes.component";
 import { TradeUpSkeleton } from "~/components/tradeup-skeleton/tradeup-skeleton.component";
@@ -16,6 +17,11 @@ export const Route = createFileRoute("/tradeup")({ component: TradeUpPage });
 
 const INPUT_RARITIES = TRADE_UP.rarityOrder.slice(0, -1).concat(TRADE_UP.covertRarity);
 const SELECTION_SEPARATOR = ",";
+const RARITY_OPTIONS = INPUT_RARITIES.map((id) => ({
+  id,
+  label: COPY.tradeup.rarities[id as keyof typeof COPY.tradeup.rarities],
+  color: TRADE_UP.rarityColors[id as keyof typeof TRADE_UP.rarityColors],
+}));
 
 function TradeUpPage() {
   const snapshot = useStorageSnapshot();
@@ -67,23 +73,15 @@ function TradeUpPage() {
   return (
     <>
       <PageHeader title={copy.title} description={copy.description}>
-        <label className="flex items-center gap-2 text-muted-foreground">
-          {copy.rarity}
-          <select
-            value={rarity}
-            onChange={(e) => {
-              setRarity(e.target.value);
-              setSelection([]);
-            }}
-            className="h-8 rounded-md border border-input bg-card px-2.5 text-foreground outline-none"
-          >
-            {INPUT_RARITIES.map((id) => (
-              <option key={id} value={id}>
-                {copy.rarities[id as keyof typeof copy.rarities]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <RarityPicker
+          label={copy.rarity}
+          options={RARITY_OPTIONS}
+          value={rarity}
+          onChange={(id) => {
+            setRarity(id);
+            setSelection([]);
+          }}
+        />
       </PageHeader>
       {(candidates.status === "loading" || (current && !ready)) && <TradeUpSkeleton />}
       {candidates.status === "error" && (

@@ -6,6 +6,8 @@ export type NamedRecord = {
   readonly name: string;
   readonly def_index?: number | string;
   readonly image?: string;
+  /** Highlight reel (souvenir charms only). */
+  readonly video?: string;
   readonly market_hash_name?: string;
   readonly category?: { readonly name: string };
   readonly rarity?: { readonly id: string; readonly name?: string; readonly color: string } | null;

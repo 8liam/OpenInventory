@@ -51,6 +51,10 @@ export type TransferRequest = {
   readonly itemIds: readonly string[];
 };
 
+export type ActivateTerminalRequest = {
+  readonly id: string;
+};
+
 export type RenameUnitRequest = {
   readonly id: string;
   readonly name: string;
