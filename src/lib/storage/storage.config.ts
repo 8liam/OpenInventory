@@ -106,6 +106,12 @@ export const GC_MESSAGE = { nameItem: 1006 } as const;
 /** EResults meaning the saved refresh token itself is no longer valid (steam-user EResult). */
 export const TOKEN_REJECTED_ERESULTS: readonly number[] = [5, 15, 26, 27, 43, 65];
 
+/** EResult for "another client of this type signed in to the account" (LogonSessionReplaced). */
+export const SESSION_REPLACED_ERESULT = 34;
+
+export const SESSION_REPLACED_MESSAGE =
+  "This Steam account is signed in somewhere else (another OpenInventory or the Steam app). Steam allows one client session at a time, so close the other one, then press Sign in to take over.";
+
 /** Raw GC attribute ids (item attribute definition indexes). */
 export const GC_ATTRIBUTE = {
   killEater: 80,
