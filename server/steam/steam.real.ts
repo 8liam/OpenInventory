@@ -1,3 +1,4 @@
+/// <reference path="./globaloffensive.d.ts" />
 import GlobalOffensive from "globaloffensive";
 import QRCode from "qrcode";
 import { EAuthTokenPlatformType, LoginSession } from "steam-session";
@@ -8,6 +9,8 @@ import {
   GC_MESSAGE,
   ITEM_DEF,
   STORAGE_LIMITS,
+  SESSION_REPLACED_ERESULT,
+  SESSION_REPLACED_MESSAGE,
   TOKEN_REJECTED_ERESULTS,
 } from "../../src/lib/storage/storage.config.ts";
 import type { Database } from "../db/db.types.ts";
@@ -216,7 +219,12 @@ export function createRealGateway(
         fail(`Steam rejected the saved login (${error.message}). Sign in again.`);
         return;
       }
-      // Everything else (logged in elsewhere, network, throttling) keeps the token.
+      // Retrying would just kick the other client back and the two would fight forever.
+      if (error.eresult === SESSION_REPLACED_ERESULT) {
+        fail(SESSION_REPLACED_MESSAGE);
+        return;
+      }
+      // Everything else (network, throttling) keeps the token.
       scheduleReconnect(`Steam connection lost (${error.message}).`);
     });
     // Never force the session: if CS2 is running elsewhere we stay logged on and idle.
