@@ -2,7 +2,7 @@ import type { Chapter, ConfigPoint, ConfigRow, Faq, Lens, Stat, Step } from './s
 
 export const site = {
   name: 'OpenInventory',
-  url: 'https://openinventory-web.vercel.app',
+  url: 'https://openinventory.unsurf.sh',
   title: 'OpenInventory | Self-hosted CS2 inventory and storage unit tracker',
   description:
     'Track every CS2 skin, sticker and storage unit you own, with live value history. Self-hosted, one SQLite file, signed in with the Steam mobile app.',

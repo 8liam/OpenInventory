@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 // Assumption: deployed on Vercel under this name. Change `site` if the production URL differs.
 export default defineConfig({
-  site: 'https://openinventory-web.vercel.app',
+  site: 'https://openinventory.unsurf.sh',
   integrations: [react(), sitemap({ filter: (page) => !page.includes('/og-card') && !page.includes('/404') })],
   build: { inlineStylesheets: 'always' },
   image: { layout: 'constrained' },
