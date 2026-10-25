@@ -1,4 +1,9 @@
-import { FLOAT_FRACTION_DIGITS, FORMAT_LOCALE, PERCENT_FRACTION_DIGITS } from "./format.config";
+import {
+  FLOAT_FRACTION_DIGITS,
+  FORMAT_LOCALE,
+  PERCENT_FRACTION_DIGITS,
+  RELATIVE_TIME,
+} from "./format.config";
 
 const formatters = new Map<string, Intl.NumberFormat>();
 
@@ -83,4 +88,19 @@ const dateTimeFormatter = new Intl.DateTimeFormat(FORMAT_LOCALE, {
 
 export function formatDateTime(timestamp: number): string {
   return dateTimeFormatter.format(timestamp);
+}
+
+const relativeFormatter = new Intl.RelativeTimeFormat(FORMAT_LOCALE, { numeric: "always" });
+const RELATIVE_UNITS: readonly (readonly [Intl.RelativeTimeFormatUnit, number])[] = [
+  ["day", 86_400_000],
+  ["hour", 3_600_000],
+  ["minute", 60_000],
+];
+
+/** "5 minutes ago", "2 hours ago", or "just now" for the last minute. */
+export function formatRelativeTime(timestamp: number, now: number): string {
+  const elapsed = Math.max(0, now - timestamp);
+  if (elapsed < RELATIVE_TIME.justNowMs) return RELATIVE_TIME.justNow;
+  const [unit, size] = RELATIVE_UNITS.find(([, ms]) => elapsed >= ms) ?? RELATIVE_UNITS[2]!;
+  return relativeFormatter.format(-Math.floor(elapsed / size), unit);
 }

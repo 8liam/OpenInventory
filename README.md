@@ -60,6 +60,10 @@ Data (SQLite database, value history and your Steam session) lives in the `openi
 | `OPENINVENTORY_DATA_DIR` | `/data` in Docker, `~/.openinventory` otherwise | SQLite database and Steam session.                           |
 | `OPENINVENTORY_WEB_DIR`  | set in Docker                                   | Built web app to serve. Unset in dev.                        |
 
+## One session per account
+
+Steam allows a single client session per account, and OpenInventory signs in as one. If another OpenInventory (desktop app, Docker, another machine) or the Steam app is signed in to the same account, each takes the session from the other. OpenInventory stops and says so instead of retrying; close the other one, then press **Sign in**.
+
 ## Security
 
 - Your Steam **refresh token** is stored in `session.json` inside the data directory (mode `0600`). Anyone who can read it can act as your account until you press **Sign out**, which deletes it. Protect the volume.
