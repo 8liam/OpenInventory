@@ -1,4 +1,5 @@
 ---
+import Analytics from '@vercel/analytics/astro';
 import { site } from '../data/site.config';
 import '../styles/index.css';
 
@@ -84,10 +85,9 @@ const jsonLd = {
     <slot name="header" />
     <main id="main" tabindex="-1"><slot /></main>
     <slot name="footer" />
+    <Analytics />
     <script>
       import '../scripts/main';
-      import { inject } from '@vercel/analytics';
-      inject();
     </script>
   </body>
 </html>
