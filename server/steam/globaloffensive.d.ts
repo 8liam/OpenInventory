@@ -21,6 +21,9 @@ declare module "globaloffensive" {
     constructor(steamUser: unknown);
     inventory?: GcItem[];
     haveGCSession: boolean;
+    /** Library internals: the hello retry timer and its backoff, which outlive a timed-out request. */
+    _helloTimer?: NodeJS.Timeout | null;
+    _helloTimerMs?: number;
     addToCasket(casketId: string, itemId: string): void;
     removeFromCasket(casketId: string, itemId: string): void;
     getCasketContents(

@@ -458,7 +458,7 @@ const server = createServer(async (req, res) => {
       if (path === STORAGE_API.refresh) {
         requireReady();
         await loadPrices(parseScope(url), true);
-        void gateway.refreshUnits(true);
+        gateway.refreshUnits(true).catch((e: unknown) => console.warn("[units]", e));
         return void res.writeHead(HTTP.noContent).end();
       }
     }

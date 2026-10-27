@@ -7,9 +7,11 @@ import {
   AUTH_STATUS,
   CASKET_NOTIFICATION,
   CS2_APP_ID,
+  CS2_RUNNING_MESSAGE,
   FINAL_OFFER_POINTS,
   GC_ATTRIBUTE,
   GC_MESSAGE,
+  GC_TIMEOUT_MESSAGE,
   ITEM_DEF,
   STORAGE_LIMITS,
   SESSION_REPLACED_ERESULT,
@@ -41,6 +43,10 @@ function toErrorMessage(error: unknown): string {
  * Steam sign-in -> CS2 Game Coordinator session -> inventory -> storage unit
  * contents, plus moves between the inventory and units. Unit contents are copied at
  * load time (the GC evicts a unit's items when another loads) and persisted.
+ *
+ * Signing in to Steam does not mark the account as playing CS2. A GC session is only
+ * opened for a sync, a rename, a transfer or a Terminal action, and released a few seconds
+ * later, so Steam doesn't show the account as in-game (or log playtime) while the app idles.
  */
 export function createRealGateway(
   db: Database,
@@ -54,7 +60,6 @@ export function createRealGateway(
   let login: LoginSession | undefined;
   let steam: SteamUser | undefined;
   let csgo: GlobalOffensive | undefined;
-  let gcTimeout: NodeJS.Timeout | undefined;
   let steamId: string | undefined;
   /** Kept across reconnects; only cleared on sign-out or a rejected token. */
   let activeSession: SavedSession | undefined;
@@ -62,9 +67,17 @@ export function createRealGateway(
   let webCookies: readonly string[] | undefined;
   let reconnectTimer: NodeJS.Timeout | undefined;
   let reconnectAttempts = 0;
-  let unitRefreshTimer: NodeJS.Timeout | undefined;
-  let gcConnected = false;
-  /** The GC library mishandles overlapping casket loads, so run them one at a time. */
+  let releaseTimer: NodeJS.Timeout | undefined;
+  let syncRetryTimer: NodeJS.Timeout | undefined;
+  /** True once the inventory has been read from the GC on this connection. */
+  let synced = false;
+  let syncPending = false;
+  let syncAttempts = 0;
+  /** Rejects the GC session request in flight, if any, so a disconnect doesn't leave it waiting. */
+  let abortAcquire: (() => void) | undefined;
+  /** Steam reports another device is playing, so we can't open a session. */
+  let playingBlocked = false;
+  /** Sessions and casket loads run one at a time: the GC library mishandles overlapping ones. */
   let loadQueue: Promise<unknown> = Promise.resolve();
 
   function readUnitMeta(): UnitMeta[] {
@@ -79,11 +92,15 @@ export function createRealGateway(
 
   /** Drops the live Steam/GC connection but keeps the saved login for a reconnect. */
   function teardownConnection(): void {
-    clearTimeout(gcTimeout);
-    clearTimeout(unitRefreshTimer);
+    abortAcquire?.();
+    clearTimeout(releaseTimer);
+    clearTimeout(syncRetryTimer);
     csgo?.removeAllListeners();
     csgo = undefined;
-    gcConnected = false;
+    synced = false;
+    syncPending = false;
+    syncAttempts = 0;
+    playingBlocked = false;
     steam?.logOff();
     steam?.removeAllListeners();
     steam = undefined;
@@ -134,31 +151,25 @@ export function createRealGateway(
     store.markLoaded(unit.id);
   }
 
-  function refreshUnits(force: boolean): Promise<void> {
-    const run = loadQueue.then(async () => {
-      const gc = csgo;
-      const current = steamId;
-      if (!gc || !current) return;
-      const units = store.units();
-      const cached = db.loadUnits(current);
-      store.setLoadingUnits(true);
-      try {
-        for (const unit of units) {
-          const hit = cached.get(unit.id);
-          if (!force && hit && hit.itemCount === unit.itemCount && unitContents.has(unit.id))
-            continue;
-          try {
-            await loadUnit(gc, unit);
-          } catch (error) {
-            console.warn(`[units] could not load ${unit.name}:`, toErrorMessage(error));
-          }
+  async function loadUnits(gc: GlobalOffensive, force: boolean): Promise<void> {
+    const current = steamId;
+    if (!current) return;
+    const cached = db.loadUnits(current);
+    store.setLoadingUnits(true);
+    try {
+      for (const unit of store.units()) {
+        const hit = cached.get(unit.id);
+        if (!force && hit && hit.itemCount === unit.itemCount && unitContents.has(unit.id))
+          continue;
+        try {
+          await loadUnit(gc, unit);
+        } catch (error) {
+          console.warn(`[units] could not load ${unit.name}:`, toErrorMessage(error));
         }
-      } finally {
-        store.setLoadingUnits(false);
       }
-    });
-    loadQueue = run.catch(() => undefined);
-    return run;
+    } finally {
+      store.setLoadingUnits(false);
+    }
   }
 
   function restoreCachedUnits(current: string): void {
@@ -187,12 +198,123 @@ export function createRealGateway(
     reconnectTimer = setTimeout(() => connect(session), delay);
   }
 
-  function startGcTimeout(): void {
-    clearTimeout(gcTimeout);
-    gcTimeout = setTimeout(
-      () => scheduleReconnect("Timed out waiting for the CS2 Game Coordinator."),
-      STORAGE_LIMITS.gcConnectTimeoutMs,
-    );
+  /** Tells Steam we're no longer playing CS2, which ends the GC session. */
+  function releaseGc(): void {
+    clearTimeout(releaseTimer);
+    steam?.gamesPlayed([]);
+  }
+
+  function scheduleRelease(): void {
+    clearTimeout(releaseTimer);
+    releaseTimer = setTimeout(releaseGc, STORAGE_LIMITS.gcIdleReleaseMs);
+  }
+
+  /** Claims "playing CS2" just long enough for the GC to answer. Never kicks another session. */
+  function acquireGc(): Promise<GlobalOffensive> {
+    const client = steam;
+    const gc = csgo;
+    if (!client || !gc) throw new UserFacingError("Not connected to Steam.", STATUS.conflict);
+    if (gc.haveGCSession) return Promise.resolve(gc);
+    if (playingBlocked) throw new UserFacingError(CS2_RUNNING_MESSAGE, STATUS.conflict);
+    // A request that timed out leaves the library's hello backoff grown and its timer armed.
+    clearTimeout(gc._helloTimer ?? undefined);
+    gc._helloTimer = null;
+    gc._helloTimerMs = undefined;
+    return new Promise<GlobalOffensive>((resolve, reject) => {
+      const finish = (error?: UserFacingError) => {
+        clearTimeout(timer);
+        gc.off("connectedToGC", onConnected);
+        client.off("playingState", onPlayingState);
+        if (abortAcquire === abort) abortAcquire = undefined;
+        if (error) {
+          client.gamesPlayed([]);
+          reject(error);
+        } else resolve(gc);
+      };
+      const abort = () => finish(new UserFacingError("Disconnected from Steam.", STATUS.conflict));
+      const onConnected = () => finish();
+      const onPlayingState = (blocked: boolean) => {
+        if (blocked) finish(new UserFacingError(CS2_RUNNING_MESSAGE, STATUS.conflict));
+      };
+      const timer = setTimeout(
+        () => finish(new UserFacingError(GC_TIMEOUT_MESSAGE, STATUS.gatewayTimeout)),
+        STORAGE_LIMITS.gcConnectTimeoutMs,
+      );
+      abortAcquire = abort;
+      gc.on("connectedToGC", onConnected);
+      client.on("playingState", onPlayingState);
+      client.gamesPlayed([CS2_APP_ID]);
+    });
+  }
+
+  /** Runs `task` inside a CS2 session, one task at a time; the session is released once idle. */
+  function withGcSession<T>(task: (gc: GlobalOffensive) => Promise<T>): Promise<T> {
+    const run = loadQueue.then(async () => {
+      clearTimeout(releaseTimer);
+      try {
+        const gc = await acquireGc().catch((error: unknown) => {
+          if (error instanceof UserFacingError) store.setSyncError(error.message);
+          throw error;
+        });
+        store.setSyncError(null);
+        return await task(gc);
+      } finally {
+        scheduleRelease();
+      }
+    });
+    loadQueue = run.catch(() => undefined);
+    return run;
+  }
+
+  function markReady(current: string): void {
+    synced = true;
+    store.setAuth({ status: AUTH_STATUS.ready, displayName: activeSession?.displayName ?? null });
+    for (const listener of readyListeners) listener(current);
+  }
+
+  /** Reads a fresh inventory from the GC; the first success is what flips the account to ready. */
+  function refreshUnits(force: boolean): Promise<void> {
+    return withGcSession(async (gc) => {
+      const current = steamId;
+      if (!current) return;
+      const units = readUnitMeta();
+      db.pruneUnits(
+        current,
+        units.map((unit) => unit.id),
+      );
+      store.setUnits(units);
+      if (!synced) {
+        restoreCachedUnits(current);
+        markReady(current);
+      }
+      await loadUnits(gc, force);
+    });
+  }
+
+  /** Retries with backoff, or straight away when Steam says the other device stopped playing. */
+  function startInitialSync(): void {
+    clearTimeout(syncRetryTimer);
+    const client = steam;
+    if (!client || synced || syncPending) return;
+    syncPending = true;
+    refreshUnits(false)
+      .then(() => {
+        syncAttempts = 0;
+      })
+      .catch((error: unknown) => {
+        if (steam !== client) return;
+        store.setAuth({ status: AUTH_STATUS.connecting, detail: toErrorMessage(error) });
+        if (playingBlocked) return;
+        const delay = Math.min(
+          STORAGE_LIMITS.reconnectMaxMs,
+          STORAGE_LIMITS.reconnectBaseMs * 2 ** syncAttempts,
+        );
+        syncAttempts += 1;
+        syncRetryTimer = setTimeout(startInitialSync, delay);
+      })
+      .finally(() => {
+        if (steam === client) syncPending = false;
+      });
   }
 
   function connect(session: SavedSession): void {
@@ -203,7 +325,6 @@ export function createRealGateway(
     const client = new SteamUser({ autoRelogin: true });
     steam = client;
     steamId = id;
-    startGcTimeout();
     // The persona name is what Steam shows to friends; the login name stays server-side.
     client.on("accountInfo", (name: string) => {
       const persona = name.trim();
@@ -213,7 +334,7 @@ export function createRealGateway(
         activeSession = { ...activeSession, displayName: persona };
         sessionFile.save(activeSession);
       }
-      if (gcConnected) store.setAuth({ status: AUTH_STATUS.ready, displayName });
+      if (synced) store.setAuth({ status: AUTH_STATUS.ready, displayName });
     });
     client.on("webSession", (_sessionId: string, cookies: string[]) => {
       webCookies = cookies;
@@ -232,61 +353,33 @@ export function createRealGateway(
       // Everything else (network, throttling) keeps the token.
       scheduleReconnect(`Steam connection lost (${error.message}).`);
     });
-    // Never force the session: if CS2 is running elsewhere we stay logged on and idle.
-    client.on("playingState", (blocked: boolean, playingApp: number) => {
+    client.on("playingState", (blocked: boolean) => {
+      const wasBlocked = playingBlocked;
+      playingBlocked = blocked;
+      if (blocked) store.setSyncError(CS2_RUNNING_MESSAGE);
+      else if (wasBlocked) store.setSyncError(null);
       if (blocked) {
-        clearTimeout(gcTimeout);
-        if (!gcConnected) {
-          store.setAuth({
-            status: AUTH_STATUS.connecting,
-            detail: "CS2 is running on another device. OpenInventory will connect when it closes.",
-          });
-        }
-        return;
-      }
-      if (playingApp !== CS2_APP_ID) {
-        if (!gcConnected) startGcTimeout();
-        client.gamesPlayed([CS2_APP_ID]);
-      }
+        // Another device holds the session, so drop our own claim to start clean next time.
+        if (!wasBlocked) releaseGc();
+        if (!synced) store.setAuth({ status: AUTH_STATUS.connecting, detail: CS2_RUNNING_MESSAGE });
+      } else if (wasBlocked) startInitialSync();
     });
     client.on("loggedOn", () => {
       reconnectAttempts = 0;
       // autoRelogin re-fires loggedOn; keep a single GC instance per client.
-      if (csgo) return client.gamesPlayed([CS2_APP_ID]);
+      if (csgo) return;
       store.setAuth({ status: AUTH_STATUS.connecting, detail: "Connecting to CS2…" });
       const gc = new GlobalOffensive(client);
       csgo = gc;
-      gc.on("connectedToGC", () => {
-        gcConnected = true;
-        clearTimeout(gcTimeout);
-        const units = readUnitMeta();
-        db.pruneUnits(
-          id,
-          units.map((unit) => unit.id),
-        );
-        store.setUnits(units);
-        restoreCachedUnits(id);
-        store.setAuth({ status: AUTH_STATUS.ready, displayName });
-        for (const listener of readyListeners) listener(id);
-        void refreshUnits(false);
-      });
-      gc.on("disconnectedFromGC", () => {
-        gcConnected = false;
-      });
-      // A changed unit (count or contents moved in-game) needs a debounced reload; other items just bump the revision.
+      // Items that change during a session (our own moves, mostly) only need the UI nudged.
       const onItem = (item: GcItem) => {
-        if (item.def_index !== ITEM_DEF.storageUnit) return store.touch();
-        store.setUnits(readUnitMeta());
-        clearTimeout(unitRefreshTimer);
-        unitRefreshTimer = setTimeout(
-          () => void refreshUnits(false),
-          STORAGE_LIMITS.unitRefreshDebounceMs,
-        );
+        if (item.def_index === ITEM_DEF.storageUnit) store.setUnits(readUnitMeta());
+        else store.touch();
       };
       gc.on("itemAcquired", onItem);
       gc.on("itemRemoved", onItem);
       gc.on("itemChanged", (_old: GcItem, next: GcItem) => onItem(next));
-      client.gamesPlayed([CS2_APP_ID]);
+      startInitialSync();
     });
     client.logOn({ refreshToken });
   }
@@ -310,64 +403,71 @@ export function createRealGateway(
     });
   }
 
-  function renameUnit(unitId: string, name: string): Promise<void> {
-    const gc = csgo;
-    const client = steam;
-    if (!gc || !client || !gc.haveGCSession) {
-      throw new UserFacingError("Not connected to the CS2 Game Coordinator", STATUS.conflict);
-    }
+  async function renameUnit(unitId: string, name: string): Promise<void> {
+    const client = requireSynced();
     if (!store.units().some((unit) => unit.id === unitId))
       throw new UserFacingError("Storage unit not found", STATUS.notFound);
-    return new Promise<void>((resolve, reject) => {
-      const done = (error?: Error) => {
-        clearTimeout(timer);
-        gc.off("itemChanged", onChanged);
-        if (error) reject(error);
-        else resolve();
-      };
-      const onChanged = (_old: GcItem, next: GcItem) => {
-        if (next.id === unitId && next.custom_name === name) done();
-      };
-      const timer = setTimeout(
-        () => done(new UserFacingError("Steam didn't confirm the rename", STATUS.conflict)),
-        STORAGE_LIMITS.renameConfirmTimeoutMs,
-      );
-      gc.on("itemChanged", onChanged);
-      client.sendToGC(CS2_APP_ID, GC_MESSAGE.nameItem, {}, encodeNameItem(unitId, name));
-    });
+    await withGcSession(
+      (gc) =>
+        new Promise<void>((resolve, reject) => {
+          const done = (error?: Error) => {
+            clearTimeout(timer);
+            gc.off("itemChanged", onChanged);
+            if (error) reject(error);
+            else resolve();
+          };
+          const onChanged = (_old: GcItem, next: GcItem) => {
+            if (next.id === unitId && next.custom_name === name) done();
+          };
+          const timer = setTimeout(
+            () => done(new UserFacingError("Steam didn't confirm the rename", STATUS.conflict)),
+            STORAGE_LIMITS.renameConfirmTimeoutMs,
+          );
+          gc.on("itemChanged", onChanged);
+          client.sendToGC(CS2_APP_ID, GC_MESSAGE.nameItem, {}, encodeNameItem(unitId, name));
+        }),
+    );
   }
 
-  function activateTerminal(terminalId: string): Promise<void> {
-    const gc = csgo;
-    const client = steam;
-    if (!gc || !client || !gc.haveGCSession) {
+  /** The live Steam client; every GC request needs a signed-in account that has synced once. */
+  function requireSynced(): SteamUser {
+    if (!steam || !synced)
       throw new UserFacingError("Not connected to the CS2 Game Coordinator", STATUS.conflict);
-    }
-    if (!looseInventory().some((item) => item.id === terminalId))
-      throw new UserFacingError("Terminal not found in your inventory", STATUS.notFound);
-    return new Promise<void>((resolve, reject) => {
-      const done = (error?: Error) => {
-        clearTimeout(timer);
-        gc.off("itemChanged", onChanged);
-        gc.off("itemCustomizationNotification", onNotification);
-        if (error) reject(error);
-        else resolve();
-      };
-      const onNotification = (_itemIds: readonly string[], type: number) => {
-        if (type === UNLOCK_CRATE_NOTIFICATION) done();
-      };
-      const onChanged = (_old: GcItem, next: GcItem) => {
-        const expiry = next.attribute?.some((a) => a.def_index === GC_ATTRIBUTE.expirationDate);
-        if (next.id === terminalId && expiry) done();
-      };
-      const timer = setTimeout(
-        () => done(new UserFacingError("Steam didn't confirm the activation", STATUS.conflict)),
-        STORAGE_LIMITS.activateConfirmTimeoutMs,
-      );
-      gc.on("itemChanged", onChanged);
-      gc.on("itemCustomizationNotification", onNotification);
-      client.sendToGC(CS2_APP_ID, GC_MESSAGE.openCrate, {}, encodeOpenCrate(terminalId));
-    });
+    return steam;
+  }
+
+  async function activateTerminal(terminalId: string): Promise<void> {
+    const client = requireSynced();
+    await withGcSession(
+      (gc) =>
+        new Promise<void>((resolve, reject) => {
+          if (!looseInventory().some((item) => item.id === terminalId))
+            return reject(
+              new UserFacingError("Terminal not found in your inventory", STATUS.notFound),
+            );
+          const done = (error?: Error) => {
+            clearTimeout(timer);
+            gc.off("itemChanged", onChanged);
+            gc.off("itemCustomizationNotification", onNotification);
+            if (error) reject(error);
+            else resolve();
+          };
+          const onNotification = (_itemIds: readonly string[], type: number) => {
+            if (type === UNLOCK_CRATE_NOTIFICATION) done();
+          };
+          const onChanged = (_old: GcItem, next: GcItem) => {
+            const expiry = next.attribute?.some((a) => a.def_index === GC_ATTRIBUTE.expirationDate);
+            if (next.id === terminalId && expiry) done();
+          };
+          const timer = setTimeout(
+            () => done(new UserFacingError("Steam didn't confirm the activation", STATUS.conflict)),
+            STORAGE_LIMITS.activateConfirmTimeoutMs,
+          );
+          gc.on("itemChanged", onChanged);
+          gc.on("itemCustomizationNotification", onNotification);
+          client.sendToGC(CS2_APP_ID, GC_MESSAGE.openCrate, {}, encodeOpenCrate(terminalId));
+        }),
+    );
   }
 
   /** What an active Terminal currently offers, newest first (older offers can linger in the inventory). */
@@ -390,14 +490,10 @@ export function createRealGateway(
 
   /** Sends one offer message and resolves with the Terminal's offered items once the GC reports them. */
   function requestOffer(
+    gc: GlobalOffensive,
     terminalId: string,
-    send: (client: SteamUser) => void,
+    send: () => void,
   ): Promise<readonly GcItem[]> {
-    const gc = csgo;
-    const client = steam;
-    if (!gc || !client || !gc.haveGCSession) {
-      throw new UserFacingError("Not connected to the CS2 Game Coordinator", STATUS.conflict);
-    }
     return new Promise<readonly GcItem[]>((resolve, reject) => {
       const done = (error?: Error) => {
         clearTimeout(timer);
@@ -413,41 +509,53 @@ export function createRealGateway(
         STORAGE_LIMITS.offerTimeoutMs,
       );
       gc.on("itemCustomizationNotification", onNotification);
-      send(client);
+      send();
     });
   }
 
-  function getTerminalOffer(terminalId: string): Promise<readonly GcItem[]> {
-    const points = terminalPoints(terminalId);
-    const existing = offeredBy(terminalId);
-    if (existing.length > 0) return Promise.resolve(existing);
-    // No points yet means the first offer was never generated; otherwise just load it.
-    return requestOffer(terminalId, (client) =>
-      points === undefined
-        ? client.sendToGC(CS2_APP_ID, GC_MESSAGE.openCrate, {}, encodeRequestOffer(terminalId, 0))
-        : client.sendToGC(
-            CS2_APP_ID,
-            GC_MESSAGE.loadTerminalOffer,
-            {},
-            encodeLoadTerminalOffer(terminalId, points),
-          ),
-    );
+  /** Terminal state is read inside the session, from the inventory the GC has just sent. */
+  async function getTerminalOffer(terminalId: string): Promise<readonly GcItem[]> {
+    const client = requireSynced();
+    return withGcSession(async (gc) => {
+      const points = terminalPoints(terminalId);
+      const existing = offeredBy(terminalId);
+      if (existing.length > 0) return existing;
+      // No points yet means the first offer was never generated; otherwise just load it.
+      return requestOffer(gc, terminalId, () =>
+        points === undefined
+          ? client.sendToGC(CS2_APP_ID, GC_MESSAGE.openCrate, {}, encodeRequestOffer(terminalId, 0))
+          : client.sendToGC(
+              CS2_APP_ID,
+              GC_MESSAGE.loadTerminalOffer,
+              {},
+              encodeLoadTerminalOffer(terminalId, points),
+            ),
+      );
+    });
   }
 
-  function requestNextOffer(terminalId: string): Promise<readonly GcItem[]> {
-    const points = terminalPoints(terminalId);
-    if (points === undefined)
-      throw new UserFacingError("This Terminal has no offer yet", STATUS.conflict);
-    if (points === FINAL_OFFER_POINTS)
-      throw new UserFacingError("This is the final offer", STATUS.conflict);
-    return requestOffer(terminalId, (client) =>
-      client.sendToGC(CS2_APP_ID, GC_MESSAGE.openCrate, {}, encodeRequestOffer(terminalId, points)),
-    );
+  async function requestNextOffer(terminalId: string): Promise<readonly GcItem[]> {
+    const client = requireSynced();
+    return withGcSession(async (gc) => {
+      const points = terminalPoints(terminalId);
+      if (points === undefined)
+        throw new UserFacingError("This Terminal has no offer yet", STATUS.conflict);
+      if (points === FINAL_OFFER_POINTS)
+        throw new UserFacingError("This is the final offer", STATUS.conflict);
+      return requestOffer(gc, terminalId, () =>
+        client.sendToGC(
+          CS2_APP_ID,
+          GC_MESSAGE.openCrate,
+          {},
+          encodeRequestOffer(terminalId, points),
+        ),
+      );
+    });
   }
 
   let transferCancelled = false;
 
-  const STATUS = { badRequest: 400, notFound: 404, conflict: 409 } as const;
+  const STATUS = { badRequest: 400, notFound: 404, conflict: 409, gatewayTimeout: 504 } as const;
 
   function locationName(id: string): string | undefined {
     return id === INVENTORY_LOCATION_ID
@@ -484,8 +592,7 @@ export function createRealGateway(
   }
 
   function transferItems(request: TransferRequest): void {
-    const gc = csgo;
-    if (!gc || !gc.haveGCSession || steamId === undefined) {
+    if (!csgo || !synced || steamId === undefined) {
       throw new UserFacingError("Not connected to the CS2 Game Coordinator", STATUS.conflict);
     }
     if (store.getTransfer().status === "running")
@@ -531,7 +638,7 @@ export function createRealGateway(
 
     transferCancelled = false;
     store.setTransfer({ status: "running", total: itemIds.length, done: 0, fromName, toName });
-    const run = loadQueue.then(async () => {
+    const run = withGcSession(async (gc) => {
       const outcome = await runTransfer({
         gc,
         from,
@@ -564,7 +671,6 @@ export function createRealGateway(
         failures: outcome.failures,
       });
     });
-    loadQueue = run.catch(() => undefined);
     void run.catch((error: unknown) => {
       console.error("[transfer] failed:", error);
       store.setTransfer({

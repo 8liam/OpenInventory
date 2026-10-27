@@ -67,6 +67,8 @@ export type StorageSnapshot = {
   /** True while storage units are being (re)loaded from the Game Coordinator. */
   readonly loadingUnits: boolean;
   readonly transfer: TransferState;
+  /** Why the last CS2 session request failed (e.g. CS2 is running elsewhere); null when healthy. */
+  readonly syncError: string | null;
   /** Bumps whenever inventory or tracked contents change, to trigger refetches. */
   readonly revision: number;
 };

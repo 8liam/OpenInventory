@@ -30,10 +30,12 @@ export const AUTH_STATUS = {
 export const STORAGE_LIMITS = {
   qrLoginTimeoutMs: 120_000,
   webSessionTimeoutMs: 15_000,
+  /** How long to wait for the Game Coordinator to answer a session request. */
   gcConnectTimeoutMs: 30_000,
+  /** How long the CS2 session is held after the last action, so back-to-back actions share one. */
+  gcIdleReleaseMs: 5_000,
   reconnectBaseMs: 2_000,
   reconnectMaxMs: 5 * 60_000,
-  unitRefreshDebounceMs: 2_000,
   /** How long to wait for the GC to confirm one item move. */
   moveConfirmTimeoutMs: 15_000,
   /** Pause between moves so the GC is never flooded. */
@@ -118,6 +120,11 @@ export const SESSION_REPLACED_ERESULT = 34;
 
 export const SESSION_REPLACED_MESSAGE =
   "This Steam account is signed in somewhere else (another OpenInventory or the Steam app). Steam allows one client session at a time, so close the other one, then press Sign in to take over.";
+
+export const CS2_RUNNING_MESSAGE =
+  "CS2 is running on another device, so OpenInventory can't open a session right now. Close CS2 to continue.";
+
+export const GC_TIMEOUT_MESSAGE = "The CS2 Game Coordinator didn't respond in time.";
 
 /** Raw GC attribute ids (item attribute definition indexes). */
 export const GC_ATTRIBUTE = {
