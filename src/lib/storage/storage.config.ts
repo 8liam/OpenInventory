@@ -36,6 +36,8 @@ export const STORAGE_LIMITS = {
   gcIdleReleaseMs: 5_000,
   reconnectBaseMs: 2_000,
   reconnectMaxMs: 5 * 60_000,
+  /** Every login attempt while Steam is throttling extends the throttle, so wait this long between them. */
+  throttleCooldownMs: 15 * 60_000,
   /** How long to wait for the GC to confirm one item move. */
   moveConfirmTimeoutMs: 15_000,
   /** Pause between moves so the GC is never flooded. */
@@ -114,6 +116,14 @@ export const GC_MESSAGE = { nameItem: 1006, openCrate: 2534, loadTerminalOffer: 
 
 /** EResults meaning the saved refresh token itself is no longer valid (steam-user EResult). */
 export const TOKEN_REJECTED_ERESULTS: readonly number[] = [5, 15, 26, 27, 43, 65];
+
+/** EResults (RateLimitExceeded, AccountLoginDeniedThrottle) meaning Steam is throttling logins from here. */
+export const LOGIN_THROTTLED_ERESULTS: readonly number[] = [84, 87];
+
+/** Cache key holding the time (ms since epoch) before which we won't try to log in again. */
+export const LOGIN_COOLDOWN_KEY = "steam-login-cooldown-until";
+
+export const LOGIN_THROTTLED_MESSAGE = "Steam is rate-limiting logins from this network.";
 
 /** EResult for "another client of this type signed in to the account" (LogonSessionReplaced). */
 export const SESSION_REPLACED_ERESULT = 34;

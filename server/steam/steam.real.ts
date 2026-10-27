@@ -13,6 +13,9 @@ import {
   GC_MESSAGE,
   GC_TIMEOUT_MESSAGE,
   ITEM_DEF,
+  LOGIN_COOLDOWN_KEY,
+  LOGIN_THROTTLED_ERESULTS,
+  LOGIN_THROTTLED_MESSAGE,
   STORAGE_LIMITS,
   SESSION_REPLACED_ERESULT,
   SESSION_REPLACED_MESSAGE,
@@ -37,6 +40,18 @@ import {
 
 function toErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+const MS_PER_SECOND = 1000;
+const SECONDS_PER_MINUTE = 60;
+const SHORT_DELAY_LIMIT_SECONDS = 120;
+
+/** "8s" for short waits, "15 min" for long ones. */
+function formatDelay(ms: number): string {
+  const seconds = Math.round(ms / MS_PER_SECOND);
+  return seconds < SHORT_DELAY_LIMIT_SECONDS
+    ? `${seconds}s`
+    : `${Math.round(seconds / SECONDS_PER_MINUTE)} min`;
 }
 
 /**
@@ -180,19 +195,26 @@ export function createRealGateway(
     }
   }
 
-  /** Keeps the token and retries with exponential backoff (e.g. "logged in elsewhere", network loss). */
-  function scheduleReconnect(reason: string): void {
+  /**
+   * Keeps the token and retries with exponential backoff (e.g. "logged in elsewhere", network loss).
+   * A throttle by Steam waits `minDelayMs` instead, and is remembered so a restart doesn't log in early.
+   */
+  function scheduleReconnect(reason: string, minDelayMs = 0): void {
     const session = activeSession;
     if (!session) return;
     teardownConnection();
-    const delay = Math.min(
-      STORAGE_LIMITS.reconnectMaxMs,
-      STORAGE_LIMITS.reconnectBaseMs * 2 ** reconnectAttempts,
-    );
-    reconnectAttempts += 1;
+    const throttled = minDelayMs > 0;
+    const delay = throttled
+      ? minDelayMs
+      : Math.min(
+          STORAGE_LIMITS.reconnectMaxMs,
+          STORAGE_LIMITS.reconnectBaseMs * 2 ** reconnectAttempts,
+        );
+    if (throttled) db.setCache(LOGIN_COOLDOWN_KEY, String(Date.now() + delay));
+    else reconnectAttempts += 1;
     store.setAuth({
       status: AUTH_STATUS.connecting,
-      detail: `${reason} Retrying in ${Math.round(delay / 1000)}s…`,
+      detail: `${reason} Retrying in ${formatDelay(delay)}…`,
     });
     clearTimeout(reconnectTimer);
     reconnectTimer = setTimeout(() => connect(session), delay);
@@ -350,7 +372,11 @@ export function createRealGateway(
         fail(SESSION_REPLACED_MESSAGE);
         return;
       }
-      // Everything else (network, throttling) keeps the token.
+      if (error.eresult !== undefined && LOGIN_THROTTLED_ERESULTS.includes(error.eresult)) {
+        scheduleReconnect(LOGIN_THROTTLED_MESSAGE, STORAGE_LIMITS.throttleCooldownMs);
+        return;
+      }
+      // Everything else (network) keeps the token.
       scheduleReconnect(`Steam connection lost (${error.message}).`);
     });
     client.on("playingState", (blocked: boolean) => {
@@ -366,6 +392,7 @@ export function createRealGateway(
     });
     client.on("loggedOn", () => {
       reconnectAttempts = 0;
+      db.setCache(LOGIN_COOLDOWN_KEY, "0");
       // autoRelogin re-fires loggedOn; keep a single GC instance per client.
       if (csgo) return;
       store.setAuth({ status: AUTH_STATUS.connecting, detail: "Connecting to CS2…" });
@@ -685,8 +712,20 @@ export function createRealGateway(
     });
   }
 
+  /** A restart during a throttle would log in early and extend it, so honour the remembered cooldown. */
+  function connectAfterCooldown(session: SavedSession): void {
+    const remaining = Number(db.getCacheStale(LOGIN_COOLDOWN_KEY) ?? 0) - Date.now();
+    if (remaining <= 0) return connect(session);
+    activeSession = session;
+    store.setAuth({
+      status: AUTH_STATUS.connecting,
+      detail: `${LOGIN_THROTTLED_MESSAGE} Retrying in ${formatDelay(remaining)}…`,
+    });
+    reconnectTimer = setTimeout(() => connect(session), remaining);
+  }
+
   const saved = sessionFile.load();
-  if (saved) connect(saved);
+  if (saved) connectAfterCooldown(saved);
 
   return {
     getSnapshot: () => store.getSnapshot(),
