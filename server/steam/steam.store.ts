@@ -15,6 +15,7 @@ export function createSnapshotStore() {
   let units: readonly UnitMeta[] = [];
   let loadingUnits = false;
   let transfer: TransferState = { status: "idle" };
+  let syncError: string | null = null;
   let revision = 0;
   const loaded = new Set<string>();
   const listeners = new Set<SnapshotListener>();
@@ -26,6 +27,7 @@ export function createSnapshotStore() {
       units: units.map((unit) => ({ ...unit, loaded: loaded.has(unit.id) })),
       loadingUnits,
       transfer,
+      syncError,
       revision,
     };
   }
@@ -66,6 +68,11 @@ export function createSnapshotStore() {
       emit();
     },
     getTransfer: (): TransferState => transfer,
+    setSyncError(next: string | null): void {
+      if (syncError === next) return;
+      syncError = next;
+      emit();
+    },
     setLoadingUnits(next: boolean): void {
       loadingUnits = next;
       emit();
@@ -76,6 +83,7 @@ export function createSnapshotStore() {
       units = [];
       loadingUnits = false;
       transfer = { status: "idle" };
+      syncError = null;
       loaded.clear();
       emit();
     },

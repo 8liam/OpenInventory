@@ -7,6 +7,7 @@ const SIGNED_OUT: StorageSnapshot = {
   units: [],
   loadingUnits: false,
   transfer: { status: "idle" },
+  syncError: null,
   revision: 0,
 };
 const REFETCH_DEBOUNCE_MS = 600;
