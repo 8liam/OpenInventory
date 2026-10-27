@@ -12,6 +12,7 @@ import {
 import type { ComponentType } from "react";
 import { AuthGate } from "~/components/auth-gate/auth-gate.component";
 import { Logo } from "~/components/logo/logo.component";
+import { SyncError } from "~/components/sync-error/sync-error.component";
 import { TransferStatus } from "~/components/transfer-status/transfer-status.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { callStorageApi, useStorageSnapshot } from "~/lib/storage/storage.client";
@@ -91,6 +92,7 @@ export function AppShell() {
         </header>
 
         <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-hidden p-4 md:gap-5 md:p-6">
+          <SyncError />
           <TransferStatus />
           <Outlet />
         </main>
