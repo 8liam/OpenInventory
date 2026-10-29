@@ -136,8 +136,9 @@
 .fchap { display: grid; gap: clamp(1.5rem, 1rem + 2vw, 2.5rem); min-width: 0; }
 .fchap__idx { margin: 0; }
 /* Cards echo the app's storage-unit cards: dark surface, thin border, blue ring when selected. */
-.fcards { display: grid; gap: 0.75rem; }
-@media (min-width: 720px) { .fcards { grid-template-columns: repeat(3, minmax(0, 1fr)); } .fcard--lead { grid-column: span 3; } }
+.fcards { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.fcard { flex: 1 1 16rem; min-width: 0; }
+.fcard--lead { flex-basis: 100%; }
 .fcard { display: grid; gap: 0.35rem; text-align: left; padding: 0.9rem 1rem; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 0.5rem; background: color-mix(in srgb, #0a0a0a 97%, white); color: var(--c-fg); font: inherit; font-size: var(--t-s); line-height: 1.4; cursor: pointer; transition: background 0.3s var(--ease-out), border-color 0.3s var(--ease-out); }
 .fcard:hover { background: rgb(255 255 255 / 0.05); }
 .fcard.is-on { border-color: oklch(57.1% 0.21 264 / 0.6); background: rgb(255 255 255 / 0.04); }
