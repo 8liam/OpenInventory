@@ -12,23 +12,19 @@ import FeatureDemo from './feature-demo';
     <ol class="features__list">
       {story.chapters.map((c, i) => (
         <li class="fchap" data-reveal>
-          <p class="fchap__idx mono muted">
-            {String(i + 1).padStart(2, '0')} <span aria-hidden="true">·</span> {c.view}
-          </p>
-          <div class="fchap__frame">
-            <p class="fchap__hint mono muted">{c.hint}</p>
-            <div class="fchap__stage">
-              <FeatureDemo id={c.id} client:visible />
-            </div>
-          </div>
           <div class="fchap__copy">
+            <p class="fchap__idx mono">
+              {String(i + 1).padStart(2, '0')} <span aria-hidden="true">·</span> {c.view}
+            </p>
             <h3 class="fchap__title">{c.title}</h3>
-            <div class="fchap__text">
-              <p class="fchap__body muted">{c.body}</p>
-              <ul class="fchap__points">
-                {c.points.map((p) => <li class="muted">{p}</li>)}
-              </ul>
-            </div>
+            <p class="fchap__body muted">{c.body}</p>
+            <ul class="fchap__points">
+              {c.points.map((p) => <li class="muted">{p}</li>)}
+            </ul>
+            <p class="fchap__hint"><span aria-hidden="true">↗</span> {c.hint}</p>
+          </div>
+          <div class="fchap__panel">
+            <FeatureDemo id={c.id} client:visible />
           </div>
         </li>
       ))}
