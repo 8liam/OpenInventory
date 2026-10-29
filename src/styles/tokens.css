@@ -22,13 +22,26 @@
 
 :root {
   /* Palette, named by role. Emerald is the value line from the product's own chart. */
+  --scheme: dark;
   --c-bg: #0b0e12;
   --c-surface: #111113;
   --c-fg: #f3f2ee;
   --c-muted: #c0c0bb;
   --c-line: rgb(255 255 255 / 0.11);
   --c-accent: #de9b35;
+  --c-accent-hi: #ffd48a;
   --c-accent-ink: #1a1004;
+  /* RGB triplets so alpha tints can follow the theme. `ink` is the colour that reads on --c-bg. */
+  --c-ink: 255 255 255;
+  --c-bg-rgb: 11 14 18;
+  --c-surface-rgb: 17 17 19;
+  --c-fg-rgb: 243 242 238;
+  --c-hdr-rgb: 14 17 22;
+  --c-accent-rgb: 222 155 53;
+  --c-shadow-rgb: 0 0 0;
+  --c-shadow-a: 0.7;
+  --c-app-bg: #0a0a0a;
+  --c-stage-ring: rgb(0 0 0 / 0.6);
 
   --f-body: 'Geist', 'Geist Fallback', ui-sans-serif, system-ui, sans-serif;
   --f-mono: 'Geist Mono', 'Geist Mono Fallback', ui-monospace, 'SF Mono', Menlo, monospace;
@@ -51,4 +64,29 @@
 
   --z-content: 1;
   --z-header: 50;
+}
+
+/* Light mode (follows the system; dark is the default): warm paper to match the gold accent. Accent darkens so it holds 4.5:1 as text. */
+@media (prefers-color-scheme: light) {
+  :root {
+    --scheme: light;
+    --c-bg: #f6f4ef;
+    --c-surface: #ffffff;
+    --c-fg: #16181d;
+    --c-muted: #565a60;
+    --c-line: rgb(22 24 29 / 0.12);
+    --c-accent: #a65f00;
+    --c-accent-hi: #e0a24a;
+    --c-accent-ink: #ffffff;
+    --c-ink: 22 24 29;
+    --c-bg-rgb: 246 244 239;
+    --c-surface-rgb: 255 255 255;
+    --c-fg-rgb: 22 24 29;
+    --c-hdr-rgb: 250 249 245;
+    --c-accent-rgb: 166 95 0;
+    --c-shadow-rgb: 40 30 10;
+    --c-shadow-a: 0.28;
+    --c-app-bg: #ffffff;
+    --c-stage-ring: rgb(22 24 29 / 0.08);
+  }
 }

@@ -75,3 +75,23 @@
 @keyframes skeleton-shimmer { to { background-position-x: -200%; } }
 .oi-app .skeleton { background: linear-gradient(90deg, var(--skeleton) 30%, var(--skeleton-highlight) 50%, var(--skeleton) 70%); background-size: 200% 100%; animation: skeleton-shimmer 1.6s linear infinite; }
 @media (prefers-reduced-motion: reduce) { .oi-app .skeleton { animation: none; } }
+
+@media (prefers-color-scheme: light) {
+  .oi-app {
+    color-scheme: light;
+    --background: #ffffff;
+    --foreground: #14161a;
+    --card: #fafaf8;
+    --muted: rgb(20 22 26 / 0.04);
+    --muted-foreground: #5f6368;
+    --border: rgb(20 22 26 / 0.1);
+    --input: rgb(20 22 26 / 0.14);
+    --accent: rgb(20 22 26 / 0.05);
+    --primary: oklch(52% 0.21 264);
+    --success: #047857;
+    --destructive: #dc2626;
+    --warning: #b45309;
+    --skeleton: rgb(20 22 26 / 0.06);
+    --skeleton-highlight: rgb(20 22 26 / 0.12);
+  }
+}

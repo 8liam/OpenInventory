@@ -8,6 +8,7 @@ export const site = {
     'Track every CS2 skin, sticker and storage unit you own, with live value history. Self-hosted, one SQLite file, signed in with the Steam mobile app.',
   repo: 'https://github.com/8liam/OpenInventory',
   themeColor: '#0a0a0b',
+  themeColorLight: '#f6f4ef',
   ogImage: '/og.png',
   ogAlt: 'OpenInventory dashboard showing a $4,045.19 CS2 inventory value chart',
 } as const;
