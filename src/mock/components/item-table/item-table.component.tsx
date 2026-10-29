@@ -14,6 +14,7 @@ export function ItemTable({
   items,
   currency,
   showLocation = true,
+  scrollable,
   selected,
   onSelectionChange,
 }: ItemTableProps) {
@@ -92,6 +93,7 @@ export function ItemTable({
       getRowKey={itemRowKey}
       rowHeight={ITEM_TABLE.rowHeight}
       initialSort={{ columnId: "price", direction: "desc" }}
+      scrollable={scrollable}
       selection={selection}
     />
   );

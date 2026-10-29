@@ -11,6 +11,9 @@ import { formatInteger, formatMoney } from '~/utils/format';
 import { DemoTransferStatus } from './demo-transfer-status';
 import { useDemoInventory } from './use-demo-inventory';
 
+/** The demo lists only the first items of a unit; the real app lists everything. */
+const ROW_CAP = 12;
+
 /** The real Storage units page body: unit cards with inline rename, the unit's table, and the move bar. */
 export default function StorageDemo() {
   const { items, units, transfer, rename, dismiss } = useDemoInventory();
@@ -33,7 +36,7 @@ export default function StorageDemo() {
     <div className="oi-app flex h-[640px] flex-col gap-3 p-4">
       <PageHeader title={copy.title} description={copy.description} />
       <div className="flex min-h-0 flex-1 flex-col gap-3 md:flex-row">
-        <div className="flex shrink-0 gap-2 overflow-x-auto md:w-60 md:flex-col md:overflow-y-auto md:overflow-x-visible" data-lenis-prevent>
+        <div className="flex shrink-0 gap-2 overflow-hidden md:w-60 md:flex-col">
           {units.map((unit) => (
             <UnitCard
               key={unit.id}
@@ -60,7 +63,7 @@ export default function StorageDemo() {
           {pickedItems.length > 0 && (
             <TransferBar selected={pickedItems} units={units} busy={transfer.status === 'running'} onClear={() => setPicked(new Set())} />
           )}
-          <ItemTable items={selectedItems} currency={MOCK_CURRENCY} showLocation={false} selected={picked} onSelectionChange={setPicked} />
+          <ItemTable items={selectedItems.slice(0, ROW_CAP)} currency={MOCK_CURRENCY} showLocation={false} scrollable={false} selected={picked} onSelectionChange={setPicked} />
         </div>
       </div>
     </div>

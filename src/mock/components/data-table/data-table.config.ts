@@ -1,6 +1,7 @@
 export const DATA_TABLE = {
   rowHeight: 40,
   overscan: 12,
+  staticOverscan: 0,
   sortAscendingLabel: "ascending",
   sortDescendingLabel: "descending",
   emptyLabel: "No rows",

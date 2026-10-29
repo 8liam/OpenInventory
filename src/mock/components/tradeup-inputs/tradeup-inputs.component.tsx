@@ -14,6 +14,7 @@ export function TradeUpInputs({
   selectedIds,
   inputCount,
   currency,
+  scrollable = true,
   onToggle,
   onAutoFill,
   onClear,
@@ -67,7 +68,10 @@ export function TradeUpInputs({
       {candidates.length === 0 ? (
         <p className="text-muted-foreground">{copy.noCandidates}</p>
       ) : (
-        <ul data-lenis-prevent className={cn("flex flex-col overflow-y-auto", TRADEUP_INPUTS.listMaxHeightClass)}>
+        <ul
+          data-lenis-prevent={scrollable ? "" : undefined}
+          className={cn("flex flex-col", scrollable ? ["overflow-y-auto", TRADEUP_INPUTS.listMaxHeightClass] : "overflow-hidden")}
+        >
           {candidates.map((item) => {
             const isSelected = selectedIds.has(item.id);
             const disabled =

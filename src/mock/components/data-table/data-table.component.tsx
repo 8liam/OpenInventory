@@ -24,6 +24,7 @@ export function DataTable<Row>({
   onRowClick,
   initialSort,
   rowHeight = DATA_TABLE.rowHeight,
+  scrollable = true,
   selection,
 }: DataTableProps<Row>) {
   const [sort, setSort] = useState<SortState>(initialSort);
@@ -59,7 +60,7 @@ export function DataTable<Row>({
     count: order.length,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => rowHeight,
-    overscan: DATA_TABLE.overscan,
+    overscan: scrollable ? DATA_TABLE.overscan : DATA_TABLE.staticOverscan,
     initialRect: { width: 800, height: 480 },
   });
 
@@ -111,7 +112,11 @@ export function DataTable<Row>({
           );
         })}
       </div>
-      <div ref={scrollRef} data-lenis-prevent className="min-h-0 flex-1 overflow-auto">
+      <div
+        ref={scrollRef}
+        data-lenis-prevent={scrollable ? "" : undefined}
+        className={cn("min-h-0 flex-1", scrollable ? "overflow-auto" : "overflow-hidden")}
+      >
         {order.length === 0 ? (
           <p className="p-6 text-muted-foreground">{DATA_TABLE.emptyLabel}</p>
         ) : (
