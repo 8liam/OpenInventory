@@ -5,6 +5,7 @@ export type TradeUpInputsProps = {
   readonly selectedIds: ReadonlySet<string>;
   readonly inputCount: number;
   readonly currency: string;
+  readonly scrollable?: boolean;
   readonly onToggle: (id: string) => void;
   readonly onAutoFill: () => void;
   readonly onClear: () => void;

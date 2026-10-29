@@ -26,6 +26,8 @@ export type DataTableProps<Row> = {
   readonly getRowKey: (row: Row) => string | number;
   readonly onRowClick?: (row: Row) => void;
   readonly rowHeight?: number;
+  /** When false the body is clipped instead of scrolled and only on-screen rows mount (static showcases). */
+  readonly scrollable?: boolean;
   /** Adds a checkbox column; clicking a row also toggles it. */
   readonly selection?: DataTableSelection;
   readonly initialSort?: { readonly columnId: string; readonly direction: SortDirection };

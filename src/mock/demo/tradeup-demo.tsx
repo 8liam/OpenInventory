@@ -7,6 +7,9 @@ import { DEFAULT_SELECTION, tradeUpCandidates, tradeUpOdds } from '~/data/tradeu
 import { COPY } from '~/lib/copy/copy.config';
 import { formatChance, formatFloat, formatMoney, formatPercent } from '~/utils/format';
 
+/** The demo lists only the cheapest skins; the real app lists every one. */
+const CANDIDATE_CAP = 6;
+
 /** The real Trade-up calculator body: pick inputs, see average float, expected value and every outcome. */
 export default function TradeUpDemo() {
   const copy = COPY.tradeup;
@@ -27,7 +30,8 @@ export default function TradeUpDemo() {
         </span>
       </PageHeader>
       <TradeUpInputs
-        candidates={candidates.candidates}
+        candidates={candidates.candidates.slice(0, CANDIDATE_CAP)}
+        scrollable={false}
         selectedIds={selectedIds}
         inputCount={candidates.inputCount}
         currency={candidates.currency}
