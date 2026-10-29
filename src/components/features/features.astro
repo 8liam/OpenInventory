@@ -1,5 +1,6 @@
 ---
 import { story } from '../../data/site.config';
+import FeatureDemo from './feature-demo';
 ---
 <section class="features" id={story.id} aria-labelledby="features-title">
   <div class="wrap">
@@ -8,19 +9,31 @@ import { story } from '../../data/site.config';
       <p class="features__note muted" data-reveal>{story.note}</p>
     </header>
 
-    <ul class="features__grid">
+    <ol class="features__list">
       {story.chapters.map((c, i) => (
-        <li class="fcard" data-reveal style={`--d:${(i % 3) * 0.08}s`}>
-          <p class="fcard__idx mono muted">
-            {String(i + 1).padStart(2, '0')} <span aria-hidden="true">·</span> {c.view}
-          </p>
-          <h3 class="fcard__title">{c.title}</h3>
-          <p class="fcard__body muted">{c.body}</p>
-          <ul class="fcard__points">
-            {c.points.map((p) => <li class="muted">{p}</li>)}
-          </ul>
+        <li class="fchap" data-reveal>
+          <div class="fchap__copy">
+            <div class="fchap__lead">
+              <p class="fchap__idx mono muted">
+                {String(i + 1).padStart(2, '0')} <span aria-hidden="true">·</span> {c.view}
+              </p>
+              <h3 class="fchap__title">{c.title}</h3>
+            </div>
+            <div class="fchap__text">
+              <p class="fchap__body muted">{c.body}</p>
+              <ul class="fchap__points">
+                {c.points.map((p) => <li class="muted">{p}</li>)}
+              </ul>
+            </div>
+          </div>
+          <div class="fchap__frame">
+            <p class="fchap__hint mono muted">{c.hint}</p>
+            <div class="fchap__stage">
+              <FeatureDemo id={c.id} client:visible />
+            </div>
+          </div>
         </li>
       ))}
-    </ul>
+    </ol>
   </div>
 </section>

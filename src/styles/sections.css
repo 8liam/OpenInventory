@@ -132,21 +132,21 @@
 .features { padding-block: clamp(4rem, 3rem + 6vw, 9rem); }
 .features__head { max-width: 40rem; margin-bottom: clamp(2.5rem, 2rem + 3vw, 4.5rem); }
 .features__note { margin-top: 1.1rem; font-size: var(--t-m); line-height: 1.4; }
-.features__grid { list-style: none; padding: 0; margin: 0; display: grid; gap: 1px; background: var(--c-line); border-block: 1px solid var(--c-line); }
-/* A trailing short row stretches its last card so no empty cell shows the hairline background. */
-.features__grid > .fcard:last-child:nth-child(odd) { grid-column: 1 / -1; }
-@media (min-width: 620px) and (max-width: 1039px) { .features__grid > .fcard:last-child:nth-child(odd) { grid-column: 1 / -1; } }
-@media (min-width: 1040px) { .features__grid > .fcard:last-child:nth-child(odd) { grid-column: auto; } .features__grid > .fcard:last-child:nth-child(3n+2) { grid-column: span 2; } .features__grid > .fcard:last-child:nth-child(3n+1) { grid-column: span 3; } }
-@media (min-width: 620px) { .features__grid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1040px) { .features__grid { grid-template-columns: repeat(3, 1fr); } }
-.fcard { background: var(--c-bg); padding: clamp(1.5rem, 1rem + 1.5vw, 2.5rem); display: flex; flex-direction: column; gap: 0.75rem; transition: background 0.5s var(--ease-out); }
-.fcard:hover { background: var(--c-surface); }
-.fcard__idx { margin: 0; }
-.fcard__title { font-size: var(--t-m); line-height: 1.2; letter-spacing: -0.01em; font-weight: 600; }
-.fcard__body { font-size: var(--t-s); line-height: 1.5; margin: 0; }
-.fcard__points { list-style: none; padding: 0; margin: auto 0 0; display: grid; gap: 0.4rem; font-size: var(--t-s); padding-top: 1rem; }
-.fcard__points li { position: relative; padding-left: 1.1rem; line-height: 1.4; }
-.fcard__points li::before { content: ''; position: absolute; left: 0; top: 0.55em; width: 0.4rem; height: 0.4rem; border-radius: 50%; background: var(--c-accent); }
+.features__list { list-style: none; padding: 0; margin: 0; display: grid; gap: clamp(4rem, 3rem + 6vw, 8rem); }
+.fchap { display: grid; gap: clamp(1.5rem, 1rem + 2vw, 2.5rem); min-width: 0; }
+@media (min-width: 960px) { .fchap__copy { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: 4rem; align-items: start; } }
+.fchap__copy { display: grid; gap: 1.25rem; }
+.fchap__lead { display: grid; gap: 0.75rem; }
+.fchap__text { display: grid; gap: 1.25rem; }
+.fchap__idx { margin: 0; }
+.fchap__title { font-size: var(--t-l, clamp(1.6rem, 1.2rem + 1.6vw, 2.6rem)); line-height: 1.1; letter-spacing: -0.03em; font-weight: 600; }
+.fchap__body { font-size: var(--t-m); line-height: 1.45; margin: 0; max-width: 48ch; }
+.fchap__points { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.4rem; font-size: var(--t-s); }
+.fchap__points li { position: relative; padding-left: 1.1rem; line-height: 1.4; }
+.fchap__points li::before { content: ''; position: absolute; left: 0; top: 0.55em; width: 0.4rem; height: 0.4rem; border-radius: 50%; background: var(--c-accent); }
+.fchap__frame { min-width: 0; }
+.fchap__hint { margin: 0 0 0.6rem; text-align: right; }
+.fchap__stage { position: relative; border: 1px solid var(--c-line); border-radius: var(--radius); overflow: clip; background: #0a0a0a; box-shadow: 0 0 90px -24px rgb(222 155 53 / 0.2), 0 0 0 1px rgb(0 0 0 / 0.6); }
 
 /* Move */
 .move { padding-block: clamp(4rem, 3rem + 6vw, 9rem); background: var(--c-surface); border-block: 1px solid var(--c-line); }
