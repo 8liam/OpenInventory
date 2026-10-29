@@ -1,4 +1,4 @@
-import type { Chapter, ConfigPoint, ConfigRow, Faq, Lens, Stat, Step } from './site.types';
+import type { Chapter, Faq, Lens, Step } from './site.types';
 
 export const site = {
   name: 'OpenInventory',
@@ -16,7 +16,6 @@ export const nav = [
   { label: 'Views', href: '#lenses' },
   { label: 'How it works', href: '#how' },
   { label: 'Features', href: '#features' },
-  { label: 'Self-host', href: '#self-host' },
 ] as const;
 
 export const hero = {
@@ -140,16 +139,6 @@ export const story = {
   ] satisfies readonly Chapter[],
 } as const;
 
-export const numbers = {
-  heading: 'Small on purpose.',
-  stats: [
-    { value: '1', label: 'SQLite file', note: 'Items, value history and your Steam session live in one volume you own.' },
-    { value: '7', label: 'price sources', note: 'Buff163 by default. Skinport, Steam, CSFloat, CS.MONEY, Youpin898 and LIS-SKINS in Settings.' },
-    { value: '1,000', label: 'items per unit', note: 'The storage unit cap, checked before a move starts rather than after it fails.' },
-    { value: '0', label: 'listings or trades', note: 'It reads and moves items between your own containers. It never sells.' },
-  ] satisfies readonly Stat[],
-} as const;
-
 export const move = {
   id: 'move',
   heading: 'Move items. List nothing.',
@@ -161,37 +150,6 @@ export const move = {
   ],
   caveat:
     'Steam allows one game session per account. If CS2 is already running, OpenInventory waits and connects when you close it. It never forces the session.',
-} as const;
-
-export const selfHost = {
-  id: 'self-host',
-  heading: 'Running in one command.',
-  body: 'Start the container, open port 3000, press Show QR code and scan it in the Steam mobile app.',
-  command: 'docker compose up -d',
-  passwordCommand: "OPENINVENTORY_PASSWORD='something-long' docker compose up -d",
-  passwordNote: 'Set a password if anyone but you can reach the port. The browser asks for any username plus this password.',
-  configHeading: 'Configuration',
-  config: [
-    { name: 'OPENINVENTORY_PASSWORD', fallback: 'unset', purpose: 'Require HTTP basic auth. Unset means no auth.' },
-    { name: 'OPENINVENTORY_PORT', fallback: '3000 in Docker', purpose: 'Listen port.' },
-    { name: 'OPENINVENTORY_HOST', fallback: '0.0.0.0 in Docker', purpose: 'Listen address.' },
-    { name: 'OPENINVENTORY_DATA_DIR', fallback: '/data in Docker', purpose: 'SQLite database and Steam session.' },
-  ] satisfies readonly ConfigRow[],
-  security: [
-    {
-      title: 'Your refresh token stays on your server.',
-      body: 'It is stored in session.json with mode 0600 and deleted when you press Sign out. Protect the volume.',
-    },
-    {
-      title: 'Without a password, reachable means movable.',
-      body: 'Anyone who can reach the port can see your inventory and move your items. Use a VPN or a TLS reverse proxy.',
-    },
-    {
-      title: 'Other sites cannot drive it.',
-      body: 'State-changing requests are same-origin only and need a JSON body.',
-    },
-  ] satisfies readonly ConfigPoint[],
-  copy: { idle: 'Copy', done: 'Copied' },
 } as const;
 
 export const footer = {

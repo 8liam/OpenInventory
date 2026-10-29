@@ -148,17 +148,6 @@
 .fcard__points li { position: relative; padding-left: 1.1rem; line-height: 1.4; }
 .fcard__points li::before { content: ''; position: absolute; left: 0; top: 0.55em; width: 0.4rem; height: 0.4rem; border-radius: 50%; background: var(--c-accent); }
 
-/* Numbers */
-.numbers { padding-block: clamp(3rem, 2rem + 4vw, 6rem) clamp(6rem, 4rem + 10vw, 13rem); border-top: 1px solid var(--c-line); margin-top: 0; }
-.numbers__h { margin-bottom: clamp(2rem, 5vw, 5rem); }
-.numbers__grid { list-style: none; padding: 0; display: grid; gap: 3rem 2rem; }
-@media (min-width: 700px) { .numbers__grid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1180px) { .numbers__grid { grid-template-columns: repeat(4, 1fr); } }
-.stat { border-top: 1px solid var(--c-line); padding-top: 1.25rem; }
-.stat__v { font-size: clamp(3.5rem, 1.5rem + 5.2vw, 6.75rem); line-height: 0.9; letter-spacing: -0.06em; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c-fg); }
-.stat__l { margin-top: 1rem; color: var(--c-accent); }
-.stat__n { margin-top: 0.75rem; font-size: var(--t-s); max-width: 30ch; }
-
 /* Move */
 .move { padding-block: clamp(4rem, 3rem + 6vw, 9rem); background: var(--c-surface); border-block: 1px solid var(--c-line); }
 .move__grid { display: grid; gap: 3rem; }
@@ -171,31 +160,6 @@
 .step p { margin-top: 0.3rem; max-width: 40ch; }
 .move__caveat { padding: 1.25rem 1.4rem; border: 1px solid var(--c-line); border-radius: var(--radius); color: var(--c-muted); max-width: 60ch; }
 .move__caveat .mono { color: var(--c-accent); margin-right: 0.75em; }
-
-/* Self-host */
-.host { padding-block: clamp(5rem, 3rem + 8vw, 11rem); }
-.host__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 3.5rem; }
-.host__grid > * { min-width: 0; }
-@media (min-width: 960px) { .host__grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 4rem 6rem; } .host__lead-in { position: sticky; top: 8rem; } .sec { grid-column: 1 / -1; } }
-.host__body { margin-top: 1.5rem; color: var(--c-muted); font-size: var(--t-m); line-height: 1.4; max-width: 28ch; }
-.term { border: 1px solid var(--c-line); border-radius: var(--radius); background: var(--c-surface); overflow: clip; margin-bottom: 0.9rem; }
-.term__bar { display: flex; align-items: center; justify-content: space-between; min-height: 3rem; padding: 0 0.5rem 0 1.1rem; border-bottom: 1px solid var(--c-line); }
-.term__code { padding: 1.2rem 1.1rem; overflow-x: auto; font-family: var(--f-mono); font-size: clamp(0.8rem, 0.7rem + 0.4vw, 1rem); color: var(--c-accent); }
-.term--alt .term__code { color: var(--c-fg); }
-.copy { min-height: 2.5rem; padding: 0 1rem; border-radius: 999px; font-family: var(--f-mono); font-size: var(--t-xs); text-transform: uppercase; letter-spacing: 0.06em; border: 1px solid var(--c-line); transition: background 0.4s var(--ease-out), color 0.4s var(--ease-out), border-color 0.4s; }
-.copy:hover, .copy:focus-visible { background: var(--c-accent); color: var(--c-accent-ink); border-color: var(--c-accent); }
-.copy:active { scale: 0.96; }
-.host__note { font-size: var(--t-s); max-width: 52ch; }
-.host__sub { margin-top: 3rem; margin-bottom: 0.75rem; }
-.cfg { width: 100%; border-collapse: collapse; font-size: var(--t-s); }
-.cfg th, .cfg td { text-align: left; font-weight: 400; padding: 0.9rem 1rem 0.9rem 0; border-top: 1px solid var(--c-line); vertical-align: top; }
-.cfg tr:last-child > * { border-bottom: 1px solid var(--c-line); }
-.cfg code { font-family: var(--f-mono); font-size: 0.8rem; color: var(--c-fg); word-break: break-all; }
-@media (max-width: 700px) { .cfg tr { display: grid; padding: 0.9rem 0; border-top: 1px solid var(--c-line); } .cfg th, .cfg td { border: 0 !important; padding: 0.1rem 0; } }
-.sec { list-style: none; padding: 0; display: grid; gap: 2rem; }
-@media (min-width: 900px) { .sec { grid-template-columns: repeat(3, 1fr); gap: 2.5rem; } }
-.sec li { border-top: 1px solid var(--c-line); padding-top: 1.1rem; }
-.sec p { margin-top: 0.5rem; font-size: 1rem; }
 
 /* Footer */
 .foot { padding-top: clamp(3rem, 6vw, 6rem); border-top: 1px solid var(--c-line); overflow: clip; }
@@ -212,7 +176,7 @@
 /* Ledger rules: faint ruled lines behind the hero, numbers and footer. A real overlay div
    (not a background-image on the section) so axe can determine text contrast on the sections. */
 .rules { position: absolute; inset: 0; z-index: -1; pointer-events: none; --rule: 4.5rem; background-image: repeating-linear-gradient(to bottom, transparent 0 calc(var(--rule) - 1px), rgb(255 255 255 / 0.035) calc(var(--rule) - 1px) var(--rule)); }
-.numbers, .foot { position: relative; }
+.foot { position: relative; }
 
 /* How it works: Cap-style numbered step band, three steps across. */
 .how { padding-block: clamp(3rem, 2rem + 4vw, 6rem); }
