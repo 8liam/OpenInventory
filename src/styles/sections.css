@@ -134,16 +134,17 @@
 .features__note { margin-top: 1.1rem; font-size: var(--t-m); line-height: 1.4; }
 .features__list { list-style: none; padding: 0; margin: 0; display: grid; gap: clamp(4rem, 3rem + 6vw, 8rem); }
 .fchap { display: grid; gap: clamp(1.5rem, 1rem + 2vw, 2.5rem); min-width: 0; }
-@media (min-width: 960px) { .fchap__copy { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: 4rem; align-items: start; } }
-.fchap__copy { display: grid; gap: 1.25rem; }
-.fchap__lead { display: grid; gap: 0.75rem; }
-.fchap__text { display: grid; gap: 1.25rem; }
 .fchap__idx { margin: 0; }
-.fchap__title { font-size: var(--t-l, clamp(1.6rem, 1.2rem + 1.6vw, 2.6rem)); line-height: 1.1; letter-spacing: -0.03em; font-weight: 600; }
-.fchap__body { font-size: var(--t-m); line-height: 1.45; margin: 0; max-width: 48ch; }
-.fchap__points { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.4rem; font-size: var(--t-s); }
-.fchap__points li { position: relative; padding-left: 1.1rem; line-height: 1.4; }
-.fchap__points li::before { content: ''; position: absolute; left: 0; top: 0.55em; width: 0.4rem; height: 0.4rem; border-radius: 50%; background: var(--c-accent); }
+/* Cards echo the app's storage-unit cards: dark surface, thin border, blue ring when selected. */
+.fcards { display: grid; gap: 0.75rem; }
+@media (min-width: 720px) { .fcards { grid-template-columns: repeat(3, minmax(0, 1fr)); } .fcard--lead { grid-column: span 3; } }
+.fcard { display: grid; gap: 0.35rem; text-align: left; padding: 0.9rem 1rem; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 0.5rem; background: color-mix(in srgb, #0a0a0a 97%, white); color: var(--c-fg); font: inherit; font-size: var(--t-s); line-height: 1.4; cursor: pointer; transition: background 0.3s var(--ease-out), border-color 0.3s var(--ease-out); }
+.fcard:hover { background: rgb(255 255 255 / 0.05); }
+.fcard.is-on { border-color: oklch(57.1% 0.21 264 / 0.6); background: rgb(255 255 255 / 0.04); }
+.fcard:focus-visible { outline: 2px solid oklch(57.1% 0.21 264); outline-offset: 2px; }
+.fcard__heading { font-weight: 500; }
+.fcard--lead .fcard__heading { font-size: var(--t-m); letter-spacing: -0.01em; }
+.fcard__text { color: var(--c-muted); }
 .fchap__frame { min-width: 0; }
 .fchap__hint { margin: 0 0 0.6rem; text-align: right; }
 .fchap__stage { position: relative; border: 1px solid var(--c-line); border-radius: var(--radius); overflow: clip; background: #0a0a0a; box-shadow: 0 0 90px -24px rgb(222 155 53 / 0.2), 0 0 0 1px rgb(0 0 0 / 0.6); }
