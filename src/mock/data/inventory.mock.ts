@@ -13,10 +13,10 @@ type Seed = {
 };
 
 export const UNIT_TARGETS = [
-  { id: 'random', name: 'random', count: 74, value: 4.02 },
-  { id: 'investments', name: 'investments', count: 181, value: 179.24 },
-  { id: 'skins', name: 'skins i dont use', count: 279, value: 147.29 },
-  { id: 'stickers', name: 'stickers', count: 863, value: 33.61 },
+  { id: 'random', name: 'Miscellaneous', count: 74, value: 4.02 },
+  { id: 'investments', name: 'Long-term holds', count: 181, value: 179.24 },
+  { id: 'skins', name: 'Trade stock', count: 279, value: 147.29 },
+  { id: 'stickers', name: 'Sticker collection', count: 863, value: 33.61 },
 ] as const;
 const INVENTORY_COUNT = 278;
 const INVENTORY_VALUE = 3681.03;

@@ -139,19 +139,6 @@ export const story = {
   ] satisfies readonly Chapter[],
 } as const;
 
-export const move = {
-  id: 'move',
-  heading: 'Move items. List nothing.',
-  body: 'Select items on the Items or Storage page and move them between your inventory and storage units. Unit to unit goes through your inventory.',
-  steps: [
-    { title: 'Select', body: 'Tick the rows. The capacity check runs before anything moves.' },
-    { title: 'Confirm', body: 'Each move is confirmed by the Game Coordinator, with live progress and a cancel button.' },
-    { title: 'Review', body: 'A per-item error report shows exactly what did not move, and why.' },
-  ],
-  caveat:
-    'Steam allows one game session per account. If CS2 is already running, OpenInventory waits and connects when you close it. It never forces the session.',
-} as const;
-
 export const footer = {
   wordmark: 'OpenInventory',
   cta: 'Read the source',

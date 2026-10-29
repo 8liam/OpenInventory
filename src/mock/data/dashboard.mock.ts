@@ -81,10 +81,10 @@ export const DASHBOARD_MOCK: Dashboard = {
   ],
   byLocation: [
     { id: 'inventory', label: 'Inventory', value: INVENTORY, count: 278 },
-    { id: 'investments', label: 'investments', value: 179.24, count: 181 },
-    { id: 'skins', label: 'skins i dont use', value: 147.29, count: 279 },
-    { id: 'stickers', label: 'stickers', value: 33.61, count: 863 },
-    { id: 'random', label: 'random', value: 4.02, count: 74 },
+    { id: 'investments', label: 'Long-term holds', value: 179.24, count: 181 },
+    { id: 'skins', label: 'Trade stock', value: 147.29, count: 279 },
+    { id: 'stickers', label: 'Sticker collection', value: 33.61, count: 863 },
+    { id: 'random', label: 'Miscellaneous', value: 4.02, count: 74 },
   ].sort((a, b) => b.value - a.value),
   topHoldings: [
     holding('★ Butterfly Knife | Vanilla', 1, 1062.86),
