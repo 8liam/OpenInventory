@@ -9,20 +9,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* Copy buttons work without motion */
-document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
-  const label = btn.querySelector<HTMLElement>('[data-copy-label]');
-  btn.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(btn.dataset.copy ?? '');
-      if (label) label.textContent = btn.dataset.done ?? '';
-      setTimeout(() => { if (label) label.textContent = btn.dataset.idle ?? ''; }, 1800);
-    } catch {
-      /* clipboard blocked: the command stays selectable in the block above */
-    }
-  });
-});
-
 /* Star count: the build-time number is refreshed once per session so a static deploy never goes stale. */
 (async () => {
   const slots = document.querySelectorAll<HTMLElement>(`[${githubStarsConfig.attr}]`);

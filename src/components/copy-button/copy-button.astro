@@ -1,8 +1,0 @@
----
-import { selfHost } from '../../data/site.config';
-interface Props { text: string; label: string }
-const { text, label } = Astro.props;
----
-<button type="button" class="copy" data-copy={text} data-done={selfHost.copy.done} data-idle={selfHost.copy.idle} aria-label={label}>
-  <span data-copy-label aria-live="polite">{selfHost.copy.idle}</span>
-</button>
