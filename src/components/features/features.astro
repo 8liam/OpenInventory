@@ -21,7 +21,6 @@ import FeatureDemo from './feature-demo';
             <ul class="fchap__points">
               {c.points.map((p) => <li class="muted">{p}</li>)}
             </ul>
-            <p class="fchap__hint"><span aria-hidden="true">↗</span> {c.hint}</p>
           </div>
           <div class="fchap__panel">
             <FeatureDemo id={c.id} client:visible />
