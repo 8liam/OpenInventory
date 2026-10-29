@@ -1,7 +1,6 @@
 ---
 import { story } from '../../data/site.config';
 import FeatureDemo from './feature-demo';
-import FeatureCards from './feature-cards';
 ---
 <section class="features" id={story.id} aria-labelledby="features-title">
   <div class="wrap">
@@ -22,7 +21,15 @@ import FeatureCards from './feature-cards';
               <FeatureDemo id={c.id} client:visible />
             </div>
           </div>
-          <FeatureCards title={c.title} body={c.body} points={c.points} client:visible />
+          <div class="fchap__copy">
+            <h3 class="fchap__title">{c.title}</h3>
+            <div class="fchap__text">
+              <p class="fchap__body muted">{c.body}</p>
+              <ul class="fchap__points">
+                {c.points.map((p) => <li class="muted">{p}</li>)}
+              </ul>
+            </div>
+          </div>
         </li>
       ))}
     </ol>
