@@ -144,7 +144,7 @@
 .fchap__points li { position: relative; padding-left: 1.1rem; line-height: 1.4; }
 .fchap__points li::before { content: ''; position: absolute; left: 0; top: 0.55em; width: 0.4rem; height: 0.4rem; border-radius: 50%; background: var(--c-accent); }
 .fchap__hint { margin: 0.5rem 0 0; padding: 0.7rem 1.2rem; border: 1px solid var(--c-line); border-radius: 999px; background: var(--c-bg); font-size: var(--t-s); }
-.fchap__panel { flex: 1; display: flex; flex-direction: column; position: relative; min-width: 0; padding: clamp(1.25rem, 1rem + 1.5vw, 2.5rem) 0 0 clamp(1.25rem, 1rem + 1.5vw, 2.5rem); background: var(--c-bg); overflow: clip; }
+.fchap__panel { flex: 1; display: flex; flex-direction: column; position: relative; min-width: 0; padding: clamp(1.25rem, 1rem + 1.5vw, 2.5rem) 0 0 clamp(1.25rem, 1rem + 1.5vw, 2.5rem); overflow: clip; }
 .fdemo { flex: 1; position: relative; overflow: hidden; border: 1px solid rgb(255 255 255 / 0.1); border-right: 0; border-bottom: 0; border-top-left-radius: 0.9rem; background: #0a0a0a; box-shadow: -18px 18px 60px -20px rgb(0 0 0 / 0.7); }
 .fdemo__inner { position: absolute; inset: 0 auto auto 0; transform-origin: 0 0; overflow: hidden; }
 
