@@ -1,0 +1,22 @@
+---
+import { how } from '../../data/site.config';
+---
+<section class="how" id={how.id} aria-labelledby="how-title">
+  <div class="wrap how__grid">
+    <div class="how__lead">
+      <h2 id="how-title" class="h-l" data-reveal>{how.heading}</h2>
+      <p class="how__body" data-reveal>{how.body}</p>
+    </div>
+    <ol class="how__steps">
+      {how.steps.map((s, i) => (
+        <li class="step" data-reveal style={`--d:${i * 0.08}s`}>
+          <span class="step__n mono" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          <div class="step__body">
+            <h3 class="h-m">{s.title}</h3>
+            <p class="muted">{s.body}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

@@ -96,3 +96,8 @@ OpenInventory is not affiliated with or endorsed by Valve, Steam or Skinport.
 ## License
 
 [PolyForm Noncommercial 1.0.0](LICENSE): you can use, modify, fork and share OpenInventory for any noncommercial purpose, but not sell it or use it commercially. That makes it source-available rather than OSI-approved open source. For commercial use, open an issue to ask.
+
+## Repository layout
+
+- `src/`, `server/`: the app.
+- `site/`: the landing page (<https://openinventory.unsurf.sh>). It renders the real app UI on sample data; see [site/README.md](site/README.md).

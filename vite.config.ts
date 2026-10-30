@@ -17,7 +17,7 @@ export default defineConfig({
   fmt: {},
   lint: {
     plugins: ["react", "typescript", "oxc"],
-    ignorePatterns: ["src/routeTree.gen.ts"],
+    ignorePatterns: ["src/routeTree.gen.ts", "site/**"],
     rules: {
       "react/rules-of-hooks": "error",
       // TanStack file routes must export `Route` alongside their components.
