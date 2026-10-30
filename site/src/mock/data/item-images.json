@@ -1,0 +1,254 @@
+{
+  "\u2605 Butterfly Knife | Vanilla": {
+    "file": "/demo/butterfly-knife-vanilla.webp",
+    "color": "#eb4b4b",
+    "rarity": "Extraordinary",
+    "kind": "skin"
+  },
+  "\u2605 Karambit | Slaughter (Factory New)": {
+    "file": "/demo/karambit-slaughter-factory-new.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "\u2605 Sport Gloves | Nocts (Field-Tested)": {
+    "file": "/demo/sport-gloves-nocts-field-tested.webp",
+    "color": "#eb4b4b",
+    "rarity": "Extraordinary",
+    "kind": "skin"
+  },
+  "M4A1-S | Control Panel (Factory New)": {
+    "file": "/demo/m4a1-s-control-panel-factory-new.webp",
+    "color": "#d32ce6",
+    "rarity": "Classified",
+    "kind": "skin"
+  },
+  "AK-47 | Inheritance (Factory New)": {
+    "file": "/demo/ak-47-inheritance-factory-new.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "Glock-18 | Gamma Doppler (Factory New)": {
+    "file": "/demo/glock-18-gamma-doppler-factory-new.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "MP9 | Starlight Protector (Factory New)": {
+    "file": "/demo/mp9-starlight-protector-factory-new.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "Desert Eagle | Cobalt Disruption (Factory New)": {
+    "file": "/demo/desert-eagle-cobalt-disruption-factory-new.webp",
+    "color": "#d32ce6",
+    "rarity": "Classified",
+    "kind": "skin"
+  },
+  "M4A4 | Temukau (Factory New)": {
+    "file": "/demo/m4a4-temukau-factory-new.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "R8 Revolver | Fade (Field-Tested)": {
+    "file": "/demo/r8-revolver-fade-field-tested.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "MP9 | Starlight Protector (Battle-Scarred)": {
+    "file": "/demo/mp9-starlight-protector-battle-scarred.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "AK-47 | Nightwish (Battle-Scarred)": {
+    "file": "/demo/ak-47-nightwish-battle-scarred.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "Desert Eagle | Printstream (Well-Worn)": {
+    "file": "/demo/desert-eagle-printstream-well-worn.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "AK-47 | Aquamarine Revenge (Field-Tested)": {
+    "file": "/demo/ak-47-aquamarine-revenge-field-tested.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "FAMAS | Bad Trip (Field-Tested)": {
+    "file": "/demo/famas-bad-trip-field-tested.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "\u2605 Falchion Knife | Slaughter (Minimal Wear)": {
+    "file": "/demo/falchion-knife-slaughter-minimal-wear.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "\u2605 Falchion Knife | Fade (Factory New)": {
+    "file": "/demo/falchion-knife-fade-factory-new.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "\u2605 Falchion Knife | Case Hardened (Battle-Scarred)": {
+    "file": "/demo/falchion-knife-case-hardened-battle-scarred.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "\u2605 Falchion Knife | Crimson Web (Well-Worn)": {
+    "file": "/demo/falchion-knife-crimson-web-well-worn.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "\u2605 Falchion Knife | Night (Well-Worn)": {
+    "file": "/demo/falchion-knife-night-well-worn.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "\u2605 Bowie Knife | Tiger Tooth (Factory New)": {
+    "file": "/demo/bowie-knife-tiger-tooth-factory-new.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "R8 Revolver | Fade (Factory New)": {
+    "file": "/demo/r8-revolver-fade-factory-new.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "USP-S | The Traitor (Field-Tested)": {
+    "file": "/demo/usp-s-the-traitor-field-tested.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "Glock-18 | Shinobu (Factory New)": {
+    "file": "/demo/glock-18-shinobu-factory-new.webp",
+    "color": "#d32ce6",
+    "rarity": "Classified",
+    "kind": "skin"
+  },
+  "MP7 | Abyssal Apparition (Factory New)": {
+    "file": "/demo/mp7-abyssal-apparition-factory-new.webp",
+    "color": "#d32ce6",
+    "rarity": "Classified",
+    "kind": "skin"
+  },
+  "StatTrak\u2122 Five-SeveN | Fowl Play (Factory New)": {
+    "file": "/demo/stattrak-five-seven-fowl-play-factory-new.webp",
+    "color": "#d32ce6",
+    "rarity": "Classified",
+    "kind": "skin"
+  },
+  "M4A1-S | Decimator (Field-Tested)": {
+    "file": "/demo/m4a1-s-decimator-field-tested.webp",
+    "color": "#d32ce6",
+    "rarity": "Classified",
+    "kind": "skin"
+  },
+  "P90 | Trigon (Field-Tested)": {
+    "file": "/demo/p90-trigon-field-tested.webp",
+    "color": "#d32ce6",
+    "rarity": "Classified",
+    "kind": "skin"
+  },
+  "M4A4 | Poly Mag (Minimal Wear)": {
+    "file": "/demo/m4a4-poly-mag-minimal-wear.webp",
+    "color": "#4b69ff",
+    "rarity": "Mil-Spec Grade",
+    "kind": "skin"
+  },
+  "Negev | Drop Me (Field-Tested)": {
+    "file": "/demo/negev-drop-me-field-tested.webp",
+    "color": "#4b69ff",
+    "rarity": "Mil-Spec Grade",
+    "kind": "skin"
+  },
+  "FAMAS | Meow 36 (Battle-Scarred)": {
+    "file": "/demo/famas-meow-36-battle-scarred.webp",
+    "color": "#4b69ff",
+    "rarity": "Mil-Spec Grade",
+    "kind": "skin"
+  },
+  "AK-47 | Redline (Field-Tested)": {
+    "file": "/demo/ak-47-redline-field-tested.webp",
+    "color": "#d32ce6",
+    "rarity": "Classified",
+    "kind": "skin"
+  },
+  "AWP | Asiimov (Field-Tested)": {
+    "file": "/demo/awp-asiimov-field-tested.webp",
+    "color": "#eb4b4b",
+    "rarity": "Covert",
+    "kind": "skin"
+  },
+  "Sticker | Aerial | Katowice 2019": {
+    "file": "/demo/sticker-aerial-katowice-2019.webp",
+    "color": "#4b69ff",
+    "rarity": "High Grade",
+    "kind": "sticker"
+  },
+  "Sticker | Miami Stabbyfish": {
+    "file": "/demo/sticker-miami-stabbyfish.webp",
+    "color": "#4b69ff",
+    "rarity": "High Grade",
+    "kind": "sticker"
+  },
+  "Sticker | Blue Lethal": {
+    "file": "/demo/sticker-blue-lethal.webp",
+    "color": "#4b69ff",
+    "rarity": "High Grade",
+    "kind": "sticker"
+  },
+  "Sticker | Green Shark Shooter": {
+    "file": "/demo/sticker-green-shark-shooter.webp",
+    "color": "#4b69ff",
+    "rarity": "High Grade",
+    "kind": "sticker"
+  },
+  "Sticker | ableJ | Katowice 2019": {
+    "file": "/demo/sticker-ablej-katowice-2019.webp",
+    "color": "#4b69ff",
+    "rarity": "High Grade",
+    "kind": "sticker"
+  },
+  "Sticker | Yellow Bombster": {
+    "file": "/demo/sticker-yellow-bombster.webp",
+    "color": "#4b69ff",
+    "rarity": "High Grade",
+    "kind": "sticker"
+  },
+  "Sticker | Red Cyclawps": {
+    "file": "/demo/sticker-red-cyclawps.webp",
+    "color": "#4b69ff",
+    "rarity": "High Grade",
+    "kind": "sticker"
+  },
+  "Sticker | Purple Cyclawps": {
+    "file": "/demo/sticker-purple-cyclawps.webp",
+    "color": "#4b69ff",
+    "rarity": "High Grade",
+    "kind": "sticker"
+  },
+  "Tec-9 | Whiteout (Factory New)": {
+    "file": "/demo/tec-9-whiteout-factory-new.webp",
+    "color": "#8847ff",
+    "rarity": "Restricted",
+    "kind": "skin"
+  }
+}

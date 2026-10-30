@@ -1,0 +1,19 @@
+---
+import { formatStars } from '../../lib/github-stars/github-stars';
+import { githubStarsConfig } from '../../lib/github-stars/github-stars.config';
+import { githubLinkConfig } from './github-link.config';
+import type { GithubLinkProps } from './github-link.types';
+
+const { href, label, stars, variant = 'btn' } = Astro.props as GithubLinkProps;
+---
+<a class:list={['ghl', variant === 'btn' ? 'btn' : 'ghl--chip']} href={href} rel="noopener">
+  <svg class="ghl__icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+    <path fill="currentColor" d={githubLinkConfig.iconPath} />
+  </svg>
+  <span class="ghl__label">{label}</span>
+  <span class="ghl__stars" {...{ [githubStarsConfig.attr]: '' }} hidden={stars === null} title={githubLinkConfig.starsLabel}>
+    <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" focusable="false"><path fill="currentColor" d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2Z"/></svg>
+    <span data-stars-n>{stars === null ? '' : formatStars(stars)}</span>
+    <span class="sr-only"> {githubLinkConfig.starsLabel}</span>
+  </span>
+</a>

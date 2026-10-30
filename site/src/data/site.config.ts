@@ -1,0 +1,152 @@
+import type { Chapter, Faq, Lens, Step } from './site.types';
+
+export const site = {
+  name: 'OpenInventory',
+  url: 'https://openinventory.unsurf.sh',
+  title: 'OpenInventory | Self-hosted CS2 inventory and storage unit tracker',
+  description:
+    'Track every CS2 skin, sticker and storage unit you own, with live value history. Self-hosted, one SQLite file, signed in with the Steam mobile app.',
+  repo: 'https://github.com/8liam/OpenInventory',
+  themeColor: '#0a0a0b',
+  themeColorLight: '#f6f4ef',
+  ogImage: '/og.png',
+  ogAlt: 'OpenInventory dashboard showing a $4,045.19 CS2 inventory value chart',
+} as const;
+
+export const nav = [
+  { label: 'Views', href: '#lenses' },
+  { label: 'How it works', href: '#how' },
+  { label: 'Features', href: '#features' },
+] as const;
+
+export const hero = {
+  headline: 'Your inventory. Open.',
+  lede: 'OpenInventory is a self-hosted tracker for your CS2 inventory and storage units. Sign in once with the Steam mobile app and it keeps the history for you.',
+  ledeLead: 'OpenInventory is a self-hosted tracker',
+  ledeBadge: { after: 'CS2', src: '/cs2.webp' },
+  secondary: { label: 'View on GitHub', href: site.repo },
+  stat: { label: 'Tracked across inventory and storage', value: 4045.19 },
+  screenshotAlt:
+    'OpenInventory dashboard: total value of $4,045.19, a value history chart, top holdings and a breakdown by type.',
+} as const;
+
+/** The hero segmented control. Each lens swaps the framed live view below it. */
+export const lenses = {
+  id: 'lenses',
+  heading: 'The app, running right here.',
+  note: 'Not screenshots. Pick a view; each one is the real OpenInventory running on a sample account in your browser. Click, sort, search and move things around. Nothing leaves the page.',
+  items: [
+    { id: 'dashboard', label: 'Dashboard', caption: 'Total value, history and breakdown for the whole account.' },
+    { id: 'items', label: 'Items', caption: 'One searchable table over every item you own or store.' },
+    { id: 'storage', label: 'Storage', caption: 'Open a unit without launching CS2 and see what is inside.' },
+    { id: 'cases', label: 'Cases', caption: 'What you have opened, and what it cost you, in numbers.' },
+    { id: 'tradeup', label: 'Trade-up', caption: 'Expected value from your cheapest tradable skins.' },
+  ] satisfies readonly Lens[],
+} as const;
+
+export const how = {
+  id: 'how',
+  heading: 'Running in three steps.',
+  body: 'Sign in once from your phone. After that it keeps the history on its own.',
+  steps: [
+    { title: 'Sign in once', body: 'Press Show QR code and scan it in the Steam mobile app. No password stored, no browser extension.' },
+    { title: 'It reads and remembers', body: 'Inventory and storage units sync from the Game Coordinator into one SQLite file, with hourly value snapshots.' },
+    { title: 'Move, never sell', body: 'Reorganise items between your own containers. It reads and moves. It never lists, trades or sells.' },
+  ] satisfies readonly Step[],
+} as const;
+
+export const faq = {
+  id: 'faq',
+  heading: 'Questions, answered.',
+  items: [
+    {
+      q: 'Does it ever sell or trade my items?',
+      a: 'No. OpenInventory reads your inventory and moves items between your own containers. It has no listing, pricing-post or trade feature, and it never will.',
+    },
+    {
+      q: 'Where does my Steam login live?',
+      a: 'In a session.json file on your own server, written with mode 0600 and deleted when you press Sign out. It is never sent to us, because there is no us to send it to.',
+    },
+    {
+      q: 'Do I have to self-host?',
+      a: 'That is the only way it runs. One Docker command starts it on your machine or a box you control. There is no hosted cloud version to sign up for.',
+    },
+    {
+      q: 'What if CS2 is already running?',
+      a: 'Steam allows one game session per account. OpenInventory waits politely and connects when you close the game. It never forces the session.',
+    },
+    {
+      q: 'Where do the prices come from?',
+      a: 'Seven marketplaces, with Buff163 as the default. Skinport, Steam, CSFloat, CS.MONEY, Youpin898 and LIS-SKINS can be enabled in Settings.',
+    },
+  ] satisfies readonly Faq[],
+} as const;
+
+export const story = {
+  id: 'features',
+  heading: 'Five views of one ledger.',
+  note: 'Not screenshots. This is the app itself, running on a sample account in your browser. Click, sort, search and move things around; nothing leaves the page.',
+  chapters: [
+    {
+      id: 'dashboard',
+      hint: 'Hover the chart. Switch the range.',
+      figure: { label: 'Total value', value: 4045.19, prefix: '$', suffix: '', decimals: 2 },
+      view: 'Dashboard',
+      route: '/dashboard',
+      title: 'A value you can watch move.',
+      body: 'Total value with 24h, 7d and 30d change. Switch the history chart between total, inventory and storage units, from one day to all time.',
+      points: ['Breakdown by type, rarity, wear and location', 'Lowest floats, highest floats and largest stacks'],
+    },
+    {
+      id: 'items',
+      hint: 'Search, filter and select rows.',
+      figure: { label: 'Items on the sample account', value: 1675, prefix: '', suffix: '', decimals: 0 },
+      view: 'Items',
+      route: '/items',
+      title: 'One search box over every item.',
+      body: 'Inventory and every storage unit in a single table, with images, floats, stickers, charms with pattern ids, and prices.',
+      points: ['Filter by location and type', 'Sort by float or price'],
+    },
+    {
+      id: 'storage',
+      hint: 'Pick a unit.',
+      figure: { label: 'Value in 4 storage units', value: 364.16, prefix: '$', suffix: '', decimals: 2 },
+      view: 'Storage units',
+      route: '/storage-units',
+      title: 'Open every unit without launching CS2.',
+      body: 'All units load on their own and their contents are cached, so a restart is instant. Capacity of 1,000 items is checked before a move begins.',
+      points: ['Per-unit value and item count', 'Contents copied from the Game Coordinator'],
+    },
+    {
+      id: 'cases',
+      hint: 'Switch the kind.',
+      figure: { label: 'Cases opened', value: 412, prefix: '', suffix: '', decimals: 0 },
+      view: 'Cases',
+      route: '/cases',
+      title: 'Your gold drought, in numbers.',
+      body: 'Case, souvenir, capsule, trade-up and drop stats read from your Steam inventory history, stored locally after a background sync.',
+      points: ['Rarity split and rarest pulls', 'Most opened and per-month volume'],
+    },
+    {
+      id: 'tradeup',
+      hint: 'Swap the inputs.',
+      figure: { label: 'Expected return', value: -20.03, prefix: '', suffix: '%', decimals: 2 },
+      view: 'Trade-up',
+      route: '/trade-up',
+      title: 'Do the math before you trade up.',
+      body: 'A read-only estimate of expected value from your cheapest tradable skins and their collections. OpenInventory cannot perform trade-ups.',
+      points: ['Input cost, average float, expected return', 'Chance to profit and every possible outcome'],
+    },
+  ] satisfies readonly Chapter[],
+} as const;
+
+export const footer = {
+  wordmark: 'OpenInventory',
+  cta: 'Read the source',
+  links: [
+    { label: 'OpenInventory on GitHub', href: site.repo },
+    { label: 'Item data: ByMykel/CSGO-API', href: 'https://github.com/ByMykel/CSGO-API' },
+    { label: 'Prices: CSGOTrader', href: 'https://prices.csgotrader.app' },
+  ],
+  legal: 'OpenInventory is not affiliated with or endorsed by Valve, Steam or Skinport. The demo runs on a sample account.',
+} as const;

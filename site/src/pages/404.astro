@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+import SiteHeader from '../components/site-header/site-header.astro';
+import SiteFooter from '../components/site-footer/site-footer.astro';
+---
+<Base title="Not found | OpenInventory" description="This page is not in the inventory." noindex>
+  <SiteHeader slot="header" />
+  <section class="nf wrap">
+    <div class="nf__main">
+      <p class="mono muted">Error 404</p>
+      <h1 class="nf__t">Item not found.</h1>
+      <p class="nf__b muted">Nothing is stored at this address. It may have moved to another unit.</p>
+      <a class="btn btn--solid" href="/">
+        <span class="btn__label"><span data-text="Back home">Back home</span></span>
+        <span class="btn__arrow" aria-hidden="true">→</span>
+      </a>
+    </div>
+    <div class="readout nf__card" aria-label="Contents of this address">
+      <p class="mono muted readout__label">This address, total value</p>
+      <p class="readout__value">$0.00</p>
+      <dl class="readout__parts">
+        <div><dt class="mono muted">Inventory</dt><dd>$0.00</dd></div>
+        <div><dt class="mono muted">Storage units</dt><dd>$0.00</dd></div>
+        <div><dt class="mono muted">Items</dt><dd>0</dd></div>
+      </dl>
+    </div>
+  </section>
+  <SiteFooter slot="footer" />
+</Base>

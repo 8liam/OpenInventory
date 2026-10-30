@@ -1,0 +1,19 @@
+---
+import { faq } from '../../data/site.config';
+---
+<section class="faq" id={faq.id} aria-labelledby="faq-title">
+  <div class="wrap faq__grid">
+    <h2 id="faq-title" class="h-l faq__title" data-reveal>{faq.heading}</h2>
+    <div class="faq__list">
+      {faq.items.map((f, i) => (
+        <details class="qa" name="faq" open={i === 0} data-reveal style={`--d:${i * 0.05}s`}>
+          <summary class="qa__q">
+            <span>{f.q}</span>
+            <span class="qa__icon" aria-hidden="true"></span>
+          </summary>
+          <p class="qa__a muted">{f.a}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
