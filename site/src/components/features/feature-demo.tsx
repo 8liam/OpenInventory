@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import DashboardDemo from '../../mock/demo/dashboard-demo';
-import ItemsDemo from '../../mock/demo/items-demo';
-import StorageDemo from '../../mock/demo/storage-demo';
-import CasesDemo from '../../mock/demo/cases-demo';
-import TradeUpDemo from '../../mock/demo/tradeup-demo';
+import DashboardDemo from '@demo/demo/dashboard-demo';
+import ItemsDemo from '@demo/demo/items-demo';
+import StorageDemo from '@demo/demo/storage-demo';
+import CasesDemo from '@demo/demo/cases-demo';
+import TradeUpDemo from '@demo/demo/tradeup-demo';
 import { DEMO_HEIGHT, DEMO_MIN_SCALE, DEMO_VISIBLE_WIDTH, DEMO_WIDTH } from './feature-demo.config';
 
 const DEMOS: Record<string, () => ReactNode> = {

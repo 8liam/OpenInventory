@@ -1,4 +1,4 @@
-/* Layer order: the landing's own CSS sits in `site`, Tailwind utilities (the vendored app) win over it. */
+/* Layer order: the landing's own CSS sits in `site`, Tailwind utilities (the real app UI) win over it. */
 @layer theme, base, site, utilities;
 
 @import './tokens.css';
@@ -7,6 +7,8 @@
 
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css' layer(utilities) source(none);
+/* Scan the real app components (imported straight from the repo root) plus the sample-data demos. */
+@source '../../../src/components';
 @source '../mock';
 
 @theme inline {

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { INVENTORY_MOCK, UNITS_MOCK } from '~/data/inventory.mock';
-import { setTransferHandler } from '~/data/transfer.mock';
+import { INVENTORY_MOCK, UNITS_MOCK } from '@demo/data/inventory.mock';
+import { setTransferHandler } from '@demo/data/storage-client.mock';
 import { INVENTORY_LOCATION_ID, type ItemView } from '~/lib/items/item.types';
 import type { StorageUnit, TransferRequest } from '~/lib/storage/storage.types';
 

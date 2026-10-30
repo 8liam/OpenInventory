@@ -4,7 +4,7 @@ import { PageHeader } from '~/components/page-header/page-header.component';
 import { TransferBar } from '~/components/transfer-bar/transfer-bar.component';
 import { COPY } from '~/lib/copy/copy.config';
 import { itemRowKey } from '~/lib/items/item-key';
-import { MOCK_CURRENCY } from '~/data/mock.config';
+import { MOCK_CURRENCY } from '@demo/data/mock.config';
 import { DemoTransferStatus } from './demo-transfer-status';
 import { useDemoInventory } from './use-demo-inventory';
 
@@ -64,7 +64,7 @@ export default function ItemsDemo() {
       {selectedItems.length > 0 && (
         <TransferBar selected={selectedItems} units={units} busy={transfer.status === 'running'} onClear={() => setSelected(new Set())} />
       )}
-      <ItemTable items={visible} currency={MOCK_CURRENCY} scrollable={false} selected={selected} onSelectionChange={setSelected} />
+      <ItemTable items={visible} currency={MOCK_CURRENCY} selected={selected} onSelectionChange={setSelected} />
     </div>
   );
 }

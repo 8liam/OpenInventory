@@ -108,6 +108,8 @@ function make(id: string, loc: string, seed: Seed, price: number, rand: () => nu
     charms: [],
     pattern: null,
     tradableAfter: null,
+    videoUrl: null,
+    terminal: null,
     price,
     locationId: loc,
     locationName: locationName(loc),
@@ -127,7 +129,7 @@ function fill(loc: string, curated: readonly ItemView[], count: number, target: 
     const share = i === missing - 1 ? extra - spent : Math.floor((w / sum) * extra);
     spent += share;
     const name = pool[Math.floor(rand() * pool.length)] ?? pool[0] ?? '';
-    return make(`${loc}-g${i}`, loc, { name }, (1 + share) / 100, rand);
+    return make(`${loc}-g${i}`, loc, { name, price: 0 }, (1 + share) / 100, rand);
   });
 }
 

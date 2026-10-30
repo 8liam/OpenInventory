@@ -2,7 +2,8 @@
   "extends": "astro/tsconfigs/strict",
   "include": [
     ".astro/types.d.ts",
-    "**/*"
+    "src/**/*",
+    "plugins/**/*"
   ],
   "exclude": [
     "dist"
@@ -10,11 +11,26 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "react",
-    "baseUrl": ".",
     "paths": {
+      "~/lib/storage/storage.client": [
+        "./src/mock/data/storage-client.mock.ts"
+      ],
       "~/*": [
-        "src/mock/*"
+        "../src/*"
+      ],
+      "@demo/*": [
+        "./src/mock/*"
+      ],
+      "*": [
+        "./node_modules/@types/*",
+        "./node_modules/*"
+      ],
+      "@tanstack/react-router": [
+        "./src/mock/stubs/react-router.tsx"
       ]
-    }
+    },
+    "types": [
+      "node"
+    ]
   }
 }

@@ -7,7 +7,7 @@ import { MonthlyBars } from '~/components/monthly-bars/monthly-bars.component';
 import { OpeningList } from '~/components/opening-list/opening-list.component';
 import { PageHeader } from '~/components/page-header/page-header.component';
 import { Panel } from '~/components/panel/panel.component';
-import { casesResponse } from '~/data/cases.mock';
+import { casesResponse } from '@demo/data/cases.mock';
 import { DEFAULT_OPENING_KIND } from '~/lib/cases/cases.config';
 import type { OpeningKind } from '~/lib/cases/cases.types';
 import { COPY } from '~/lib/copy/copy.config';

@@ -144,6 +144,9 @@
 .fchap__points li { position: relative; padding-left: 1.1rem; line-height: 1.4; }
 .fchap__points li::before { content: ''; position: absolute; left: 0; top: 0.55em; width: 0.4rem; height: 0.4rem; border-radius: 50%; background: var(--c-accent); }
 .fchap__panel { flex: 1; display: flex; flex-direction: column; position: relative; min-width: 0; padding: clamp(1.25rem, 1rem + 1.5vw, 2.5rem) 0 0 clamp(1.25rem, 1rem + 1.5vw, 2.5rem); overflow: clip; }
+/* The embedded app is a picture you can click, not a scroll area: nested scrollers never trap the wheel. */
+.lens__panel :is([class*='overflow-auto'], [class*='overflow-y-auto']),
+.fdemo__inner :is([class*='overflow-auto'], [class*='overflow-y-auto']) { overflow: hidden !important; }
 .fdemo { flex: 1; position: relative; overflow: hidden; border: 1px solid rgb(var(--c-ink) / 0.1); border-right: 0; border-bottom: 0; border-top-left-radius: 0.9rem; background: var(--c-app-bg); box-shadow: -18px 18px 60px -20px rgb(var(--c-shadow-rgb) / var(--c-shadow-a)); }
 .fdemo__inner { position: absolute; inset: 0 auto auto 0; transform-origin: 0 0; overflow: hidden; }
 

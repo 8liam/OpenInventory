@@ -3,7 +3,7 @@ import { Metric } from '~/components/metric/metric.component';
 import { PageHeader } from '~/components/page-header/page-header.component';
 import { TradeUpInputs } from '~/components/tradeup-inputs/tradeup-inputs.component';
 import { TradeUpOutcomes } from '~/components/tradeup-outcomes/tradeup-outcomes.component';
-import { DEFAULT_SELECTION, tradeUpCandidates, tradeUpOdds } from '~/data/tradeup.mock';
+import { DEFAULT_SELECTION, tradeUpCandidates, tradeUpOdds } from '@demo/data/tradeup.mock';
 import { COPY } from '~/lib/copy/copy.config';
 import { formatChance, formatFloat, formatMoney, formatPercent } from '~/utils/format';
 
@@ -31,7 +31,7 @@ export default function TradeUpDemo() {
       </PageHeader>
       <TradeUpInputs
         candidates={candidates.candidates.slice(0, CANDIDATE_CAP)}
-        scrollable={false}
+       
         selectedIds={selectedIds}
         inputCount={candidates.inputCount}
         currency={candidates.currency}

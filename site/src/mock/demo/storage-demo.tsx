@@ -6,7 +6,7 @@ import { UnitCard } from '~/components/unit-card/unit-card.component';
 import { COPY } from '~/lib/copy/copy.config';
 import { itemRowKey } from '~/lib/items/item-key';
 import type { ItemView } from '~/lib/items/item.types';
-import { MOCK_CURRENCY } from '~/data/mock.config';
+import { MOCK_CURRENCY } from '@demo/data/mock.config';
 import { formatInteger, formatMoney } from '~/utils/format';
 import { DemoTransferStatus } from './demo-transfer-status';
 import { useDemoInventory } from './use-demo-inventory';
@@ -63,7 +63,7 @@ export default function StorageDemo() {
           {pickedItems.length > 0 && (
             <TransferBar selected={pickedItems} units={units} busy={transfer.status === 'running'} onClear={() => setPicked(new Set())} />
           )}
-          <ItemTable items={selectedItems.slice(0, ROW_CAP)} currency={MOCK_CURRENCY} showLocation={false} scrollable={false} selected={picked} onSelectionChange={setPicked} />
+          <ItemTable items={selectedItems.slice(0, ROW_CAP)} currency={MOCK_CURRENCY} showLocation={false} selected={picked} onSelectionChange={setPicked} />
         </div>
       </div>
     </div>
