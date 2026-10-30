@@ -4,6 +4,8 @@ name: Release
 on:
   push:
     branches: [main]
+    # Landing-site-only pushes ship through Vercel, not a desktop release.
+    paths-ignore: ["site/**"]
 
 permissions:
   contents: write
