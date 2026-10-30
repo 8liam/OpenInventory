@@ -1,0 +1,94 @@
+---
+import Analytics from '@vercel/analytics/astro';
+import { site } from '../data/site.config';
+import '../styles/index.css';
+
+interface Props { title?: string; description?: string; noindex?: boolean }
+const { title = site.title, description = site.description, noindex = false } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
+const ogImage = new URL(site.ogImage, Astro.site ?? site.url).href;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'SoftwareApplication',
+      name: site.name,
+      applicationCategory: 'UtilitiesApplication',
+      operatingSystem: 'Docker, Node.js',
+      description,
+      url: site.url,
+      sameAs: [site.repo],
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    },
+    { '@type': 'WebSite', name: site.name, url: site.url },
+  ],
+};
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content={site.themeColor} media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content={site.themeColorLight} media="(prefers-color-scheme: light)" />
+    <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={site.ogAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={site.ogAlt} />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <link rel="preload" href="/fonts/geist-400_700-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/geist-mono-400_500-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      if (sessionStorage.getItem('oi-seen')) document.documentElement.classList.add('seen');
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion');
+    </script>
+    <script is:inline>
+      // Collapse the lens gallery to its active panel on first paint. SSR renders all five
+      // panels (so no-JS and crawlers get everything); hiding the rest before first paint
+      // keeps the layout from jumping when the island hydrates, which would shift every
+      // section below it out from under ScrollTrigger's cached positions. If the gallery
+      // markup ever changes, failing open (stacked) is the safe fallback.
+      addEventListener('DOMContentLoaded', function () {
+        try {
+          var stage = document.querySelector('.lens__stage');
+          if (!stage) return;
+          var active = stage.querySelector('.lens__panel.is-on');
+          if (!active) return;
+          var panels = stage.querySelectorAll('.lens__panel');
+          for (var i = 0; i < panels.length; i++) {
+            if (panels[i] !== active) panels[i].setAttribute('hidden', '');
+          }
+          document.querySelector('.lens')?.classList.add('is-enhanced');
+        } catch (e) { /* leave the gallery stacked */ }
+      });
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <slot name="header" />
+    <main id="main" tabindex="-1"><slot /></main>
+    <slot name="footer" />
+    <Analytics />
+    <script>
+      import '../scripts/main';
+    </script>
+  </body>
+</html>

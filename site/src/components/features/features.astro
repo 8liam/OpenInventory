@@ -1,0 +1,32 @@
+---
+import { story } from '../../data/site.config';
+import FeatureDemo from './feature-demo';
+---
+<section class="features" id={story.id} aria-labelledby="features-title">
+  <div class="wrap">
+    <header class="features__head">
+      <h2 id="features-title" class="h-l" data-reveal>{story.heading}</h2>
+      <p class="features__note muted" data-reveal>{story.note}</p>
+    </header>
+
+    <ol class="features__list">
+      {story.chapters.map((c, i) => (
+        <li class="fchap" data-reveal>
+          <div class="fchap__copy">
+            <p class="fchap__idx mono">
+              {String(i + 1).padStart(2, '0')} <span aria-hidden="true">·</span> {c.view}
+            </p>
+            <h3 class="fchap__title">{c.title}</h3>
+            <p class="fchap__body muted">{c.body}</p>
+            <ul class="fchap__points">
+              {c.points.map((p) => <li class="muted">{p}</li>)}
+            </ul>
+          </div>
+          <div class="fchap__panel">
+            <FeatureDemo id={c.id} client:visible />
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

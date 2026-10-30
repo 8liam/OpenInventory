@@ -1,0 +1,19 @@
+---
+import { footer, site } from '../../data/site.config';
+import GithubLink from '../github-link/github-link.astro';
+import { fetchStars } from '../../lib/github-stars/github-stars';
+const stars = await fetchStars();
+---
+<footer class="foot">
+  <div class="rules" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="foot__top">
+      <GithubLink href={site.repo} label={footer.cta} stars={stars} />
+      <ul class="foot__links">
+        {footer.links.map((l) => <li><a class="link" href={l.href} rel="noopener">{l.label}</a></li>)}
+      </ul>
+    </div>
+    <p class="foot__word" aria-hidden="true">{footer.wordmark}</p>
+    <p class="foot__legal muted">{footer.legal}</p>
+  </div>
+</footer>

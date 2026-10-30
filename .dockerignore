@@ -8,3 +8,6 @@ data
 Dockerfile
 docker-compose.yml
 README.md
+
+site
+.github

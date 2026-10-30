@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import SiteHeader from '../components/site-header/site-header.astro';
+import Hero from '../components/hero/hero.astro';
+import How from '../components/how/how.astro';
+import Features from '../components/features/features.astro';
+import Faq from '../components/faq/faq.astro';
+import SiteFooter from '../components/site-footer/site-footer.astro';
+---
+<Base>
+  <SiteHeader slot="header" />
+  <Hero />
+  <How />
+  <Features />
+  <Faq />
+  <SiteFooter slot="footer" />
+</Base>
