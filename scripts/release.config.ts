@@ -10,3 +10,6 @@ export const BUMP = {
 
 /** Conventional-commit types that bump the minor version; anything else is a patch. */
 export const MINOR_TYPES: readonly string[] = ["feat"];
+
+/** Pathspecs excluded when counting commits: the landing site ships via Vercel, not a release. */
+export const RELEASE_EXCLUDED_PATHSPECS: readonly string[] = [":(exclude)site"];
