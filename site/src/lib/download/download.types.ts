@@ -1,6 +1,6 @@
-import type { ICON_PATHS } from './download.icons';
+import type { ICON_PATHS } from "./download.icons";
 
-export type PlatformId = 'mac-arm64' | 'mac-x64' | 'win-x64' | 'linux-x64';
+export type PlatformId = "mac-arm64" | "mac-x64" | "win-x64" | "linux-x64";
 
 export type IconName = keyof typeof ICON_PATHS;
 

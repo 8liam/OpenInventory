@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import DashboardDemo from '@demo/demo/dashboard-demo';
-import ItemsDemo from '@demo/demo/items-demo';
-import StorageDemo from '@demo/demo/storage-demo';
-import CasesDemo from '@demo/demo/cases-demo';
-import TradeUpDemo from '@demo/demo/tradeup-demo';
-import { DEMO_HEIGHT, DEMO_MIN_SCALE, DEMO_VISIBLE_WIDTH, DEMO_WIDTH } from './feature-demo.config';
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import DashboardDemo from "@demo/demo/dashboard-demo";
+import ItemsDemo from "@demo/demo/items-demo";
+import StorageDemo from "@demo/demo/storage-demo";
+import CasesDemo from "@demo/demo/cases-demo";
+import TradeUpDemo from "@demo/demo/tradeup-demo";
+import { DEMO_HEIGHT, DEMO_MIN_SCALE, DEMO_VISIBLE_WIDTH, DEMO_WIDTH } from "./feature-demo.config";
 
 const DEMOS: Record<string, () => ReactNode> = {
   dashboard: DashboardDemo,
@@ -36,7 +36,10 @@ export default function FeatureDemo({ id }: { id: string }) {
   if (!Demo) return null;
   return (
     <div className="fdemo" ref={boxRef} style={{ minHeight: DEMO_HEIGHT * scale }}>
-      <div className="fdemo__inner" style={{ width: DEMO_WIDTH, height: DEMO_HEIGHT, transform: `scale(${scale})` }}>
+      <div
+        className="fdemo__inner"
+        style={{ width: DEMO_WIDTH, height: DEMO_HEIGHT, transform: `scale(${scale})` }}
+      >
         <Demo />
       </div>
     </div>

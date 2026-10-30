@@ -30,7 +30,9 @@ for (let i = 0; i <= 23; i++) {
 
 const mads = [];
 for (let i = 1; i < frames.length; i++) {
-  const A = await sharp(frames[i - 1].f).raw().toBuffer();
+  const A = await sharp(frames[i - 1].f)
+    .raw()
+    .toBuffer();
   const B = await sharp(frames[i].f).raw().toBuffer();
   let s = 0;
   for (let j = 0; j < A.length; j++) s += Math.abs(A[j] - B[j]);

@@ -14,11 +14,17 @@ for (const f of files) {
 async function mad(p1, p2) {
   const A = await sharp(p1).raw().toBuffer({ resolveWithObject: true });
   const B = await sharp(p2).raw().toBuffer({ resolveWithObject: true });
-  if (A.info.width !== B.info.width || A.info.height !== B.info.height) return { mad: "size-mismatch" };
-  let sum = 0, over = 0;
+  if (A.info.width !== B.info.width || A.info.height !== B.info.height)
+    return { mad: "size-mismatch" };
+  let sum = 0,
+    over = 0;
   const n = A.data.length;
-  for (let i = 0; i < n; i++) { const d = Math.abs(A.data[i] - B.data[i]); sum += d; if (d > 12) over++; }
-  return { mad: +(sum / n).toFixed(2), pct: +(100 * over / n).toFixed(2) };
+  for (let i = 0; i < n; i++) {
+    const d = Math.abs(A.data[i] - B.data[i]);
+    sum += d;
+    if (d > 12) over++;
+  }
+  return { mad: +(sum / n).toFixed(2), pct: +((100 * over) / n).toFixed(2) };
 }
 for (const [name, imgs] of pairs) {
   if (imgs.rest && imgs.hover) console.log(name, JSON.stringify(await mad(imgs.rest, imgs.hover)));

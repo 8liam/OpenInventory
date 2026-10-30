@@ -1,19 +1,19 @@
 /* Layer order: the landing's own CSS sits in `site`, Tailwind utilities (the real app UI) win over it. */
 @layer theme, base, site, utilities;
 
-@import './tokens.css';
-@import './base.css' layer(site);
-@import './sections.css' layer(site);
+@import "./tokens.css";
+@import "./base.css" layer(site);
+@import "./sections.css" layer(site);
 
-@import 'tailwindcss/theme.css' layer(theme);
-@import 'tailwindcss/utilities.css' layer(utilities) source(none);
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
 /* Scan the real app components (imported straight from the repo root) plus the sample-data demos. */
 @source '../../../src/components';
 @source '../mock';
 
 @theme inline {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --font-mono: ui-monospace, 'SF Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -54,29 +54,95 @@
 
 @layer base {
   .oi-app {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
     font-size: 13px;
     line-height: 1.45;
     background: var(--background);
     color: var(--foreground);
     text-align: left;
   }
-  .oi-app, .oi-app *, .oi-app ::before, .oi-app ::after { box-sizing: border-box; border: 0 solid var(--border); }
-  .oi-app input, .oi-app select, .oi-app textarea, .oi-app button { font: inherit; color: inherit; background: transparent; letter-spacing: inherit; }
-  .oi-app button { cursor: pointer; }
-  .oi-app button:disabled { cursor: default; }
-  .oi-app table { border-collapse: collapse; text-indent: 0; }
-  .oi-app h1, .oi-app h2, .oi-app h3, .oi-app h4, .oi-app h5 { font-size: inherit; font-weight: inherit; letter-spacing: normal; line-height: inherit; }
-  .oi-app p, .oi-app ul, .oi-app ol, .oi-app dl, .oi-app dd { margin: 0; padding: 0; list-style: none; }
-  .oi-app img, .oi-app svg { display: block; }
-  .oi-app svg { overflow: visible; }
-  .oi-app .tabular { font-variant-numeric: tabular-nums; }
-  .oi-app :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 4px; }
+  .oi-app,
+  .oi-app *,
+  .oi-app ::before,
+  .oi-app ::after {
+    box-sizing: border-box;
+    border: 0 solid var(--border);
+  }
+  .oi-app input,
+  .oi-app select,
+  .oi-app textarea,
+  .oi-app button {
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    letter-spacing: inherit;
+  }
+  .oi-app button {
+    cursor: pointer;
+  }
+  .oi-app button:disabled {
+    cursor: default;
+  }
+  .oi-app table {
+    border-collapse: collapse;
+    text-indent: 0;
+  }
+  .oi-app h1,
+  .oi-app h2,
+  .oi-app h3,
+  .oi-app h4,
+  .oi-app h5 {
+    font-size: inherit;
+    font-weight: inherit;
+    letter-spacing: normal;
+    line-height: inherit;
+  }
+  .oi-app p,
+  .oi-app ul,
+  .oi-app ol,
+  .oi-app dl,
+  .oi-app dd {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .oi-app img,
+  .oi-app svg {
+    display: block;
+  }
+  .oi-app svg {
+    overflow: visible;
+  }
+  .oi-app .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .oi-app :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 }
 
-@keyframes skeleton-shimmer { to { background-position-x: -200%; } }
-.oi-app .skeleton { background: linear-gradient(90deg, var(--skeleton) 30%, var(--skeleton-highlight) 50%, var(--skeleton) 70%); background-size: 200% 100%; animation: skeleton-shimmer 1.6s linear infinite; }
-@media (prefers-reduced-motion: reduce) { .oi-app .skeleton { animation: none; } }
+@keyframes skeleton-shimmer {
+  to {
+    background-position-x: -200%;
+  }
+}
+.oi-app .skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--skeleton) 30%,
+    var(--skeleton-highlight) 50%,
+    var(--skeleton) 70%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .oi-app .skeleton {
+    animation: none;
+  }
+}
 
 @media (prefers-color-scheme: light) {
   .oi-app {

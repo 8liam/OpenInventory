@@ -1,7 +1,7 @@
-import { PortfolioHero } from '~/components/portfolio-hero/portfolio-hero.component';
-import { BreakdownPanel } from '~/components/breakdown-panel/breakdown-panel.component';
-import { DASHBOARD_MOCK } from '@demo/data/dashboard.mock';
-import { MOCK_CURRENCY } from '@demo/data/mock.config';
+import { PortfolioHero } from "~/components/portfolio-hero/portfolio-hero.component";
+import { BreakdownPanel } from "~/components/breakdown-panel/breakdown-panel.component";
+import { DASHBOARD_MOCK } from "@demo/data/dashboard.mock";
+import { MOCK_CURRENCY } from "@demo/data/mock.config";
 
 /** The real PortfolioHero and BreakdownPanel from OpenInventory, fed sample data. */
 export default function DashboardDemo() {

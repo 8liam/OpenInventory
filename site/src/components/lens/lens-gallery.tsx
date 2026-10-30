@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import DashboardDemo from '@demo/demo/dashboard-demo';
-import ItemsDemo from '@demo/demo/items-demo';
-import StorageDemo from '@demo/demo/storage-demo';
-import CasesDemo from '@demo/demo/cases-demo';
-import TradeUpDemo from '@demo/demo/tradeup-demo';
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import DashboardDemo from "@demo/demo/dashboard-demo";
+import ItemsDemo from "@demo/demo/items-demo";
+import StorageDemo from "@demo/demo/storage-demo";
+import CasesDemo from "@demo/demo/cases-demo";
+import TradeUpDemo from "@demo/demo/tradeup-demo";
 
-export type LensId = 'dashboard' | 'items' | 'storage' | 'cases' | 'tradeup';
+export type LensId = "dashboard" | "items" | "storage" | "cases" | "tradeup";
 
 type Lens = { id: LensId; label: string; caption: string };
 
@@ -24,7 +24,7 @@ const DEMOS: Record<LensId, () => ReactNode> = {
  * it, then stops for good.
  */
 export default function LensGallery({ lenses }: { lenses: readonly Lens[] }) {
-  const [active, setActive] = useState<LensId>(lenses[0]?.id ?? 'dashboard');
+  const [active, setActive] = useState<LensId>(lenses[0]?.id ?? "dashboard");
   const [touched, setTouched] = useState(false);
   const [enhanced, setEnhanced] = useState(false);
   const [onScreen, setOnScreen] = useState(false);
@@ -38,8 +38,13 @@ export default function LensGallery({ lenses }: { lenses: readonly Lens[] }) {
   // and a demo nobody is watching should not be re-rendering.
   useEffect(() => {
     const el = rootRef.current;
-    if (!el || !('IntersectionObserver' in window)) { setOnScreen(true); return; }
-    const io = new IntersectionObserver((entries) => setOnScreen(entries.some((e) => e.isIntersecting)));
+    if (!el || !("IntersectionObserver" in window)) {
+      setOnScreen(true);
+      return;
+    }
+    const io = new IntersectionObserver((entries) =>
+      setOnScreen(entries.some((e) => e.isIntersecting)),
+    );
     io.observe(el);
     return () => io.disconnect();
   }, []);
@@ -48,7 +53,7 @@ export default function LensGallery({ lenses }: { lenses: readonly Lens[] }) {
   // keyboard is already inside the control, so rotation never fires mid-decision.
   useEffect(() => {
     if (!enhanced || touched || !onScreen || engaged) return;
-    const mq = matchMedia('(prefers-reduced-motion: reduce)');
+    const mq = matchMedia("(prefers-reduced-motion: reduce)");
     if (mq.matches) return;
     const id = setInterval(() => {
       setActive((cur) => {
@@ -66,33 +71,36 @@ export default function LensGallery({ lenses }: { lenses: readonly Lens[] }) {
 
   return (
     <div
-      className={`lens${enhanced ? ' is-enhanced' : ''}`}
+      className={`lens${enhanced ? " is-enhanced" : ""}`}
       ref={rootRef}
       onPointerEnter={() => setEngaged(true)}
       onPointerLeave={() => setEngaged(false)}
       onFocus={() => setEngaged(true)}
-      onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setEngaged(false); }}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setEngaged(false);
+      }}
     >
       <div className="lens__bar">
-        <div className="seg" role={enhanced ? 'tablist' : undefined} aria-label="Product views">
+        <div className="seg" role={enhanced ? "tablist" : undefined} aria-label="Product views">
           {lenses.map((l) => {
             const on = l.id === active;
             return (
               <button
                 key={l.id}
                 type="button"
-                role={enhanced ? 'tab' : undefined}
+                role={enhanced ? "tab" : undefined}
                 aria-selected={enhanced ? on : undefined}
                 aria-controls={`lens-panel-${l.id}`}
                 id={`lens-tab-${l.id}`}
                 tabIndex={enhanced && !on ? -1 : undefined}
-                className={`seg__btn${on ? ' is-on' : ''}`}
+                className={`seg__btn${on ? " is-on" : ""}`}
                 onClick={() => choose(l.id)}
                 onKeyDown={(e) => {
-                  if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+                  if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
                   e.preventDefault();
                   const i = lenses.findIndex((x) => x.id === l.id);
-                  const next = lenses[(i + (e.key === 'ArrowRight' ? 1 : -1) + lenses.length) % lenses.length];
+                  const next =
+                    lenses[(i + (e.key === "ArrowRight" ? 1 : -1) + lenses.length) % lenses.length];
                   if (next) {
                     choose(next.id);
                     document.getElementById(`lens-tab-${next.id}`)?.focus();
@@ -118,9 +126,9 @@ export default function LensGallery({ lenses }: { lenses: readonly Lens[] }) {
             <div
               key={l.id}
               id={`lens-panel-${l.id}`}
-              role={enhanced ? 'tabpanel' : undefined}
+              role={enhanced ? "tabpanel" : undefined}
               aria-labelledby={enhanced ? `lens-tab-${l.id}` : undefined}
-              className={`lens__panel${on ? ' is-on' : ''}`}
+              className={`lens__panel${on ? " is-on" : ""}`}
               hidden={enhanced && !on}
             >
               <Demo />

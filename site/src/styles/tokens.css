@@ -1,24 +1,40 @@
 @font-face {
-  font-family: 'Geist';
-  src: url('/fonts/geist-400_700-normal.woff2') format('woff2');
+  font-family: "Geist";
+  src: url("/fonts/geist-400_700-normal.woff2") format("woff2");
   font-weight: 400 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Geist Mono';
-  src: url('/fonts/geist-mono-400_500-normal.woff2') format('woff2');
+  font-family: "Geist Mono";
+  src: url("/fonts/geist-mono-400_500-normal.woff2") format("woff2");
   font-weight: 400 500;
   font-style: normal;
   font-display: swap;
 }
 
-@view-transition { navigation: auto; }
+@view-transition {
+  navigation: auto;
+}
 
 /* Metric-matched fallbacks so the swap to Geist does not shift layout (size-adjust measured against Arial). */
-@font-face { font-family: 'Geist Fallback'; src: local('Arial'); font-weight: 400 500; size-adjust: 102.5%; }
-@font-face { font-family: 'Geist Fallback'; src: local('Arial'); font-weight: 600 700; size-adjust: 99%; }
-@font-face { font-family: 'Geist Mono Fallback'; src: local('Courier New'); size-adjust: 100%; }
+@font-face {
+  font-family: "Geist Fallback";
+  src: local("Arial");
+  font-weight: 400 500;
+  size-adjust: 102.5%;
+}
+@font-face {
+  font-family: "Geist Fallback";
+  src: local("Arial");
+  font-weight: 600 700;
+  size-adjust: 99%;
+}
+@font-face {
+  font-family: "Geist Mono Fallback";
+  src: local("Courier New");
+  size-adjust: 100%;
+}
 
 :root {
   /* Palette, named by role. Emerald is the value line from the product's own chart. */
@@ -43,8 +59,8 @@
   --c-app-bg: #0a0a0a;
   --c-stage-ring: rgb(0 0 0 / 0.6);
 
-  --f-body: 'Geist', 'Geist Fallback', ui-sans-serif, system-ui, sans-serif;
-  --f-mono: 'Geist Mono', 'Geist Mono Fallback', ui-monospace, 'SF Mono', Menlo, monospace;
+  --f-body: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --f-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, "SF Mono", Menlo, monospace;
 
   --t-mega: clamp(2.9rem, 0.9rem + 8.4vw, 9.5rem);
   --t-xl: clamp(2.4rem, 1.2rem + 4.6vw, 5.75rem);

@@ -1,4 +1,10 @@
-export type Figure = { label: string; value: number; prefix: string; suffix: string; decimals: number };
+export type Figure = {
+  label: string;
+  value: number;
+  prefix: string;
+  suffix: string;
+  decimals: number;
+};
 
 export type Chapter = {
   figure: Figure;

@@ -17,9 +17,18 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 await page.goto(url, { waitUntil: "networkidle" });
 await page.evaluate(axeSource);
 const r = await page.evaluate(async () => {
-  const res = await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] }, resultTypes: ["incomplete"] });
+  const res = await window.axe.run(document, {
+    runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] },
+    resultTypes: ["incomplete"],
+  });
   const c = res.incomplete.find((v) => v.id === "color-contrast");
-  return c ? c.nodes.map((n) => ({ target: n.target.join(" "), msg: n.any[0]?.message?.slice(0, 120), data: n.any[0]?.data })) : [];
+  return c
+    ? c.nodes.map((n) => ({
+        target: n.target.join(" "),
+        msg: n.any[0]?.message?.slice(0, 120),
+        data: n.any[0]?.data,
+      }))
+    : [];
 });
 const byMsg = new Map();
 for (const n of r) {

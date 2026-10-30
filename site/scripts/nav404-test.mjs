@@ -19,7 +19,10 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const resp = await page.goto(`${ORIGIN}/definitely-not-a-page`, { waitUntil: "networkidle" });
 const status404 = resp?.status();
 const desc404 = await page.locator('meta[name="description"]').getAttribute("content");
-const og404 = await page.locator('meta[property="og:image"]').getAttribute("content").catch(() => null);
+const og404 = await page
+  .locator('meta[property="og:image"]')
+  .getAttribute("content")
+  .catch(() => null);
 await page.waitForTimeout(400);
 await page.screenshot({ path: `${OUT}/f-00-404.png` });
 

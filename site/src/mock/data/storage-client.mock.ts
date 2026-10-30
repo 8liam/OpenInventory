@@ -1,4 +1,4 @@
-import type { TransferRequest } from '~/lib/storage/storage.types';
+import type { TransferRequest } from "~/lib/storage/storage.types";
 
 type Handler = (request: TransferRequest) => Promise<void>;
 
