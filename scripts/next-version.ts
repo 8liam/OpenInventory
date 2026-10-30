@@ -1,6 +1,12 @@
 // Prints the next release version (without the tag prefix) from the commits since the last tag.
 import { execFileSync } from "node:child_process";
-import { BUMP, INITIAL_VERSION, MINOR_TYPES, TAG_PREFIX } from "./release.config.ts";
+import {
+  BUMP,
+  INITIAL_VERSION,
+  MINOR_TYPES,
+  RELEASE_EXCLUDED_PATHSPECS,
+  TAG_PREFIX,
+} from "./release.config.ts";
 import type { Bump } from "./release.types.ts";
 
 const COMMIT_PATTERN = /^(\w+)(?:\([^)]*\))?(!)?:/;
@@ -20,7 +26,15 @@ function lastTag(): string | undefined {
 }
 
 function commitsSince(tag: string): string[] {
-  const out = git("log", "--no-merges", `--format=%B${COMMIT_SEPARATOR}`, `${tag}..HEAD`);
+  const out = git(
+    "log",
+    "--no-merges",
+    `--format=%B${COMMIT_SEPARATOR}`,
+    `${tag}..HEAD`,
+    "--",
+    ".",
+    ...RELEASE_EXCLUDED_PATHSPECS,
+  );
   return out
     .split(COMMIT_SEPARATOR)
     .map((c) => c.trim())
