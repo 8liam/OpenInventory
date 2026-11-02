@@ -32,6 +32,8 @@ export type Database = {
   readonly listSnapshots: (key: SnapshotKey) => readonly ValueSnapshot[];
   /** Stores events not seen before and returns how many were new. */
   readonly saveHistoryEvents: (steamId: string, events: readonly HistoryEvent[]) => number;
+  /** Bumps whenever `saveHistoryEvents` actually adds rows; lets callers invalidate derived data. */
+  readonly historyVersion: () => number;
   readonly hasHistoryEvent: (steamId: string, eventId: string) => boolean;
   /** Every stored event, newest first. */
   readonly loadHistoryEvents: (steamId: string) => readonly HistoryEvent[];

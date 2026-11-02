@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { isImageLoaded, markImageLoaded } from "~/lib/images/image-preload";
 import { cn } from "~/utils/cn";
 import { ITEM_THUMB } from "./item-thumb.config";
 import type { ItemThumbProps } from "./item-thumb.types";
@@ -6,12 +7,12 @@ import type { ItemThumbProps } from "./item-thumb.types";
 export function ItemThumb({ imageUrl, rarityColor, size, className }: ItemThumbProps) {
   const { angle, tintPercent, tintFalloff } = ITEM_THUMB;
   const [loadedUrl, setLoadedUrl] = useState<string>();
-  const loaded = imageUrl !== null && loadedUrl === imageUrl;
+  // A URL decoded earlier (or preloaded) shows at once instead of fading in again.
+  const loaded = imageUrl !== null && (loadedUrl === imageUrl || isImageLoaded(imageUrl));
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center justify-center rounded-md bg-muted",
-        imageUrl && !loaded && "skeleton",
+        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted",
         className,
       )}
       style={{
@@ -22,6 +23,9 @@ export function ItemThumb({ imageUrl, rarityColor, size, className }: ItemThumbP
           : undefined,
       }}
     >
+      {imageUrl && !loaded && (
+        <span aria-hidden className="skeleton absolute inset-0 rounded-[inherit] opacity-60" />
+      )}
       {imageUrl && (
         <img
           src={imageUrl}
@@ -30,7 +34,10 @@ export function ItemThumb({ imageUrl, rarityColor, size, className }: ItemThumbP
           decoding="async"
           width={size}
           height={size}
-          onLoad={() => setLoadedUrl(imageUrl)}
+          onLoad={() => {
+            markImageLoaded(imageUrl);
+            setLoadedUrl(imageUrl);
+          }}
           onError={() => setLoadedUrl(imageUrl)}
           className={cn(
             "size-full object-contain p-0.5 drop-shadow-sm transition-opacity duration-300",

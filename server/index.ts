@@ -16,7 +16,8 @@ import type {
 } from "../src/lib/storage/storage.types.ts";
 import { DEFAULT_OPENING_KIND, OPENING_KINDS } from "../src/lib/cases/cases.config.ts";
 import type { OpeningKind } from "../src/lib/cases/cases.types.ts";
-import { buildCaseStats } from "./cases/case-stats.ts";
+import { createCaseStatsCache } from "./cases/case-stats-cache.ts";
+import { encodeBody } from "./compression.ts";
 import { createHistorySync } from "./cases/history-sync.ts";
 import { openDatabase } from "./db/db.ts";
 import { buildDashboard, summarizeValue } from "./dashboard.ts";
@@ -65,6 +66,7 @@ const IMMUTABLE_CACHE = "public, max-age=31536000, immutable";
 const INDEX_FILE = "index.html";
 const HEALTH_PATH = "/healthz";
 const JSON_CONTENT_TYPE = "application/json";
+const VARY_HEADER = "accept-encoding";
 // eslint-disable-next-line no-control-regex -- rejecting control characters is the point
 const CONTROL_CHARACTERS = /[\u0000-\u001f\u007f]/;
 const ITEM_ID_PATTERN = /^(\d{1,20}|inventory)$/;
@@ -75,17 +77,50 @@ const db = openDatabase(settings.dataDir);
 const catalog = await loadCatalog(db);
 const gateway = createRealGateway(db, settings.dataDir, (raw) => catalog.describe(raw).view.name);
 const historySync = createHistorySync(db, gateway);
+const caseStats = createCaseStatsCache(db);
 
-function sendJson(res: ServerResponse, status: number, body: unknown): void {
-  res.writeHead(status, { "content-type": "application/json" });
-  res.end(JSON.stringify(body));
+/** Writes `payload`, gzipped when worthwhile. Skips dead sockets and never rejects. */
+async function sendBody(
+  res: ServerResponse,
+  status: number,
+  headers: Record<string, string>,
+  payload: Buffer,
+): Promise<void> {
+  const contentType = headers["content-type"] ?? "";
+  const { body, encoding } = await encodeBody(
+    payload,
+    contentType,
+    res.req.headers["accept-encoding"],
+  );
+  if (res.destroyed || res.headersSent) return;
+  res.writeHead(status, {
+    ...headers,
+    vary: VARY_HEADER,
+    "content-length": body.length,
+    ...(encoding ? { "content-encoding": encoding } : {}),
+  });
+  res.end(body);
+}
+
+async function sendJson(res: ServerResponse, status: number, body: unknown): Promise<void> {
+  await sendBody(
+    res,
+    status,
+    { "content-type": JSON_CONTENT_TYPE },
+    Buffer.from(JSON.stringify(body)),
+  );
+}
+
+/** True once the client has gone away; nothing more should be written. */
+function aborted(req: IncomingMessage, res: ServerResponse): boolean {
+  return req.destroyed || res.destroyed;
 }
 
 function sendError(res: ServerResponse, error: unknown): void {
   const status = error instanceof UserFacingError ? error.status : HTTP.serverError;
   const message = error instanceof UserFacingError ? error.message : "Internal error";
   if (!(error instanceof UserFacingError)) console.error(error);
-  sendJson(res, status, { error: message } satisfies ApiError);
+  void sendJson(res, status, { error: message } satisfies ApiError);
 }
 
 function isAuthorized(req: IncomingMessage): boolean {
@@ -291,11 +326,15 @@ async function serveStatic(webDir: string, pathname: string, res: ServerResponse
   }
   const body = await readFile(file);
   const isAsset = file.includes(`${sep}assets${sep}`);
-  res.writeHead(HTTP.ok, {
-    "content-type": MIME[extname(file)] ?? "application/octet-stream",
-    "cache-control": isAsset ? IMMUTABLE_CACHE : "no-cache",
-  });
-  res.end(body);
+  await sendBody(
+    res,
+    HTTP.ok,
+    {
+      "content-type": MIME[extname(file)] ?? "application/octet-stream",
+      "cache-control": isAsset ? IMMUTABLE_CACHE : "no-cache",
+    },
+    body,
+  );
 }
 
 const server = createServer(async (req, res) => {
@@ -319,6 +358,7 @@ const server = createServer(async (req, res) => {
       const scope = parseScope(url);
       const { currency } = scope;
       const book = await loadPrices(scope);
+      if (aborted(req, res)) return;
       const items = collectItems(gateway, catalog, book).map((c) => c.view);
       return sendJson(res, HTTP.ok, { items, currency, priceUpdatedAt: book.fetchedAt });
     }
@@ -329,6 +369,7 @@ const server = createServer(async (req, res) => {
       const { currency } = scope;
       rememberScope(scope);
       const book = await loadPrices(scope);
+      if (aborted(req, res)) return;
       const items = collectItems(gateway, catalog, book).map((c) => c.view);
       const units = gateway.getSnapshot().units;
       void recordSnapshot(steamId, scope).catch((e: unknown) => console.warn("[snapshot]", e));
@@ -350,7 +391,7 @@ const server = createServer(async (req, res) => {
       const steamId = requireReady();
       historySync.start(steamId, { onlyIfStale: true });
       return sendJson(res, HTTP.ok, {
-        stats: buildCaseStats(db.loadHistoryEvents(steamId), parseOpeningKind(url)),
+        stats: caseStats.get(steamId, parseOpeningKind(url)),
         sync: historySync.status(steamId),
       });
     }
@@ -468,7 +509,7 @@ const server = createServer(async (req, res) => {
     if (method !== "GET" && method !== "HEAD")
       return sendJson(res, HTTP.methodNotAllowed, { error: "Method not allowed" });
     if (settings.webDir) return await serveStatic(settings.webDir, path, res);
-    sendJson(res, HTTP.notFound, { error: "Not found" } satisfies ApiError);
+    void sendJson(res, HTTP.notFound, { error: "Not found" } satisfies ApiError);
   } catch (error) {
     sendError(res, error);
   }

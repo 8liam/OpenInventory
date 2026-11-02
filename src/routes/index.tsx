@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RefreshCw } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "~/components/button/button.component";
 import { HoldingsTable } from "~/components/holdings-table/holdings-table.component";
 import { BreakdownPanel } from "~/components/breakdown-panel/breakdown-panel.component";
 import { DashboardSkeleton } from "~/components/dashboard-skeleton/dashboard-skeleton.component";
 import { Insights } from "~/components/insights/insights.component";
-import { PageHeader } from "~/components/page-header/page-header.component";
+import { UpdatedHeader } from "~/components/updated-header/updated-header.component";
 import { Panel } from "~/components/panel/panel.component";
 import { PortfolioHero } from "~/components/portfolio-hero/portfolio-hero.component";
 import { COPY } from "~/lib/copy/copy.config";
@@ -14,8 +14,6 @@ import type { Dashboard } from "~/lib/items/dashboard.types";
 import { callStorageApi, useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { usePriceQuery, useSettings } from "~/lib/settings/settings.store";
-import { RELATIVE_TIME } from "~/utils/format.config";
-import { formatRelativeTime } from "~/utils/format";
 
 export const Route = createFileRoute("/")({ component: DashboardPage });
 
@@ -23,7 +21,6 @@ function DashboardPage() {
   const snapshot = useStorageSnapshot();
   const currency = useSettings((s) => s.currency);
   const marketplace = useSettings((s) => s.marketplace);
-  const [now, setNow] = useState(() => Date.now());
   const priceQuery = usePriceQuery();
   const data = useRemoteData<Dashboard>(
     `${STORAGE_API.dashboard}?${priceQuery}`,
@@ -31,12 +28,6 @@ function DashboardPage() {
   );
   const [refreshing, setRefreshing] = useState(false);
   const copy = COPY.dashboard;
-
-  // Keeps "updated 5 minutes ago" current while the page stays open.
-  useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), RELATIVE_TIME.refreshMs);
-    return () => clearInterval(timer);
-  }, []);
 
   async function refresh() {
     setRefreshing(true);
@@ -51,22 +42,15 @@ function DashboardPage() {
   const source = COPY.settings.marketplaces[marketplace];
   return (
     <>
-      <PageHeader
-        title={copy.title}
-        description={
-          dashboard?.priceUpdatedAt
-            ? copy.pricesUpdated(formatRelativeTime(dashboard.priceUpdatedAt, now), source)
-            : copy.pricesFrom(source)
-        }
-      >
+      <UpdatedHeader title={copy.title} priceUpdatedAt={dashboard?.priceUpdatedAt} source={source}>
         {snapshot.loadingUnits && (
           <span className="text-xs text-muted-foreground">{copy.unitsLoading}…</span>
         )}
         <Button small disabled={refreshing || snapshot.loadingUnits} onClick={() => void refresh()}>
-          <RefreshCw size={12} className={refreshing ? "animate-spin" : undefined} />
+          <RefreshCw size={12} className={refreshing ? "motion-safe:animate-spin" : undefined} />
           {refreshing ? COPY.common.refreshing : COPY.common.refresh}
         </Button>
-      </PageHeader>
+      </UpdatedHeader>
 
       {data.status === "loading" && <DashboardSkeleton />}
       {data.status === "error" && (

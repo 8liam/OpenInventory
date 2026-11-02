@@ -138,7 +138,7 @@ export function Select({ value, options, onChange, ariaLabel, disabled, classNam
             show();
           }
         }}
-        className="flex h-8 w-full items-center justify-between gap-3 rounded-md border border-input bg-card pl-3 pr-2.5 text-left text-foreground outline-none transition-colors hover:bg-accent focus-visible:border-primary disabled:pointer-events-none disabled:opacity-50 max-sm:h-9"
+        className="flex h-8 w-full items-center justify-between gap-3 rounded-md border border-input bg-card pl-3 pr-2.5 text-left text-foreground outline-none transition-colors hover:bg-muted focus-visible:border-primary disabled:pointer-events-none disabled:opacity-50 max-sm:h-9"
       >
         <span className="truncate">{selected?.label ?? ""}</span>
         <ChevronsUpDown
