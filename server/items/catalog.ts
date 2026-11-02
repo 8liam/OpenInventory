@@ -72,6 +72,20 @@ function byDefIndex<T extends NamedRecord>(records: readonly T[]): Map<number, T
   return map;
 }
 
+/** def_index -> category for non-skin items; earlier sources win, anything unlisted is a "Weapon". */
+export function buildDefCategoryIndex(
+  sources: readonly (readonly [string, readonly NamedRecord[]])[],
+): Map<number, string> {
+  const index = new Map<number, string>();
+  for (const [category, records] of sources)
+    for (const record of records) {
+      if (record.def_index === undefined) continue;
+      const defIndex = Number(record.def_index);
+      if (!index.has(defIndex)) index.set(defIndex, category);
+    }
+  return index;
+}
+
 /** Element types of the GC item's lists; named so they hold up when a tool checks this file alone. */
 type GcAttribute = NonNullable<GcItem["attribute"]>[number];
 type GcSticker = NonNullable<GcItem["stickers"]>[number];
@@ -204,6 +218,13 @@ export async function loadCatalog(db: Database): Promise<Catalog> {
     ...tools,
     ...agents,
     ...collectibles,
+  ]);
+  const categoryByDef = buildDefCategoryIndex([
+    ["Container", crates],
+    ["Key", keys],
+    ["Agent", agents],
+    ["Collectible", collectibles],
+    ["Tool", tools],
   ]);
   const stickerByKit = byDefIndex(stickers);
   const patchByKit = byDefIndex(patches);
@@ -381,12 +402,7 @@ export async function loadCatalog(db: Database): Promise<Catalog> {
   }
 
   function categoryForDef(defIndex: number): string {
-    if (crates.some((c) => Number(c.def_index) === defIndex)) return "Container";
-    if (keys.some((c) => Number(c.def_index) === defIndex)) return "Key";
-    if (agents.some((c) => Number(c.def_index) === defIndex)) return "Agent";
-    if (collectibles.some((c) => Number(c.def_index) === defIndex)) return "Collectible";
-    if (tools.some((c) => Number(c.def_index) === defIndex)) return "Tool";
-    return "Weapon";
+    return categoryByDef.get(defIndex) ?? "Weapon";
   }
 
   return {

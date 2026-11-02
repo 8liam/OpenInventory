@@ -110,6 +110,19 @@ export function openDatabase(dataDir: string): Database {
   const putSync = db.prepare(
     "INSERT INTO history_sync (steam_id, state_json) VALUES (?, ?) ON CONFLICT(steam_id) DO UPDATE SET state_json = excluded.state_json",
   );
+  let historyVersion = 0;
+  /** Runs `work` atomically: committed on return, rolled back if it throws. */
+  const transaction = <T>(work: () => T): T => {
+    db.exec("BEGIN");
+    try {
+      const result = work();
+      db.exec("COMMIT");
+      return result;
+    } catch (error) {
+      db.exec("ROLLBACK");
+      throw error;
+    }
+  };
   const pruneSnapshots = db.prepare("DELETE FROM value_snapshots WHERE taken_at < ?");
 
   return {
@@ -173,13 +186,23 @@ export function openDatabase(dataDir: string): Database {
       }));
     },
     saveHistoryEvents(steamId, events) {
-      let added = 0;
-      for (const event of events) {
-        const result = insertEvent.run(steamId, event.id, event.occurredAt, JSON.stringify(event));
-        added += Number(result.changes);
-      }
+      const added = transaction(() => {
+        let count = 0;
+        for (const event of events) {
+          const result = insertEvent.run(
+            steamId,
+            event.id,
+            event.occurredAt,
+            JSON.stringify(event),
+          );
+          count += Number(result.changes);
+        }
+        return count;
+      });
+      if (added > 0) historyVersion += 1;
       return added;
     },
+    historyVersion: () => historyVersion,
     hasHistoryEvent(steamId, eventId) {
       return hasEvent.get(steamId, eventId) !== undefined;
     },
