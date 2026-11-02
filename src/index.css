@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@source not "../site";
+@source not "../server";
+@source not "../docs";
+@source not "../scripts";
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
@@ -16,7 +20,8 @@
   --muted-foreground: #71717a;
   --border: #e4e4e7;
   --input: #d4d4d8;
-  --accent: #f4f4f5;
+  --accent: #a0ff69;
+  --accent-foreground: #0a0a0a;
   --primary: oklch(48.8% 0.217 264);
   --primary-foreground: #ffffff;
   --success: #059669;
@@ -30,12 +35,13 @@
   color-scheme: dark;
   --background: #0a0a0a;
   --foreground: #f5f5f5;
-  --card: color-mix(in srgb, #0a0a0a 97%, white);
+  --card: #111111;
   --muted: rgb(255 255 255 / 0.03);
   --muted-foreground: #818181;
   --border: rgb(255 255 255 / 0.06);
   --input: rgb(255 255 255 / 0.08);
-  --accent: rgb(255 255 255 / 0.04);
+  --accent: #a0ff69;
+  --accent-foreground: #0a0a0a;
   --primary: oklch(57.1% 0.21 264);
   --primary-foreground: #ffffff;
   --success: #10b981;
@@ -56,6 +62,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-success: var(--success);
@@ -87,6 +94,10 @@ body {
   * {
     border-color: var(--border);
   }
+}
+
+input[type="checkbox"] {
+  accent-color: var(--accent);
 }
 
 :focus-visible {
@@ -148,6 +159,23 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .skeleton-ring {
+    animation: none;
+  }
+}
+
+/* Centre readout of the donut chart fades in when a new slice is hovered. */
+@keyframes donut-readout-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.donut-readout {
+  animation: donut-readout-in both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .donut-readout {
     animation: none;
   }
 }

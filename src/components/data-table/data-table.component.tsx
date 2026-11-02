@@ -35,9 +35,11 @@ export function DataTable<Row>({
   ]
     .filter(Boolean)
     .join(" ");
-  const selectedCount = selection
-    ? rows.reduce((n, row) => n + (selection.selected.has(getRowKey(row)) ? 1 : 0), 0)
-    : 0;
+  const selected = selection?.selected;
+  const selectedCount = useMemo(
+    () => (selected ? rows.reduce((n, row) => n + (selected.has(getRowKey(row)) ? 1 : 0), 0) : 0),
+    [rows, getRowKey, selected],
+  );
   const allSelected = rows.length > 0 && selectedCount === rows.length;
 
   useEffect(() => {
@@ -135,8 +137,8 @@ export function DataTable<Row>({
                   }
                   className={cn(
                     "absolute inset-x-0 grid items-center border-b px-4",
-                    clickable && "cursor-pointer hover:bg-accent",
-                    checked && "bg-accent",
+                    clickable && "cursor-pointer hover:bg-muted",
+                    checked && "bg-muted",
                   )}
                   style={{
                     height: virtualRow.size,

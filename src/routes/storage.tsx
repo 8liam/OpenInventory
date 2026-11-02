@@ -62,7 +62,10 @@ function StoragePage() {
           disabled={snapshot.loadingUnits}
           onClick={() => void callStorageApi(`${STORAGE_API.refresh}?${priceQuery}`)}
         >
-          <RefreshCw size={12} className={snapshot.loadingUnits ? "animate-spin" : undefined} />
+          <RefreshCw
+            size={12}
+            className={snapshot.loadingUnits ? "motion-safe:animate-spin" : undefined}
+          />
           {snapshot.loadingUnits ? copy.loadingUnits : copy.refreshUnits}
         </Button>
       </PageHeader>

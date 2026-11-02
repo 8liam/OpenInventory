@@ -24,8 +24,8 @@ export function UnitCard({
   return (
     <div
       className={cn(
-        "relative w-60 shrink-0 rounded-lg border bg-card p-3.5 text-left transition-colors hover:bg-accent md:w-full",
-        selected && "border-primary/60 bg-accent",
+        "relative w-60 shrink-0 rounded-lg border bg-card p-3.5 text-left transition-colors hover:bg-muted md:w-full",
+        selected && "border-primary/60 bg-muted",
       )}
     >
       {/* The select target covers the card; the rename control sits above it. */}
