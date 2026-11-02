@@ -3,6 +3,7 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { ItemTable } from "~/components/item-table/item-table.component";
 import { ItemTableSkeleton } from "~/components/item-table/item-table.skeleton";
 import { LoadingRegion } from "~/components/loading-region/loading-region.component";
+import { Reveal } from "~/components/reveal/reveal.component";
 import { TransferBar } from "~/components/transfer-bar/transfer-bar.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { Select } from "~/components/select/select.component";
@@ -111,14 +112,16 @@ function ItemsPage() {
           {COPY.common.errorPrefix} {data.message}
         </p>
       )}
-      {selectedItems.length > 0 && (
-        <TransferBar
-          selected={selectedItems}
-          units={snapshot.units}
-          busy={snapshot.transfer.status === "running"}
-          onClear={() => setSelected(new Set())}
-        />
-      )}
+      <Reveal open={selectedItems.length > 0}>
+        {selectedItems.length > 0 && (
+          <TransferBar
+            selected={selectedItems}
+            units={snapshot.units}
+            busy={snapshot.transfer.status === "running"}
+            onClear={() => setSelected(new Set())}
+          />
+        )}
+      </Reveal>
       {rows && data.status === "ready" && (
         <ItemTable
           items={rows}
