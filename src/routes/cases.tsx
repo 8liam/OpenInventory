@@ -16,7 +16,7 @@ import { CASES_PAGE, DEFAULT_OPENING_KIND } from "~/lib/cases/cases.config";
 import type { CasesResponse, OpeningKind } from "~/lib/cases/cases.types";
 import { cn } from "~/utils/cn";
 import { COPY } from "~/lib/copy/copy.config";
-import { callStorageApi, useRemoteData } from "~/lib/storage/storage.client";
+import { callStorageApi, usePageVisible, useRemoteData } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 
 export const Route = createFileRoute("/cases")({ component: CasesPage });
@@ -27,13 +27,14 @@ function CasesPage() {
   const [kind, setKind] = useState<OpeningKind>(DEFAULT_OPENING_KIND);
   const data = useRemoteData<CasesResponse>(`${STORAGE_API.cases}?kind=${kind}`, tick);
   const running = data.status === "ready" && data.data.sync.state === "running";
+  const visible = usePageVisible();
 
   // The server reads history in the background; poll for progress while it runs.
   useEffect(() => {
-    if (!running) return;
+    if (!running || !visible) return;
     const timer = setInterval(() => setTick((t) => t + 1), CASES_PAGE.pollMs);
     return () => clearInterval(timer);
-  }, [running]);
+  }, [running, visible]);
 
   async function sync() {
     await callStorageApi(STORAGE_API.casesSync);

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import type { ComponentType } from "react";
 import { AuthGate } from "~/components/auth-gate/auth-gate.component";
+import { InventoryPrefetch } from "~/components/inventory-prefetch/inventory-prefetch.component";
 import { Logo } from "~/components/logo/logo.component";
 import { SyncError } from "~/components/sync-error/sync-error.component";
 import { TransferStatus } from "~/components/transfer-status/transfer-status.component";
@@ -60,6 +61,7 @@ function AccountChip({ className }: { readonly className?: string }) {
 export function AppShell() {
   return (
     <AuthGate>
+      <InventoryPrefetch />
       <div className="flex h-dvh flex-col md:flex-row">
         <aside className="hidden w-56 shrink-0 flex-col border-r md:flex">
           <div className="px-4 py-4">

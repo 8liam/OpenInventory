@@ -19,6 +19,16 @@ export const STORAGE_API = {
   terminalNextOffer: "/api/terminals/next-offer",
 } as const;
 
+export const REMOTE_DATA = {
+  /** Wait this long after a revision-only change before refetching, so bursts of pushes collapse into one request. */
+  revisionDebounceMs: 600,
+  /** Most responses kept for instant re-display; the oldest is evicted first. */
+  cacheMaxEntries: 16,
+  /** Query paths whose URLs are unbounded (one per selection), so their responses are never cached. */
+  uncachedPathPrefixes: ["/api/tradeup/odds"],
+  visibleState: "visible",
+} as const;
+
 export const AUTH_STATUS = {
   signedOut: "signed-out",
   qrPending: "qr-pending",
