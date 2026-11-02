@@ -112,7 +112,7 @@ export function TransferBar({ selected, units, busy, onClear }: TransferBarProps
             </div>
             <Button
               variant="primary"
-              className="w-full sm:w-auto"
+              className="w-full bg-accent text-accent-foreground sm:w-auto"
               disabled={blocker !== undefined || !validDestination}
               onClick={() => setConfirming(true)}
             >

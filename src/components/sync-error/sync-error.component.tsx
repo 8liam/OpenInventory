@@ -32,7 +32,10 @@ export function SyncError() {
     >
       <p className="min-w-0 text-destructive">{syncError}</p>
       <Button small disabled={busy} onClick={() => void retry()}>
-        <RefreshCw size={SYNC_ERROR.iconSize} className={busy ? "animate-spin" : undefined} />
+        <RefreshCw
+          size={SYNC_ERROR.iconSize}
+          className={busy ? "motion-safe:animate-spin" : undefined}
+        />
         {busy ? SYNC_ERROR.retrying : SYNC_ERROR.retry}
       </Button>
     </div>

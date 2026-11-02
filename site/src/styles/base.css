@@ -216,15 +216,7 @@ html.lenis body {
 }
 .ghl__stars svg {
   color: var(--c-accent);
-  transition:
-    rotate 0.5s var(--ease-out),
-    scale 0.5s var(--ease-out),
-    color 0.3s var(--ease-out);
-}
-.ghl:hover .ghl__stars svg,
-.ghl:focus-visible .ghl__stars svg {
-  rotate: 72deg;
-  scale: 1.2;
+  transition: color 0.3s var(--ease-out);
 }
 .btn--solid .ghl__stars,
 .ghl.btn--solid:hover .ghl__stars {

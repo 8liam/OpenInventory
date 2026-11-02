@@ -29,7 +29,7 @@ export function SyncBanner({ sync, onSync }: SyncBannerProps) {
         {!sync.complete && sync.lastSyncAt !== null && !running && <p>{copy.partial}</p>}
       </div>
       <Button small disabled={running} onClick={onSync}>
-        <RefreshCw size={12} className={running ? "animate-spin" : undefined} />
+        <RefreshCw size={12} className={running ? "motion-safe:animate-spin" : undefined} />
         {running ? copy.syncing : copy.sync}
       </Button>
     </div>

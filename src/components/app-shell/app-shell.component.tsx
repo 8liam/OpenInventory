@@ -49,7 +49,7 @@ function AccountChip({ className }: { readonly className?: string }) {
         title={COPY.account.signOut}
         aria-label={COPY.account.signOut}
         onClick={() => void callStorageApi(STORAGE_API.logout)}
-        className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
+        className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
       >
         <LogOut size={14} />
       </button>
@@ -65,7 +65,7 @@ export function AppShell() {
           <div className="px-4 py-4">
             <Logo />
           </div>
-          <nav className="flex flex-1 flex-col gap-0.5 px-2">
+          <nav className="flex flex-1 flex-col gap-2 px-2">
             {NAV_ITEMS.map(({ to, key, icon }) => {
               const Icon = ICONS[icon];
               return (
@@ -74,8 +74,7 @@ export function AppShell() {
                   to={to}
                   preload="intent"
                   activeOptions={{ exact: to === "/" }}
-                  className="flex h-8 items-center gap-2.5 rounded-md px-2.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                  activeProps={{ className: "bg-accent text-foreground" }}
+                  className="flex h-8 items-center gap-2.5 rounded-md px-2.5 text-muted-foreground transition-none data-[status=active]:transition-colors data-[status=active]:duration-200 data-[status=active]:ease-out not-data-[status=active]:hover:bg-muted not-data-[status=active]:hover:text-foreground data-[status=active]:bg-accent data-[status=active]:text-accent-foreground"
                 >
                   <Icon size={15} strokeWidth={1.75} />
                   {COPY.nav[key]}
