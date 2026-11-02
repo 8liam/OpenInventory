@@ -5,5 +5,7 @@ export const DONUT_CHART = {
   /** Visual gap between segments, in circumference units out of 100. */
   gap: 0.8,
   dimmedOpacity: 0.35,
+  /** Cross-fade time for the centre readout when the hovered slice changes. */
+  fadeMs: 150,
   fallbackColor: "var(--muted-foreground)",
 } as const;

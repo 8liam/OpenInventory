@@ -7,12 +7,15 @@ import type { DonutChartProps } from "./donut-chart.types";
 export function DonutChart({ slices, currency, totalLabel, formatValue }: DonutChartProps) {
   const format = formatValue ?? ((value: number) => formatMoney(value, currency));
   const [hover, setHover] = useState<string>();
+  // Last hovered slice stays rendered so its readout can fade out after the pointer leaves.
+  const [lastHover, setLastHover] = useState<string>();
   const total = slices.reduce((sum, s) => sum + s.value, 0);
   if (total <= 0) return null;
 
-  const { size, radius, strokeWidth, gap, dimmedOpacity } = DONUT_CHART;
+  const { size, radius, strokeWidth, gap, dimmedOpacity, fadeMs } = DONUT_CHART;
   const circumference = 2 * Math.PI * radius;
   const active = slices.find((s) => s.label === hover);
+  const shown = slices.find((s) => s.label === lastHover);
   const segments = slices.map((slice, index) => ({
     slice,
     share: (slice.value / total) * 100,
@@ -34,7 +37,10 @@ export function DonutChart({ slices, currency, totalLabel, formatValue }: DonutC
                 strokeDasharray={`${(dash / 100) * circumference} ${circumference}`}
                 strokeDashoffset={-(start / 100) * circumference}
                 opacity={hover && hover !== slice.label ? dimmedOpacity : 1}
-                onPointerEnter={() => setHover(slice.label)}
+                onPointerEnter={() => {
+                  setHover(slice.label);
+                  setLastHover(slice.label);
+                }}
                 onPointerLeave={() => setHover(undefined)}
                 className="transition-opacity"
               />
@@ -42,19 +48,30 @@ export function DonutChart({ slices, currency, totalLabel, formatValue }: DonutC
           })}
         </g>
       </svg>
-      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-8 text-center">
-        <span className="max-w-full truncate text-xs text-muted-foreground">
-          {active ? active.label : totalLabel}
-        </span>
-        <span className="tabular text-base font-semibold">
-          {format(active ? active.value : total)}
-        </span>
-        {active && (
-          <span className="tabular text-xs text-muted-foreground">
-            {formatPercentPlain(active.value / total)}
-          </span>
-        )}
+      <div
+        className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-8 text-center transition-opacity"
+        style={{ opacity: active ? 0 : 1, transitionDuration: `${fadeMs}ms` }}
+      >
+        <span className="max-w-full truncate text-xs text-muted-foreground">{totalLabel}</span>
+        <span className="tabular text-base font-semibold">{format(total)}</span>
       </div>
+      {shown && (
+        <div
+          key={shown.label}
+          className="donut-readout pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-8 text-center transition-opacity"
+          style={{
+            opacity: active ? 1 : 0,
+            transitionDuration: `${fadeMs}ms`,
+            animationDuration: `${fadeMs}ms`,
+          }}
+        >
+          <span className="max-w-full truncate text-xs text-muted-foreground">{shown.label}</span>
+          <span className="tabular text-base font-semibold">{format(shown.value)}</span>
+          <span className="tabular text-xs text-muted-foreground">
+            {formatPercentPlain(shown.value / total)}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
