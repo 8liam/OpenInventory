@@ -1,5 +1,11 @@
 import { app, BrowserWindow, dialog, shell } from "electron";
-import { APP_NAME, UPDATER_STRINGS, WINDOW } from "./electron.config.ts";
+import {
+  APP_NAME,
+  DESKTOP_UA_TOKEN,
+  MAC_WINDOW,
+  UPDATER_STRINGS,
+  WINDOW,
+} from "./electron.config.ts";
 import type { RunningServer } from "./electron.types.ts";
 import { startServer } from "./server-process.ts";
 import { initAutoUpdate } from "./updater.ts";
@@ -8,7 +14,16 @@ let server: RunningServer | undefined;
 let mainWindow: BrowserWindow | undefined;
 
 function openWindow(url: string): void {
-  const window = new BrowserWindow({ ...WINDOW, title: APP_NAME, autoHideMenuBar: true });
+  const isMac = process.platform === "darwin";
+  const window = new BrowserWindow({
+    ...WINDOW,
+    ...(isMac ? MAC_WINDOW : {}),
+    title: APP_NAME,
+    autoHideMenuBar: true,
+  });
+  if (isMac) {
+    window.webContents.setUserAgent(`${window.webContents.getUserAgent()} ${DESKTOP_UA_TOKEN}/mac`);
+  }
   mainWindow = window;
   window.on("closed", () => {
     mainWindow = undefined;

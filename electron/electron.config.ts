@@ -10,6 +10,15 @@ export const WINDOW = {
   backgroundColor: "#0b0b0f",
 } as const;
 
+/** macOS: content runs under the title bar; traffic lights float over the sidebar. */
+export const MAC_WINDOW = {
+  titleBarStyle: "hiddenInset",
+  trafficLightPosition: { x: 16, y: 14 },
+} as const;
+
+/** Appended to the user agent so the web app can adapt its chrome (see index.html). */
+export const DESKTOP_UA_TOKEN = "OpenInventoryDesktop";
+
 export const SERVER_PROCESS = {
   /** Paths relative to the app root; the package is unpacked (no asar) so these are plain files. */
   entry: ["electron-dist", "server.mjs"],
