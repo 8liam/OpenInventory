@@ -62,9 +62,13 @@ export function AppShell() {
   return (
     <AuthGate>
       <InventoryPrefetch />
+      <div
+        aria-hidden
+        className="fixed inset-x-0 top-0 z-50 hidden h-6 [-webkit-app-region:drag] desktop-mac:block"
+      />
       <div className="flex h-dvh flex-col md:flex-row">
         <aside className="hidden w-56 shrink-0 flex-col border-r md:flex">
-          <div className="px-4 py-4">
+          <div className="px-4 py-4 desktop-mac:pt-12">
             <Logo />
           </div>
           <nav className="flex flex-1 flex-col gap-2 px-2">

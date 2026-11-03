@@ -5,6 +5,7 @@
 @source not "../scripts";
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+@custom-variant desktop-mac (&:where([data-desktop="mac"] *));
 
 /*
  * Design tokens. Values follow T3 Code's neutral palette: near-black canvas,
