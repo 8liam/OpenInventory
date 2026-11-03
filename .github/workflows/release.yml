@@ -1,11 +1,9 @@
 name: Release
 
-# Every merge to main publishes a new version; develop is where changes are staged.
+# Releases are cut by hand: push a tag like v1.2.3 to publish that version.
 on:
   push:
-    branches: [main]
-    # Landing-site-only pushes ship through Vercel, not a desktop release.
-    paths-ignore: ["site/**"]
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
 
 permissions:
   contents: write
@@ -20,19 +18,14 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
       - id: version
-        run: echo "version=$(node scripts/next-version.ts)" >> "$GITHUB_OUTPUT"
-      # Draft until every platform has uploaded; the tag is only created on publish.
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+      # Draft until every platform has uploaded, so a failed build never leaves a public release.
       - name: Create draft release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release create "v${{ steps.version.outputs.version }}" --draft --generate-notes --target "$GITHUB_SHA" --title "v${{ steps.version.outputs.version }}"
+          GH_REPO: ${{ github.repository }}
+        run: gh release create "v${{ steps.version.outputs.version }}" --draft --generate-notes --verify-tag --title "v${{ steps.version.outputs.version }}"
 
   build:
     needs: prepare
