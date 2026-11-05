@@ -32,6 +32,7 @@ import {
 import type { Marketplace } from "../src/lib/settings/settings.types.ts";
 import { getPriceBook } from "./prices/prices.ts";
 import {
+  EXIT_CODE,
   MIME_TYPES,
   readSettings,
   SECURITY_HEADERS,
@@ -297,8 +298,12 @@ async function writeSnapshot(
   });
 }
 
+/** Open SSE responses; they never go idle, so shutdown ends them explicitly. */
+const eventStreams = new Set<ServerResponse>();
+
 function handleEvents(req: IncomingMessage, res: ServerResponse): void {
   res.writeHead(HTTP.ok, SSE_HEADERS);
+  eventStreams.add(res);
   const send = (snapshot: unknown) => {
     if (!res.destroyed) res.write(`data: ${JSON.stringify(snapshot)}\n\n`);
   };
@@ -310,6 +315,7 @@ function handleEvents(req: IncomingMessage, res: ServerResponse): void {
   req.on("close", () => {
     clearInterval(keepAlive);
     unsubscribe();
+    eventStreams.delete(res);
   });
 }
 
@@ -584,18 +590,25 @@ server.listen(settings.port, settings.host, () => {
 
 let shuttingDown = false;
 
-/** Stops timers, lets in-flight responses finish, then forces stragglers closed. */
+/**
+ * Stops timers, ends SSE streams, lets in-flight responses finish, then forces
+ * stragglers closed after the grace period. A second signal exits immediately.
+ */
 function shutdown(): void {
-  if (shuttingDown) return;
+  if (shuttingDown) {
+    console.warn("[openinventory] second signal, forcing exit");
+    process.exit(EXIT_CODE.forced);
+  }
   shuttingDown = true;
   clearTimeout(snapshotTimers.initial);
   clearInterval(snapshotTimers.interval);
+  for (const stream of eventStreams) stream.end();
   const force = setTimeout(() => server.closeAllConnections(), SERVER_LIMITS.shutdownGraceMs);
   force.unref();
   server.close(() => {
     clearTimeout(force);
     db.close();
-    process.exit(0);
+    process.exit(EXIT_CODE.clean);
   });
   server.closeIdleConnections();
 }

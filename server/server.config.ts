@@ -78,6 +78,9 @@ export const MIME_TYPES: Readonly<Record<string, string>> = {
   ".woff2": "font/woff2",
 };
 
+/** Process exit codes: a drained shutdown versus one forced by a repeated signal. */
+export const EXIT_CODE = { clean: 0, forced: 1 } as const;
+
 /** Hardening headers set on every response at the top of the request handler. */
 export const SECURITY_HEADERS = {
   "x-content-type-options": "nosniff",
