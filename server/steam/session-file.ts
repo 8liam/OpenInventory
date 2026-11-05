@@ -1,4 +1,4 @@
-import { chmodSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 export type SavedSession = {
@@ -10,6 +10,7 @@ export type SavedSession = {
 };
 
 const FILE_NAME = "session.json";
+const TEMP_SUFFIX = ".tmp";
 const FILE_MODE = 0o600;
 const DIR_MODE = 0o700;
 
@@ -26,6 +27,7 @@ function isSavedSession(value: unknown): value is SavedSession {
 /** Owner-read/write only; the refresh token grants access to the Steam account. */
 export function createSessionFile(dataDir: string) {
   const file = join(dataDir, FILE_NAME);
+  const temp = file + TEMP_SUFFIX;
   return {
     load(): SavedSession | undefined {
       try {
@@ -37,11 +39,15 @@ export function createSessionFile(dataDir: string) {
     },
     save(session: SavedSession): void {
       mkdirSync(dataDir, { recursive: true, mode: DIR_MODE });
-      writeFileSync(file, JSON.stringify(session), { mode: FILE_MODE });
-      chmodSync(file, FILE_MODE);
+      // Write, flush, then rename, so neither a crash nor a power cut can truncate the only copy of the token.
+      writeFileSync(temp, JSON.stringify(session), { mode: FILE_MODE, flush: true });
+      chmodSync(temp, FILE_MODE);
+      renameSync(temp, file);
     },
     clear(): void {
       rmSync(file, { force: true });
+      // A crash between write and rename leaves the token in the temp file; sign-out must remove it too.
+      rmSync(temp, { force: true });
     },
   };
 }
