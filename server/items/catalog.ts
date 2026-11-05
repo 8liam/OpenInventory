@@ -37,10 +37,21 @@ const TERMINAL = { marker: "Terminal", sealed: "Sealed ", active: "Active " } as
 const VANILLA_SKIN = "Vanilla";
 const STARRED_CATEGORIES: readonly string[] = ["Knives", "Gloves"];
 
+/** A corrupt cache row is treated as absent rather than allowed to crash startup. */
+function parseCached<T>(name: string, raw: string | undefined): T[] | undefined {
+  if (!raw) return undefined;
+  try {
+    return JSON.parse(raw) as T[];
+  } catch (error) {
+    console.warn(`[catalog] ${name} cache is corrupt:`, error);
+    return undefined;
+  }
+}
+
 async function loadFile<T>(db: Database, name: string): Promise<T[]> {
   const key = `${ITEM_DATA.cachePrefix}${name}`;
-  const fresh = db.getCache(key, ITEM_DATA.cacheTtlMs);
-  if (fresh) return JSON.parse(fresh) as T[];
+  const fresh = parseCached<T>(name, db.getCache(key, ITEM_DATA.cacheTtlMs));
+  if (fresh) return fresh;
   try {
     const response = await fetch(`${ITEM_DATA.baseUrl}/${name}.json`, {
       signal: AbortSignal.timeout(ITEM_DATA.fetchTimeoutMs),
@@ -52,7 +63,7 @@ async function loadFile<T>(db: Database, name: string): Promise<T[]> {
   } catch (error) {
     console.warn(`[catalog] ${name} unavailable:`, error);
     const stale = db.getCacheStale(key); // stale data beats none
-    return stale ? (JSON.parse(stale) as T[]) : [];
+    return parseCached<T>(name, stale) ?? [];
   }
 }
 
