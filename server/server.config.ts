@@ -4,6 +4,9 @@ import { join } from "node:path";
 const DEFAULT_PORT = 4174;
 const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_DATA_DIR = join(homedir(), ".openinventory");
+const ALLOWED_HOSTS_SEPARATOR = ",";
+/** A `:port` written on an allowed-host entry; the guard compares hostnames only. */
+const PORT_SUFFIX = /:\d+$/;
 
 /** Everything configurable through the environment, in one place. */
 export const ENV = {
@@ -12,6 +15,7 @@ export const ENV = {
   dataDir: "OPENINVENTORY_DATA_DIR",
   password: "OPENINVENTORY_PASSWORD",
   webDir: "OPENINVENTORY_WEB_DIR",
+  allowedHosts: "OPENINVENTORY_ALLOWED_HOSTS",
 } as const;
 
 export type ServerSettings = {
@@ -22,6 +26,8 @@ export type ServerSettings = {
   readonly password: string | undefined;
   /** Directory of the built web app to serve; undefined in dev (Vite serves it). */
   readonly webDir: string | undefined;
+  /** Extra hostnames accepted without a password; a leading dot matches subdomains. */
+  readonly allowedHosts: readonly string[];
 };
 
 export function readSettings(env: NodeJS.ProcessEnv = process.env): ServerSettings {
@@ -34,6 +40,10 @@ export function readSettings(env: NodeJS.ProcessEnv = process.env): ServerSettin
     dataDir: env[ENV.dataDir] ?? DEFAULT_DATA_DIR,
     password: env[ENV.password] || undefined,
     webDir: env[ENV.webDir] || undefined,
+    allowedHosts: (env[ENV.allowedHosts] ?? "")
+      .split(ALLOWED_HOSTS_SEPARATOR)
+      .map((entry) => entry.trim().toLowerCase().replace(PORT_SUFFIX, ""))
+      .filter(Boolean),
   };
 }
 
@@ -92,6 +102,22 @@ export const MIME_TYPES = {
   ".ico": "image/x-icon",
   ".woff2": "font/woff2",
 } as const satisfies Readonly<Record<string, string>>;
+
+/**
+ * Hostnames always accepted when no password is set. A DNS-rebinding page needs a
+ * name whose public DNS it controls, so names that never resolve through public DNS
+ * are safe: loopback, mDNS (`.local`), RFC 8375 home networks, ICANN's private-use
+ * `.internal` and Tailscale MagicDNS. IP literals and single-label names (`nas`, a
+ * Docker service) are accepted separately. A leading dot matches any subdomain.
+ */
+export const DEFAULT_ALLOWED_HOSTS = [
+  "localhost",
+  ".localhost",
+  ".local",
+  ".home.arpa",
+  ".internal",
+  ".ts.net",
+] as const;
 
 /** Process exit codes: a drained shutdown versus one forced by a repeated signal. */
 export const EXIT_CODE = { clean: 0, forced: 1 } as const;

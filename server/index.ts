@@ -18,6 +18,7 @@ import { DEFAULT_OPENING_KIND, OPENING_KINDS } from "../src/lib/cases/cases.conf
 import type { OpeningKind } from "../src/lib/cases/cases.types.ts";
 import { createCaseStatsCache } from "./cases/case-stats-cache.ts";
 import { encodeBody } from "./compression.ts";
+import { isAllowedHost } from "./host-guard.ts";
 import { createHistorySync } from "./cases/history-sync.ts";
 import { openDatabase } from "./db/db.ts";
 import { buildDashboard, summarizeValue } from "./dashboard.ts";
@@ -33,6 +34,7 @@ import type { Marketplace } from "../src/lib/settings/settings.types.ts";
 import { getPriceBook } from "./prices/prices.ts";
 import {
   DEFAULT_CONTENT_TYPE,
+  ENV,
   EXIT_CODE,
   IMMUTABLE_CACHE,
   JSON_CONTENT_TYPE,
@@ -369,6 +371,12 @@ const server = createServer(async (req, res) => {
   const method = req.method ?? "GET";
   try {
     if (url.pathname === HEALTH_PATH) return void res.writeHead(HTTP.ok).end("ok");
+    // A password already stops rebinding (the attacker's origin has no credentials).
+    if (!settings.password && !isAllowedHost(req.headers.host, settings.allowedHosts)) {
+      return void sendJson(res, HTTP.forbidden, {
+        error: `Host not allowed. Add it to ${ENV.allowedHosts} or set ${ENV.password}.`,
+      } satisfies ApiError);
+    }
     if (!isAuthorized(req)) {
       res.writeHead(HTTP.unauthorized, {
         "www-authenticate": `Basic realm="${SERVER_LIMITS.basicAuthRealm}", charset="UTF-8"`,

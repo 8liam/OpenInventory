@@ -10,6 +10,9 @@ services:
       # Strongly recommended when the port is reachable by anyone but you.
       # The browser will ask for any username and this password.
       OPENINVENTORY_PASSWORD: ${OPENINVENTORY_PASSWORD:-}
+      # Without a password, other names you open it by (see README). IPs, localhost
+      # and single-label, .local, .home.arpa, .internal or .ts.net names always work.
+      OPENINVENTORY_ALLOWED_HOSTS: ${OPENINVENTORY_ALLOWED_HOSTS:-}
     volumes:
       # SQLite cache, value history and the Steam session live here.
       - openinventory-data:/data
