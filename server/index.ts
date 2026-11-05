@@ -516,9 +516,19 @@ const server = createServer(async (req, res) => {
 });
 
 /** Currency/marketplace pairs the dashboard has been viewed in; the background job records history for each. */
+function parseStoredScopes(raw: string | null | undefined): string[] {
+  if (!raw) return [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.every((e) => typeof e === "string") ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 function trackedScopes(): PriceScope[] {
   const raw = db.getCacheStale(TRACKED_SCOPES_KEY);
-  const stored = raw ? (JSON.parse(raw) as string[]) : [];
+  const stored = parseStoredScopes(raw);
   const scopes = new Map<string, PriceScope>();
   for (const entry of [`${DEFAULT_CURRENCY}:${DEFAULT_MARKETPLACE}`, ...stored]) {
     const [currency = DEFAULT_CURRENCY, marketplace] = entry.split(":");
