@@ -27,6 +27,10 @@ export const REMOTE_DATA = {
   /** Query paths whose URLs are unbounded (one per selection), so their responses are never cached. */
   uncachedPathPrefixes: ["/api/tradeup/odds"],
   visibleState: "visible",
+  /** Responses at or above this status are server faults and worth retrying. */
+  serverErrorStatus: 500,
+  /** Wait before each automatic retry of a failed load; no retries once these are used up. */
+  retryDelaysMs: [2_000, 5_000, 15_000, 30_000],
 } as const;
 
 export const AUTH_STATUS = {
