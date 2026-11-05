@@ -31,7 +31,7 @@ import {
 } from "../src/lib/settings/settings.config.ts";
 import type { Marketplace } from "../src/lib/settings/settings.types.ts";
 import { getPriceBook } from "./prices/prices.ts";
-import { readSettings, SERVER_LIMITS } from "./server.config.ts";
+import { readSettings, SERVER_LIMITS, SSE_HEADERS } from "./server.config.ts";
 import { createRealGateway } from "./steam/steam.real.ts";
 import { UserFacingError } from "./steam/steam.types.ts";
 import { computeTradeUp, listTradeUpCandidates, type TradeUpCandidate } from "./tradeup.ts";
@@ -300,15 +300,15 @@ async function writeSnapshot(
 }
 
 function handleEvents(req: IncomingMessage, res: ServerResponse): void {
-  res.writeHead(HTTP.ok, {
-    "content-type": "text/event-stream",
-    "cache-control": "no-cache",
-    connection: "keep-alive",
-  });
-  const send = (snapshot: unknown) => res.write(`data: ${JSON.stringify(snapshot)}\n\n`);
+  res.writeHead(HTTP.ok, SSE_HEADERS);
+  const send = (snapshot: unknown) => {
+    if (!res.destroyed) res.write(`data: ${JSON.stringify(snapshot)}\n\n`);
+  };
   send(gateway.getSnapshot());
   const unsubscribe = gateway.subscribe(send);
-  const keepAlive = setInterval(() => res.write(": keep-alive\n\n"), SSE_KEEP_ALIVE_MS);
+  const keepAlive = setInterval(() => {
+    if (!res.destroyed) res.write(": keep-alive\n\n");
+  }, SSE_KEEP_ALIVE_MS);
   req.on("close", () => {
     clearInterval(keepAlive);
     unsubscribe();

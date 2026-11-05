@@ -37,6 +37,14 @@ export function readSettings(env: NodeJS.ProcessEnv = process.env): ServerSettin
   };
 }
 
+/** Stops nginx-style reverse proxies from buffering the snapshot stream. */
+export const SSE_HEADERS = {
+  "content-type": "text/event-stream",
+  "cache-control": "no-cache",
+  connection: "keep-alive",
+  "x-accel-buffering": "no",
+} as const;
+
 export const SERVER_LIMITS = {
   /** Minimum gap between persisted value snapshots. */
   snapshotIntervalMs: 60 * 60 * 1000,
