@@ -64,6 +64,8 @@ const MIME: Readonly<Record<string, string>> = {
 };
 const IMMUTABLE_CACHE = "public, max-age=31536000, immutable";
 const INDEX_FILE = "index.html";
+const STATIC_NOT_FOUND_BODY = "Not found";
+const TEXT_PLAIN = "text/plain; charset=utf-8";
 const HEALTH_PATH = "/healthz";
 const JSON_CONTENT_TYPE = "application/json";
 const VARY_HEADER = "accept-encoding";
@@ -322,7 +324,16 @@ async function serveStatic(webDir: string, pathname: string, res: ServerResponse
   try {
     if ((await stat(file)).isDirectory()) file = join(file, INDEX_FILE);
   } catch {
-    file = join(webDir, INDEX_FILE); // client-side routes fall back to the SPA shell
+    // A missing file (has an extension) is a real 404; extensionless routes fall back to the SPA shell.
+    if (extname(pathname) !== "") {
+      return await sendBody(
+        res,
+        HTTP.notFound,
+        { "content-type": TEXT_PLAIN, "cache-control": "no-cache" },
+        Buffer.from(STATIC_NOT_FOUND_BODY),
+      );
+    }
+    file = join(webDir, INDEX_FILE);
   }
   const body = await readFile(file);
   const isAsset = file.includes(`${sep}assets${sep}`);
