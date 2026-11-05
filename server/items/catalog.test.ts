@@ -1,7 +1,45 @@
 /* oxlint-disable typescript/no-floating-promises -- node:test registers suites synchronously */
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { test, type TestContext } from "node:test";
+import { ITEM_DATA } from "../../src/lib/storage/storage.config.ts";
 import { buildDefCategoryIndex, loadCatalog } from "./catalog.ts";
+import type { CatalogCache, NamedRecord } from "./catalog.types.ts";
+
+const CORRUPT_ROW = "{not json";
+const STICKER_FILE = "stickers";
+const STICKER_HASH = "Sticker | Fixture";
+const STICKER: NamedRecord = {
+  name: STICKER_HASH,
+  market_hash_name: STICKER_HASH,
+  image: "https://cdn.example.test/fixture.png",
+};
+
+/** A cache that serves `fresh` while within TTL and `stale` once expired, and records writes. */
+function cacheStub(fresh: string | undefined, stale: string | undefined) {
+  const writes = new Map<string, string>();
+  const cache: CatalogCache = {
+    getCache: () => fresh,
+    getCacheStale: () => stale,
+    setCache: (key, value) => void writes.set(key, value),
+  };
+  return { cache, writes };
+}
+
+function silenceWarnings(t: TestContext): void {
+  t.mock.method(console, "warn", () => undefined);
+}
+
+function offline(t: TestContext): void {
+  t.mock.method(globalThis, "fetch", () => Promise.reject(new Error("offline")));
+}
+
+/** Serves the fixture sticker for stickers.json and an empty list for every other file. */
+function online(t: TestContext): void {
+  t.mock.method(globalThis, "fetch", (url: string) => {
+    const body = url.endsWith(`/${STICKER_FILE}.json`) ? [STICKER] : [];
+    return Promise.resolve(Response.json(body));
+  });
+}
 
 test("first source wins on overlapping def indexes and unlisted ones are absent", () => {
   const index = buildDefCategoryIndex([
@@ -16,22 +54,27 @@ test("first source wins on overlapping def indexes and unlisted ones are absent"
   assert.equal(index.has(99), false);
 });
 
-test("corrupt cache rows fall back to an empty catalog instead of throwing", async () => {
-  const corrupt = "{not json";
-  const db = {
-    getCache: () => corrupt,
-    getCacheStale: () => corrupt,
-    setCache: () => undefined,
-  } as never;
-  const originalFetch = globalThis.fetch;
-  const originalWarn = console.warn;
-  globalThis.fetch = () => Promise.reject(new Error("offline"));
-  console.warn = () => undefined;
-  try {
-    const catalog = await loadCatalog(db);
-    assert.equal(catalog.skinImage("anything"), null);
-  } finally {
-    globalThis.fetch = originalFetch;
-    console.warn = originalWarn;
-  }
+test("corrupt cache rows fall back to an empty catalog instead of throwing", async (t) => {
+  silenceWarnings(t);
+  offline(t);
+  const catalog = await loadCatalog(cacheStub(CORRUPT_ROW, CORRUPT_ROW).cache);
+  assert.equal(catalog.skinImage("anything"), null);
+});
+
+test("a corrupt fresh row is refetched and the fetched data is used and cached", async (t) => {
+  silenceWarnings(t);
+  online(t);
+  const { cache, writes } = cacheStub(CORRUPT_ROW, CORRUPT_ROW);
+  const catalog = await loadCatalog(cache);
+  assert.equal(catalog.skinImage(STICKER_HASH), STICKER.image);
+  assert.deepEqual(JSON.parse(writes.get(`${ITEM_DATA.cachePrefix}${STICKER_FILE}`) ?? ""), [
+    STICKER,
+  ]);
+});
+
+test("a corrupt stale row with a failing fetch yields an empty catalog", async (t) => {
+  silenceWarnings(t);
+  offline(t);
+  const catalog = await loadCatalog(cacheStub(undefined, CORRUPT_ROW).cache);
+  assert.equal(catalog.skinImage(STICKER_HASH), null);
 });

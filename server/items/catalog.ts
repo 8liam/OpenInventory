@@ -9,10 +9,10 @@ import {
   WEAR_BANDS,
 } from "../../src/lib/storage/storage.config.ts";
 import type { CharmView, StickerView, TerminalView } from "../../src/lib/items/item.types.ts";
-import type { Database } from "../db/db.types.ts";
 import type { GcItem } from "../steam/steam.types.ts";
 import type {
   Catalog,
+  CatalogCache,
   CollectionRecord,
   CrateRecord,
   DescribedItem,
@@ -48,7 +48,7 @@ function parseCached<T>(name: string, raw: string | undefined): T[] | undefined 
   }
 }
 
-async function loadFile<T>(db: Database, name: string): Promise<T[]> {
+async function loadFile<T>(db: CatalogCache, name: string): Promise<T[]> {
   const key = `${ITEM_DATA.cachePrefix}${name}`;
   const fresh = parseCached<T>(name, db.getCache(key, ITEM_DATA.cacheTtlMs));
   if (fresh) return fresh;
@@ -115,7 +115,7 @@ function hasAttribute(item: GcItem, attributeId: number): boolean {
  * the order paint -> kit -> charm -> music -> def_index, against ByMykel's
  * Steam-CDN-backed data.
  */
-export async function loadCatalog(db: Database): Promise<Catalog> {
+export async function loadCatalog(db: CatalogCache): Promise<Catalog> {
   const [
     skins,
     bases,
