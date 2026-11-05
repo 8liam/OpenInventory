@@ -44,7 +44,10 @@ export function initAutoUpdate(): void {
     if (response === 0) void shell.openExternal(UPDATER.releasesUrl);
   });
 
-  const check = () => void autoUpdater.checkForUpdates().catch(() => undefined);
+  const check = () =>
+    void autoUpdater
+      .checkForUpdates()
+      .catch((error: unknown) => console.warn("[updater] check failed:", error));
   check();
   setInterval(check, UPDATER.checkIntervalMs);
 }
