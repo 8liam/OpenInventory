@@ -1,4 +1,4 @@
-import type { AUTH_STATUS } from "./storage.config";
+import type { AUTH_STATUS } from "./storage.config.ts";
 
 export type AuthState =
   | { readonly status: typeof AUTH_STATUS.signedOut }

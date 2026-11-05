@@ -1,5 +1,9 @@
 import type { ItemBase } from "../../src/lib/items/item.types.ts";
+import type { Database } from "../db/db.types.ts";
 import type { GcItem } from "../steam/steam.types.ts";
+
+/** The slice of the database the catalog reads item data through. */
+export type CatalogCache = Pick<Database, "getCache" | "getCacheStale" | "setCache">;
 
 export type NamedRecord = {
   readonly id?: string;

@@ -1,4 +1,4 @@
-import type { OPENING_KINDS } from "./cases.config";
+import type { OPENING_KINDS } from "./cases.config.ts";
 
 export type OpeningKind = (typeof OPENING_KINDS)[number];
 

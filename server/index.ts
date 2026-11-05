@@ -31,7 +31,21 @@ import {
 } from "../src/lib/settings/settings.config.ts";
 import type { Marketplace } from "../src/lib/settings/settings.types.ts";
 import { getPriceBook } from "./prices/prices.ts";
-import { readSettings, SERVER_LIMITS } from "./server.config.ts";
+import {
+  DEFAULT_CONTENT_TYPE,
+  EXIT_CODE,
+  IMMUTABLE_CACHE,
+  JSON_CONTENT_TYPE,
+  MIME_TYPES,
+  NO_CACHE,
+  readSettings,
+  SECURITY_HEADERS,
+  SERVER_LIMITS,
+  SSE_HEADERS,
+  STATIC_NOT_FOUND_BODY,
+  TEXT_PLAIN,
+} from "./server.config.ts";
+import type { SnapshotTimers } from "./server.types.ts";
 import { createRealGateway } from "./steam/steam.real.ts";
 import { UserFacingError } from "./steam/steam.types.ts";
 import { computeTradeUp, listTradeUpCandidates, type TradeUpCandidate } from "./tradeup.ts";
@@ -52,20 +66,8 @@ const HTTP = {
 } as const;
 const DEFAULT_CURRENCY = "USD";
 const CURRENCY_PATTERN = /^[A-Z]{3}$/;
-const MIME: Readonly<Record<string, string>> = {
-  ".html": "text/html; charset=utf-8",
-  ".js": "text/javascript; charset=utf-8",
-  ".css": "text/css; charset=utf-8",
-  ".svg": "image/svg+xml",
-  ".png": "image/png",
-  ".ico": "image/x-icon",
-  ".json": "application/json",
-  ".woff2": "font/woff2",
-};
-const IMMUTABLE_CACHE = "public, max-age=31536000, immutable";
 const INDEX_FILE = "index.html";
 const HEALTH_PATH = "/healthz";
-const JSON_CONTENT_TYPE = "application/json";
 const VARY_HEADER = "accept-encoding";
 // eslint-disable-next-line no-control-regex -- rejecting control characters is the point
 const CONTROL_CHARACTERS = /[\u0000-\u001f\u007f]/;
@@ -299,20 +301,34 @@ async function writeSnapshot(
   });
 }
 
+/** Open SSE responses; they never go idle, so shutdown ends them explicitly. */
+const eventStreams = new Set<ServerResponse>();
+
 function handleEvents(req: IncomingMessage, res: ServerResponse): void {
-  res.writeHead(HTTP.ok, {
-    "content-type": "text/event-stream",
-    "cache-control": "no-cache",
-    connection: "keep-alive",
-  });
-  const send = (snapshot: unknown) => res.write(`data: ${JSON.stringify(snapshot)}\n\n`);
+  res.writeHead(HTTP.ok, SSE_HEADERS);
+  eventStreams.add(res);
+  const send = (snapshot: unknown) => {
+    if (!res.writableEnded && !res.destroyed) res.write(`data: ${JSON.stringify(snapshot)}\n\n`);
+  };
   send(gateway.getSnapshot());
   const unsubscribe = gateway.subscribe(send);
-  const keepAlive = setInterval(() => res.write(": keep-alive\n\n"), SSE_KEEP_ALIVE_MS);
+  const keepAlive = setInterval(() => {
+    if (!res.writableEnded && !res.destroyed) res.write(": keep-alive\n\n");
+  }, SSE_KEEP_ALIVE_MS);
   req.on("close", () => {
     clearInterval(keepAlive);
     unsubscribe();
+    eventStreams.delete(res);
   });
+}
+
+function hasKnownMimeType(extension: string): extension is keyof typeof MIME_TYPES {
+  return Object.hasOwn(MIME_TYPES, extension);
+}
+
+function contentTypeFor(file: string): string {
+  const extension = extname(file).toLowerCase();
+  return hasKnownMimeType(extension) ? MIME_TYPES[extension] : DEFAULT_CONTENT_TYPE;
 }
 
 async function serveStatic(webDir: string, pathname: string, res: ServerResponse): Promise<void> {
@@ -322,7 +338,16 @@ async function serveStatic(webDir: string, pathname: string, res: ServerResponse
   try {
     if ((await stat(file)).isDirectory()) file = join(file, INDEX_FILE);
   } catch {
-    file = join(webDir, INDEX_FILE); // client-side routes fall back to the SPA shell
+    // A missing file (has an extension) is a real 404; extensionless routes fall back to the SPA shell.
+    if (extname(pathname) !== "") {
+      return await sendBody(
+        res,
+        HTTP.notFound,
+        { "content-type": TEXT_PLAIN, "cache-control": NO_CACHE },
+        Buffer.from(STATIC_NOT_FOUND_BODY),
+      );
+    }
+    file = join(webDir, INDEX_FILE);
   }
   const body = await readFile(file);
   const isAsset = file.includes(`${sep}assets${sep}`);
@@ -330,14 +355,16 @@ async function serveStatic(webDir: string, pathname: string, res: ServerResponse
     res,
     HTTP.ok,
     {
-      "content-type": MIME[extname(file)] ?? "application/octet-stream",
-      "cache-control": isAsset ? IMMUTABLE_CACHE : "no-cache",
+      "content-type": contentTypeFor(file),
+      "cache-control": isAsset ? IMMUTABLE_CACHE : NO_CACHE,
     },
     body,
   );
 }
 
 const server = createServer(async (req, res) => {
+  // Set before any branch so every response (health, auth challenge, SSE, static, errors) carries them.
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) res.setHeader(name, value);
   const url = new URL(req.url ?? "/", `http://${settings.host}`);
   const method = req.method ?? "GET";
   try {
@@ -515,10 +542,25 @@ const server = createServer(async (req, res) => {
   }
 });
 
+/** The stored scope ids, or undefined (after a warning) when the pref is corrupt. */
+function parseStoredScopes(raw: string | undefined): string[] | undefined {
+  if (!raw) return [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.every((e) => typeof e === "string")) return parsed;
+    console.warn("[scopes] stored price scopes are corrupt: expected a string array");
+  } catch (error) {
+    console.warn("[scopes] stored price scopes are corrupt:", error);
+  }
+  return undefined;
+}
+
 /** Currency/marketplace pairs the dashboard has been viewed in; the background job records history for each. */
 function trackedScopes(): PriceScope[] {
-  const raw = db.getCacheStale(TRACKED_SCOPES_KEY);
-  const stored = raw ? (JSON.parse(raw) as string[]) : [];
+  const parsed = parseStoredScopes(db.getCacheStale(TRACKED_SCOPES_KEY));
+  // A corrupt pref is treated as empty and reset, so the warning fires once rather than on every call.
+  if (!parsed) db.setCache(TRACKED_SCOPES_KEY, JSON.stringify([]));
+  const stored = parsed ?? [];
   const scopes = new Map<string, PriceScope>();
   for (const entry of [`${DEFAULT_CURRENCY}:${DEFAULT_MARKETPLACE}`, ...stored]) {
     const [currency = DEFAULT_CURRENCY, marketplace] = entry.split(":");
@@ -541,6 +583,7 @@ function rememberScope(scope: PriceScope): void {
 // Record history even when nobody has the dashboard open. `onReady` fires on every
 // (re)connect, so the timers are only started once.
 let snapshotJobStarted = false;
+const snapshotTimers: SnapshotTimers = {};
 gateway.onReady((steamId) => {
   if (snapshotJobStarted) return;
   snapshotJobStarted = true;
@@ -549,8 +592,8 @@ gateway.onReady((steamId) => {
       void recordSnapshot(steamId, scope).catch((e: unknown) => console.warn("[snapshot]", e));
     }
   };
-  setTimeout(tick, SERVER_LIMITS.snapshotInitialDelayMs);
-  setInterval(tick, SERVER_LIMITS.snapshotIntervalMs);
+  snapshotTimers.initial = setTimeout(tick, SERVER_LIMITS.snapshotInitialDelayMs);
+  snapshotTimers.interval = setInterval(tick, SERVER_LIMITS.snapshotIntervalMs);
 });
 
 server.listen(settings.port, settings.host, () => {
@@ -559,10 +602,29 @@ server.listen(settings.port, settings.host, () => {
   );
 });
 
-for (const signal of ["SIGINT", "SIGTERM"] as const) {
-  process.on(signal, () => {
-    server.close();
+let shuttingDown = false;
+
+/**
+ * Stops timers, ends SSE streams, lets in-flight responses finish, then forces
+ * stragglers closed after the grace period. A second signal exits immediately.
+ */
+function shutdown(): void {
+  if (shuttingDown) {
+    console.warn("[openinventory] second signal, forcing exit");
+    process.exit(EXIT_CODE.forced);
+  }
+  shuttingDown = true;
+  clearTimeout(snapshotTimers.initial);
+  clearInterval(snapshotTimers.interval);
+  for (const stream of eventStreams) stream.end();
+  const force = setTimeout(() => server.closeAllConnections(), SERVER_LIMITS.shutdownGraceMs);
+  force.unref();
+  server.close(() => {
+    clearTimeout(force);
     db.close();
-    process.exit(0);
+    process.exit(EXIT_CODE.clean);
   });
+  server.closeIdleConnections();
 }
+
+for (const signal of ["SIGINT", "SIGTERM"] as const) process.on(signal, shutdown);

@@ -7,12 +7,13 @@ import {
   SOUVENIR_QUALITY,
   STEAM_ECONOMY_IMAGE_MARKER,
   WEAR_BANDS,
+  WORST_WEAR_BAND,
 } from "../../src/lib/storage/storage.config.ts";
 import type { CharmView, StickerView, TerminalView } from "../../src/lib/items/item.types.ts";
-import type { Database } from "../db/db.types.ts";
 import type { GcItem } from "../steam/steam.types.ts";
 import type {
   Catalog,
+  CatalogCache,
   CollectionRecord,
   CrateRecord,
   DescribedItem,
@@ -37,22 +38,38 @@ const TERMINAL = { marker: "Terminal", sealed: "Sealed ", active: "Active " } as
 const VANILLA_SKIN = "Vanilla";
 const STARRED_CATEGORIES: readonly string[] = ["Knives", "Gloves"];
 
-async function loadFile<T>(db: Database, name: string): Promise<T[]> {
+/** A corrupt (unparsable or non-array) cache row is treated as absent rather than allowed to crash startup. */
+function parseCached<T>(name: string, raw: string | undefined): T[] | undefined {
+  if (!raw) return undefined;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed as T[];
+    console.warn(`[catalog] ${name} cache is corrupt: expected an array`);
+  } catch (error) {
+    console.warn(`[catalog] ${name} cache is corrupt:`, error);
+  }
+  return undefined;
+}
+
+async function loadFile<T>(db: CatalogCache, name: string): Promise<T[]> {
   const key = `${ITEM_DATA.cachePrefix}${name}`;
-  const fresh = db.getCache(key, ITEM_DATA.cacheTtlMs);
-  if (fresh) return JSON.parse(fresh) as T[];
+  const fresh = parseCached<T>(name, db.getCache(key, ITEM_DATA.cacheTtlMs));
+  if (fresh) return fresh;
   try {
     const response = await fetch(`${ITEM_DATA.baseUrl}/${name}.json`, {
       signal: AbortSignal.timeout(ITEM_DATA.fetchTimeoutMs),
     });
     if (!response.ok) throw new Error(`${name}.json returned ${response.status}`);
     const text = await response.text();
+    // Validate before caching so a 200 with an HTML/non-array body can't overwrite good stale data.
+    const rows = parseCached<T>(name, text);
+    if (!rows) throw new Error(`${name}.json is not a JSON array`);
     db.setCache(key, text);
-    return JSON.parse(text) as T[];
+    return rows;
   } catch (error) {
     console.warn(`[catalog] ${name} unavailable:`, error);
     const stale = db.getCacheStale(key); // stale data beats none
-    return stale ? (JSON.parse(stale) as T[]) : [];
+    return parseCached<T>(name, stale) ?? [];
   }
 }
 
@@ -62,7 +79,7 @@ export function sizedImage(url: string | undefined | null): string | null {
 }
 
 export function wearNameFor(float: number): string {
-  return (WEAR_BANDS.find((band) => float < band.max) ?? WEAR_BANDS[WEAR_BANDS.length - 1]).name;
+  return (WEAR_BANDS.find((band) => float < band.max) ?? WORST_WEAR_BAND).name;
 }
 
 function byDefIndex<T extends NamedRecord>(records: readonly T[]): Map<number, T> {
@@ -104,7 +121,7 @@ function hasAttribute(item: GcItem, attributeId: number): boolean {
  * the order paint -> kit -> charm -> music -> def_index, against ByMykel's
  * Steam-CDN-backed data.
  */
-export async function loadCatalog(db: Database): Promise<Catalog> {
+export async function loadCatalog(db: CatalogCache): Promise<Catalog> {
   const [
     skins,
     bases,

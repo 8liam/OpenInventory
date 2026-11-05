@@ -44,6 +44,7 @@ export function initAutoUpdate(): void {
     if (response === 0) void shell.openExternal(UPDATER.releasesUrl);
   });
 
+  // A failed check also fires the "error" event above, which already logs it.
   const check = () => void autoUpdater.checkForUpdates().catch(() => undefined);
   check();
   setInterval(check, UPDATER.checkIntervalMs);

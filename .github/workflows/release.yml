@@ -13,7 +13,26 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.14.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec tsc -b
+      - run: pnpm exec vp check
+      - run: pnpm test
+
   prepare:
+    needs: verify
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -65,7 +84,8 @@ jobs:
 
   discard-draft:
     needs: [prepare, build]
-    if: failure()
+    # Only when the draft was actually created; a failed verify/prepare leaves nothing to delete.
+    if: failure() && needs.prepare.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Delete the unfinished draft
