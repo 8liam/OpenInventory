@@ -48,6 +48,10 @@ const SCHEMA = `
     steam_id TEXT PRIMARY KEY,
     state_json TEXT NOT NULL
   );
+  CREATE INDEX IF NOT EXISTS history_events_by_time
+    ON history_events (steam_id, occurred_at DESC, event_id DESC);
+  CREATE INDEX IF NOT EXISTS value_snapshots_by_time
+    ON value_snapshots (taken_at);
 `;
 
 type BufferJson = { readonly type: typeof BUFFER_TAG; readonly data: readonly number[] };
