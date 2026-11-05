@@ -3,7 +3,7 @@ import {
   FORMAT_LOCALE,
   PERCENT_FRACTION_DIGITS,
   RELATIVE_TIME,
-} from "./format.config";
+} from "./format.config.ts";
 
 const formatters = new Map<string, Intl.NumberFormat>();
 
