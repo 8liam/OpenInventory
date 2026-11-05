@@ -84,7 +84,8 @@ jobs:
 
   discard-draft:
     needs: [prepare, build]
-    if: failure()
+    # Only when the draft was actually created; a failed verify/prepare leaves nothing to delete.
+    if: failure() && needs.prepare.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Delete the unfinished draft
