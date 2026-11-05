@@ -46,3 +46,24 @@ export const SERVER_LIMITS = {
   basicAuthRealm: "OpenInventory",
   basicAuthUser: "openinventory",
 } as const;
+
+/** Content types for static files, keyed by lowercase extension; anything else is octet-stream. */
+export const MIME_TYPES: Readonly<Record<string, string>> = {
+  ".html": "text/html; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".mjs": "text/javascript; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".txt": "text/plain; charset=utf-8",
+  ".json": "application/json",
+  ".map": "application/json",
+  ".webmanifest": "application/manifest+json",
+  ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".gif": "image/gif",
+  ".webp": "image/webp",
+  ".avif": "image/avif",
+  ".ico": "image/x-icon",
+  ".woff2": "font/woff2",
+};
