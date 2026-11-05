@@ -31,7 +31,7 @@ import {
 } from "../src/lib/settings/settings.config.ts";
 import type { Marketplace } from "../src/lib/settings/settings.types.ts";
 import { getPriceBook } from "./prices/prices.ts";
-import { readSettings, SERVER_LIMITS } from "./server.config.ts";
+import { MIME_TYPES, readSettings, SERVER_LIMITS } from "./server.config.ts";
 import { createRealGateway } from "./steam/steam.real.ts";
 import { UserFacingError } from "./steam/steam.types.ts";
 import { computeTradeUp, listTradeUpCandidates, type TradeUpCandidate } from "./tradeup.ts";
@@ -52,16 +52,6 @@ const HTTP = {
 } as const;
 const DEFAULT_CURRENCY = "USD";
 const CURRENCY_PATTERN = /^[A-Z]{3}$/;
-const MIME: Readonly<Record<string, string>> = {
-  ".html": "text/html; charset=utf-8",
-  ".js": "text/javascript; charset=utf-8",
-  ".css": "text/css; charset=utf-8",
-  ".svg": "image/svg+xml",
-  ".png": "image/png",
-  ".ico": "image/x-icon",
-  ".json": "application/json",
-  ".woff2": "font/woff2",
-};
 const IMMUTABLE_CACHE = "public, max-age=31536000, immutable";
 const INDEX_FILE = "index.html";
 const STATIC_NOT_FOUND_BODY = "Not found";
@@ -341,7 +331,7 @@ async function serveStatic(webDir: string, pathname: string, res: ServerResponse
     res,
     HTTP.ok,
     {
-      "content-type": MIME[extname(file)] ?? "application/octet-stream",
+      "content-type": MIME_TYPES[extname(file).toLowerCase()] ?? "application/octet-stream",
       "cache-control": isAsset ? IMMUTABLE_CACHE : "no-cache",
     },
     body,
