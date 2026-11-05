@@ -223,6 +223,9 @@ export const WEAR_BANDS = [
   { name: "Battle-Scarred", max: 1.0001 },
 ] as const;
 
+/** The band any float beyond the others falls into; destructured so it stays non-undefined under `noUncheckedIndexedAccess`. */
+export const [, , , , WORST_WEAR_BAND] = WEAR_BANDS;
+
 export const DASHBOARD = {
   dayMs: 86_400_000,
   topHoldingCount: 10,

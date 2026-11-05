@@ -7,6 +7,7 @@ import {
   SOUVENIR_QUALITY,
   STEAM_ECONOMY_IMAGE_MARKER,
   WEAR_BANDS,
+  WORST_WEAR_BAND,
 } from "../../src/lib/storage/storage.config.ts";
 import type { CharmView, StickerView, TerminalView } from "../../src/lib/items/item.types.ts";
 import type { GcItem } from "../steam/steam.types.ts";
@@ -75,7 +76,7 @@ export function sizedImage(url: string | undefined | null): string | null {
 }
 
 export function wearNameFor(float: number): string {
-  return (WEAR_BANDS.find((band) => float < band.max) ?? WEAR_BANDS[WEAR_BANDS.length - 1]).name;
+  return (WEAR_BANDS.find((band) => float < band.max) ?? WORST_WEAR_BAND).name;
 }
 
 function byDefIndex<T extends NamedRecord>(records: readonly T[]): Map<number, T> {
