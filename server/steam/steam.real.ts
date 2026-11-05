@@ -153,8 +153,12 @@ export function createRealGateway(
     return [...read()];
   }
 
-  async function loadUnit(gc: GlobalOffensive, unit: UnitMeta): Promise<void> {
-    if (!gc.haveGCSession || steamId === undefined) return;
+  /** Reads a unit's contents from the GC; undefined when there is no session to read them with. */
+  async function loadUnit(
+    gc: GlobalOffensive,
+    unit: UnitMeta,
+  ): Promise<readonly GcItem[] | undefined> {
+    if (!gc.haveGCSession || steamId === undefined) return undefined;
     if (unit.itemCount > 0) {
       await new Promise<void>((resolve, reject) => {
         gc.getCasketContents(unit.id, (error) => (error ? reject(error) : resolve()));
@@ -164,6 +168,7 @@ export function createRealGateway(
     unitContents.set(unit.id, items);
     db.saveUnit(steamId, unit.id, unit.itemCount, items);
     store.markLoaded(unit.id);
+    return items;
   }
 
   async function loadUnits(gc: GlobalOffensive, force: boolean): Promise<void> {
@@ -615,7 +620,10 @@ export function createRealGateway(
   ): Promise<void> {
     const meta = store.units().find((unit) => unit.id === unitId);
     if (!meta) return;
-    await loadUnit(gc, { ...meta, itemCount: expected });
+    store.setUnitCount(unitId, expected);
+    const items = await loadUnit(gc, { ...meta, itemCount: expected });
+    // A skipped reload leaves the pre-move contents cached, so only a real read may replace the count.
+    if (items) store.setUnitCount(unitId, items.length);
   }
 
   function transferItems(request: TransferRequest): void {
