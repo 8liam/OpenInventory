@@ -61,8 +61,11 @@ async function loadFile<T>(db: CatalogCache, name: string): Promise<T[]> {
     });
     if (!response.ok) throw new Error(`${name}.json returned ${response.status}`);
     const text = await response.text();
+    // Validate before caching so a 200 with an HTML/non-array body can't overwrite good stale data.
+    const rows = parseCached<T>(name, text);
+    if (!rows) throw new Error(`${name}.json is not a JSON array`);
     db.setCache(key, text);
-    return JSON.parse(text) as T[];
+    return rows;
   } catch (error) {
     console.warn(`[catalog] ${name} unavailable:`, error);
     const stale = db.getCacheStale(key); // stale data beats none

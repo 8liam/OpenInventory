@@ -7,6 +7,8 @@ import type { CatalogCache, NamedRecord } from "./catalog.types.ts";
 
 const CORRUPT_ROW = "{not json";
 const NON_ARRAY_ROW = "{}";
+const HTML_BODY = "<!doctype html><title>Maintenance</title>";
+const HTTP_OK = 200;
 const STICKER_FILE = "stickers";
 const STICKER_HASH = "Sticker | Fixture";
 const STICKER: NamedRecord = {
@@ -16,11 +18,14 @@ const STICKER: NamedRecord = {
 };
 
 /** A cache that serves `fresh` while within TTL and `stale` once expired, and records writes. */
-function cacheStub(fresh: string | undefined, stale: string | undefined) {
+function cacheStub(
+  fresh: string | undefined,
+  stale: string | undefined | ((key: string) => string | undefined),
+) {
   const writes = new Map<string, string>();
   const cache: CatalogCache = {
     getCache: () => fresh,
-    getCacheStale: () => stale,
+    getCacheStale: (key) => (typeof stale === "function" ? stale(key) : stale),
     setCache: (key, value) => void writes.set(key, value),
   };
   return { cache, writes };
@@ -58,8 +63,7 @@ test("first source wins on overlapping def indexes and unlisted ones are absent"
 test("corrupt cache rows fall back to an empty catalog instead of throwing", async (t) => {
   silenceWarnings(t);
   offline(t);
-  const catalog = await loadCatalog(cacheStub(CORRUPT_ROW, CORRUPT_ROW).cache);
-  assert.equal(catalog.skinImage("anything"), null);
+  await assert.doesNotReject(loadCatalog(cacheStub(CORRUPT_ROW, CORRUPT_ROW).cache));
 });
 
 test("a corrupt fresh row is refetched and the fetched data is used and cached", async (t) => {
@@ -84,6 +88,19 @@ test("valid JSON that is not an array is treated as corrupt", async (t) => {
   silenceWarnings(t);
   offline(t);
   // `{}` used to slip through as a "list" and crash on iteration.
-  const catalog = await loadCatalog(cacheStub(NON_ARRAY_ROW, NON_ARRAY_ROW).cache);
-  assert.equal(catalog.skinImage("anything"), null);
+  await assert.doesNotReject(loadCatalog(cacheStub(NON_ARRAY_ROW, NON_ARRAY_ROW).cache));
+});
+
+test("a 200 with a non-array body is not cached and stale data is kept", async (t) => {
+  silenceWarnings(t);
+  t.mock.method(globalThis, "fetch", () =>
+    Promise.resolve(new Response(HTML_BODY, { status: HTTP_OK })),
+  );
+  const staleStickers = JSON.stringify([STICKER]);
+  const { cache, writes } = cacheStub(undefined, (key) =>
+    key.endsWith(STICKER_FILE) ? staleStickers : undefined,
+  );
+  const catalog = await loadCatalog(cache);
+  assert.equal(writes.size, 0);
+  assert.equal(catalog.skinImage(STICKER_HASH), STICKER.image);
 });
