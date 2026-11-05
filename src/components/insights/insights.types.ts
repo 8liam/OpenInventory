@@ -9,6 +9,7 @@ export type InsightRow = {
   readonly imageUrl: string | null;
   readonly rarityColor: string | null;
   readonly value: string;
+  readonly query: string;
 };
 
 export type InsightSectionProps = { readonly title: string; readonly rows: readonly InsightRow[] };

@@ -1,1 +1,1 @@
-export const HOLDINGS_TABLE = { thumbSize: 40 } as const;
+export const HOLDINGS_TABLE = { thumbSize: 40, findItem: "Find in Items" } as const;

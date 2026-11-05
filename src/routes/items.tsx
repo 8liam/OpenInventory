@@ -10,29 +10,42 @@ import { PageHeader } from "~/components/page-header/page-header.component";
 import { Select } from "~/components/select/select.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
+import { matchesItem } from "~/lib/items/item-search";
 import type { InventoryResponse } from "~/lib/items/item.types";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { usePriceQuery } from "~/lib/settings/settings.store";
 import { formatInteger } from "~/utils/format";
 
-export const Route = createFileRoute("/items")({ component: ItemsPage });
+export const Route = createFileRoute("/items")({
+  // `?q=` pre-fills the search, e.g. when a dashboard row links here.
+  validateSearch: (search: Record<string, unknown>): { q?: string } =>
+    typeof search.q === "string" && search.q !== "" ? { q: search.q } : {},
+  component: ItemsPage,
+});
 
 const ALL = "all";
 const SELECT_WIDTH = "min-w-0 flex-1 sm:w-48 sm:flex-none";
 
 function ItemsPage() {
+  const { q: linkedQuery = "" } = Route.useSearch();
   const snapshot = useStorageSnapshot();
   const priceQuery = usePriceQuery();
   const data = useRemoteData<InventoryResponse>(
     `${STORAGE_API.items}?${priceQuery}`,
     snapshot.revision,
   );
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(linkedQuery);
+  // A new link (or back/forward) replaces what was typed; typing never rewrites the URL.
+  const [appliedQuery, setAppliedQuery] = useState(linkedQuery);
+  if (appliedQuery !== linkedQuery) {
+    setAppliedQuery(linkedQuery);
+    setQuery(linkedQuery);
+  }
   const [location, setLocation] = useState(ALL);
   const [type, setType] = useState(ALL);
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
-  const deferred = useDeferredValue(query.trim().toLowerCase());
+  const deferred = useDeferredValue(query);
   const items = data.status === "ready" ? data.data.items : undefined;
 
   const locationOptions = useMemo(() => {
@@ -67,9 +80,7 @@ function ItemsPage() {
         (i) =>
           (location === ALL || i.locationId === location) &&
           (type === ALL || i.category === type) &&
-          (!deferred ||
-            i.name.toLowerCase().includes(deferred) ||
-            (i.customName?.toLowerCase().includes(deferred) ?? false)),
+          matchesItem(i, deferred),
       ),
     [items, location, type, deferred],
   );
