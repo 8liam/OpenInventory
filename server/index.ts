@@ -307,12 +307,12 @@ function handleEvents(req: IncomingMessage, res: ServerResponse): void {
   res.writeHead(HTTP.ok, SSE_HEADERS);
   eventStreams.add(res);
   const send = (snapshot: unknown) => {
-    if (!res.destroyed) res.write(`data: ${JSON.stringify(snapshot)}\n\n`);
+    if (!res.writableEnded && !res.destroyed) res.write(`data: ${JSON.stringify(snapshot)}\n\n`);
   };
   send(gateway.getSnapshot());
   const unsubscribe = gateway.subscribe(send);
   const keepAlive = setInterval(() => {
-    if (!res.destroyed) res.write(": keep-alive\n\n");
+    if (!res.writableEnded && !res.destroyed) res.write(": keep-alive\n\n");
   }, SSE_KEEP_ALIVE_MS);
   req.on("close", () => {
     clearInterval(keepAlive);
