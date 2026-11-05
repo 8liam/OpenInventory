@@ -1,5 +1,5 @@
 import * as z from "zod/mini";
-import { CURRENCIES, DEFAULT_MARKETPLACE, MARKETPLACES, THEMES } from "./settings.config";
+import { CURRENCIES, DEFAULT_MARKETPLACE, MARKETPLACES, THEMES } from "./settings.config.ts";
 
 export const settingsSchema = z.object({
   currency: z.enum(CURRENCIES),
