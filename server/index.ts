@@ -93,7 +93,6 @@ async function sendBody(
   if (res.destroyed || res.headersSent) return;
   res.writeHead(status, {
     ...headers,
-    ...SECURITY_HEADERS,
     vary: VARY_HEADER,
     "content-length": body.length,
     ...(encoding ? { "content-encoding": encoding } : {}),
@@ -299,7 +298,7 @@ async function writeSnapshot(
 }
 
 function handleEvents(req: IncomingMessage, res: ServerResponse): void {
-  res.writeHead(HTTP.ok, { ...SECURITY_HEADERS, ...SSE_HEADERS });
+  res.writeHead(HTTP.ok, SSE_HEADERS);
   const send = (snapshot: unknown) => {
     if (!res.destroyed) res.write(`data: ${JSON.stringify(snapshot)}\n\n`);
   };
@@ -346,6 +345,8 @@ async function serveStatic(webDir: string, pathname: string, res: ServerResponse
 }
 
 const server = createServer(async (req, res) => {
+  // Set before any branch so every response (health, auth challenge, SSE, static, errors) carries them.
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) res.setHeader(name, value);
   const url = new URL(req.url ?? "/", `http://${settings.host}`);
   const method = req.method ?? "GET";
   try {

@@ -78,7 +78,7 @@ export const MIME_TYPES: Readonly<Record<string, string>> = {
   ".woff2": "font/woff2",
 };
 
-/** Hardening headers attached to every response the server writes. */
+/** Hardening headers set on every response at the top of the request handler. */
 export const SECURITY_HEADERS = {
   "x-content-type-options": "nosniff",
   "referrer-policy": "no-referrer",
