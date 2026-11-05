@@ -46,3 +46,10 @@ export const SERVER_LIMITS = {
   basicAuthRealm: "OpenInventory",
   basicAuthUser: "openinventory",
 } as const;
+
+/** Hardening headers attached to every response the server writes. */
+export const SECURITY_HEADERS = {
+  "x-content-type-options": "nosniff",
+  "referrer-policy": "no-referrer",
+  "x-frame-options": "DENY",
+} as const;

@@ -31,7 +31,7 @@ import {
 } from "../src/lib/settings/settings.config.ts";
 import type { Marketplace } from "../src/lib/settings/settings.types.ts";
 import { getPriceBook } from "./prices/prices.ts";
-import { readSettings, SERVER_LIMITS } from "./server.config.ts";
+import { readSettings, SECURITY_HEADERS, SERVER_LIMITS } from "./server.config.ts";
 import { createRealGateway } from "./steam/steam.real.ts";
 import { UserFacingError } from "./steam/steam.types.ts";
 import { computeTradeUp, listTradeUpCandidates, type TradeUpCandidate } from "./tradeup.ts";
@@ -95,6 +95,7 @@ async function sendBody(
   if (res.destroyed || res.headersSent) return;
   res.writeHead(status, {
     ...headers,
+    ...SECURITY_HEADERS,
     vary: VARY_HEADER,
     "content-length": body.length,
     ...(encoding ? { "content-encoding": encoding } : {}),
@@ -301,6 +302,7 @@ async function writeSnapshot(
 
 function handleEvents(req: IncomingMessage, res: ServerResponse): void {
   res.writeHead(HTTP.ok, {
+    ...SECURITY_HEADERS,
     "content-type": "text/event-stream",
     "cache-control": "no-cache",
     connection: "keep-alive",
