@@ -541,6 +541,7 @@ function rememberScope(scope: PriceScope): void {
 // Record history even when nobody has the dashboard open. `onReady` fires on every
 // (re)connect, so the timers are only started once.
 let snapshotJobStarted = false;
+const snapshotTimers: { initial?: NodeJS.Timeout; interval?: NodeJS.Timeout } = {};
 gateway.onReady((steamId) => {
   if (snapshotJobStarted) return;
   snapshotJobStarted = true;
@@ -549,8 +550,8 @@ gateway.onReady((steamId) => {
       void recordSnapshot(steamId, scope).catch((e: unknown) => console.warn("[snapshot]", e));
     }
   };
-  setTimeout(tick, SERVER_LIMITS.snapshotInitialDelayMs);
-  setInterval(tick, SERVER_LIMITS.snapshotIntervalMs);
+  snapshotTimers.initial = setTimeout(tick, SERVER_LIMITS.snapshotInitialDelayMs);
+  snapshotTimers.interval = setInterval(tick, SERVER_LIMITS.snapshotIntervalMs);
 });
 
 server.listen(settings.port, settings.host, () => {
@@ -559,10 +560,22 @@ server.listen(settings.port, settings.host, () => {
   );
 });
 
-for (const signal of ["SIGINT", "SIGTERM"] as const) {
-  process.on(signal, () => {
-    server.close();
+let shuttingDown = false;
+
+/** Stops timers, lets in-flight responses finish, then forces stragglers closed. */
+function shutdown(): void {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  clearTimeout(snapshotTimers.initial);
+  clearInterval(snapshotTimers.interval);
+  const force = setTimeout(() => server.closeAllConnections(), SERVER_LIMITS.shutdownGraceMs);
+  force.unref();
+  server.close(() => {
+    clearTimeout(force);
     db.close();
     process.exit(0);
   });
+  server.closeIdleConnections();
 }
+
+for (const signal of ["SIGINT", "SIGTERM"] as const) process.on(signal, shutdown);
