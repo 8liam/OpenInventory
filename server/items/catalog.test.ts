@@ -6,6 +6,7 @@ import { buildDefCategoryIndex, loadCatalog } from "./catalog.ts";
 import type { CatalogCache, NamedRecord } from "./catalog.types.ts";
 
 const CORRUPT_ROW = "{not json";
+const NON_ARRAY_ROW = "{}";
 const STICKER_FILE = "stickers";
 const STICKER_HASH = "Sticker | Fixture";
 const STICKER: NamedRecord = {
@@ -77,4 +78,12 @@ test("a corrupt stale row with a failing fetch yields an empty catalog", async (
   offline(t);
   const catalog = await loadCatalog(cacheStub(undefined, CORRUPT_ROW).cache);
   assert.equal(catalog.skinImage(STICKER_HASH), null);
+});
+
+test("valid JSON that is not an array is treated as corrupt", async (t) => {
+  silenceWarnings(t);
+  offline(t);
+  // `{}` used to slip through as a "list" and crash on iteration.
+  const catalog = await loadCatalog(cacheStub(NON_ARRAY_ROW, NON_ARRAY_ROW).cache);
+  assert.equal(catalog.skinImage("anything"), null);
 });

@@ -37,15 +37,17 @@ const TERMINAL = { marker: "Terminal", sealed: "Sealed ", active: "Active " } as
 const VANILLA_SKIN = "Vanilla";
 const STARRED_CATEGORIES: readonly string[] = ["Knives", "Gloves"];
 
-/** A corrupt cache row is treated as absent rather than allowed to crash startup. */
+/** A corrupt (unparsable or non-array) cache row is treated as absent rather than allowed to crash startup. */
 function parseCached<T>(name: string, raw: string | undefined): T[] | undefined {
   if (!raw) return undefined;
   try {
-    return JSON.parse(raw) as T[];
+    const parsed: unknown = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed as T[];
+    console.warn(`[catalog] ${name} cache is corrupt: expected an array`);
   } catch (error) {
     console.warn(`[catalog] ${name} cache is corrupt:`, error);
-    return undefined;
   }
+  return undefined;
 }
 
 async function loadFile<T>(db: CatalogCache, name: string): Promise<T[]> {
