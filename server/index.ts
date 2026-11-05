@@ -32,8 +32,10 @@ import {
 import type { Marketplace } from "../src/lib/settings/settings.types.ts";
 import { getPriceBook } from "./prices/prices.ts";
 import {
+  DEFAULT_CONTENT_TYPE,
   EXIT_CODE,
   MIME_TYPES,
+  NO_CACHE,
   readSettings,
   SECURITY_HEADERS,
   SERVER_LIMITS,
@@ -319,6 +321,15 @@ function handleEvents(req: IncomingMessage, res: ServerResponse): void {
   });
 }
 
+function hasKnownMimeType(extension: string): extension is keyof typeof MIME_TYPES {
+  return Object.hasOwn(MIME_TYPES, extension);
+}
+
+function contentTypeFor(file: string): string {
+  const extension = extname(file).toLowerCase();
+  return hasKnownMimeType(extension) ? MIME_TYPES[extension] : DEFAULT_CONTENT_TYPE;
+}
+
 async function serveStatic(webDir: string, pathname: string, res: ServerResponse): Promise<void> {
   const resolved = normalize(join(webDir, pathname));
   const inside = resolved === webDir || resolved.startsWith(webDir + sep);
@@ -331,7 +342,7 @@ async function serveStatic(webDir: string, pathname: string, res: ServerResponse
       return await sendBody(
         res,
         HTTP.notFound,
-        { "content-type": TEXT_PLAIN, "cache-control": "no-cache" },
+        { "content-type": TEXT_PLAIN, "cache-control": NO_CACHE },
         Buffer.from(STATIC_NOT_FOUND_BODY),
       );
     }
@@ -343,8 +354,8 @@ async function serveStatic(webDir: string, pathname: string, res: ServerResponse
     res,
     HTTP.ok,
     {
-      "content-type": MIME_TYPES[extname(file).toLowerCase()] ?? "application/octet-stream",
-      "cache-control": isAsset ? IMMUTABLE_CACHE : "no-cache",
+      "content-type": contentTypeFor(file),
+      "cache-control": isAsset ? IMMUTABLE_CACHE : NO_CACHE,
     },
     body,
   );

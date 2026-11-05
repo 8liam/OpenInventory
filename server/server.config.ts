@@ -37,10 +37,16 @@ export function readSettings(env: NodeJS.ProcessEnv = process.env): ServerSettin
   };
 }
 
+/** Cache-control for responses that must be revalidated before every reuse. */
+export const NO_CACHE = "no-cache";
+
+/** Content type for static files whose extension is not in `MIME_TYPES`. */
+export const DEFAULT_CONTENT_TYPE = "application/octet-stream";
+
 /** Stops nginx-style reverse proxies from buffering the snapshot stream. */
 export const SSE_HEADERS = {
   "content-type": "text/event-stream",
-  "cache-control": "no-cache",
+  "cache-control": NO_CACHE,
   connection: "keep-alive",
   "x-accel-buffering": "no",
 } as const;
@@ -57,8 +63,8 @@ export const SERVER_LIMITS = {
   basicAuthUser: "openinventory",
 } as const;
 
-/** Content types for static files, keyed by lowercase extension; anything else is octet-stream. */
-export const MIME_TYPES: Readonly<Record<string, string>> = {
+/** Content types for static files, keyed by lowercase extension; anything else is `DEFAULT_CONTENT_TYPE`. */
+export const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
   ".mjs": "text/javascript; charset=utf-8",
@@ -76,7 +82,7 @@ export const MIME_TYPES: Readonly<Record<string, string>> = {
   ".avif": "image/avif",
   ".ico": "image/x-icon",
   ".woff2": "font/woff2",
-};
+} as const satisfies Readonly<Record<string, string>>;
 
 /** Process exit codes: a drained shutdown versus one forced by a repeated signal. */
 export const EXIT_CODE = { clean: 0, forced: 1 } as const;
