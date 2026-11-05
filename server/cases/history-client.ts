@@ -31,7 +31,7 @@ function pageUrl(steamId: string, before: HistoryCursor | number): string {
   });
   if (cursor.s !== undefined) params.set("cursor[s]", cursor.s);
   params.append("app[]", String(HISTORY_API.appId));
-  return `${HISTORY_API.origin}/profiles/${steamId}/inventoryhistory/?${params}`;
+  return `${HISTORY_API.origin}/profiles/${steamId}/inventoryhistory/?${params.toString()}`;
 }
 
 /** Fetches the page of history older than `before` (a cursor, or an epoch-seconds start). */
