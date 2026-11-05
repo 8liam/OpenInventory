@@ -1,11 +1,14 @@
 import { app, BrowserWindow, dialog, shell } from "electron";
 import {
+  ALLOWED_PERMISSIONS,
   APP_NAME,
   DESKTOP_UA_TOKEN,
   MAC_WINDOW,
   UPDATER_STRINGS,
+  WEB_PREFERENCES,
   WINDOW,
 } from "./electron.config.ts";
+import { isAppUrl, isSafeExternalUrl } from "./navigation.ts";
 import type { RunningServer } from "./electron.types.ts";
 import { startServer } from "./server-process.ts";
 import { initAutoUpdate } from "./updater.ts";
@@ -20,7 +23,12 @@ function openWindow(url: string): void {
     ...(isMac ? MAC_WINDOW : {}),
     title: APP_NAME,
     autoHideMenuBar: true,
+    webPreferences: WEB_PREFERENCES,
   });
+  // Camera, geolocation, notifications and the rest are never needed, so only fullscreen is granted.
+  window.webContents.session.setPermissionRequestHandler((_contents, permission, respond) =>
+    respond(ALLOWED_PERMISSIONS.includes(permission)),
+  );
   if (isMac) {
     window.webContents.setUserAgent(`${window.webContents.getUserAgent()} ${DESKTOP_UA_TOKEN}/mac`);
   }
@@ -29,14 +37,18 @@ function openWindow(url: string): void {
     mainWindow = undefined;
   });
   // Anything that isn't the local app opens in the user's browser.
+  // Only web links are handed to the OS; other schemes would launch arbitrary handlers.
+  const openExternally = (target: string) => {
+    if (isSafeExternalUrl(target)) void shell.openExternal(target);
+  };
   window.webContents.setWindowOpenHandler(({ url: target }) => {
-    void shell.openExternal(target);
+    openExternally(target);
     return { action: "deny" };
   });
   window.webContents.on("will-navigate", (event, target) => {
-    if (!target.startsWith(url)) {
+    if (!isAppUrl(target, url)) {
       event.preventDefault();
-      void shell.openExternal(target);
+      openExternally(target);
     }
   });
   void window.loadURL(url);
