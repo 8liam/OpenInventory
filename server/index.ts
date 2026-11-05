@@ -541,8 +541,8 @@ const server = createServer(async (req, res) => {
   }
 });
 
-/** The stored scope ids; a corrupt pref is logged and treated as empty rather than breaking requests. */
-function parseStoredScopes(raw: string | undefined): string[] {
+/** The stored scope ids, or undefined (after a warning) when the pref is corrupt. */
+function parseStoredScopes(raw: string | undefined): string[] | undefined {
   if (!raw) return [];
   try {
     const parsed: unknown = JSON.parse(raw);
@@ -551,13 +551,15 @@ function parseStoredScopes(raw: string | undefined): string[] {
   } catch (error) {
     console.warn("[scopes] stored price scopes are corrupt:", error);
   }
-  return [];
+  return undefined;
 }
 
 /** Currency/marketplace pairs the dashboard has been viewed in; the background job records history for each. */
 function trackedScopes(): PriceScope[] {
-  const raw = db.getCacheStale(TRACKED_SCOPES_KEY);
-  const stored = parseStoredScopes(raw);
+  const parsed = parseStoredScopes(db.getCacheStale(TRACKED_SCOPES_KEY));
+  // A corrupt pref is treated as empty and reset, so the warning fires once rather than on every call.
+  if (!parsed) db.setCache(TRACKED_SCOPES_KEY, JSON.stringify([]));
+  const stored = parsed ?? [];
   const scopes = new Map<string, PriceScope>();
   for (const entry of [`${DEFAULT_CURRENCY}:${DEFAULT_MARKETPLACE}`, ...stored]) {
     const [currency = DEFAULT_CURRENCY, marketplace] = entry.split(":");
