@@ -523,17 +523,20 @@ const server = createServer(async (req, res) => {
   }
 });
 
-/** Currency/marketplace pairs the dashboard has been viewed in; the background job records history for each. */
-function parseStoredScopes(raw: string | null | undefined): string[] {
+/** The stored scope ids; a corrupt pref is logged and treated as empty rather than breaking requests. */
+function parseStoredScopes(raw: string | undefined): string[] {
   if (!raw) return [];
   try {
     const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.every((e) => typeof e === "string") ? parsed : [];
-  } catch {
-    return [];
+    if (Array.isArray(parsed) && parsed.every((e) => typeof e === "string")) return parsed;
+    console.warn("[scopes] stored price scopes are corrupt: expected a string array");
+  } catch (error) {
+    console.warn("[scopes] stored price scopes are corrupt:", error);
   }
+  return [];
 }
 
+/** Currency/marketplace pairs the dashboard has been viewed in; the background job records history for each. */
 function trackedScopes(): PriceScope[] {
   const raw = db.getCacheStale(TRACKED_SCOPES_KEY);
   const stored = parseStoredScopes(raw);
