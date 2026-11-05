@@ -27,6 +27,9 @@ export type TransferJob = {
 
 export type TransferOutcome = {
   readonly done: number;
+  /** Confirmed unit changes, including a first hop whose second hop failed. */
+  readonly removedFromUnit: number;
+  readonly addedToUnit: number;
   readonly failures: readonly TransferFailure[];
   readonly cancelled: boolean;
 };
@@ -99,6 +102,8 @@ export async function runTransfer(job: TransferJob): Promise<TransferOutcome> {
   const timeoutMs = job.confirmTimeoutMs ?? STORAGE_LIMITS.moveConfirmTimeoutMs;
   const failures: TransferFailure[] = [];
   let done = 0;
+  let removedFromUnit = 0;
+  let addedToUnit = 0;
   let cancelled = false;
 
   for (const itemId of job.itemIds) {
@@ -110,10 +115,12 @@ export async function runTransfer(job: TransferJob): Promise<TransferOutcome> {
     try {
       if (job.from !== INVENTORY_LOCATION_ID) {
         await removeFromUnit(job.gc, job.from, itemId, timeoutMs);
+        removedFromUnit += 1;
         leftInInventory = true;
       }
       if (job.to !== INVENTORY_LOCATION_ID) {
         await addToUnit(job.gc, job.to, itemId, timeoutMs);
+        addedToUnit += 1;
         leftInInventory = false;
       }
       done += 1;
@@ -130,5 +137,5 @@ export async function runTransfer(job: TransferJob): Promise<TransferOutcome> {
     job.onProgress(done);
     await pause(STORAGE_LIMITS.moveGapMs);
   }
-  return { done, failures, cancelled };
+  return { done, removedFromUnit, addedToUnit, failures, cancelled };
 }

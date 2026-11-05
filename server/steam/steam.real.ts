@@ -682,9 +682,9 @@ export function createRealGateway(
       // Resync both ends from the GC so cached contents and counts are authoritative.
       try {
         if (from !== INVENTORY_LOCATION_ID)
-          await reloadAfterMove(gc, from, sourceCount - outcome.done);
+          await reloadAfterMove(gc, from, sourceCount - outcome.removedFromUnit);
         if (to !== INVENTORY_LOCATION_ID)
-          await reloadAfterMove(gc, to, destinationCount + outcome.done);
+          await reloadAfterMove(gc, to, destinationCount + outcome.addedToUnit);
       } catch (error) {
         console.warn("[transfer] resync failed:", toErrorMessage(error));
       }

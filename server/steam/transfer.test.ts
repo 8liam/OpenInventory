@@ -62,7 +62,13 @@ describe("runTransfer", () => {
     const { gc, calls } = fakeGc(ok);
     const j = job(gc, INVENTORY_LOCATION_ID, "U2", ["1", "2"]);
     const outcome = await j.run();
-    assert.deepEqual(outcome, { done: 2, failures: [], cancelled: false });
+    assert.deepEqual(outcome, {
+      done: 2,
+      removedFromUnit: 0,
+      addedToUnit: 2,
+      failures: [],
+      cancelled: false,
+    });
     assert.deepEqual(
       calls.map((c) => `${c.kind}:${c.casketId}:${c.itemId}`),
       ["add:U2:1", "add:U2:2"],
@@ -95,6 +101,8 @@ describe("runTransfer", () => {
     );
     const outcome = await job(gc, "U1", "U2", ["1", "2", "3"]).run();
     assert.equal(outcome.done, 0);
+    assert.equal(outcome.removedFromUnit, 1);
+    assert.equal(outcome.addedToUnit, 0);
     assert.equal(outcome.failures.length, 1, "does not keep hammering a full unit");
     assert.match(
       outcome.failures[0]?.reason ?? "",
