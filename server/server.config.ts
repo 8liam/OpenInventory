@@ -51,6 +51,8 @@ export const SERVER_LIMITS = {
   snapshotRetentionDays: 730,
   /** Lets unit contents finish loading before the first background snapshot. */
   snapshotInitialDelayMs: 90_000,
+  /** How long in-flight requests (e.g. SSE streams) get to finish before connections are cut. */
+  shutdownGraceMs: 5000,
   basicAuthRealm: "OpenInventory",
   basicAuthUser: "openinventory",
 } as const;
