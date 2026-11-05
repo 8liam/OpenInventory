@@ -1,6 +1,6 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { ArrowDown, ArrowUp } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { formatInteger } from "~/utils/format";
 import { cn } from "~/utils/cn";
 import { DATA_TABLE } from "./data-table.config";
@@ -63,6 +63,54 @@ export function DataTable<Row>({
     estimateSize: () => rowHeight,
     overscan: DATA_TABLE.overscan,
   });
+  const virtualRows = virtualizer.getVirtualItems();
+
+  // Roving focus: one row is in the tab order. Rows are windowed, so when the active one has
+  // scrolled out of the DOM the first mounted row takes over and Tab still lands in the table.
+  const [activeIndex, setActiveIndex] = useState(0);
+  const lastIndex = order.length - 1;
+  const clampedActive = Math.min(activeIndex, Math.max(lastIndex, 0));
+  const activeMounted = virtualRows.some((virtualRow) => virtualRow.index === clampedActive);
+  const tabbableIndex = activeMounted ? clampedActive : (virtualRows[0]?.index ?? 0);
+  const focusPending = useRef(false);
+
+  useEffect(() => {
+    if (!focusPending.current) return;
+    const target = scrollRef.current?.querySelector<HTMLElement>(
+      `[data-row-index="${clampedActive}"]`,
+    );
+    if (!target) return;
+    focusPending.current = false;
+    target.focus();
+  });
+
+  function moveFocus(index: number) {
+    const next = Math.max(0, Math.min(lastIndex, index));
+    focusPending.current = true;
+    setActiveIndex(next);
+    virtualizer.scrollToIndex(next);
+  }
+
+  function onRowKeyDown(event: KeyboardEvent<HTMLDivElement>, index: number, row: Row) {
+    // Keys from controls inside the row (the checkbox) keep their own behaviour.
+    if (event.target !== event.currentTarget) return;
+    const { keys } = DATA_TABLE;
+    const pageSize = Math.max(1, Math.floor((scrollRef.current?.clientHeight ?? 0) / rowHeight));
+    if (event.key === keys.next) moveFocus(index + 1);
+    else if (event.key === keys.previous) moveFocus(index - 1);
+    else if (event.key === keys.pageDown) moveFocus(index + pageSize);
+    else if (event.key === keys.pageUp) moveFocus(index - pageSize);
+    else if (event.key === keys.first) moveFocus(0);
+    else if (event.key === keys.last) moveFocus(lastIndex);
+    else if (keys.activate.includes(event.key)) activateRow(row);
+    else return;
+    event.preventDefault();
+  }
+
+  function activateRow(row: Row) {
+    if (selection) selection.onToggle(getRowKey(row));
+    else onRowClick?.(row);
+  }
 
   function toggleSort(column: DataTableColumn<Row>) {
     if (!column.sortValue) return;
@@ -74,50 +122,69 @@ export function DataTable<Row>({
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col rounded-lg border bg-card">
+    <div
+      role="grid"
+      aria-rowcount={order.length + 1}
+      aria-multiselectable={selection ? true : undefined}
+      className="flex min-h-0 flex-1 flex-col rounded-lg border bg-card"
+    >
       <div
+        role="row"
+        aria-rowindex={1}
         className="grid shrink-0 border-b px-4 text-xs text-muted-foreground"
         style={{ gridTemplateColumns: gridTemplate }}
       >
         {selection && (
-          <label className="flex h-9 items-center">
-            <input
-              ref={selectAllRef}
-              type="checkbox"
-              checked={allSelected}
-              onChange={(e) => selection.onToggleAll(e.target.checked)}
-              aria-label={DATA_TABLE.selectAllLabel}
-              className="size-4 accent-primary"
-            />
-          </label>
+          <div role="columnheader" className="flex">
+            <label className="flex h-9 items-center">
+              <input
+                ref={selectAllRef}
+                type="checkbox"
+                checked={allSelected}
+                onChange={(e) => selection.onToggleAll(e.target.checked)}
+                aria-label={DATA_TABLE.selectAllLabel}
+                className="size-4 accent-primary"
+              />
+            </label>
+          </div>
         )}
         {columns.map((column) => {
           const active = sort?.columnId === column.id;
           return (
-            <button
+            <div
               key={column.id}
-              type="button"
-              disabled={!column.sortValue}
-              onClick={() => toggleSort(column)}
+              role="columnheader"
               aria-sort={active ? (sort.direction === "asc" ? "ascending" : "descending") : "none"}
-              className={cn(
-                "flex h-9 items-center gap-1 outline-none enabled:hover:text-foreground",
-                column.align === "right" && "justify-end",
-              )}
+              className="flex min-w-0"
             >
-              {column.header}
-              {active &&
-                (sort.direction === "asc" ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
-            </button>
+              <button
+                type="button"
+                disabled={!column.sortValue}
+                onClick={() => toggleSort(column)}
+                className={cn(
+                  "flex h-9 w-full items-center gap-1 enabled:hover:text-foreground",
+                  column.align === "right" && "justify-end",
+                )}
+              >
+                {column.header}
+                {active &&
+                  (sort.direction === "asc" ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
+              </button>
+            </div>
           );
         })}
       </div>
-      <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto" role="rowgroup">
+      {/* A rowgroup may only hold rows, so the empty message sits in a plain container. */}
+      <div
+        ref={scrollRef}
+        className="min-h-0 flex-1 overflow-auto"
+        role={order.length === 0 ? undefined : "rowgroup"}
+      >
         {order.length === 0 ? (
-          <p className="p-6 text-muted-foreground">{DATA_TABLE.emptyLabel}</p>
+          <div className="p-6 text-muted-foreground">{DATA_TABLE.emptyLabel}</div>
         ) : (
           <div style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
-            {virtualizer.getVirtualItems().map((virtualRow) => {
+            {virtualRows.map((virtualRow) => {
               const row = rows[order[virtualRow.index] ?? 0];
               if (row === undefined) return null;
               const key = getRowKey(row);
@@ -127,7 +194,12 @@ export function DataTable<Row>({
                 <div
                   key={key}
                   role="row"
+                  aria-rowindex={virtualRow.index + 2}
                   aria-selected={selection ? checked : undefined}
+                  data-row-index={virtualRow.index}
+                  tabIndex={virtualRow.index === tabbableIndex ? 0 : -1}
+                  onFocus={() => setActiveIndex(virtualRow.index)}
+                  onKeyDown={(event) => onRowKeyDown(event, virtualRow.index, row)}
                   onClick={
                     selection
                       ? () => selection.onToggle(key)
@@ -136,7 +208,7 @@ export function DataTable<Row>({
                         : undefined
                   }
                   className={cn(
-                    "absolute inset-x-0 grid items-center border-b px-4",
+                    "absolute inset-x-0 grid items-center border-b px-4 focus-visible:outline-offset-[-2px]",
                     clickable && "cursor-pointer hover:bg-muted",
                     checked && "bg-muted",
                   )}
@@ -147,19 +219,22 @@ export function DataTable<Row>({
                   }}
                 >
                   {selection && (
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => selection.onToggle(key)}
-                      onClick={(e) => e.stopPropagation()}
-                      aria-label={DATA_TABLE.selectRowLabel}
-                      className="size-4 accent-primary"
-                    />
+                    <div role="gridcell" className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => selection.onToggle(key)}
+                        onClick={(e) => e.stopPropagation()}
+                        tabIndex={-1}
+                        aria-label={DATA_TABLE.selectRowLabel}
+                        className="size-4 accent-primary"
+                      />
+                    </div>
                   )}
                   {columns.map((column) => (
                     <div
                       key={column.id}
-                      role="cell"
+                      role="gridcell"
                       className={cn(
                         "truncate",
                         column.align === "right" && "text-right tabular-nums",
