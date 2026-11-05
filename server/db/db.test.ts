@@ -1,6 +1,16 @@
 /* oxlint-disable typescript/no-floating-promises -- node:test registers suites synchronously */
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  openSync,
+  readdirSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+  writeSync,
+  closeSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
@@ -15,20 +25,31 @@ const OTHER_STEAM_ID = "76561190000000002";
 const KEY = { steamId: STEAM_ID, currency: "USD" } as const;
 const TEMP_PREFIX = "openinventory-db-";
 const DB_FILE = "openinventory.db";
+const QUARANTINE_MARKER = ".corrupt-";
+const FILLER_ROWS = 200;
+const FILLER_BYTES = 1024;
+const DAMAGE_BYTES = 4096;
 
 const cleanups: (() => void)[] = [];
 afterEach(() => {
   while (cleanups.length > 0) cleanups.pop()?.();
 });
 
-function freshDb(): { db: Database; dir: string } {
+function tempDir(): string {
   const dir = mkdtempSync(join(tmpdir(), TEMP_PREFIX));
+  cleanups.push(() => rmSync(dir, { recursive: true, force: true }));
+  return dir;
+}
+
+function freshDb(): { db: Database; dir: string } {
+  const dir = tempDir();
   const db = openDatabase(dir);
-  cleanups.push(() => {
-    db.close();
-    rmSync(dir, { recursive: true, force: true });
-  });
+  cleanups.push(() => db.close());
   return { db, dir };
+}
+
+function quarantined(dir: string): string[] {
+  return readdirSync(dir).filter((name) => name.includes(QUARANTINE_MARKER));
 }
 
 function snapshot(takenAt: number, totalValue: number): ValueSnapshot {
@@ -161,4 +182,49 @@ test("history reads and snapshot retention use timestamp indexes", () => {
   assert.ok(history.some((row) => String(row.detail).includes("history_events_by_time")));
   assert.ok(retention.some((row) => String(row.detail).includes("value_snapshots_by_time")));
   assert.ok(history.every((row) => !String(row.detail).includes("TEMP B-TREE")));
+});
+
+test("a file that is not a database is quarantined and replaced by a working one", () => {
+  const dir = tempDir();
+  writeFileSync(join(dir, DB_FILE), "this is not a sqlite database".repeat(100));
+  const db = openDatabase(dir);
+  cleanups.push(() => db.close());
+  db.setCache("k", "v");
+  assert.equal(db.getCacheStale("k"), "v");
+  assert.equal(quarantined(dir).length, 1, readdirSync(dir).join(","));
+});
+
+test("a database with damaged pages is set aside intact, never deleted", () => {
+  const dir = tempDir();
+  const original = openDatabase(dir);
+  for (let i = 0; i < FILLER_ROWS; i++) original.setCache(`k${i}`, "x".repeat(FILLER_BYTES));
+  original.close();
+  const file = join(dir, DB_FILE);
+  const size = statSync(file).size;
+  const fd = openSync(file, "r+");
+  writeSync(fd, Buffer.alloc(DAMAGE_BYTES, 0xff), 0, DAMAGE_BYTES, Math.floor(size / 2));
+  closeSync(fd);
+
+  const db = openDatabase(dir);
+  cleanups.push(() => db.close());
+  assert.equal(db.getCacheStale("k0"), undefined, "starts fresh");
+  const [moved] = quarantined(dir);
+  assert.ok(moved, readdirSync(dir).join(","));
+  assert.equal(statSync(join(dir, moved)).size, size, "the damaged copy is kept as it was");
+});
+
+test("a healthy database is left alone", () => {
+  const { db, dir } = freshDb();
+  db.setCache("k", "v");
+  const reopened = openDatabase(dir);
+  cleanups.push(() => reopened.close());
+  assert.equal(reopened.getCacheStale("k"), "v");
+  assert.deepEqual(quarantined(dir), []);
+});
+
+test("a database that can't be opened for other reasons is an error, not a quarantine", () => {
+  const dir = tempDir();
+  mkdirSync(join(dir, DB_FILE));
+  assert.throws(() => openDatabase(dir));
+  assert.deepEqual(quarantined(dir), []);
 });

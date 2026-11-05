@@ -1,4 +1,4 @@
-import { mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, renameSync } from "node:fs";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { SERVER_LIMITS } from "../server.config.ts";
@@ -7,6 +7,16 @@ import type { HistoryEvent, HistorySyncState } from "../cases/cases.types.ts";
 import type { Database, SnapshotKey, ValueSnapshot } from "./db.types.ts";
 
 const DB_FILE = "openinventory.db";
+const DB_SIDECARS = ["-wal", "-shm"] as const;
+const QUICK_CHECK_OK = "ok";
+const QUICK_CHECK_SQL = "PRAGMA quick_check(1)";
+/** Primary SQLite result codes for a file that is malformed (SQLITE_CORRUPT) or not a database (SQLITE_NOTADB). */
+const SQLITE_CORRUPT_CODES: readonly number[] = [11, 26];
+/** Extended result codes (e.g. SQLITE_CORRUPT_INDEX) carry the primary code in their low byte. */
+const SQLITE_PRIMARY_CODE_MASK = 0xff;
+/** Opens that must fail as corrupt before the file is set aside, so a one-off misread can't move a healthy database. */
+const CORRUPTION_CHECKS = 2;
+const QUARANTINE_SUFFIX = ".corrupt-";
 const DAY_MS = 86_400_000;
 const BUFFER_TAG = "Buffer";
 const DATE_KEYS: ReadonlySet<string> = new Set(["tradable_after"]);
@@ -74,10 +84,64 @@ function reviveItem(key: string, value: unknown): unknown {
 
 type Row = Record<string, string | number | bigint | Uint8Array | null>;
 
+class IntegrityError extends Error {}
+
+function isCorruption(error: unknown): boolean {
+  if (error instanceof IntegrityError) return true;
+  const code = (error as { errcode?: unknown } | null)?.errcode;
+  return typeof code === "number" && SQLITE_CORRUPT_CODES.includes(code & SQLITE_PRIMARY_CODE_MASK);
+}
+
+function openChecked(path: string): DatabaseSync {
+  const db = new DatabaseSync(path);
+  try {
+    db.exec(SCHEMA);
+    const verdict = Object.values(db.prepare(QUICK_CHECK_SQL).get() ?? {})[0];
+    if (verdict !== QUICK_CHECK_OK)
+      throw new IntegrityError(`integrity check failed: ${String(verdict)}`);
+    return db;
+  } catch (error) {
+    db.close();
+    throw error;
+  }
+}
+
+/** Moves a damaged database (and its WAL files) aside so it can be inspected, never deleted. */
+function quarantine(path: string): string {
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  for (const suffix of ["", ...DB_SIDECARS]) {
+    if (existsSync(path + suffix))
+      renameSync(path + suffix, `${path}${suffix}${QUARANTINE_SUFFIX}${stamp}`);
+  }
+  return `${path}${QUARANTINE_SUFFIX}${stamp}`;
+}
+
+/**
+ * Opens the database. A corrupt file would otherwise crash the server on every
+ * start, so it is set aside and a fresh one created; everything in it is
+ * re-fetchable from Steam except value history, which stays in the quarantined copy.
+ * Only corruption does this: busy, locked, I/O and permission errors still throw.
+ */
+function openOrRecover(path: string): DatabaseSync {
+  let corruption: unknown;
+  for (let attempt = 0; attempt < CORRUPTION_CHECKS; attempt++) {
+    try {
+      return openChecked(path);
+    } catch (error) {
+      if (!isCorruption(error)) throw error;
+      corruption = error;
+    }
+  }
+  const moved = quarantine(path);
+  console.error(
+    `[db] database is corrupt (${String(corruption)}); moved to ${moved}, starting fresh`,
+  );
+  return openChecked(path);
+}
+
 export function openDatabase(dataDir: string): Database {
   mkdirSync(dataDir, { recursive: true });
-  const db = new DatabaseSync(join(dataDir, DB_FILE));
-  db.exec(SCHEMA);
+  const db = openOrRecover(join(dataDir, DB_FILE));
 
   const getCache = db.prepare("SELECT value, fetched_at FROM cache WHERE key = ?");
   const putCache = db.prepare(
