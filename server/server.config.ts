@@ -40,8 +40,17 @@ export function readSettings(env: NodeJS.ProcessEnv = process.env): ServerSettin
 /** Cache-control for responses that must be revalidated before every reuse. */
 export const NO_CACHE = "no-cache";
 
+/** Cache-control for fingerprinted build assets, whose URL changes whenever their content does. */
+export const IMMUTABLE_CACHE = "public, max-age=31536000, immutable";
+
 /** Content type for static files whose extension is not in `MIME_TYPES`. */
 export const DEFAULT_CONTENT_TYPE = "application/octet-stream";
+
+export const TEXT_PLAIN = "text/plain; charset=utf-8";
+export const JSON_CONTENT_TYPE = "application/json";
+
+/** Body of the 404 for a static path that resolves to no file. */
+export const STATIC_NOT_FOUND_BODY = "Not found";
 
 /** Stops nginx-style reverse proxies from buffering the snapshot stream. */
 export const SSE_HEADERS = {

@@ -34,13 +34,18 @@ import { getPriceBook } from "./prices/prices.ts";
 import {
   DEFAULT_CONTENT_TYPE,
   EXIT_CODE,
+  IMMUTABLE_CACHE,
+  JSON_CONTENT_TYPE,
   MIME_TYPES,
   NO_CACHE,
   readSettings,
   SECURITY_HEADERS,
   SERVER_LIMITS,
   SSE_HEADERS,
+  STATIC_NOT_FOUND_BODY,
+  TEXT_PLAIN,
 } from "./server.config.ts";
+import type { SnapshotTimers } from "./server.types.ts";
 import { createRealGateway } from "./steam/steam.real.ts";
 import { UserFacingError } from "./steam/steam.types.ts";
 import { computeTradeUp, listTradeUpCandidates, type TradeUpCandidate } from "./tradeup.ts";
@@ -61,12 +66,8 @@ const HTTP = {
 } as const;
 const DEFAULT_CURRENCY = "USD";
 const CURRENCY_PATTERN = /^[A-Z]{3}$/;
-const IMMUTABLE_CACHE = "public, max-age=31536000, immutable";
 const INDEX_FILE = "index.html";
-const STATIC_NOT_FOUND_BODY = "Not found";
-const TEXT_PLAIN = "text/plain; charset=utf-8";
 const HEALTH_PATH = "/healthz";
-const JSON_CONTENT_TYPE = "application/json";
 const VARY_HEADER = "accept-encoding";
 // eslint-disable-next-line no-control-regex -- rejecting control characters is the point
 const CONTROL_CHARACTERS = /[\u0000-\u001f\u007f]/;
@@ -582,7 +583,7 @@ function rememberScope(scope: PriceScope): void {
 // Record history even when nobody has the dashboard open. `onReady` fires on every
 // (re)connect, so the timers are only started once.
 let snapshotJobStarted = false;
-const snapshotTimers: { initial?: NodeJS.Timeout; interval?: NodeJS.Timeout } = {};
+const snapshotTimers: SnapshotTimers = {};
 gateway.onReady((steamId) => {
   if (snapshotJobStarted) return;
   snapshotJobStarted = true;
