@@ -91,7 +91,9 @@ export function buildCaseStats(events: readonly HistoryEvent[], kind: OpeningKin
   const kinds = new Map<EventKind, HistoryEvent[]>();
   for (const event of events) {
     const eventKind = classifyEvent(event);
-    kinds.set(eventKind, [...(kinds.get(eventKind) ?? []), event]);
+    const group = kinds.get(eventKind);
+    if (group) group.push(event);
+    else kinds.set(eventKind, [event]);
   }
   const cases = kinds.get(kind) ?? []; // newest first
   const openings: CaseOpening[] = cases.flatMap((event) => {
