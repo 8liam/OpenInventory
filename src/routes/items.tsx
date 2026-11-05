@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useDeferredValue, useMemo, useState } from "react";
 import { ItemTable } from "~/components/item-table/item-table.component";
 import { ItemTableSkeleton } from "~/components/item-table/item-table.skeleton";
+import { ExportItems } from "~/components/export-items/export-items.component";
 import { LoadingRegion } from "~/components/loading-region/loading-region.component";
 import { Reveal } from "~/components/reveal/reveal.component";
 import { TransferBar } from "~/components/transfer-bar/transfer-bar.component";
@@ -81,6 +82,9 @@ function ItemsPage() {
   return (
     <>
       <PageHeader title={COPY.items.title} description={COPY.items.description}>
+        {rows && data.status === "ready" && (
+          <ExportItems items={rows} currency={data.data.currency} />
+        )}
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
