@@ -92,6 +92,9 @@ export async function postForJson<T>(path: string, body: unknown): Promise<T> {
   return (await response.json()) as T;
 }
 
+/** A failure worth retrying (server-side), as opposed to a request the server rejected. */
+class TransientError extends Error {}
+
 export type RemoteData<T> =
   | { readonly status: "loading" }
   | { readonly status: "error"; readonly message: string }
@@ -150,6 +153,9 @@ export function useRemoteData<T>(path: string | undefined, revision: number): Re
   const lastPath = useRef<string | undefined>(undefined);
   const lastVisible = useRef(visible);
   const fetchedRevision = useRef<number | undefined>(undefined);
+  const failures = useRef(0);
+  // Bumped by the retry timer after a transient failure, to rerun the fetch effect.
+  const [retryTick, setRetryTick] = useState(0);
 
   useEffect(() => {
     if (!path) {
@@ -163,32 +169,56 @@ export function useRemoteData<T>(path: string | undefined, revision: number): Re
     if (!pathChanged && (!visible || (becameVisible && fetchedRevision.current === revision)))
       return;
     fetchedRevision.current = revision;
+    if (pathChanged) failures.current = 0;
 
     const controller = new AbortController();
     const delay = pathChanged || becameVisible ? 0 : REMOTE_DATA.revisionDebounceMs;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
     const timer = setTimeout(async () => {
       try {
         const response = await fetch(path, { signal: controller.signal });
-        if (!response.ok) throw new Error(await readError(response));
+        if (!response.ok) {
+          const message = await readError(response);
+          throw response.status >= REMOTE_DATA.serverErrorStatus
+            ? new TransientError(message)
+            : new Error(message);
+        }
         const data = (await response.json()) as T;
         writeCache(path, data);
+        failures.current = 0;
         setLoaded({ path, value: { status: "ready", data } });
       } catch (error) {
         if (controller.signal.aborted) return;
-        setLoaded({
-          path,
-          value: {
-            status: "error",
-            message: error instanceof Error ? error.message : String(error),
-          },
-        });
+        // Forget this revision was fetched, so returning to a hidden tab retries it.
+        fetchedRevision.current = undefined;
+        // A dropped connection or a restarting server is transient: keep what is on screen
+        // and try again, instead of swapping a good table for an error until the next push.
+        const transient = error instanceof TransientError || error instanceof TypeError;
+        if (transient && failures.current < REMOTE_DATA.retryDelaysMs.length) {
+          const wait = REMOTE_DATA.retryDelaysMs[failures.current] ?? REMOTE_DATA.retryDelaysMs[0];
+          failures.current += 1;
+          retryTimer = setTimeout(() => setRetryTick((tick) => tick + 1), wait);
+        }
+        // Keep this path's last good response, or its cached copy when revisiting a page.
+        setLoaded((current) =>
+          current.path === path && current.value.status === "ready"
+            ? current
+            : {
+                path,
+                value: readCache<T>(path) ?? {
+                  status: "error",
+                  message: error instanceof Error ? error.message : String(error),
+                },
+              },
+        );
       }
     }, delay);
     return () => {
       clearTimeout(timer);
+      clearTimeout(retryTimer);
       controller.abort();
     };
-  }, [path, revision, visible]);
+  }, [path, revision, visible, retryTick]);
 
   if (!path) return { status: "loading" };
   // Another path's data lingers while this one loads, unless this one is cached.

@@ -8,4 +8,13 @@ export const DATA_TABLE = {
   selectionColumnWidth: "28px",
   selectAllLabel: "Select all rows",
   selectRowLabel: "Select row",
+  keys: {
+    next: "ArrowDown",
+    previous: "ArrowUp",
+    pageDown: "PageDown",
+    pageUp: "PageUp",
+    first: "Home",
+    last: "End",
+    activate: ["Enter", " "] as readonly string[],
+  },
 } as const;

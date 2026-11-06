@@ -44,20 +44,12 @@ export const APP_PATCHES: readonly AppPatch[] = [
   },
   {
     // Virtualised rows need a size before layout, so the server render already has rows.
-    // Plain div grid: the table ARIA roles need a full table tree and `aria-sort` is invalid on buttons.
+    // The table's own ARIA grid tree (rows, column headers, gridcells) is complete, so it ships as is.
     file: "components/data-table/data-table.component.tsx",
     replacements: [
       {
         from: "overscan: DATA_TABLE.overscan,",
         to: "overscan: DATA_TABLE.overscan,\n    initialRect: { width: 800, height: 480 },",
-      },
-      { from: ' role="rowgroup"', to: "" },
-      { from: '                  role="row"\n', to: "" },
-      { from: "                  aria-selected={selection ? checked : undefined}\n", to: "" },
-      { from: '                      role="cell"\n', to: "" },
-      {
-        from: '              aria-sort={active ? (sort.direction === "asc" ? "ascending" : "descending") : "none"}\n',
-        to: "              title={column.sortValue ? `Sort by ${column.header}` : undefined}\n",
       },
     ],
   },
