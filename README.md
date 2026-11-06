@@ -47,19 +47,26 @@ Set a password if the port is reachable by anyone but you (the browser will ask 
 OPENINVENTORY_PASSWORD='something-long' docker compose up -d
 ```
 
+Without a password, OpenInventory only answers to IPs and local names (`localhost`, `nas`, `nas.local`, `*.ts.net`, ...). To open it by another name, such as a `.lan` name or a domain behind a reverse proxy, list it (no port needed):
+
+```sh
+OPENINVENTORY_ALLOWED_HOSTS='nas.lan,inventory.example.com' docker compose up -d
+```
+
 Data (SQLite database, value history and your Steam session) lives in the `openinventory-data` volume.
 
 > **Heads up:** OpenInventory connects to the CS2 Game Coordinator the way the game does, and Steam allows one game session per account. If CS2 is already running elsewhere, OpenInventory waits (it never forces the session) and connects when you close the game. If you launch CS2 while OpenInventory is connected, Steam asks whether to end OpenInventory's session; it reconnects once you're done.
 
 ### Configuration
 
-| Variable                 | Default                                         | Purpose                                                      |
-| ------------------------ | ----------------------------------------------- | ------------------------------------------------------------ |
-| `OPENINVENTORY_PASSWORD` | unset                                           | Require HTTP basic auth (any username). Unset means no auth. |
-| `OPENINVENTORY_PORT`     | `3000` in Docker, `4174` otherwise              | Listen port.                                                 |
-| `OPENINVENTORY_HOST`     | `0.0.0.0` in Docker, `127.0.0.1` otherwise      | Listen address.                                              |
-| `OPENINVENTORY_DATA_DIR` | `/data` in Docker, `~/.openinventory` otherwise | SQLite database and Steam session.                           |
-| `OPENINVENTORY_WEB_DIR`  | set in Docker                                   | Built web app to serve. Unset in dev.                        |
+| Variable                      | Default                                         | Purpose                                                                                                                                                                                                                                                                                      |
+| ----------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OPENINVENTORY_PASSWORD`      | unset                                           | Require HTTP basic auth (any username). Unset means no auth.                                                                                                                                                                                                                                 |
+| `OPENINVENTORY_PORT`          | `3000` in Docker, `4174` otherwise              | Listen port.                                                                                                                                                                                                                                                                                 |
+| `OPENINVENTORY_HOST`          | `0.0.0.0` in Docker, `127.0.0.1` otherwise      | Listen address.                                                                                                                                                                                                                                                                              |
+| `OPENINVENTORY_DATA_DIR`      | `/data` in Docker, `~/.openinventory` otherwise | SQLite database and Steam session.                                                                                                                                                                                                                                                           |
+| `OPENINVENTORY_WEB_DIR`       | set in Docker                                   | Built web app to serve. Unset in dev.                                                                                                                                                                                                                                                        |
+| `OPENINVENTORY_ALLOWED_HOSTS` | unset                                           | Comma-separated hostnames accepted when no password is set (`nas.lan,.home.example`; a leading dot also matches subdomains). Needed only for names in public DNS or `.lan`; IPs, single-label names (`nas`), `localhost`, `*.local`, `*.home.arpa`, `*.internal` and `*.ts.net` always work. |
 
 ## One session per account
 
@@ -69,7 +76,7 @@ Steam allows a single client session per account, and OpenInventory signs in as 
 
 - Your Steam **refresh token** is stored in `session.json` inside the data directory (mode `0600`). Anyone who can read it can act as your account until you press **Sign out**, which deletes it. Protect the volume.
 - Without `OPENINVENTORY_PASSWORD`, anyone who can reach the port can see your inventory **and move your items**. Set a password, and put OpenInventory behind a VPN or a TLS reverse proxy if you expose it.
-- State-changing requests are same-origin only and require a JSON body, so another website can't drive your instance from your browser.
+- State-changing requests are same-origin only and require a JSON body, so another website can't drive your instance from your browser. Without a password the `Host` header must also be an IP, a single-label name, `localhost`, a `*.local`, `*.home.arpa`, `*.internal` or `*.ts.net` name, or listed in `OPENINVENTORY_ALLOWED_HOSTS`, which blocks DNS-rebinding attacks. Other names get a 403 that says which variable to set.
 
 ## Develop
 

@@ -16,6 +16,24 @@ export const MAC_WINDOW = {
   trafficLightPosition: { x: 16, y: 14 },
 } as const;
 
+/** Hardening for the renderer: it only ever shows the local web app, so it gets no Node and no permissions. */
+export const WEB_PREFERENCES = {
+  contextIsolation: true,
+  nodeIntegration: false,
+  sandbox: true,
+  webSecurity: true,
+  allowRunningInsecureContent: false,
+} as const;
+
+/**
+ * Permissions the renderer may be granted; everything else is denied. Fullscreen is
+ * the only one the app uses (the highlight video's own fullscreen control).
+ */
+export const ALLOWED_PERMISSIONS: readonly string[] = ["fullscreen"];
+
+/** URL schemes that may be handed to the OS browser. */
+export const EXTERNAL_PROTOCOLS: readonly string[] = ["https:", "http:"];
+
 /** Appended to the user agent so the web app can adapt its chrome (see index.html). */
 export const DESKTOP_UA_TOKEN = "OpenInventoryDesktop";
 
