@@ -85,7 +85,7 @@ export function createHistorySync(
       if (running) return;
       const state = db.loadHistorySync(steamId);
       if (options?.onlyIfStale) {
-        if (!state?.complete || Date.now() - state.updatedAt < SYNC_POLICY.staleAfterMs) return;
+        if (state?.complete && Date.now() - state.updatedAt < SYNC_POLICY.staleAfterMs) return;
       }
       running = steamId;
       progress = { pages: 0, events: 0 };

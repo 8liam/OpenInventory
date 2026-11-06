@@ -59,6 +59,10 @@ export function createSnapshotStore() {
       for (const id of [...loaded]) if (!next.some((unit) => unit.id === id)) loaded.delete(id);
       emit();
     },
+    setUnitCount(id: string, itemCount: number): void {
+      units = units.map((unit) => (unit.id === id ? { ...unit, itemCount } : unit));
+      emit();
+    },
     markLoaded(unitId: string): void {
       loaded.add(unitId);
       emit();
