@@ -1,1 +1,1 @@
-export const INSIGHTS = { thumbSize: 32 } as const;
+export const INSIGHTS = { thumbSize: 32, findItem: "Find in Items" } as const;

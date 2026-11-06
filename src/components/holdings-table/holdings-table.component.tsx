@@ -1,4 +1,5 @@
 import { ItemLabel } from "~/components/item-label/item-label.component";
+import { Link } from "@tanstack/react-router";
 import { COPY } from "~/lib/copy/copy.config";
 import { formatInteger, formatMoney } from "~/utils/format";
 import { HOLDINGS_TABLE } from "./holdings-table.config";
@@ -20,12 +21,19 @@ export function HoldingsTable({ holdings, currency }: HoldingsTableProps) {
         {holdings.map((holding) => (
           <tr key={holding.name} className="border-t">
             <td className="py-2">
-              <ItemLabel
-                name={holding.name}
-                imageUrl={holding.imageUrl}
-                rarityColor={holding.rarityColor}
-                size={HOLDINGS_TABLE.thumbSize}
-              />
+              <Link
+                to="/items"
+                search={{ q: holding.name }}
+                title={HOLDINGS_TABLE.findItem}
+                className="block rounded-sm hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
+              >
+                <ItemLabel
+                  name={holding.name}
+                  imageUrl={holding.imageUrl}
+                  rarityColor={holding.rarityColor}
+                  size={HOLDINGS_TABLE.thumbSize}
+                />
+              </Link>
             </td>
             <td className="tabular py-2 text-right text-muted-foreground">
               {formatInteger(holding.count)}
