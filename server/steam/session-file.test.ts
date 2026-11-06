@@ -8,6 +8,8 @@ import { createSessionFile } from "./session-file.ts";
 
 const SESSION = { refreshToken: "t", accountName: "a", steamId: "1" } as const;
 const LEFTOVER_TEMP = "session.json.tmp";
+const WINDOWS = "win32";
+const OWNER_ONLY_MODE = 0o600;
 
 function tempDir(t: TestContext): string {
   const dir = mkdtempSync(join(tmpdir(), "oi-session-"));
@@ -21,7 +23,10 @@ test("save round-trips, stays owner-only and leaves no temp file", (t) => {
   file.save(SESSION);
   file.save({ ...SESSION, refreshToken: "t2" });
   assert.equal(file.load()?.refreshToken, "t2");
-  assert.equal(statSync(join(dir, "session.json")).mode & 0o777, 0o600);
+  // Windows has no POSIX permission bits (files report 0o666), so there is no owner-only mode to check.
+  if (process.platform !== WINDOWS) {
+    assert.equal(statSync(join(dir, "session.json")).mode & 0o777, OWNER_ONLY_MODE);
+  }
   assert.deepEqual(readdirSync(dir), ["session.json"]);
   file.clear();
   assert.equal(file.load(), undefined);
