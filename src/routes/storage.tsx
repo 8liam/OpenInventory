@@ -2,10 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "~/components/button/button.component";
-import { ItemTable } from "~/components/item-table/item-table.component";
+import { ItemCollection } from "~/components/item-collection/item-collection.component";
 import { ItemTableSkeleton } from "~/components/item-table/item-table.skeleton";
 import { LoadingRegion } from "~/components/loading-region/loading-region.component";
 import { Skeleton } from "~/components/skeleton/skeleton.component";
+import { ViewToggle } from "~/components/view-toggle/view-toggle.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { TransferBar } from "~/components/transfer-bar/transfer-bar.component";
 import { UnitCard } from "~/components/unit-card/unit-card.component";
@@ -19,6 +20,7 @@ import {
   useStorageSnapshot,
 } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
+import { useItemViewMode } from "~/lib/items/view-mode.store";
 import { usePriceQuery, useSettings } from "~/lib/settings/settings.store";
 import { formatInteger, formatMoney } from "~/utils/format";
 
@@ -26,6 +28,7 @@ export const Route = createFileRoute("/storage")({ component: StoragePage });
 
 function StoragePage() {
   const snapshot = useStorageSnapshot();
+  const { mode: view, setMode: setView } = useItemViewMode();
   const currency = useSettings((s) => s.currency);
   const priceQuery = usePriceQuery();
   const data = useRemoteData<InventoryResponse>(
@@ -92,17 +95,20 @@ function StoragePage() {
           </div>
           <div className="flex min-w-0 flex-1 flex-col gap-3">
             {selected && (
-              <p className="text-muted-foreground">
-                <span className="font-medium text-foreground">{selected.name}</span> ·{" "}
-                {formatInteger(selected.itemCount)} {copy.items} · {copy.value}{" "}
-                {unitPending(selected) ? (
-                  <Skeleton className="inline-block h-4 w-14 align-middle" />
-                ) : (
-                  <span className="tabular text-foreground">
-                    {formatMoney(selectedValue, currency)}
-                  </span>
-                )}
-              </p>
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-muted-foreground">
+                  <span className="font-medium text-foreground">{selected.name}</span> ·{" "}
+                  {formatInteger(selected.itemCount)} {copy.items} · {copy.value}{" "}
+                  {unitPending(selected) ? (
+                    <Skeleton className="inline-block h-4 w-14 align-middle" />
+                  ) : (
+                    <span className="tabular text-foreground">
+                      {formatMoney(selectedValue, currency)}
+                    </span>
+                  )}
+                </p>
+                <ViewToggle value={view} onChange={setView} />
+              </div>
             )}
             {pickedItems.length > 0 && (
               <TransferBar
@@ -113,7 +119,8 @@ function StoragePage() {
               />
             )}
             {selectedItems.length > 0 ? (
-              <ItemTable
+              <ItemCollection
+                view={view}
                 items={selectedItems}
                 currency={currency}
                 showLocation={false}

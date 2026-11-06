@@ -1,12 +1,6 @@
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
-import { ITEM_LABEL } from "./item-label.config";
 import type { ItemLabelProps } from "./item-label.types";
-
-function splitName(name: string): [string | null, string] {
-  const { nameSeparator } = ITEM_LABEL;
-  const at = name.indexOf(nameSeparator);
-  return at < 0 ? [null, name] : [name.slice(0, at), name.slice(at + nameSeparator.length)];
-}
+import { splitItemName } from "./item-label.utils";
 
 /** Thumbnail plus weapon / skin name: the one way items are identified across the app. */
 export function ItemLabel({
@@ -17,7 +11,7 @@ export function ItemLabel({
   customName,
   children,
 }: ItemLabelProps) {
-  const [weapon, skin] = splitName(name);
+  const [weapon, skin] = splitItemName(name);
   return (
     <div className="flex min-w-0 items-center gap-3">
       <ItemThumb imageUrl={imageUrl} rarityColor={rarityColor} size={size} />

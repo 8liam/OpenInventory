@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useDeferredValue, useMemo, useState } from "react";
-import { ItemTable } from "~/components/item-table/item-table.component";
+import { ItemCollection } from "~/components/item-collection/item-collection.component";
 import { ItemTableSkeleton } from "~/components/item-table/item-table.skeleton";
 import { ExportItems } from "~/components/export-items/export-items.component";
 import { LoadingRegion } from "~/components/loading-region/loading-region.component";
 import { Reveal } from "~/components/reveal/reveal.component";
 import { TransferBar } from "~/components/transfer-bar/transfer-bar.component";
+import { ViewToggle } from "~/components/view-toggle/view-toggle.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { Select } from "~/components/select/select.component";
 import { COPY } from "~/lib/copy/copy.config";
@@ -14,6 +15,7 @@ import { matchesItem } from "~/lib/items/item-search";
 import type { InventoryResponse } from "~/lib/items/item.types";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
+import { useItemViewMode } from "~/lib/items/view-mode.store";
 import { usePriceQuery } from "~/lib/settings/settings.store";
 import { formatInteger } from "~/utils/format";
 
@@ -30,6 +32,7 @@ const SELECT_WIDTH = "min-w-0 flex-1 sm:w-48 sm:flex-none";
 function ItemsPage() {
   const { q: linkedQuery = "" } = Route.useSearch();
   const snapshot = useStorageSnapshot();
+  const { mode: view, setMode: setView } = useItemViewMode();
   const priceQuery = usePriceQuery();
   const data = useRemoteData<InventoryResponse>(
     `${STORAGE_API.items}?${priceQuery}`,
@@ -116,6 +119,7 @@ function ItemsPage() {
           options={typeOptions}
           onChange={setType}
         />
+        <ViewToggle value={view} onChange={setView} />
       </PageHeader>
       {data.status === "loading" && (
         <LoadingRegion className="flex min-h-0 flex-1 flex-col">
@@ -138,7 +142,8 @@ function ItemsPage() {
         )}
       </Reveal>
       {rows && data.status === "ready" && (
-        <ItemTable
+        <ItemCollection
+          view={view}
           items={rows}
           currency={data.data.currency}
           selected={selected}
