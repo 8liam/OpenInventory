@@ -28,3 +28,25 @@ jobs:
       - run: pnpm test
       - run: pnpm exec vp build
       - run: pnpm desktop:bundle
+
+  # The Docker image has its own dependency set (--prod) and file layout, which `check` never exercises.
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build image
+        run: docker build --tag openinventory:ci .
+      - name: Start container and wait for it to report healthy
+        run: |
+          docker run --detach --name openinventory-ci --publish 3000:3000 openinventory:ci
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:3000/healthz; then
+              echo
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs openinventory-ci
+          exit 1
+      - name: Check the web app is served
+        run: curl --fail --silent http://127.0.0.1:3000/ | grep -qi "<div id=\"root\""

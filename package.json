@@ -17,7 +17,7 @@
     "preview": "vp preview",
     "prepare": "vp config",
     "api": "node server/index.ts",
-    "test": "node --test \"server/**/*.test.ts\"",
+    "test": "node --test \"server/**/*.test.ts\" \"src/**/*.test.ts\"",
     "desktop:bundle": "node scripts/build-electron.ts",
     "desktop:start": "vp build && pnpm desktop:bundle && electron .",
     "desktop:dist": "vp build && pnpm desktop:bundle && electron-builder --publish never"
