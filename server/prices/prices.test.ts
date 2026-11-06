@@ -132,3 +132,41 @@ test("with nothing cached, a source outage surfaces as an error", async () => {
     /Price source returned 404/,
   );
 });
+
+test("concurrent currency refreshes share feeds but convert each price separately", async () => {
+  const { calls } = serve({
+    [PRICE_DATA.ratesFile]: { HHH: 1, III: 1.5 },
+    skinport: { "Test Item": { starting_at: 2 } },
+  });
+  const db = fakeDb();
+  const [first, second] = await Promise.all([
+    getPriceBook(db, "HHH", "skinport", true),
+    getPriceBook(db, "III", "skinport", true),
+  ]);
+  assert.equal(calls.length, 2, "one feed + one rates file for both currencies");
+  assert.equal(first.byName.get("Test Item")?.price, 2);
+  assert.equal(second.byName.get("Test Item")?.price, 3);
+
+  await getPriceBook(db, "HHH", "skinport", true);
+  assert.equal(calls.length, 4, "a later refresh must fetch current data");
+});
+
+test("a failed shared feed fails every waiter and is not reused by the next load", async () => {
+  serve({});
+  const db = fakeDb();
+  const results = await Promise.allSettled([
+    getPriceBook(db, "JJJ", "skinport"),
+    getPriceBook(db, "KKK", "skinport"),
+  ]);
+  assert.deepEqual(
+    results.map((result) => result.status),
+    ["rejected", "rejected"],
+  );
+  const { calls } = serve({
+    [PRICE_DATA.ratesFile]: { JJJ: 1 },
+    skinport: { Case: { starting_at: 5 } },
+  });
+  const book = await getPriceBook(db, "JJJ", "skinport");
+  assert.equal(book.byName.get("Case")?.price, 5);
+  assert.equal(calls.length, 2, "the failed fetch must not stay in flight");
+});

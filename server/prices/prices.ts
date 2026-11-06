@@ -19,6 +19,7 @@ type StoredBook = {
 
 const memory = new Map<string, PriceBook>();
 const inFlight = new Map<string, Promise<PriceBook>>();
+const feedsInFlight = new Map<string, Promise<RawFeed>>();
 
 type RawFeed = Record<string, unknown>;
 type ExchangeRates = Readonly<Record<string, number>>;
@@ -71,10 +72,19 @@ async function fetchJson(file: string): Promise<RawFeed> {
   return (await response.json()) as RawFeed;
 }
 
+/** Share the network response and JSON parse while currencies refresh together. */
+function fetchSharedJson(file: string): Promise<RawFeed> {
+  const existing = feedsInFlight.get(file);
+  if (existing) return existing;
+  const pending = fetchJson(file).finally(() => feedsInFlight.delete(file));
+  feedsInFlight.set(file, pending);
+  return pending;
+}
+
 async function fetchBook(currency: string, marketplace: Marketplace): Promise<PriceBook> {
   const [feed, rates] = await Promise.all([
-    fetchJson(marketplace),
-    fetchJson(PRICE_DATA.ratesFile) as Promise<ExchangeRates>,
+    fetchSharedJson(marketplace),
+    fetchSharedJson(PRICE_DATA.ratesFile) as Promise<ExchangeRates>,
   ]);
   const rate = rates[currency];
   if (typeof rate !== "number" || !(rate > 0)) throw new Error(`No exchange rate for ${currency}`);

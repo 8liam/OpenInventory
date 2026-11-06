@@ -4,7 +4,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { DEFAULT_OPENING_KIND } from "../../src/lib/cases/cases.config.ts";
+import { DEFAULT_OPENING_KIND, OPENING_KINDS } from "../../src/lib/cases/cases.config.ts";
 import { openDatabase } from "../db/db.ts";
 import { createCaseStatsCache } from "./case-stats-cache.ts";
 import type { HistoryEvent } from "./cases.types.ts";
@@ -29,10 +29,12 @@ test("cache is reused until new history rows are added", () => {
     });
     const first = cache.get(STEAM_ID, DEFAULT_OPENING_KIND);
     assert.equal(cache.get(STEAM_ID, DEFAULT_OPENING_KIND), first);
+    cache.get(STEAM_ID, OPENING_KINDS[1]);
     assert.equal(loads, 1);
 
     assert.equal(db.saveHistoryEvents(STEAM_ID, [event(1)]), 1);
     cache.get(STEAM_ID, DEFAULT_OPENING_KIND);
+    cache.get(STEAM_ID, OPENING_KINDS[1]);
     assert.equal(loads, 2);
 
     assert.equal(db.saveHistoryEvents(STEAM_ID, [event(1)]), 0); // duplicate: no invalidation

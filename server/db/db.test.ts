@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import { afterEach, test } from "node:test";
 import type { HistoryEvent } from "../cases/cases.types.ts";
 import type { GcItem } from "../steam/steam.types.ts";
@@ -13,6 +14,7 @@ const STEAM_ID = "76561190000000001";
 const OTHER_STEAM_ID = "76561190000000002";
 const KEY = { steamId: STEAM_ID, currency: "USD" } as const;
 const TEMP_PREFIX = "openinventory-db-";
+const DB_FILE = "openinventory.db";
 
 const cleanups: (() => void)[] = [];
 afterEach(() => {
@@ -142,4 +144,21 @@ test("history sync state round-trips and is undefined before first save", () => 
   assert.equal(db.loadHistorySync(STEAM_ID)?.updatedAt, 42);
   db.saveHistorySync(STEAM_ID, { ...state, updatedAt: 43 });
   assert.equal(db.loadHistorySync(STEAM_ID)?.updatedAt, 43);
+});
+
+test("history reads and snapshot retention use timestamp indexes", () => {
+  const { dir } = freshDb();
+  const raw = new DatabaseSync(join(dir, DB_FILE));
+  cleanups.push(() => raw.close());
+  const history = raw
+    .prepare(
+      "EXPLAIN QUERY PLAN SELECT event_json FROM history_events WHERE steam_id = ? ORDER BY occurred_at DESC, event_id DESC",
+    )
+    .all("account");
+  const retention = raw
+    .prepare("EXPLAIN QUERY PLAN DELETE FROM value_snapshots WHERE taken_at < ?")
+    .all(Date.now());
+  assert.ok(history.some((row) => String(row.detail).includes("history_events_by_time")));
+  assert.ok(retention.some((row) => String(row.detail).includes("value_snapshots_by_time")));
+  assert.ok(history.every((row) => !String(row.detail).includes("TEMP B-TREE")));
 });
