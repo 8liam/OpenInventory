@@ -11,10 +11,10 @@ export const ITEM_HIGHLIGHTS = {
     craft: Sticker,
   } satisfies Record<HighlightKind, LucideIcon>,
   tierIcon: Gem,
-  /** Badge classes by tier number (T1 first); T1 carries the accent and lower tiers fade out. */
+  /** Badge classes by tier number (T1 first); T1 is solid accent and lower tiers fade out. */
   tierStyles: [
-    "bg-accent/15 font-semibold text-accent",
-    "bg-muted font-medium text-accent/70",
+    "bg-accent font-semibold text-accent-foreground",
+    "bg-accent/35 font-medium text-foreground",
     "bg-muted text-foreground/80",
   ],
   fallbackTierStyle: "bg-muted text-muted-foreground",
