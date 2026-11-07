@@ -16,6 +16,7 @@ import { Route as SettingsRouteImport } from "./routes/settings";
 import { Route as StorageRouteImport } from "./routes/storage";
 import { Route as TerminalsRouteImport } from "./routes/terminals";
 import { Route as TradeupRouteImport } from "./routes/tradeup";
+import { Route as ShareTokenRouteImport } from "./routes/share.$token";
 
 const IndexRoute = IndexRouteImport.update({
   id: "/",
@@ -52,6 +53,11 @@ const TradeupRoute = TradeupRouteImport.update({
   path: "/tradeup",
   getParentRoute: () => rootRouteImport,
 } as any);
+const ShareTokenRoute = ShareTokenRouteImport.update({
+  id: "/share/$token",
+  path: "/share/$token",
+  getParentRoute: () => rootRouteImport,
+} as any);
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   "/storage": typeof StorageRoute;
   "/terminals": typeof TerminalsRoute;
   "/tradeup": typeof TradeupRoute;
+  "/share/$token": typeof ShareTokenRoute;
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   "/storage": typeof StorageRoute;
   "/terminals": typeof TerminalsRoute;
   "/tradeup": typeof TradeupRoute;
+  "/share/$token": typeof ShareTokenRoute;
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
@@ -80,13 +88,39 @@ export interface FileRoutesById {
   "/storage": typeof StorageRoute;
   "/terminals": typeof TerminalsRoute;
   "/tradeup": typeof TradeupRoute;
+  "/share/$token": typeof ShareTokenRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/" | "/cases" | "/items" | "/settings" | "/storage" | "/terminals" | "/tradeup";
+  fullPaths:
+    | "/"
+    | "/cases"
+    | "/items"
+    | "/settings"
+    | "/storage"
+    | "/terminals"
+    | "/tradeup"
+    | "/share/$token";
   fileRoutesByTo: FileRoutesByTo;
-  to: "/" | "/cases" | "/items" | "/settings" | "/storage" | "/terminals" | "/tradeup";
-  id: "__root__" | "/" | "/cases" | "/items" | "/settings" | "/storage" | "/terminals" | "/tradeup";
+  to:
+    | "/"
+    | "/cases"
+    | "/items"
+    | "/settings"
+    | "/storage"
+    | "/terminals"
+    | "/tradeup"
+    | "/share/$token";
+  id:
+    | "__root__"
+    | "/"
+    | "/cases"
+    | "/items"
+    | "/settings"
+    | "/storage"
+    | "/terminals"
+    | "/tradeup"
+    | "/share/$token";
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
@@ -97,6 +131,7 @@ export interface RootRouteChildren {
   StorageRoute: typeof StorageRoute;
   TerminalsRoute: typeof TerminalsRoute;
   TradeupRoute: typeof TradeupRoute;
+  ShareTokenRoute: typeof ShareTokenRoute;
 }
 
 declare module "@tanstack/react-router" {
@@ -150,6 +185,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof TradeupRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/share/$token": {
+      id: "/share/$token";
+      path: "/share/$token";
+      fullPath: "/share/$token";
+      preLoaderRoute: typeof ShareTokenRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
   }
 }
 
@@ -161,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   StorageRoute: StorageRoute,
   TerminalsRoute: TerminalsRoute,
   TradeupRoute: TradeupRoute,
+  ShareTokenRoute: ShareTokenRoute,
 };
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
