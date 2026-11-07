@@ -22,6 +22,8 @@ export function TransferStatus() {
               transfer.fromName,
               transfer.toName,
             )}
+            {transfer.plan &&
+              ` · ${TRANSFER_STATUS.planStep(transfer.plan.step, transfer.plan.steps)}`}
           </p>
           <Button
             small
@@ -49,7 +51,9 @@ export function TransferStatus() {
     <div className="shrink-0 rounded-lg border bg-card px-4 py-3" role="status">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="tabular">
-          {TRANSFER_STATUS.finished(transfer.done, transfer.total, transfer.toName)}
+          {transfer.plan
+            ? TRANSFER_STATUS.planFinished(transfer.done, transfer.total, transfer.plan.steps)
+            : TRANSFER_STATUS.finished(transfer.done, transfer.total, transfer.toName)}
           {transfer.cancelled && ` · ${TRANSFER_STATUS.cancelled}`}
         </p>
         <Button

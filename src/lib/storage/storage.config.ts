@@ -11,6 +11,7 @@ export const STORAGE_API = {
   tradeUp: "/api/tradeup",
   tradeUpOdds: "/api/tradeup/odds",
   transfer: "/api/transfer",
+  transferPlan: "/api/transfer/plan",
   transferCancel: "/api/transfer/cancel",
   transferDismiss: "/api/transfer/dismiss",
   renameUnit: "/api/units/rename",

@@ -17,6 +17,7 @@ import type {
 import { DEFAULT_OPENING_KIND, OPENING_KINDS } from "../src/lib/cases/cases.config.ts";
 import type { OpeningKind } from "../src/lib/cases/cases.types.ts";
 import { createCaseStatsCache } from "./cases/case-stats-cache.ts";
+import { planRequestSchema, type PlanRequest } from "../src/lib/organiser/organiser.types.ts";
 import { encodeBody } from "./compression.ts";
 import { isAllowedHost } from "./host-guard.ts";
 import { createHistorySync } from "./cases/history-sync.ts";
@@ -164,6 +165,21 @@ function parseTransferRequest(body: unknown): TransferRequest {
     throw new UserFacingError("Invalid transfer request", HTTP.badRequest);
   }
   return { from, to, itemIds };
+}
+
+function parsePlanRequest(body: unknown): PlanRequest {
+  const parsed = planRequestSchema.safeParse(body);
+  const valid =
+    parsed.success &&
+    parsed.data.steps.every(
+      (step) =>
+        ITEM_ID_PATTERN.test(step.from) &&
+        ITEM_ID_PATTERN.test(step.to) &&
+        step.itemIds.length <= STORAGE_LIMITS.maxItemsPerTransfer &&
+        step.itemIds.every((id) => ITEM_ID_PATTERN.test(id)),
+    );
+  if (!parsed.success || !valid) throw new UserFacingError("Invalid plan", HTTP.badRequest);
+  return parsed.data;
 }
 
 function parseActivateRequest(body: unknown): ActivateTerminalRequest {
@@ -457,6 +473,12 @@ const server = createServer(async (req, res) => {
         assertJsonBody(req);
         requireReady();
         gateway.transferItems(parseTransferRequest(await readBody(req)));
+        return void res.writeHead(HTTP.accepted).end();
+      }
+      if (path === STORAGE_API.transferPlan) {
+        assertJsonBody(req);
+        requireReady();
+        gateway.transferPlan(parsePlanRequest(await readBody(req)));
         return void res.writeHead(HTTP.accepted).end();
       }
       if (path === STORAGE_API.renameUnit) {
