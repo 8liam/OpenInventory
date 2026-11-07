@@ -4,6 +4,7 @@ import { extname, join, normalize, sep } from "node:path";
 import { timingSafeEqual } from "node:crypto";
 import {
   GC_ATTRIBUTE,
+  PRICE_DATA,
   SSE_KEEP_ALIVE_MS,
   STORAGE_API,
   STORAGE_LIMITS,
@@ -31,7 +32,9 @@ import {
   MARKETPLACES,
 } from "../src/lib/settings/settings.config.ts";
 import type { Marketplace } from "../src/lib/settings/settings.types.ts";
-import { getPriceBook } from "./prices/prices.ts";
+import { getPriceBook, type PriceBook } from "./prices/prices.ts";
+import { findSellSuggestions, thresholdsFor } from "./suggestions/sell-suggestions.ts";
+import type { SellSuggestionsResponse } from "../src/lib/items/sell-suggestions.types.ts";
 import {
   DEFAULT_CONTENT_TYPE,
   ENV,
@@ -219,6 +222,16 @@ function historyCurrency({ currency, marketplace }: PriceScope): string {
   return marketplace === LEGACY_HISTORY_MARKETPLACE ? currency : `${currency}:${marketplace}`;
 }
 
+/** Steam's rolling averages in the viewer's currency; undefined when Steam can't be reached. */
+async function loadTrendBook(currency: string): Promise<PriceBook | undefined> {
+  try {
+    return await getPriceBook(db, currency, PRICE_DATA.trendMarketplace);
+  } catch (error) {
+    console.warn("[suggestions] trend averages unavailable:", error);
+    return undefined;
+  }
+}
+
 function parseOpeningKind(url: URL): OpeningKind {
   const value = url.searchParams.get("kind") ?? DEFAULT_OPENING_KIND;
   const kind = OPENING_KINDS.find((k) => k === value);
@@ -397,6 +410,31 @@ const server = createServer(async (req, res) => {
       if (aborted(req, res)) return;
       const items = collectItems(gateway, catalog, book).map((c) => c.view);
       return sendJson(res, HTTP.ok, { items, currency, priceUpdatedAt: book.fetchedAt });
+    }
+
+    if (path === STORAGE_API.suggestions && method === "GET") {
+      requireReady();
+      const scope = parseScope(url);
+      const book = await loadPrices(scope);
+      if (aborted(req, res)) return;
+      const items = collectItems(gateway, catalog, book).map((c) => c.view);
+      const trendBook = await loadTrendBook(scope.currency);
+      if (aborted(req, res)) return;
+      const suggestions = findSellSuggestions({
+        items,
+        trends: new Map(
+          [...(trendBook?.byName ?? [])].flatMap(([name, entry]) =>
+            entry.trend ? [[name, entry.trend] as const] : [],
+          ),
+        ),
+        thresholds: thresholdsFor(book.rate),
+        now: Date.now(),
+      });
+      return sendJson(res, HTTP.ok, {
+        currency: scope.currency,
+        trendsAvailable: trendBook !== undefined,
+        suggestions,
+      } satisfies SellSuggestionsResponse);
     }
 
     if (path === STORAGE_API.dashboard && method === "GET") {

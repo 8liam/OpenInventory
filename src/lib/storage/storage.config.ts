@@ -2,6 +2,7 @@ export const STORAGE_API = {
   refresh: "/api/refresh",
   items: "/api/items",
   dashboard: "/api/dashboard",
+  suggestions: "/api/suggestions",
   report: "/api/report",
   cases: "/api/cases",
   casesSync: "/api/cases/sync",
