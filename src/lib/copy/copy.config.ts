@@ -1,3 +1,5 @@
+import type { PatternTierMatch } from "../items/patterns/pattern-tiers.types.ts";
+
 export const COPY = {
   brand: { name: "OpenInventory", tagline: "Self-hosted CS2 inventory and storage unit tracker" },
   common: {
@@ -165,6 +167,19 @@ export const COPY = {
     allTypes: "All types",
     highlightsOnly: "Highlights only",
     highlights: "Highlights",
+    tierDescription: (match: PatternTierMatch) =>
+      `Tier ${match.tier} of ${match.tierCount} for ${match.weapon} ${match.finish} (${match.group})`,
+    tiersHelp: {
+      trigger: "About tiers",
+      title: "Pattern tiers",
+      intro:
+        "Skins with a sought-after seed or phase carry a tier badge. T1 is the most valuable tier for that weapon and finish; higher numbers are worth less.",
+      points: [
+        "The same seed can sit in a different tier on a different weapon.",
+        "Tiers come from community tier lists and fade percentages. They ignore float, stickers and price.",
+        "Highlights first lists T1 first, then by price. Highlights only hides everything else.",
+      ],
+    },
   },
   storage: {
     title: "Storage units",

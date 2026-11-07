@@ -1,7 +1,7 @@
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
 import {
   ItemHighlights,
-  ItemTierMarker,
+  ItemTierBadge,
 } from "~/components/item-highlights/item-highlights.component";
 import { splitItemName } from "~/components/item-label/item-label.utils";
 import { COPY } from "~/lib/copy/copy.config";
@@ -51,10 +51,7 @@ export function ItemGridCard({
     >
       <div className="relative">
         <ItemThumb imageUrl={item.imageUrl} rarityColor={item.rarityColor} className={thumbClass} />
-        <ItemTierMarker
-          item={item}
-          className="absolute right-1.5 top-1.5 rounded bg-background/80 p-1"
-        />
+        <ItemTierBadge item={item} className="absolute right-1.5 top-1.5 bg-background/80" />
         {selectable && (
           <label
             className={cn(

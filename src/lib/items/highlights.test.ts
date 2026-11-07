@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { ItemView } from "./item.types.ts";
-import { scoreItemHighlights } from "./highlights.ts";
+import { highlightRank, itemHighlights } from "./highlights.ts";
 
 function item(overrides: Partial<ItemView> = {}): ItemView {
   return {
@@ -34,88 +34,83 @@ function item(overrides: Partial<ItemView> = {}): ItemView {
   };
 }
 
-const labels = (highlights: ReturnType<typeof scoreItemHighlights>) =>
+const labels = (highlights: ReturnType<typeof itemHighlights>) =>
   highlights.reasons.map(({ label }) => label);
 
-describe("scoreItemHighlights", () => {
-  it("scores an extreme float relative to the skin's wear range and shows the float", () => {
-    const result = scoreItemHighlights(item({ paintSeed: null }));
-    assert.equal(result.score, 30);
+describe("itemHighlights", () => {
+  it("flags an extreme float relative to the skin's wear range and shows the float", () => {
+    const result = itemHighlights(item({ paintSeed: null }));
     assert.deepEqual(labels(result), ["Float 0.0020"]);
     assert.equal(result.reasons[0]?.kind, "float");
     assert.equal(result.tier, null);
   });
 
-  it("flags configured blue gem patterns and marks them exceptional", () => {
-    const result = scoreItemHighlights(item({ wear: 0.5, paintSeed: 661 }));
-    assert.equal(result.score, 45);
+  it("tiers a blue gem and names the seed in the pattern reason", () => {
+    const result = itemHighlights(item({ wear: 0.5, paintSeed: 661 }));
     assert.deepEqual(labels(result), ["Blue gem #661"]);
-    assert.equal(result.tier, "exceptional");
+    assert.equal(result.reasons[0]?.kind, "pattern");
+    assert.equal(result.tier?.tier, 1);
+    assert.equal(result.tier?.weapon, "AK-47");
   });
 
-  it("labels 100% fade seeds", () => {
-    const result = scoreItemHighlights(
-      item({ wear: 0.5, name: "Butterfly Knife | Fade", paintSeed: 763 }),
-    );
+  it("labels fade tiers with the percentage band", () => {
+    const result = itemHighlights(item({ wear: 0.5, name: "★ Bayonet | Fade", paintSeed: 763 }));
     assert.deepEqual(labels(result), ["100% Fade #763"]);
+    assert.equal(result.tier?.tier, 1);
   });
 
-  it("shows sticker crafts with a USD premium estimate", () => {
-    const result = scoreItemHighlights(
+  it("does not tier seeds that are not in the sourced lists", () => {
+    const result = itemHighlights(item({ wear: 0.5, paintSeed: 770 }));
+    assert.deepEqual(result.reasons, []);
+    assert.equal(result.tier, null);
+  });
+
+  it("shows a plain sticker craft reason with no price", () => {
+    const result = itemHighlights(
       item({
         wear: 0.5,
         paintSeed: null,
         stickers: [{ name: "Crown (Foil)", imageUrl: null }],
       }),
     );
-    assert.equal(result.estimatedPremiumUsd, 8);
     assert.deepEqual(labels(result), ["Sticker craft"]);
+    assert.equal(result.reasons[0]?.kind, "craft");
     assert.equal(result.tier, null);
+    assert.equal("estimatedPremiumUsd" in result, false);
   });
 
   it("does not infer highlights when float bounds or references are unavailable", () => {
-    const result = scoreItemHighlights(item({ minWear: null, maxWear: null, paintSeed: null }));
-    assert.equal(result.score, 0);
-    assert.equal(result.estimatedPremiumUsd, null);
+    const result = itemHighlights(item({ minWear: null, maxWear: null, paintSeed: null }));
     assert.deepEqual(result.reasons, []);
     assert.equal(result.tier, null);
   });
 
-  describe("doppler gem phases", () => {
-    const doppler = (name: string, paintIndex: number) =>
-      item({ wear: 0.5, paintSeed: 12, name, paintIndex });
+  it("scores gem phases by paint kit with no seed in the label", () => {
+    const sapphire = itemHighlights(
+      item({ wear: 0.5, paintSeed: 12, name: "★ Karambit | Doppler", paintIndex: 416 }),
+    );
+    assert.deepEqual(labels(sapphire), ["Sapphire"]);
+    assert.equal(sapphire.tier?.tier, 1);
+    const common = itemHighlights(
+      item({ wear: 0.5, paintSeed: 12, name: "★ Karambit | Doppler", paintIndex: 418 }),
+    );
+    assert.deepEqual(common.reasons, []);
+  });
 
-    it("scores Sapphire, Ruby and Black Pearl by paint kit", () => {
-      const cases = [
-        [416, "Sapphire"],
-        [415, "Ruby"],
-        [417, "Black Pearl"],
-      ] as const;
-      for (const [paintIndex, label] of cases) {
-        const result = scoreItemHighlights(doppler("★ Karambit | Doppler", paintIndex));
-        assert.equal(result.score, 45);
-        assert.deepEqual(labels(result), [label]);
-        assert.equal(result.reasons[0]?.kind, "pattern");
-        assert.equal(result.tier, "exceptional");
-      }
-    });
+  it("keeps a float reason beside the pattern tier", () => {
+    const result = itemHighlights(item({ wear: 0.002, paintSeed: 661 }));
+    assert.deepEqual(labels(result), ["Float 0.0020", "Blue gem #661"]);
+  });
+});
 
-    it("scores Emerald on Gamma Doppler", () => {
-      const result = scoreItemHighlights(doppler("★ Karambit | Gamma Doppler", 568));
-      assert.deepEqual(labels(result), ["Emerald"]);
-    });
-
-    it("scores a gem phase named in the item name", () => {
-      const result = scoreItemHighlights(
-        item({ wear: 0.5, paintSeed: null, name: "★ M9 Bayonet | Doppler Sapphire" }),
-      );
-      assert.deepEqual(labels(result), ["Sapphire"]);
-    });
-
-    it("ignores common Doppler phases and other finishes with a gem paint kit id", () => {
-      assert.equal(scoreItemHighlights(doppler("★ Karambit | Doppler", 419)).score, 0);
-      assert.equal(scoreItemHighlights(doppler("★ Karambit | Doppler Phase 2", 420)).score, 0);
-      assert.equal(scoreItemHighlights(doppler("AK-47 | Redline", 416)).score, 0);
-    });
+describe("highlightRank", () => {
+  it("orders tiered items by tier, then other highlights, then the rest", () => {
+    const t1 = highlightRank(item({ wear: 0.5, paintSeed: 661 }));
+    const t3 = highlightRank(item({ wear: 0.5, paintSeed: 11 }));
+    const floatOnly = highlightRank(item({ paintSeed: null }));
+    const none = highlightRank(item({ wear: 0.5, paintSeed: null }));
+    assert.ok(t1 < t3 && t3 < floatOnly && floatOnly < none);
+    assert.equal(t1, 1);
+    assert.equal(t3, 3);
   });
 });

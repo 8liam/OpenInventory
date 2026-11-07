@@ -10,10 +10,11 @@ import { TransferBar } from "~/components/transfer-bar/transfer-bar.component";
 import { ViewToggle } from "~/components/view-toggle/view-toggle.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { Select } from "~/components/select/select.component";
+import { TiersHelp } from "~/components/tiers-help/tiers-help.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
 import { matchesItem } from "~/lib/items/item-search";
-import { scoreItemHighlights } from "~/lib/items/highlights";
+import { itemHighlights } from "~/lib/items/highlights";
 import type { InventoryResponse } from "~/lib/items/item.types";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
@@ -87,7 +88,7 @@ function ItemsPage() {
         (i) =>
           (location === ALL || i.locationId === location) &&
           (type === ALL || i.category === type) &&
-          (!highlightsOnly || scoreItemHighlights(i).reasons.length > 0) &&
+          (!highlightsOnly || itemHighlights(i).reasons.length > 0) &&
           matchesItem(i, deferred),
       ),
     [items, location, type, highlightsOnly, deferred],
@@ -136,6 +137,7 @@ function ItemsPage() {
           <Gem size={14} aria-hidden className={highlightsOnly ? "text-accent" : undefined} />
           {COPY.items.highlightsOnly}
         </button>
+        <TiersHelp />
         <ViewToggle value={view} onChange={setView} />
       </PageHeader>
       {data.status === "loading" && (

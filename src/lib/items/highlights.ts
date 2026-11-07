@@ -2,33 +2,15 @@ import { formatFloat } from "../../utils/format.ts";
 import { HIGHLIGHTS } from "./highlights.config.ts";
 import type { ItemView } from "./item.types.ts";
 import type { HighlightReason, ItemHighlights } from "./highlights.types.ts";
+import { resolvePatternTier } from "./patterns/pattern-tiers.ts";
+import type { PatternTierMatch } from "./patterns/pattern-tiers.types.ts";
 
-function attachmentReferenceUsd(name: string): number | null {
-  const estimate = HIGHLIGHTS.attachmentEstimatesUsd.find((entry) =>
-    name.toLocaleLowerCase().includes(entry.name.toLocaleLowerCase()),
+function hasCraftAttachment(item: ItemView): boolean {
+  return [...item.stickers, ...item.charms].some(({ name }) =>
+    HIGHLIGHTS.craftAttachmentNames.some((craft) =>
+      name.toLocaleLowerCase().includes(craft.toLocaleLowerCase()),
+    ),
   );
-  return estimate?.value ?? null;
-}
-
-function gemPhaseLabel(item: ItemView): string | null {
-  const match = HIGHLIGHTS.gemPhases.find(
-    (phase) =>
-      item.name.includes(phase.finish) &&
-      (item.paintIndex === phase.paintIndex || item.name.includes(phase.label)),
-  );
-  return match?.label ?? null;
-}
-
-function patternLabel(item: ItemView): string | null {
-  const gem = gemPhaseLabel(item);
-  if (gem !== null) return gem;
-  const seed = item.paintSeed;
-  if (seed === null || seed === undefined) return null;
-  const match = HIGHLIGHTS.patterns.find(
-    (entry) =>
-      item.name.includes(entry.finish) && (entry.seeds as readonly number[]).includes(seed),
-  );
-  return match ? `${match.label} #${seed}` : null;
 }
 
 function floatSignal(item: ItemView): boolean {
@@ -38,39 +20,38 @@ function floatSignal(item: ItemView): boolean {
   return wear <= minWear + tail || wear >= maxWear - tail;
 }
 
-export function scoreItemHighlights(item: ItemView): ItemHighlights {
+function patternLabel({ label, seed }: PatternTierMatch): string {
+  return seed === null ? label : `${label} ${HIGHLIGHTS.seedMarker}${seed}`;
+}
+
+function computeHighlights(item: ItemView): ItemHighlights {
   const reasons: HighlightReason[] = [];
-  let score = 0;
   if (item.wear !== null && floatSignal(item)) {
-    score += HIGHLIGHTS.floatScore;
     reasons.push({
       kind: "float",
       label: `${HIGHLIGHTS.floatLabelPrefix} ${formatFloat(item.wear)}`,
     });
   }
+  const tier = resolvePatternTier(item);
+  if (tier !== null) reasons.push({ kind: "pattern", label: patternLabel(tier) });
+  if (hasCraftAttachment(item)) reasons.push({ kind: "craft", label: HIGHLIGHTS.craftLabel });
+  return { reasons, tier };
+}
 
-  const pattern = patternLabel(item);
-  if (pattern !== null) {
-    score += HIGHLIGHTS.patternScore;
-    reasons.push({ kind: "pattern", label: pattern });
-  }
+const cache = new WeakMap<ItemView, ItemHighlights>();
 
-  const referenceValue = [...item.stickers, ...item.charms]
-    .map(({ name }) => attachmentReferenceUsd(name))
-    .reduce<number>((sum, value) => sum + (value ?? 0), 0);
-  const estimatedPremiumUsd =
-    referenceValue > 0 ? referenceValue * HIGHLIGHTS.attachmentPremiumFactor : null;
-  if (estimatedPremiumUsd !== null) {
-    score += HIGHLIGHTS.attachmentScore;
-    reasons.push({ kind: "craft", label: HIGHLIGHTS.craftLabel });
-  }
+/** Why an item is notable, and its pattern tier if it has one. Memoised per item object. */
+export function itemHighlights(item: ItemView): ItemHighlights {
+  const cached = cache.get(item);
+  if (cached) return cached;
+  const computed = computeHighlights(item);
+  cache.set(item, computed);
+  return computed;
+}
 
-  const capped = Math.min(score, 100);
-  const notable = capped >= HIGHLIGHTS.notableScore;
-  return {
-    score: capped,
-    reasons: notable ? reasons : [],
-    tier: capped >= HIGHLIGHTS.exceptionalScore ? "exceptional" : null,
-    estimatedPremiumUsd,
-  };
+/** Lower sorts first: tiered items by tier number, then other highlights, then everything else. */
+export function highlightRank(item: ItemView): number {
+  const { tier, reasons } = itemHighlights(item);
+  if (tier !== null) return tier.tier;
+  return reasons.length > 0 ? HIGHLIGHTS.rank.untiered : HIGHLIGHTS.rank.none;
 }

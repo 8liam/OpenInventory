@@ -4,6 +4,6 @@ export type ItemHighlightsProps = {
   readonly item: ItemView;
 };
 
-export type ItemTierMarkerProps = ItemHighlightsProps & {
+export type ItemTierBadgeProps = ItemHighlightsProps & {
   readonly className?: string;
 };

@@ -35,7 +35,7 @@ export type ItemBase = {
   readonly wear: number | null;
   /** Paint seed for weapon finishes; charm seeds remain on `pattern`. */
   readonly paintSeed?: number | null;
-  /** Paint kit id; CS2 Doppler phase and finish are represented by the catalog name. */
+  /** Paint kit id; tells Doppler and Gamma Doppler phases apart, since they share a catalog name. */
   readonly paintIndex?: number | null;
   /** Paint wear bounds from the skin catalog, when the item resolves to a skin. */
   readonly minWear?: number | null;
