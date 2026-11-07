@@ -5,7 +5,7 @@ import { ItemTierBadge } from "~/components/item-highlights/item-highlights.comp
 import { ItemCell } from "~/components/item-cell/item-cell.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
-import { highlightRank } from "~/lib/items/highlights";
+import { highlightSortValue } from "~/lib/items/highlights";
 import type { ItemView } from "~/lib/items/item.types";
 import { formatFloat, formatMoney } from "~/utils/format";
 import { useMediaQuery } from "~/utils/use-media-query";
@@ -36,13 +36,13 @@ export function ItemTable({
       sortValue: (r) => r.price ?? -1,
       cell: (r) => (r.price === null ? COPY.common.empty : formatMoney(r.price, currency)),
     };
-    // Rank orders rows (T1 first); the cell shows only the tier badge.
+    // Orders rows T1 first, then by price; the cell shows only the tier badge.
     const highlights: DataTableColumn<ItemView> = {
       id: "highlights",
       header: COPY.items.highlights,
       width: wide ? ITEM_TABLE.widths.highlights : ITEM_TABLE.widths.highlightsNarrow,
       align: "right",
-      sortValue: (r) => -highlightRank(r),
+      sortValue: highlightSortValue,
       cell: (r) => <ItemTierBadge item={r} />,
     };
     if (!wide) return [item, highlights, price];

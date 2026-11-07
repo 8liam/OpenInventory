@@ -51,7 +51,7 @@ export function ItemGridCard({
     >
       <div className="relative">
         <ItemThumb imageUrl={item.imageUrl} rarityColor={item.rarityColor} className={thumbClass} />
-        <ItemTierBadge item={item} className="absolute right-1.5 top-1.5 bg-background/80" />
+        <ItemTierBadge item={item} className="absolute right-1.5 top-1.5 shadow-sm" />
         {selectable && (
           <label
             className={cn(

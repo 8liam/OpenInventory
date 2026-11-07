@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { ItemView } from "./item.types.ts";
-import { highlightRank, itemHighlights } from "./highlights.ts";
+import { highlightRank, highlightSortValue, itemHighlights } from "./highlights.ts";
 
 function item(overrides: Partial<ItemView> = {}): ItemView {
   return {
@@ -112,5 +112,15 @@ describe("highlightRank", () => {
     assert.ok(t1 < t3 && t3 < floatOnly && floatOnly < none);
     assert.equal(t1, 1);
     assert.equal(t3, 3);
+  });
+});
+
+describe("highlightSortValue", () => {
+  it("sorts a better tier above any price and breaks ties by price", () => {
+    const cheapT1 = highlightSortValue(item({ wear: 0.5, paintSeed: 661, price: 10 }));
+    const richT1 = highlightSortValue(item({ wear: 0.5, paintSeed: 661, price: 900 }));
+    const richT3 = highlightSortValue(item({ wear: 0.5, paintSeed: 11, price: 50_000 }));
+    assert.ok(richT1 > cheapT1);
+    assert.ok(cheapT1 > richT3);
   });
 });

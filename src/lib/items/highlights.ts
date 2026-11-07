@@ -55,3 +55,8 @@ export function highlightRank(item: ItemView): number {
   if (tier !== null) return tier.tier;
   return reasons.length > 0 ? HIGHLIGHTS.rank.untiered : HIGHLIGHTS.rank.none;
 }
+
+/** Table sort key, higher first: best rank, with price breaking ties. */
+export function highlightSortValue(item: ItemView): number {
+  return -highlightRank(item) * HIGHLIGHTS.rank.priceSpan + (item.price ?? 0);
+}

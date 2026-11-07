@@ -3,8 +3,8 @@ export const HIGHLIGHTS = {
   floatLabelPrefix: "Float",
   craftLabel: "Sticker craft",
   seedMarker: "#",
-  /** Sort ranks for highlights-first order; tiered items rank by their tier number, which is far below these. */
-  rank: { untiered: 1_000, none: 1_001 },
+  /** Sort ranks for highlights-first order (tiered items rank by their tier number, far below these); `priceSpan` exceeds any item price so price only breaks ties. */
+  rank: { untiered: 1_000, none: 1_001, priceSpan: 1_000_000_000 },
   /** Stickers and charms that make a craft notable, matched by name; no value is attached. */
   craftAttachmentNames: [
     "Crown (Foil)",
