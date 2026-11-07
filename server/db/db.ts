@@ -4,6 +4,9 @@ import { DatabaseSync } from "node:sqlite";
 import { SERVER_LIMITS } from "../server.config.ts";
 import type { GcItem } from "../steam/steam.types.ts";
 import type { HistoryEvent, HistorySyncState } from "../cases/cases.types.ts";
+import type { StoredShareLink } from "../share/share.types.ts";
+import type { ShareScope } from "../../src/lib/shares/share.types.ts";
+import type { Marketplace } from "../../src/lib/settings/settings.types.ts";
 import type { Database, SnapshotKey, ValueSnapshot } from "./db.types.ts";
 
 const DB_FILE = "openinventory.db";
@@ -58,6 +61,19 @@ const SCHEMA = `
     steam_id TEXT PRIMARY KEY,
     state_json TEXT NOT NULL
   );
+  CREATE TABLE IF NOT EXISTS share_links (
+    id TEXT PRIMARY KEY,
+    steam_id TEXT NOT NULL,
+    token_hash TEXT NOT NULL UNIQUE,
+    scope_json TEXT NOT NULL,
+    hide_prices INTEGER NOT NULL,
+    currency TEXT NOT NULL,
+    marketplace TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    expires_at INTEGER
+  );
+  CREATE INDEX IF NOT EXISTS share_links_by_steam
+    ON share_links (steam_id, created_at);
   CREATE INDEX IF NOT EXISTS history_events_by_time
     ON history_events (steam_id, occurred_at DESC, event_id DESC);
   CREATE INDEX IF NOT EXISTS value_snapshots_by_time
@@ -192,6 +208,16 @@ export function openDatabase(dataDir: string): Database {
     }
   };
   const pruneSnapshots = db.prepare("DELETE FROM value_snapshots WHERE taken_at < ?");
+  const insertShare = db.prepare(
+    "INSERT INTO share_links (id, steam_id, token_hash, scope_json, hide_prices, currency, marketplace, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+  );
+  const listShares = db.prepare(
+    "SELECT id, steam_id, token_hash, scope_json, hide_prices, currency, marketplace, created_at, expires_at FROM share_links WHERE steam_id = ? ORDER BY created_at DESC, id DESC",
+  );
+  const shareByHash = db.prepare(
+    "SELECT id, steam_id, token_hash, scope_json, hide_prices, currency, marketplace, created_at, expires_at FROM share_links WHERE token_hash = ?",
+  );
+  const deleteShare = db.prepare("DELETE FROM share_links WHERE steam_id = ? AND id = ?");
 
   return {
     getCache(key, maxAgeMs) {
@@ -286,6 +312,43 @@ export function openDatabase(dataDir: string): Database {
     saveHistorySync(steamId, state) {
       putSync.run(steamId, JSON.stringify(state));
     },
+    insertShareLink(link) {
+      insertShare.run(
+        link.id,
+        link.steamId,
+        link.tokenHash,
+        JSON.stringify(link.scope),
+        link.hidePrices ? 1 : 0,
+        link.currency,
+        link.marketplace,
+        link.createdAt,
+        link.expiresAt,
+      );
+    },
+    listShareLinks(steamId) {
+      return (listShares.all(steamId) as Row[]).map(toShareLink);
+    },
+    findShareLinkByHash(tokenHash) {
+      const row = shareByHash.get(tokenHash) as Row | undefined;
+      return row ? toShareLink(row) : undefined;
+    },
+    deleteShareLink(steamId, id) {
+      return Number(deleteShare.run(steamId, id).changes) > 0;
+    },
     close: () => db.close(),
+  };
+}
+
+function toShareLink(row: Row): StoredShareLink {
+  return {
+    id: String(row.id),
+    steamId: String(row.steam_id),
+    tokenHash: String(row.token_hash),
+    scope: JSON.parse(String(row.scope_json)) as ShareScope,
+    hidePrices: Number(row.hide_prices) === 1,
+    currency: String(row.currency),
+    marketplace: String(row.marketplace) as Marketplace,
+    createdAt: Number(row.created_at),
+    expiresAt: row.expires_at == null ? null : Number(row.expires_at),
   };
 }

@@ -1,5 +1,6 @@
 import type { HistoryEvent, HistorySyncState } from "../cases/cases.types.ts";
 import type { GcItem } from "../steam/steam.types.ts";
+import type { StoredShareLink } from "../share/share.types.ts";
 
 export type ValueSnapshot = {
   readonly takenAt: number;
@@ -39,5 +40,11 @@ export type Database = {
   readonly loadHistoryEvents: (steamId: string) => readonly HistoryEvent[];
   readonly loadHistorySync: (steamId: string) => HistorySyncState | undefined;
   readonly saveHistorySync: (steamId: string, state: HistorySyncState) => void;
+  readonly insertShareLink: (link: StoredShareLink) => void;
+  /** Every link the account has, newest first. Never includes a token. */
+  readonly listShareLinks: (steamId: string) => readonly StoredShareLink[];
+  readonly findShareLinkByHash: (tokenHash: string) => StoredShareLink | undefined;
+  /** Returns false when no link with that id belongs to the account. */
+  readonly deleteShareLink: (steamId: string, id: string) => boolean;
   readonly close: () => void;
 };
