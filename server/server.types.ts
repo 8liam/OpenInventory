@@ -2,5 +2,4 @@
 export type SnapshotTimers = {
   initial?: NodeJS.Timeout;
   interval?: NodeJS.Timeout;
-  report?: NodeJS.Timeout;
 };

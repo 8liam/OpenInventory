@@ -60,7 +60,6 @@ import { createSessionStore } from "./steam/session-store.ts";
 import { createRealGateway } from "./steam/steam.real.ts";
 import { UserFacingError, type StorageGateway } from "./steam/steam.types.ts";
 import { computeTradeUp, listTradeUpCandidates, type TradeUpCandidate } from "./tradeup.ts";
-import { buildSummaryReport } from "./report.ts";
 
 const HTTP = {
   ok: 200,
@@ -500,42 +499,6 @@ const server = createServer(async (req, res) => {
       );
     }
 
-    if (path === STORAGE_API.report && method === "GET") {
-      const account = parseAccountScope(url, true);
-      const gateways = account.kind === "all" ? readyGateways() : [readyGateway(account.steamId)];
-      const scope = parseScope(url);
-      const { currency } = scope;
-      const book = await loadPrices(scope);
-      if (aborted(req, res)) return;
-      const items = collectAllItems(gateways, catalog, book).map((entry) => entry.view);
-      const units = gateways.flatMap((gateway) => gateway.getSnapshot().units);
-      const series = gateways.map((gateway) =>
-        db.listSnapshots({ steamId: gateway.getSteamId(), currency: historyCurrency(scope) }),
-      );
-      const dashboard = buildDashboard({
-        items,
-        history:
-          series.length === 1
-            ? (series[0] ?? [])
-            : mergeHistories(series, SERVER_LIMITS.snapshotIntervalMs),
-        currency,
-        priceUpdatedAt: book.fetchedAt,
-        unitsLoaded: units.filter((unit) => unit.loaded).length,
-        unitsTotal: units.length,
-      });
-      const report = buildSummaryReport({
-        period: settings.reportPeriod,
-        history: dashboard.history,
-        holdings: dashboard.topHoldings,
-        currency,
-      });
-      res.setHeader(
-        "content-disposition",
-        `attachment; filename=openinventory-${report.period}-report.json`,
-      );
-      return sendJson(res, HTTP.ok, report);
-    }
-
     if (path === STORAGE_API.cases && method === "GET") {
       const { steamId } = singleAccount(parseAccountScope(url, false));
       readyGateway(steamId);
@@ -721,45 +684,6 @@ function rememberScope(scope: PriceScope): void {
 // Record history even when nobody has the dashboard open. `onReady` fires on every
 // (re)connect of an account, so each account's timers are only started once.
 const snapshotTimers = new Map<string, SnapshotTimers>();
-
-async function deliverScheduledReport(steamId: string, gateway: StorageGateway): Promise<void> {
-  if (!settings.reportWebhookUrl) return;
-  const now = new Date();
-  const periodKey =
-    settings.reportPeriod === "weekly"
-      ? String(Math.floor(now.getTime() / (7 * 86_400_000)))
-      : `${now.getUTCFullYear()}-${now.getUTCMonth() + 1}`;
-  const markerKey = `report-webhook:${steamId}:${settings.reportPeriod}`;
-  if (db.getCacheStale(markerKey) === periodKey) return;
-  const scope = trackedScopes()[0];
-  if (!scope) return;
-  const book = await loadPrices(scope);
-  const items = collectItems(gateway, catalog, book).map((entry) => entry.view);
-  const units = gateway.getSnapshot().units;
-  const dashboard = buildDashboard({
-    items,
-    history: db.listSnapshots({ steamId, currency: historyCurrency(scope) }),
-    currency: scope.currency,
-    priceUpdatedAt: book.fetchedAt,
-    unitsLoaded: units.filter((unit) => unit.loaded).length,
-    unitsTotal: units.length,
-  });
-  const report = buildSummaryReport({
-    period: settings.reportPeriod,
-    history: dashboard.history,
-    holdings: dashboard.topHoldings,
-    currency: scope.currency,
-  });
-  const response = await fetch(settings.reportWebhookUrl, {
-    method: "POST",
-    headers: { "content-type": JSON_CONTENT_TYPE },
-    body: JSON.stringify(report),
-    signal: AbortSignal.timeout(15_000),
-  });
-  if (!response.ok) throw new Error(`Webhook returned HTTP ${response.status}`);
-  db.setCache(markerKey, periodKey);
-}
-
 accounts.onReady((steamId, gateway) => {
   if (snapshotTimers.has(steamId)) return;
   const tick = () => {
@@ -767,18 +691,9 @@ accounts.onReady((steamId, gateway) => {
       void recordSnapshot(gateway, scope).catch((e: unknown) => console.warn("[snapshot]", e));
     }
   };
-  const report = settings.reportWebhookUrl
-    ? setInterval(() => {
-        void deliverScheduledReport(steamId, gateway).catch((error: unknown) =>
-          console.warn("[report] webhook delivery failed:", error),
-        );
-      }, SERVER_LIMITS.reportCheckIntervalMs)
-    : undefined;
-  report?.unref();
   snapshotTimers.set(steamId, {
     initial: setTimeout(tick, SERVER_LIMITS.snapshotInitialDelayMs),
     interval: setInterval(tick, SERVER_LIMITS.snapshotIntervalMs),
-    report,
   });
 });
 
@@ -808,7 +723,6 @@ function shutdown(): void {
   for (const timers of snapshotTimers.values()) {
     clearTimeout(timers.initial);
     clearInterval(timers.interval);
-    if (timers.report) clearInterval(timers.report);
   }
   for (const stream of eventStreams) stream.end();
   const force = setTimeout(() => server.closeAllConnections(), SERVER_LIMITS.shutdownGraceMs);

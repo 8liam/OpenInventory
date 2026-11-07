@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Download, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/button/button.component";
 import { HoldingsTable } from "~/components/holdings-table/holdings-table.component";
@@ -29,15 +29,6 @@ function DashboardPage() {
     snapshot.revision,
   );
   const [refreshing, setRefreshing] = useState(false);
-  const [showReport, setShowReport] = useState(false);
-  const reportPath = useScopedPath(`${STORAGE_API.report}?${priceQuery}`);
-  const report = useRemoteData<{
-    period: "weekly" | "monthly";
-    currency: string;
-    currentValue: number;
-    valueChange: number | null;
-    topMovers: readonly { name: string; value: number; count: number }[];
-  }>(showReport ? reportPath : undefined, snapshot.revision);
   const copy = COPY.dashboard;
 
   async function refresh() {
@@ -65,51 +56,12 @@ function DashboardPage() {
           <RefreshCw size={12} className={refreshing ? "motion-safe:animate-spin" : undefined} />
           {refreshing ? COPY.common.refreshing : COPY.common.refresh}
         </Button>
-        <a
-          className="inline-flex h-7 items-center gap-1.5 rounded-md border px-2.5 text-xs hover:bg-muted"
-          href={reportPath}
-          download
-        >
-          <Download size={12} /> Summary report
-        </a>
-        <Button small onClick={() => setShowReport((visible) => !visible)}>
-          {showReport ? "Hide report" : "View report"}
-        </Button>
       </UpdatedHeader>
 
       {data.status === "loading" && <DashboardSkeleton />}
       {data.status === "error" && (
         <p role="alert" className="text-destructive">
           {COPY.common.errorPrefix} {data.message}
-        </p>
-      )}
-
-      {showReport && report.status === "ready" && (
-        <Panel title={`${report.data.period === "weekly" ? "Weekly" : "Monthly"} summary report`}>
-          <p className="text-sm">
-            Current value: {formatReportMoney(report.data.currentValue, report.data.currency)}
-          </p>
-          <p className="text-sm">
-            Value change:{" "}
-            {report.data.valueChange === null
-              ? "Not enough history yet"
-              : formatReportMoney(report.data.valueChange, report.data.currency)}
-          </p>
-          <ul className="mt-3 space-y-1 text-sm">
-            {report.data.topMovers.map((mover) => (
-              <li key={mover.name} className="flex justify-between gap-3">
-                <span>
-                  {mover.name} ×{mover.count}
-                </span>
-                <span>{formatReportMoney(mover.value, report.data.currency)}</span>
-              </li>
-            ))}
-          </ul>
-        </Panel>
-      )}
-      {showReport && report.status === "error" && (
-        <p role="alert" className="text-destructive">
-          {COPY.common.errorPrefix} {report.message}
         </p>
       )}
 
@@ -138,8 +90,4 @@ function DashboardPage() {
       )}
     </>
   );
-}
-
-function formatReportMoney(value: number, currency: string): string {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(value);
 }

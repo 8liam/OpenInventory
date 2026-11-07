@@ -16,8 +16,6 @@ export const ENV = {
   password: "OPENINVENTORY_PASSWORD",
   webDir: "OPENINVENTORY_WEB_DIR",
   allowedHosts: "OPENINVENTORY_ALLOWED_HOSTS",
-  reportPeriod: "OPENINVENTORY_REPORT_PERIOD",
-  reportWebhookUrl: "OPENINVENTORY_REPORT_WEBHOOK_URL",
 } as const;
 
 export type ServerSettings = {
@@ -30,28 +28,12 @@ export type ServerSettings = {
   readonly webDir: string | undefined;
   /** Extra hostnames accepted without a password; a leading dot matches subdomains. */
   readonly allowedHosts: readonly string[];
-  readonly reportPeriod: "weekly" | "monthly";
-  readonly reportWebhookUrl: string | undefined;
 };
 
 export function readSettings(env: NodeJS.ProcessEnv = process.env): ServerSettings {
   const port = Number(env[ENV.port] ?? DEFAULT_PORT);
   if (!Number.isInteger(port) || port <= 0)
     throw new Error(`${ENV.port} must be a positive integer`);
-  const reportPeriod = env[ENV.reportPeriod] ?? "weekly";
-  if (reportPeriod !== "weekly" && reportPeriod !== "monthly")
-    throw new Error(`${ENV.reportPeriod} must be weekly or monthly`);
-  const reportWebhookUrl = env[ENV.reportWebhookUrl] || undefined;
-  if (reportWebhookUrl) {
-    let parsed: URL;
-    try {
-      parsed = new URL(reportWebhookUrl);
-    } catch {
-      throw new Error(`${ENV.reportWebhookUrl} must be an HTTPS URL`);
-    }
-    if (parsed.protocol !== "https:")
-      throw new Error(`${ENV.reportWebhookUrl} must be an HTTPS URL`);
-  }
   return {
     host: env[ENV.host] ?? DEFAULT_HOST,
     port,
@@ -62,8 +44,6 @@ export function readSettings(env: NodeJS.ProcessEnv = process.env): ServerSettin
       .split(ALLOWED_HOSTS_SEPARATOR)
       .map((entry) => entry.trim().toLowerCase().replace(PORT_SUFFIX, ""))
       .filter(Boolean),
-    reportPeriod,
-    reportWebhookUrl,
   };
 }
 
@@ -96,7 +76,6 @@ export const SERVER_LIMITS = {
   snapshotRetentionDays: 730,
   /** Lets unit contents finish loading before the first background snapshot. */
   snapshotInitialDelayMs: 90_000,
-  reportCheckIntervalMs: 60 * 60 * 1000,
   /** How long in-flight requests (e.g. SSE streams) get to finish before connections are cut. */
   shutdownGraceMs: 5000,
   basicAuthRealm: "OpenInventory",
