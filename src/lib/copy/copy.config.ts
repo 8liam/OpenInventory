@@ -163,6 +163,10 @@ export const COPY = {
     description: "Everything you own across inventory and storage units.",
     allLocations: "All locations",
     allTypes: "All types",
+    notableItems: "Notable rarity only",
+    allRarity: "All rarity scores",
+    rarityScore: "Rarity",
+    estimatedPremium: "Est. premium",
   },
   storage: {
     title: "Storage units",

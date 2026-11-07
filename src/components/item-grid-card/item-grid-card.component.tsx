@@ -1,4 +1,5 @@
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
+import { ItemRarity } from "~/components/item-rarity/item-rarity.component";
 import { splitItemName } from "~/components/item-label/item-label.utils";
 import { COPY } from "~/lib/copy/copy.config";
 import { cn } from "~/utils/cn";
@@ -87,6 +88,7 @@ export function ItemGridCard({
           <p className="tabular shrink-0 text-xs text-muted-foreground">{status}</p>
         )}
       </div>
+      <ItemRarity item={item} />
       {showLocation && (
         <p className="mt-0.5 truncate text-xs text-muted-foreground">{item.locationName}</p>
       )}

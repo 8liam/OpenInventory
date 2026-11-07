@@ -4,6 +4,7 @@ import type { DataTableColumn } from "~/components/data-table/data-table.types";
 import { ItemCell } from "~/components/item-cell/item-cell.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
+import { scoreItemRarity } from "~/lib/items/rarity-scoring";
 import type { ItemView } from "~/lib/items/item.types";
 import { formatFloat, formatMoney } from "~/utils/format";
 import { useMediaQuery } from "~/utils/use-media-query";
@@ -34,7 +35,15 @@ export function ItemTable({
       sortValue: (r) => r.price ?? -1,
       cell: (r) => (r.price === null ? COPY.common.empty : formatMoney(r.price, currency)),
     };
-    if (!wide) return [item, price];
+    const rarity: DataTableColumn<ItemView> = {
+      id: "rarity",
+      header: COPY.items.rarityScore,
+      width: wide ? ITEM_TABLE.widths.rarity : ITEM_TABLE.widths.rarityNarrow,
+      align: "right",
+      sortValue: (r) => scoreItemRarity(r).score,
+      cell: (r) => scoreItemRarity(r).score,
+    };
+    if (!wide) return [item, rarity, price];
     const location: DataTableColumn<ItemView>[] = showLocation
       ? [
           {
@@ -64,6 +73,7 @@ export function ItemTable({
         sortValue: (r) => r.wear ?? -1,
         cell: (r) => (r.wear === null ? COPY.common.empty : formatFloat(r.wear)),
       },
+      rarity,
       price,
     ];
   }, [currency, showLocation, wide]);

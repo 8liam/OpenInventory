@@ -12,6 +12,7 @@ import { Select } from "~/components/select/select.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
 import { matchesItem } from "~/lib/items/item-search";
+import { scoreItemRarity } from "~/lib/items/rarity-scoring";
 import type { InventoryResponse } from "~/lib/items/item.types";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/items")({
 });
 
 const ALL = "all";
+const NOTABLE = "notable";
 const SELECT_WIDTH = "min-w-0 flex-1 sm:w-48 sm:flex-none";
 
 function ItemsPage() {
@@ -47,6 +49,7 @@ function ItemsPage() {
   }
   const [location, setLocation] = useState(ALL);
   const [type, setType] = useState(ALL);
+  const [rarity, setRarity] = useState(ALL);
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
   const deferred = useDeferredValue(query);
   const items = data.status === "ready" ? data.data.items : undefined;
@@ -83,9 +86,10 @@ function ItemsPage() {
         (i) =>
           (location === ALL || i.locationId === location) &&
           (type === ALL || i.category === type) &&
+          (rarity !== NOTABLE || scoreItemRarity(i).badges.length > 0) &&
           matchesItem(i, deferred),
       ),
-    [items, location, type, deferred],
+    [items, location, type, rarity, deferred],
   );
 
   const selectedItems = useMemo(
@@ -118,6 +122,16 @@ function ItemsPage() {
           className={SELECT_WIDTH}
           options={typeOptions}
           onChange={setType}
+        />
+        <Select
+          value={rarity}
+          ariaLabel={COPY.items.allRarity}
+          className={SELECT_WIDTH}
+          options={[
+            { id: ALL, label: COPY.items.allRarity },
+            { id: NOTABLE, label: COPY.items.notableItems },
+          ]}
+          onChange={setRarity}
         />
         <ViewToggle value={view} onChange={setView} />
       </PageHeader>

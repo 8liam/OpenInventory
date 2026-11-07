@@ -1,5 +1,6 @@
 import type { ItemView } from "../../lib/items/item.types.ts";
 import type { ItemGridSortId } from "./item-grid.types.ts";
+import { scoreItemRarity } from "../../lib/items/rarity-scoring.ts";
 
 /** Ascending compare that always sends missing values (no price, no float) to the end. */
 function compareNullsLast(a: number | null, b: number | null, direction: 1 | -1): number {
@@ -18,6 +19,8 @@ export function sortItems(items: readonly ItemView[], sort: ItemGridSortId): rea
       return sorted.sort((a, b) => compareNullsLast(a.wear, b.wear, 1));
     case "float-desc":
       return sorted.sort((a, b) => compareNullsLast(a.wear, b.wear, -1));
+    case "rarity-desc":
+      return sorted.sort((a, b) => scoreItemRarity(b).score - scoreItemRarity(a).score);
     case "name":
       return sorted.sort((a, b) => a.name.localeCompare(b.name));
   }
