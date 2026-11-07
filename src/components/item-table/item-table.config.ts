@@ -4,6 +4,7 @@ export const ITEM_TABLE = {
   /** CSS grid tracks, shared by the table and its loading skeleton. */
   widths: {
     item: { wide: "4fr", narrow: "minmax(0, 1fr)" },
+    account: "1.3fr",
     location: "1.6fr",
     type: "1.2fr",
     float: "0.9fr",

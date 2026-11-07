@@ -8,6 +8,7 @@ import { TradeUpOutcomes } from "~/components/tradeup-outcomes/tradeup-outcomes.
 import { TradeUpSkeleton } from "~/components/tradeup-skeleton/tradeup-skeleton.component";
 import { COPY } from "~/lib/copy/copy.config";
 import type { TradeUpCandidatesResponse, TradeUpOddsResponse } from "~/lib/items/item.types";
+import { useScopedPath } from "~/lib/accounts/account-scope.hooks";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API, TRADE_UP } from "~/lib/storage/storage.config";
 import { usePriceQuery } from "~/lib/settings/settings.store";
@@ -28,10 +29,8 @@ function TradeUpPage() {
   const priceQuery = usePriceQuery();
   const [rarity, setRarity] = useState<string>(TRADE_UP.defaultInputRarity);
   const [selection, setSelection] = useState<readonly string[]>([]);
-  const candidates = useRemoteData<TradeUpCandidatesResponse>(
-    `${STORAGE_API.tradeUp}?rarity=${rarity}&${priceQuery}`,
-    snapshot.revision,
-  );
+  const candidatesPath = useScopedPath(`${STORAGE_API.tradeUp}?rarity=${rarity}&${priceQuery}`);
+  const candidates = useRemoteData<TradeUpCandidatesResponse>(candidatesPath, snapshot.revision);
   const copy = COPY.tradeup;
   // Data fetched for the previous rarity lingers while the new one loads; ignore it.
   const current = candidates.status === "ready" && candidates.data.ok ? candidates.data : undefined;
@@ -45,10 +44,11 @@ function TradeUpPage() {
   }, [ready, selection]);
   const orderedIds = useMemo(() => [...selectedIds], [selectedIds]);
 
+  const oddsPath = useScopedPath(
+    `${STORAGE_API.tradeUpOdds}?rarity=${rarity}&ids=${orderedIds.join(SELECTION_SEPARATOR)}&${priceQuery}`,
+  );
   const odds = useRemoteData<TradeUpOddsResponse>(
-    orderedIds.length === 0
-      ? undefined
-      : `${STORAGE_API.tradeUpOdds}?rarity=${rarity}&ids=${orderedIds.join(SELECTION_SEPARATOR)}&${priceQuery}`,
+    orderedIds.length === 0 ? undefined : oddsPath,
     snapshot.revision,
   );
   const result = odds.status === "ready" && odds.data.ok ? odds.data : undefined;

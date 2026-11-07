@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { INVENTORY_LOCATION_ID, type ItemView } from "../src/lib/items/item.types.ts";
 import { DASHBOARD } from "../src/lib/storage/storage.config.ts";
-import { buildDashboard, summarizeValue } from "./dashboard.ts";
+import { buildDashboard, mergeHistories, summarizeValue } from "./dashboard.ts";
 import type { ValueSnapshot } from "./db/db.types.ts";
 
 const NOW = 1_800_000_000_000;
@@ -32,6 +32,7 @@ function item(id: string, overrides: Partial<ItemView> = {}): ItemView {
     price: 10,
     locationId: INVENTORY_LOCATION_ID,
     locationName: "Inventory",
+    accountId: "1",
     ...overrides,
   };
 }
@@ -189,4 +190,42 @@ test("empty inventory yields a zeroed dashboard without throwing", () => {
   assert.equal(dash.totals.value, 0);
   assert.deepEqual(dash.byCategory, []);
   assert.deepEqual(dash.topHoldings, []);
+});
+
+const HOUR = 3_600_000;
+const point = (takenAt: number, totalValue: number): ValueSnapshot => ({
+  takenAt,
+  totalValue,
+  inventoryValue: totalValue / 2,
+  storageValue: totalValue / 2,
+  itemCount: 1,
+});
+
+test("mergeHistories carries each account forward instead of zigzagging between them", () => {
+  // A reports at :10 each hour, B at :40; summing raw timestamps would swing 100 -> 40 -> 100.
+  const a = [point(10 * HOUR + 10, 100), point(11 * HOUR + 10, 100), point(12 * HOUR + 10, 100)];
+  const b = [point(9 * HOUR + 40, 40), point(10 * HOUR + 40, 40), point(11 * HOUR + 40, 40)];
+  const merged = mergeHistories([a, b], HOUR);
+  assert.deepEqual(
+    merged.map((m) => m.totalValue),
+    [40, 140, 140, 140],
+  );
+  assert.equal(merged.at(-1)?.takenAt, 12 * HOUR + 10);
+  assert.equal(merged.at(-1)?.itemCount, 2);
+});
+
+test("mergeHistories of one series is that series, and of none is empty", () => {
+  const only = [point(HOUR, 5), point(3 * HOUR, 7)];
+  assert.deepEqual(mergeHistories([only], HOUR), only);
+  assert.deepEqual(mergeHistories([], HOUR), []);
+  assert.deepEqual(mergeHistories([[], []], HOUR), []);
+});
+
+test("an account that starts reporting later adds to the total from then on", () => {
+  const early = [point(HOUR, 10), point(2 * HOUR, 10), point(3 * HOUR, 10)];
+  const late = [point(3 * HOUR + 5, 90)];
+  assert.deepEqual(
+    mergeHistories([early, late], HOUR).map((m) => m.totalValue),
+    [10, 10, 100],
+  );
 });

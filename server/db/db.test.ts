@@ -228,3 +228,23 @@ test("a database that can't be opened for other reasons is an error, not a quara
   assert.throws(() => openDatabase(dir));
   assert.deepEqual(quarantined(dir), []);
 });
+
+test("accounts: add is idempotent, labels persist, removal keeps the account's history", () => {
+  const { db } = freshDb();
+  db.addAccount(STEAM_ID);
+  db.addAccount(OTHER_STEAM_ID);
+  db.addAccount(STEAM_ID);
+  assert.equal(db.setAccountLabel(STEAM_ID, "trade"), true);
+  assert.equal(db.setAccountLabel("76561190000000099", "alt"), false);
+  assert.deepEqual(
+    db.listAccounts().map((a) => [a.steamId, a.label]),
+    [
+      [STEAM_ID, "trade"],
+      [OTHER_STEAM_ID, null],
+    ],
+  );
+  db.addSnapshot(KEY, snapshot(Date.now(), 5));
+  db.removeAccount(STEAM_ID);
+  assert.equal(db.listAccounts().length, 1);
+  assert.equal(db.listSnapshots(KEY).length, 1);
+});

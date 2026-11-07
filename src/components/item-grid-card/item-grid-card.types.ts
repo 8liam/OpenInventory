@@ -5,6 +5,8 @@ export type ItemGridCardProps = {
   readonly item: ItemView;
   readonly currency: string;
   readonly showLocation: boolean;
+  /** The holding account, shown ahead of the location in the all-accounts view. */
+  readonly accountName?: string;
   readonly index: number;
   /** Selection is on; the card toggles when activated. */
   readonly selectable: boolean;

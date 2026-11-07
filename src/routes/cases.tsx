@@ -16,7 +16,8 @@ import { CASES_PAGE, DEFAULT_OPENING_KIND } from "~/lib/cases/cases.config";
 import type { CasesResponse, OpeningKind } from "~/lib/cases/cases.types";
 import { cn } from "~/utils/cn";
 import { COPY } from "~/lib/copy/copy.config";
-import { callStorageApi, usePageVisible, useRemoteData } from "~/lib/storage/storage.client";
+import { useScopedPath, useSingleAccountId } from "~/lib/accounts/account-scope.hooks";
+import { postJson, usePageVisible, useRemoteData } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 
 export const Route = createFileRoute("/cases")({ component: CasesPage });
@@ -25,7 +26,11 @@ function CasesPage() {
   const copy = COPY.cases;
   const [tick, setTick] = useState(0);
   const [kind, setKind] = useState<OpeningKind>(DEFAULT_OPENING_KIND);
-  const data = useRemoteData<CasesResponse>(`${STORAGE_API.cases}?kind=${kind}`, tick);
+  const accountId = useSingleAccountId();
+  const data = useRemoteData<CasesResponse>(
+    useScopedPath(`${STORAGE_API.cases}?kind=${kind}`),
+    tick,
+  );
   const running = data.status === "ready" && data.data.sync.state === "running";
   const visible = usePageVisible();
 
@@ -37,7 +42,8 @@ function CasesPage() {
   }, [running, visible]);
 
   async function sync() {
-    await callStorageApi(STORAGE_API.casesSync);
+    if (accountId === undefined) return;
+    await postJson(STORAGE_API.casesSync, { accountId });
     setTick((t) => t + 1);
   }
 

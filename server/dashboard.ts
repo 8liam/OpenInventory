@@ -6,6 +6,7 @@ import type {
   Slice,
   ValueChange,
 } from "../src/lib/items/dashboard.types.ts";
+import { itemRowKey } from "../src/lib/items/item-key.ts";
 import { INVENTORY_LOCATION_ID, type ItemView } from "../src/lib/items/item.types.ts";
 import { DASHBOARD } from "../src/lib/storage/storage.config.ts";
 import type { ValueSnapshot } from "./db/db.types.ts";
@@ -123,7 +124,7 @@ export function buildDashboard(args: {
 
   const withFloat = items.filter((i) => i.wear !== null);
   const toHighlight = (i: ItemView): FloatHighlight => ({
-    id: `${i.locationId}:${i.id}`,
+    id: itemRowKey(i),
     name: i.name,
     wear: i.wear ?? 0,
     imageUrl: i.imageUrl,
@@ -175,4 +176,53 @@ export function buildDashboard(args: {
     topHoldings: holdings.slice(0, DASHBOARD.topHoldingCount),
     insights: { lowestFloats, highestFloats, stacks: stackList },
   };
+}
+
+/**
+ * Adds several accounts' value histories into one series. Accounts snapshot at different
+ * moments, so summing raw timestamps would zigzag as each one reports. Instead every bucket
+ * that has a new snapshot sums each account's latest snapshot at or before the bucket's end,
+ * carrying an account forward until it reports again.
+ */
+export function mergeHistories(
+  series: readonly (readonly ValueSnapshot[])[],
+  bucketMs: number,
+): ValueSnapshot[] {
+  const bucketOf = (takenAt: number) => Math.floor(takenAt / bucketMs);
+  const buckets = [
+    ...new Set(series.flatMap((snapshots) => snapshots.map((s) => bucketOf(s.takenAt)))),
+  ].sort((a, b) => a - b);
+  const cursors = series.map(() => -1);
+  const merged: ValueSnapshot[] = [];
+  for (const bucket of buckets) {
+    let takenAt = 0;
+    let total = 0;
+    let inventory = 0;
+    let storage = 0;
+    let count = 0;
+    series.forEach((snapshots, index) => {
+      let cursor = cursors[index] ?? -1;
+      while (snapshots[cursor + 1] && bucketOf(snapshots[cursor + 1]?.takenAt ?? 0) <= bucket) {
+        cursor += 1;
+        const reported = snapshots[cursor];
+        if (reported && bucketOf(reported.takenAt) === bucket)
+          takenAt = Math.max(takenAt, reported.takenAt);
+      }
+      cursors[index] = cursor;
+      const latest = snapshots[cursor];
+      if (!latest) return;
+      total += latest.totalValue;
+      inventory += latest.inventoryValue;
+      storage += latest.storageValue;
+      count += latest.itemCount;
+    });
+    merged.push({
+      takenAt,
+      totalValue: total,
+      inventoryValue: inventory,
+      storageValue: storage,
+      itemCount: count,
+    });
+  }
+  return merged;
 }
