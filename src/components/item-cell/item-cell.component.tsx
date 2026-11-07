@@ -34,7 +34,7 @@ export function ItemCell({ item }: ItemCellProps) {
       {item.terminal !== null &&
         !item.terminal.isActive &&
         item.locationId === INVENTORY_LOCATION_ID && (
-          <TerminalActivate itemId={item.id} name={item.name} />
+          <TerminalActivate itemId={item.id} accountId={item.accountId} name={item.name} />
         )}
       {item.terminal?.isActive === true && item.locationId === INVENTORY_LOCATION_ID && (
         <Link to="/terminals" className="text-[11px] text-muted-foreground hover:text-foreground">

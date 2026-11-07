@@ -7,7 +7,12 @@ import { TradeUpInputs } from "~/components/tradeup-inputs/tradeup-inputs.compon
 import { TradeUpOutcomes } from "~/components/tradeup-outcomes/tradeup-outcomes.component";
 import { TradeUpSkeleton } from "~/components/tradeup-skeleton/tradeup-skeleton.component";
 import { COPY } from "~/lib/copy/copy.config";
-import type { TradeUpCandidatesResponse, TradeUpOddsResponse } from "~/lib/items/item.types";
+import type {
+  TradeUpCandidatesResponse,
+  TradeUpFinderResponse,
+  TradeUpOddsResponse,
+} from "~/lib/items/item.types";
+import { useScopedPath } from "~/lib/accounts/account-scope.hooks";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API, TRADE_UP } from "~/lib/storage/storage.config";
 import { usePriceQuery } from "~/lib/settings/settings.store";
@@ -28,10 +33,10 @@ function TradeUpPage() {
   const priceQuery = usePriceQuery();
   const [rarity, setRarity] = useState<string>(TRADE_UP.defaultInputRarity);
   const [selection, setSelection] = useState<readonly string[]>([]);
-  const candidates = useRemoteData<TradeUpCandidatesResponse>(
-    `${STORAGE_API.tradeUp}?rarity=${rarity}&${priceQuery}`,
-    snapshot.revision,
-  );
+  const [finderStatTrak, setFinderStatTrak] = useState<"all" | "normal" | "stattrak">("all");
+  const [includeStorage, setIncludeStorage] = useState(false);
+  const candidatesPath = useScopedPath(`${STORAGE_API.tradeUp}?rarity=${rarity}&${priceQuery}`);
+  const candidates = useRemoteData<TradeUpCandidatesResponse>(candidatesPath, snapshot.revision);
   const copy = COPY.tradeup;
   // Data fetched for the previous rarity lingers while the new one loads; ignore it.
   const current = candidates.status === "ready" && candidates.data.ok ? candidates.data : undefined;
@@ -45,13 +50,18 @@ function TradeUpPage() {
   }, [ready, selection]);
   const orderedIds = useMemo(() => [...selectedIds], [selectedIds]);
 
+  const oddsPath = useScopedPath(
+    `${STORAGE_API.tradeUpOdds}?rarity=${rarity}&ids=${orderedIds.join(SELECTION_SEPARATOR)}&${priceQuery}`,
+  );
   const odds = useRemoteData<TradeUpOddsResponse>(
-    orderedIds.length === 0
-      ? undefined
-      : `${STORAGE_API.tradeUpOdds}?rarity=${rarity}&ids=${orderedIds.join(SELECTION_SEPARATOR)}&${priceQuery}`,
+    orderedIds.length === 0 ? undefined : oddsPath,
     snapshot.revision,
   );
   const result = odds.status === "ready" && odds.data.ok ? odds.data : undefined;
+  const finderPath = useScopedPath(
+    `${STORAGE_API.tradeUpFinder}?rarity=${rarity}&statTrak=${finderStatTrak}&includeStorage=${includeStorage}&${priceQuery}`,
+  );
+  const finder = useRemoteData<TradeUpFinderResponse>(finderPath, snapshot.revision);
 
   function toggle(id: string) {
     setSelection((current) =>
@@ -83,6 +93,82 @@ function TradeUpPage() {
           }}
         />
       </PageHeader>
+      <section className="flex flex-wrap items-center gap-3 rounded-lg border border-border p-3">
+        <h2 className="mr-auto font-medium">{copy.finderTitle}</h2>
+        <label className="flex items-center gap-2 text-sm">
+          {copy.statTrakFilter}
+          <select
+            className="rounded border border-border bg-background px-2 py-1"
+            value={finderStatTrak}
+            onChange={(event) => setFinderStatTrak(event.target.value as typeof finderStatTrak)}
+          >
+            <option value="all">{copy.allItems}</option>
+            <option value="normal">{copy.normalOnly}</option>
+            <option value="stattrak">{copy.statTrakOnly}</option>
+          </select>
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={includeStorage}
+            onChange={(event) => setIncludeStorage(event.target.checked)}
+          />
+          {copy.includeStorage}
+        </label>
+      </section>
+      {finder.status === "loading" && (
+        <p className="text-sm text-muted-foreground">{copy.searching}</p>
+      )}
+      {finder.status === "error" && (
+        <p role="alert" className="text-destructive">
+          {COPY.common.errorPrefix} {finder.message}
+        </p>
+      )}
+      {finder.status === "ready" && finder.data.results.length === 0 && (
+        <p className="text-sm text-muted-foreground">{copy.noFinderResults}</p>
+      )}
+      {finder.status === "ready" && finder.data.results.length > 0 && (
+        <div className="flex flex-col gap-3 overflow-y-auto">
+          {finder.data.results.map((contract, index) => (
+            <article
+              key={contract.inputIds.join(":")}
+              className="rounded-lg border border-border p-3"
+            >
+              <div className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                <strong>#{index + 1}</strong>
+                <span>EV {formatMoney(contract.expectedValue, finder.data.currency)}</span>
+                <span>Cost {formatMoney(contract.inputCost, finder.data.currency)}</span>
+                <span className={contract.profit >= 0 ? "text-positive" : "text-destructive"}>
+                  Profit {formatMoney(contract.profit, finder.data.currency)}
+                </span>
+                <span>Float {formatFloat(contract.odds.ok ? contract.odds.averageFloat : 0)}</span>
+              </div>
+              <p className="mb-2 text-xs text-muted-foreground">
+                Inputs: {contract.inputs.map((item) => item.name).join(", ")}
+              </p>
+              {contract.odds.ok && (
+                <div className="grid gap-1 text-xs sm:grid-cols-2 lg:grid-cols-3">
+                  {contract.odds.outcomes.map((outcome) => (
+                    <div
+                      key={`${outcome.name}:${outcome.float}`}
+                      className="flex justify-between gap-2 rounded bg-muted/40 px-2 py-1"
+                    >
+                      <span className="truncate">
+                        {outcome.name} · {formatPercent(outcome.probability)}
+                      </span>
+                      <span className="shrink-0">
+                        {outcome.price === null
+                          ? COPY.common.empty
+                          : formatMoney(outcome.price, finder.data.currency)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </article>
+          ))}
+        </div>
+      )}
       {(candidates.status === "loading" || (current && !ready)) && <TradeUpSkeleton />}
       {candidates.status === "error" && (
         <p role="alert" className="text-destructive">

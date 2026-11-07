@@ -19,7 +19,7 @@ function tempDir(t: TestContext): string {
 
 test("save round-trips, stays owner-only and leaves no temp file", (t) => {
   const dir = tempDir(t);
-  const file = createSessionFile(dir);
+  const file = createSessionFile(join(dir, "session.json"));
   file.save(SESSION);
   file.save({ ...SESSION, refreshToken: "t2" });
   assert.equal(file.load()?.refreshToken, "t2");
@@ -35,6 +35,6 @@ test("save round-trips, stays owner-only and leaves no temp file", (t) => {
 test("sign-out also removes a token left in the temp file by an interrupted save", (t) => {
   const dir = tempDir(t);
   writeFileSync(join(dir, LEFTOVER_TEMP), JSON.stringify(SESSION));
-  createSessionFile(dir).clear();
+  createSessionFile(join(dir, "session.json")).clear();
   assert.deepEqual(readdirSync(dir), []);
 });

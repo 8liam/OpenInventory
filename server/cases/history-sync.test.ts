@@ -26,7 +26,7 @@ test("automatic sync starts a new history and resumes an unfinished first pass",
     });
     return response;
   };
-  const sync = createHistorySync(db, { getWebCookies: async () => [] });
+  const sync = createHistorySync(db, async () => []);
 
   sync.start("new-account", { onlyIfStale: true });
   assert.equal(sync.status("new-account").state, "running");
@@ -49,4 +49,28 @@ test("automatic sync starts a new history and resumes an unfinished first pass",
   await new Promise<void>((resolve) => setImmediate(resolve));
   assert.equal(db.loadHistorySync("interrupted-account")?.complete, true);
   assert.equal(requests[1]?.searchParams.get("cursor[time]"), "1");
+});
+
+test("one account's sync state never shows on another account", async (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "openinventory-history-"));
+  const db = openDatabase(dir);
+  const originalFetch = globalThis.fetch;
+  const originalWarn = console.warn;
+  t.after(() => {
+    globalThis.fetch = originalFetch;
+    console.warn = originalWarn;
+    db.close();
+    rmSync(dir, { recursive: true, force: true });
+  });
+  console.warn = () => undefined;
+  globalThis.fetch = async () => {
+    throw new Error("steam is down");
+  };
+  const sync = createHistorySync(db, async () => []);
+  sync.start("broken-account");
+  assert.equal(sync.status("other-account").state, "idle");
+  await new Promise<void>((resolve) => setTimeout(resolve, 20));
+  assert.equal(sync.status("broken-account").state, "error");
+  assert.equal(sync.status("other-account").state, "idle");
+  assert.equal(sync.status("other-account").message, null);
 });

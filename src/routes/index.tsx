@@ -11,7 +11,8 @@ import { Panel } from "~/components/panel/panel.component";
 import { PortfolioHero } from "~/components/portfolio-hero/portfolio-hero.component";
 import { COPY } from "~/lib/copy/copy.config";
 import type { Dashboard } from "~/lib/items/dashboard.types";
-import { callStorageApi, useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
+import { useAccountScope, useScopedPath } from "~/lib/accounts/account-scope.hooks";
+import { postJson, useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { usePriceQuery, useSettings } from "~/lib/settings/settings.store";
 
@@ -22,8 +23,9 @@ function DashboardPage() {
   const currency = useSettings((s) => s.currency);
   const marketplace = useSettings((s) => s.marketplace);
   const priceQuery = usePriceQuery();
+  const { scoped } = useAccountScope();
   const data = useRemoteData<Dashboard>(
-    `${STORAGE_API.dashboard}?${priceQuery}`,
+    useScopedPath(`${STORAGE_API.dashboard}?${priceQuery}`),
     snapshot.revision,
   );
   const [refreshing, setRefreshing] = useState(false);
@@ -32,7 +34,11 @@ function DashboardPage() {
   async function refresh() {
     setRefreshing(true);
     try {
-      await callStorageApi(`${STORAGE_API.refresh}?${priceQuery}`);
+      await Promise.all(
+        scoped.map((account) =>
+          postJson(`${STORAGE_API.refresh}?${priceQuery}`, { accountId: account.steamId }),
+        ),
+      );
     } finally {
       setRefreshing(false);
     }

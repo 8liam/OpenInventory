@@ -13,6 +13,7 @@ export function collectItems(
   catalog: Catalog,
   book: PriceBook,
 ): CollectedItem[] {
+  const accountId = gateway.getSteamId();
   const priceOf = (hash: string | null): number | null =>
     hash ? (book.byName.get(hash)?.price ?? null) : null;
 
@@ -26,6 +27,7 @@ export function collectItems(
         locationId,
         locationName,
         collections: skin?.collectionNames ?? [],
+        accountId,
       },
     };
   };
@@ -37,4 +39,13 @@ export function collectItems(
     for (const raw of unit.items) collected.push(toCollected(raw, unit.id, unit.name));
   }
   return collected;
+}
+
+/** Items of several accounts, in account order. */
+export function collectAllItems(
+  gateways: readonly StorageGateway[],
+  catalog: Catalog,
+  book: PriceBook,
+): CollectedItem[] {
+  return gateways.flatMap((gateway) => collectItems(gateway, catalog, book));
 }

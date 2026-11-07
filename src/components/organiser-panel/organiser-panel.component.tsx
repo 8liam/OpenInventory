@@ -19,7 +19,7 @@ function uniqueSorted(values: Iterable<string | null>): readonly string[] {
   return [...new Set([...values].filter((v): v is string => v !== null && v !== ""))].sort();
 }
 
-export function OrganiserPanel({ items, units, itemsReady, busy }: OrganiserPanelProps) {
+export function OrganiserPanel({ items, units, itemsReady, accountId, busy }: OrganiserPanelProps) {
   const { rules, addRule, removeRule, moveRule } = useOrganiser();
   // The plan frozen when the dialog opened, so what is confirmed is what was reviewed.
   const [reviewing, setReviewing] = useState<MovePlan>();
@@ -136,8 +136,9 @@ export function OrganiserPanel({ items, units, itemsReady, busy }: OrganiserPane
         workingLabel={ORGANISER_PANEL.dialog.working}
         cancelLabel={ORGANISER_PANEL.dialog.cancel}
         onConfirm={async () => {
-          if (!reviewing) return;
+          if (!reviewing || accountId === undefined) return;
           await postJson(STORAGE_API.transferPlan, {
+            accountId,
             steps: reviewing.steps.map(({ from, to, itemIds }) => ({ from, to, itemIds })),
           });
         }}

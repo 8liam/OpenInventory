@@ -50,7 +50,9 @@ export function TerminalList({ terminals }: TerminalListProps) {
                     </span>
                   )}
                 </div>
-                {item.locationId === INVENTORY_LOCATION_ID && <OfferPanel terminalId={item.id} />}
+                {item.locationId === INVENTORY_LOCATION_ID && (
+                  <OfferPanel terminalId={item.id} accountId={item.accountId} />
+                )}
               </div>
             ))}
           </div>
@@ -63,7 +65,7 @@ export function TerminalList({ terminals }: TerminalListProps) {
               <div key={item.id} className="flex flex-wrap items-center justify-between gap-2">
                 <TerminalLabel item={item} />
                 {item.locationId === INVENTORY_LOCATION_ID ? (
-                  <TerminalActivate itemId={item.id} name={item.name} />
+                  <TerminalActivate itemId={item.id} accountId={item.accountId} name={item.name} />
                 ) : (
                   <span className="text-xs text-muted-foreground">{COPY.terminal.inStorage}</span>
                 )}

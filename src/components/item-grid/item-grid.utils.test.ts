@@ -28,6 +28,7 @@ function item(id: string, name: string, price: number | null, wear: number | nul
     locationId: "inventory",
     locationName: "Inventory",
     collections: [],
+    accountId: "1",
   };
 }
 

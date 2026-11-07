@@ -15,7 +15,13 @@ export type UnitContents = {
 export type StorageGateway = {
   readonly getSnapshot: () => StorageSnapshot;
   readonly subscribe: (listener: SnapshotListener) => () => void;
-  readonly startQrLogin: () => Promise<void>;
+  /** Connects to Steam if this account hasn't been yet. Accounts connect lazily. */
+  readonly ensureConnected: () => void;
+  /** Retries the saved login after an error. */
+  readonly reconnect: () => void;
+  /** Drops the connection but keeps the saved login and cached units. */
+  readonly disconnect: () => void;
+  /** Signs this account out: drops the connection, deletes its saved login and cached units. */
   readonly logout: () => void;
   /** Loose inventory items (storage units and their contents excluded). */
   readonly getInventory: () => readonly GcItem[];
@@ -39,7 +45,7 @@ export type StorageGateway = {
   readonly cancelTransfer: () => void;
   readonly dismissTransfer: () => void;
   readonly onReady: (listener: (steamId: string) => void) => void;
-  readonly getSteamId: () => string | undefined;
+  readonly getSteamId: () => string;
   /** Steam Community cookies (`name=value`), for fetching pages that have no GC equivalent. */
   readonly getWebCookies: (refresh: boolean) => Promise<readonly string[]>;
 };
