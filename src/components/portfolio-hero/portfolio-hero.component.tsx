@@ -1,5 +1,6 @@
 import { ChangeLine } from "~/components/change-line/change-line.component";
 import { HistoryPanel } from "~/components/history-panel/history-panel.component";
+import { LockOpen } from "lucide-react";
 import { COPY } from "~/lib/copy/copy.config";
 import { formatInteger, formatMoney } from "~/utils/format";
 import { PORTFOLIO_HERO } from "./portfolio-hero.config";
@@ -17,7 +18,11 @@ export function PortfolioHero({ dashboard, currency }: PortfolioHeroProps) {
       detail: `${totals.unitsLoaded}/${totals.unitsTotal} units`,
     },
     { label: copy.items, value: formatInteger(totals.itemCount) },
-    { label: copy.tradableNow, value: formatInteger(totals.tradableNowCount) },
+    {
+      label: copy.tradableNow,
+      value: formatInteger(totals.tradableNowCount),
+      icon: <LockOpen size={12} className="text-success" aria-hidden />,
+    },
   ];
   return (
     <section className="overflow-hidden rounded-xl border bg-card">
@@ -34,7 +39,10 @@ export function PortfolioHero({ dashboard, currency }: PortfolioHeroProps) {
         <dl className="flex gap-6 md:gap-8">
           {stats.map((stat) => (
             <div key={stat.label} className="min-w-0">
-              <dt className="text-xs text-muted-foreground">{stat.label}</dt>
+              <dt className="flex items-center gap-1 text-xs text-muted-foreground">
+                {stat.icon}
+                {stat.label}
+              </dt>
               <dd className="tabular mt-1 text-base font-medium">{stat.value}</dd>
               {stat.detail && (
                 <dd className="tabular text-xs text-muted-foreground">{stat.detail}</dd>

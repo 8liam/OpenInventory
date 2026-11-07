@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { CalendarClock, Clock, LockOpen } from "lucide-react";
 import { ItemLabel } from "~/components/item-label/item-label.component";
 import { LoadingRegion } from "~/components/loading-region/loading-region.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
@@ -87,7 +88,15 @@ function TradabilityPage() {
         <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pb-4">
           {scope !== "now" &&
             groups.map((group) => (
-              <Panel key={group.key} title={group.label}>
+              <Panel
+                key={group.key}
+                title={
+                  <span className="inline-flex items-center gap-1.5">
+                    <CalendarClock size={14} className="text-muted-foreground" aria-hidden />
+                    {group.label}
+                  </span>
+                }
+              >
                 <ul className="divide-y">
                   {group.items.map((item) => (
                     <UnlockRow
@@ -101,7 +110,14 @@ function TradabilityPage() {
               </Panel>
             ))}
           {scope === "now" && (
-            <Panel title={copy.unrestricted}>
+            <Panel
+              title={
+                <span className="inline-flex items-center gap-1.5">
+                  <LockOpen size={14} className="text-success" aria-hidden />
+                  {copy.unrestricted}
+                </span>
+              }
+            >
               <ul className="divide-y">
                 {filtered.map((item) => (
                   <UnlockRow
@@ -159,12 +175,23 @@ function UnlockRow({
       />
       <div className="shrink-0 text-right text-xs">
         <p className="tabular text-warning">
-          {item.tradableAfter === null || item.tradableAfter <= now
-            ? COPY.tradability.unrestricted
-            : COPY.tradability.daysUntil(daysUntilUnlock(item.tradableAfter, now))}
+          {item.tradableAfter === null || item.tradableAfter <= now ? (
+            <span className="inline-flex items-center justify-end gap-1">
+              <LockOpen size={13} aria-hidden />
+              {COPY.tradability.unrestricted}
+            </span>
+          ) : (
+            <span className="inline-flex items-center justify-end gap-1">
+              <Clock size={13} aria-hidden />
+              {COPY.tradability.daysUntil(daysUntilUnlock(item.tradableAfter, now))}
+            </span>
+          )}
         </p>
         {item.tradableAfter !== null && (
-          <p className="text-muted-foreground">{new Date(item.tradableAfter).toLocaleString()}</p>
+          <p className="inline-flex items-center justify-end gap-1 text-muted-foreground">
+            <CalendarClock size={12} aria-hidden />
+            {new Date(item.tradableAfter).toLocaleString()}
+          </p>
         )}
         {item.price !== null && (
           <p className="text-muted-foreground">
