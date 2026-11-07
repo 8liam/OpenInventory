@@ -51,6 +51,7 @@ import type { SnapshotTimers } from "./server.types.ts";
 import { createRealGateway } from "./steam/steam.real.ts";
 import { UserFacingError } from "./steam/steam.types.ts";
 import { computeTradeUp, listTradeUpCandidates, type TradeUpCandidate } from "./tradeup.ts";
+import { buildSummaryReport } from "./report.ts";
 
 const HTTP = {
   ok: 200,
@@ -422,6 +423,35 @@ const server = createServer(async (req, res) => {
       );
     }
 
+    if (path === STORAGE_API.report && method === "GET") {
+      const steamId = requireReady();
+      const scope = parseScope(url);
+      const { currency } = scope;
+      const book = await loadPrices(scope);
+      if (aborted(req, res)) return;
+      const items = collectItems(gateway, catalog, book).map((entry) => entry.view);
+      const units = gateway.getSnapshot().units;
+      const dashboard = buildDashboard({
+        items,
+        history: db.listSnapshots({ steamId, currency: historyCurrency(scope) }),
+        currency,
+        priceUpdatedAt: book.fetchedAt,
+        unitsLoaded: units.filter((unit) => unit.loaded).length,
+        unitsTotal: units.length,
+      });
+      const report = buildSummaryReport({
+        period: settings.reportPeriod,
+        history: dashboard.history,
+        holdings: dashboard.topHoldings,
+        currency,
+      });
+      res.setHeader(
+        "content-disposition",
+        `attachment; filename=openinventory-${report.period}-report.json`,
+      );
+      return sendJson(res, HTTP.ok, report);
+    }
+
     if (path === STORAGE_API.cases && method === "GET") {
       const steamId = requireReady();
       historySync.start(steamId, { onlyIfStale: true });
@@ -592,6 +622,46 @@ function rememberScope(scope: PriceScope): void {
 // (re)connect, so the timers are only started once.
 let snapshotJobStarted = false;
 const snapshotTimers: SnapshotTimers = {};
+let reportTimer: ReturnType<typeof setInterval> | undefined;
+
+async function deliverScheduledReport(steamId: string): Promise<void> {
+  if (!settings.reportWebhookUrl) return;
+  const now = new Date();
+  const periodKey =
+    settings.reportPeriod === "weekly"
+      ? String(Math.floor(now.getTime() / (7 * 86_400_000)))
+      : `${now.getUTCFullYear()}-${now.getUTCMonth() + 1}`;
+  const markerKey = `report-webhook:${steamId}:${settings.reportPeriod}`;
+  if (db.getCacheStale(markerKey) === periodKey) return;
+  const scope = trackedScopes()[0];
+  if (!scope) return;
+  const book = await loadPrices(scope);
+  const items = collectItems(gateway, catalog, book).map((entry) => entry.view);
+  const units = gateway.getSnapshot().units;
+  const dashboard = buildDashboard({
+    items,
+    history: db.listSnapshots({ steamId, currency: historyCurrency(scope) }),
+    currency: scope.currency,
+    priceUpdatedAt: book.fetchedAt,
+    unitsLoaded: units.filter((unit) => unit.loaded).length,
+    unitsTotal: units.length,
+  });
+  const report = buildSummaryReport({
+    period: settings.reportPeriod,
+    history: dashboard.history,
+    holdings: dashboard.topHoldings,
+    currency: scope.currency,
+  });
+  const response = await fetch(settings.reportWebhookUrl, {
+    method: "POST",
+    headers: { "content-type": JSON_CONTENT_TYPE },
+    body: JSON.stringify(report),
+    signal: AbortSignal.timeout(15_000),
+  });
+  if (!response.ok) throw new Error(`Webhook returned HTTP ${response.status}`);
+  db.setCache(markerKey, periodKey);
+}
+
 gateway.onReady((steamId) => {
   if (snapshotJobStarted) return;
   snapshotJobStarted = true;
@@ -602,6 +672,14 @@ gateway.onReady((steamId) => {
   };
   snapshotTimers.initial = setTimeout(tick, SERVER_LIMITS.snapshotInitialDelayMs);
   snapshotTimers.interval = setInterval(tick, SERVER_LIMITS.snapshotIntervalMs);
+  if (settings.reportWebhookUrl) {
+    reportTimer = setInterval(() => {
+      void deliverScheduledReport(steamId).catch((error: unknown) =>
+        console.warn("[report] webhook delivery failed:", error),
+      );
+    }, SERVER_LIMITS.reportCheckIntervalMs);
+    reportTimer.unref();
+  }
 });
 
 server.listen(settings.port, settings.host, () => {
@@ -624,6 +702,7 @@ function shutdown(): void {
   shuttingDown = true;
   clearTimeout(snapshotTimers.initial);
   clearInterval(snapshotTimers.interval);
+  if (reportTimer) clearInterval(reportTimer);
   for (const stream of eventStreams) stream.end();
   const force = setTimeout(() => server.closeAllConnections(), SERVER_LIMITS.shutdownGraceMs);
   force.unref();
