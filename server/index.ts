@@ -60,6 +60,7 @@ import { createSessionStore } from "./steam/session-store.ts";
 import { createRealGateway } from "./steam/steam.real.ts";
 import { UserFacingError, type StorageGateway } from "./steam/steam.types.ts";
 import { computeTradeUp, listTradeUpCandidates, type TradeUpCandidate } from "./tradeup.ts";
+import { findTradeUps } from "./tradeup-finder.ts";
 
 const HTTP = {
   ok: 200,
@@ -509,7 +510,12 @@ const server = createServer(async (req, res) => {
       });
     }
 
-    if ((path === STORAGE_API.tradeUp || path === STORAGE_API.tradeUpOdds) && method === "GET") {
+    if (
+      (path === STORAGE_API.tradeUp ||
+        path === STORAGE_API.tradeUpOdds ||
+        path === STORAGE_API.tradeUpFinder) &&
+      method === "GET"
+    ) {
       const gateway = readyGateway(singleAccount(parseAccountScope(url, false)).steamId);
       const scope = parseScope(url);
       const { currency } = scope;
@@ -518,6 +524,27 @@ const server = createServer(async (req, res) => {
       const candidates: TradeUpCandidate[] = collectItems(gateway, catalog, book).flatMap((c) =>
         c.skin ? [{ view: c.view, skin: c.skin }] : [],
       );
+      if (path === STORAGE_API.tradeUpFinder) {
+        const statTrak = url.searchParams.get("statTrak") ?? "all";
+        if (statTrak !== "all" && statTrak !== "normal" && statTrak !== "stattrak") {
+          throw new UserFacingError("Invalid StatTrak filter", HTTP.badRequest);
+        }
+        return sendJson(
+          res,
+          HTTP.ok,
+          findTradeUps(
+            candidates,
+            {
+              rarityId: rarity,
+              statTrak,
+              includeStorage: url.searchParams.get("includeStorage") === "true",
+            },
+            catalog,
+            book,
+            currency,
+          ),
+        );
+      }
       if (path === STORAGE_API.tradeUp) {
         return sendJson(res, HTTP.ok, listTradeUpCandidates(candidates, rarity, catalog, currency));
       }

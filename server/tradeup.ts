@@ -10,8 +10,12 @@ import type { PriceBook } from "./prices/prices.ts";
 
 export type TradeUpCandidate = { readonly view: ItemView; readonly skin: SkinFacts };
 
-const MIN_PRICE = 0;
 const VANILLA_SKIN = "Vanilla";
+
+/** Unpriced inputs would look free, so they can't take part in a trade-up. */
+export function isPriced(c: TradeUpCandidate): boolean {
+  return c.view.price !== null;
+}
 
 export function inputCountFor(rarityId: string): number {
   return rarityId === TRADE_UP.covertRarity ? TRADE_UP.covertInputCount : TRADE_UP.inputCount;
@@ -54,7 +58,9 @@ export function listTradeUpCandidates(
     ok: true,
     rarityId,
     inputCount: inputCountFor(rarityId),
-    candidates: eligibleSorted(candidates, rarityId, catalog).map((c) => c.view),
+    candidates: eligibleSorted(candidates, rarityId, catalog)
+      .filter(isPriced)
+      .map((c) => c.view),
     currency,
   };
 }
@@ -63,11 +69,23 @@ function sortOutcomes(outcomes: TradeUpOutcome[]): TradeUpOutcome[] {
   return outcomes.sort((a, b) => b.probability - a.probability || (b.price ?? 0) - (a.price ?? 0));
 }
 
+/** An input's float scaled into its own skin's [minFloat, maxFloat] range, as the game does. */
+function normalisedFloat(c: TradeUpCandidate): number {
+  const span = c.skin.maxFloat - c.skin.minFloat;
+  if (span <= 0) return 0;
+  const scaled = ((c.view.wear ?? 0) - c.skin.minFloat) / span;
+  return Math.min(1, Math.max(0, scaled));
+}
+
 /**
  * Odds for the chosen inputs. Each input contributes 1/N to its pool and that
  * share is split evenly across the pool's outcomes: the next-tier skins of its
  * collection, or (for covert) the knives and gloves of its case. Output float =
- * avg(input float) scaled into the output's [min, max] range.
+ * mean of each input's range-normalised float, scaled into the output's [min, max]
+ * range; `averageFloat` in the response is that normalised mean.
+ *
+ * Outcomes without a price count as 0 in the expected value (so it is a lower
+ * bound); the finder skips such contracts instead.
  */
 export function computeTradeUp(
   candidates: readonly TradeUpCandidate[],
@@ -95,13 +113,16 @@ export function computeTradeUp(
   if (inputs.length !== selectedIds.length) {
     return { ok: false, reason: "Some selected skins can no longer be used. Reselect them." };
   }
+  if (!inputs.every(isPriced)) {
+    return { ok: false, reason: "Some selected skins have no price yet." };
+  }
   const isStatTrak = inputs[0]?.skin.isStatTrak ?? false;
   if (inputs.some((c) => c.skin.isStatTrak !== isStatTrak)) {
     return { ok: false, reason: "StatTrak and normal skins can't be mixed." };
   }
 
-  const averageFloat = inputs.reduce((sum, c) => sum + (c.view.wear ?? 0), 0) / inputs.length;
-  const inputCost = inputs.reduce((sum, c) => sum + (c.view.price ?? MIN_PRICE), 0);
+  const averageFloat = inputs.reduce((sum, c) => sum + normalisedFloat(c), 0) / inputs.length;
+  const inputCost = inputs.reduce((sum, c) => sum + (c.view.price ?? 0), 0);
   const priceOf = (hash: string | null | undefined, phase?: string | null): number | null => {
     const entry = hash ? prices.byName.get(hash) : undefined;
     return (phase ? entry?.phases?.[phase] : undefined) ?? entry?.price ?? null;

@@ -58,6 +58,9 @@ export type SkinFacts = {
   readonly rarityId: string;
   readonly isStatTrak: boolean;
   readonly isSouvenir: boolean;
+  /** The skin's float range; trade-ups normalise each input's float into it. */
+  readonly minFloat: number;
+  readonly maxFloat: number;
 };
 
 export type DescribedItem = {
