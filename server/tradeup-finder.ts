@@ -6,7 +6,7 @@ import {
 import { TRADE_UP, TRADE_UP_FINDER } from "../src/lib/storage/storage.config.ts";
 import type { Catalog } from "./items/catalog.types.ts";
 import type { PriceBook } from "./prices/prices.ts";
-import { computeTradeUp, inputCountFor, type TradeUpCandidate } from "./tradeup.ts";
+import { computeTradeUp, inputCountFor, isPriced, type TradeUpCandidate } from "./tradeup.ts";
 
 /** Search bounded price, float, and collection cohorts; this is a fast heuristic, not exhaustive. */
 export function findTradeUps(
@@ -20,6 +20,7 @@ export function findTradeUps(
   const eligible = candidates.filter((candidate) => {
     if (candidate.skin.rarityId !== options.rarityId || candidate.skin.isSouvenir) return false;
     if (candidate.view.wear === null || candidate.view.tradableAfter) return false;
+    if (!isPriced(candidate)) return false;
     if (!options.includeStorage && candidate.view.locationId !== INVENTORY_LOCATION_ID)
       return false;
     if (options.statTrak === "normal" && candidate.skin.isStatTrak) return false;
@@ -83,6 +84,7 @@ export function findTradeUps(
       currency,
     );
     if (!odds.ok || odds.selected !== inputCount) return [];
+    if (odds.outcomes.some((outcome) => outcome.price === null)) return [];
     const selected = [...inputs].sort((a, b) => (a.view.price ?? 0) - (b.view.price ?? 0));
     return [
       {

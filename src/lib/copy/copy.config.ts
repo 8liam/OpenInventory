@@ -181,7 +181,7 @@ export const COPY = {
     rarity: "Input rarity",
     inputs: "Inputs",
     inputCost: "Input cost",
-    averageFloat: "Average float",
+    averageFloat: "Normalised avg. float",
     expectedValue: "Expected value",
     expectedReturn: "Expected return",
     chanceToProfit: "Chance to profit",
