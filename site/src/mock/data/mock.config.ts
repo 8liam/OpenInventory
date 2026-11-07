@@ -3,6 +3,7 @@ import manifest from "./item-images.json";
 /** Fixed "now" for every sample timestamp so server and client render identical markup. */
 export const MOCK_NOW = Date.UTC(2026, 9, 19, 18, 38, 28);
 export const MOCK_CURRENCY = "USD";
+export const MOCK_ACCOUNT_ID = "76561198000000000";
 export const HOUR_MS = 3_600_000;
 export const DAY_MS = 86_400_000;
 

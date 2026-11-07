@@ -69,6 +69,8 @@ export type ItemView = ItemBase & {
   readonly price: number | null;
   readonly locationId: string;
   readonly locationName: string;
+  /** SteamID of the account that holds the item. Location ids are only unique within an account. */
+  readonly accountId: string;
 };
 
 export const INVENTORY_LOCATION_ID = "inventory";

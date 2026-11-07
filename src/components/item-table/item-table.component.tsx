@@ -14,6 +14,7 @@ export function ItemTable({
   items,
   currency,
   showLocation = true,
+  accountNames,
   selected,
   onSelectionChange,
 }: ItemTableProps) {
@@ -46,8 +47,22 @@ export function ItemTable({
           },
         ]
       : [];
+    const account: DataTableColumn<ItemView>[] = accountNames
+      ? [
+          {
+            id: "account",
+            header: COPY.accounts.column,
+            width: ITEM_TABLE.widths.account,
+            sortValue: (r) => accountNames.get(r.accountId) ?? "",
+            cell: (r) => (
+              <span className="text-muted-foreground">{accountNames.get(r.accountId)}</span>
+            ),
+          },
+        ]
+      : [];
     return [
       item,
+      ...account,
       ...location,
       {
         id: "type",
@@ -66,7 +81,7 @@ export function ItemTable({
       },
       price,
     ];
-  }, [currency, showLocation, wide]);
+  }, [currency, showLocation, wide, accountNames]);
 
   const selection = useMemo(
     () =>

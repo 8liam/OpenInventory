@@ -21,6 +21,7 @@ export function ItemGrid({
   items,
   currency,
   showLocation = true,
+  accountNames,
   selected,
   onSelectionChange,
 }: ItemGridProps) {
@@ -195,6 +196,7 @@ export function ItemGrid({
                         item={item}
                         currency={currency}
                         showLocation={showLocation}
+                        accountName={accountNames?.get(item.accountId)}
                         index={index}
                         selectable={selectable}
                         checked={selected?.has(key) ?? false}

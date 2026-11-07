@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Button } from "~/components/button/button.component";
 import { Select } from "~/components/select/select.component";
+import { COPY } from "~/lib/copy/copy.config";
 import { INVENTORY_LOCATION_ID } from "~/lib/items/item.types";
 import { postJson } from "~/lib/storage/storage.client";
 import { STORAGE_API, STORAGE_LIMITS } from "~/lib/storage/storage.config";
@@ -10,12 +11,14 @@ import type { TransferBarProps } from "./transfer-bar.types";
 
 const INVENTORY_LABEL = "Inventory";
 
-export function TransferBar({ selected, units, busy, onClear }: TransferBarProps) {
+export function TransferBar({ selected, units, accountName, busy, onClear }: TransferBarProps) {
   const [destination, setDestination] = useState("");
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
 
+  const accountIds = useMemo(() => new Set(selected.map((item) => item.accountId)), [selected]);
+  const accountId = accountIds.size === 1 ? [...accountIds][0] : undefined;
   const sources = useMemo(() => new Set(selected.map((item) => item.locationId)), [selected]);
   const from = sources.size === 1 ? [...sources][0] : undefined;
   const count = selected.length;
@@ -48,22 +51,25 @@ export function TransferBar({ selected, units, busy, onClear }: TransferBarProps
     destination !== "" &&
     destination !== INVENTORY_LOCATION_ID;
   const blocker =
-    from === undefined
-      ? TRANSFER_BAR.mixed
-      : count > STORAGE_LIMITS.maxItemsPerTransfer
-        ? TRANSFER_BAR.tooMany(STORAGE_LIMITS.maxItemsPerTransfer)
-        : busy
-          ? TRANSFER_BAR.busy
-          : undefined;
+    accountId === undefined
+      ? COPY.accounts.mixedAccounts
+      : from === undefined
+        ? TRANSFER_BAR.mixed
+        : count > STORAGE_LIMITS.maxItemsPerTransfer
+          ? TRANSFER_BAR.tooMany(STORAGE_LIMITS.maxItemsPerTransfer)
+          : busy
+            ? TRANSFER_BAR.busy
+            : undefined;
   const selectedOption = options.find((o) => o.id === destination);
   const validDestination = selectedOption !== undefined && !selectedOption.disabled;
 
   async function submit() {
-    if (from === undefined || !validDestination) return;
+    if (accountId === undefined || from === undefined || !validDestination) return;
     setSubmitting(true);
     setError(undefined);
     try {
       const request: TransferRequest = {
+        accountId,
         from,
         to: destination,
         itemIds: selected.map((item) => item.id),
@@ -87,6 +93,7 @@ export function TransferBar({ selected, units, busy, onClear }: TransferBarProps
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <span className="font-medium">{TRANSFER_BAR.selectedLabel(count)}</span>
+        {accountName && <span className="text-xs text-muted-foreground">{accountName}</span>}
         <button
           type="button"
           onClick={onClear}

@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RefreshCw } from "lucide-react";
+import { AccountsPanel } from "~/components/accounts-panel/accounts-panel.component";
 import { Button } from "~/components/button/button.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { Panel } from "~/components/panel/panel.component";
 import { Select } from "~/components/select/select.component";
 import { COPY } from "~/lib/copy/copy.config";
-import { callStorageApi } from "~/lib/storage/storage.client";
+import { useAccountScope } from "~/lib/accounts/account-scope.hooks";
+import { postJson } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { CURRENCIES, MARKETPLACES, THEMES } from "~/lib/settings/settings.config";
 import { usePriceQuery, useSettings } from "~/lib/settings/settings.store";
@@ -18,11 +20,13 @@ const REFRESH_ICON_SIZE = 14;
 function SettingsPage() {
   const { currency, marketplace, theme, setCurrency, setMarketplace, setTheme } = useSettings();
   const priceQuery = usePriceQuery();
+  const { scoped } = useAccountScope();
   const copy = COPY.settings;
   return (
     <>
       <PageHeader title={copy.title} description={copy.description} />
       <div className="flex max-w-xl flex-col gap-3">
+        <AccountsPanel />
         <Panel title={copy.appearance}>
           <div className="flex items-center justify-between gap-4">
             {copy.theme}
@@ -71,7 +75,15 @@ function SettingsPage() {
         </Panel>
         <Panel title={copy.dataTitle}>
           <p className="mb-3 text-muted-foreground">{copy.dataBody}</p>
-          <Button onClick={() => void callStorageApi(`${STORAGE_API.refresh}?${priceQuery}`)}>
+          <Button
+            onClick={() =>
+              void Promise.all(
+                scoped.map((account) =>
+                  postJson(`${STORAGE_API.refresh}?${priceQuery}`, { accountId: account.steamId }),
+                ),
+              )
+            }
+          >
             <RefreshCw size={REFRESH_ICON_SIZE} aria-hidden />
             {copy.refreshData}
           </Button>

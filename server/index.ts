@@ -14,6 +14,12 @@ import type {
   RenameUnitRequest,
   TransferRequest,
 } from "../src/lib/storage/storage.types.ts";
+import {
+  ACCOUNT_LABELS,
+  ALL_ACCOUNTS,
+  STEAM_ID_PATTERN,
+} from "../src/lib/accounts/accounts.config.ts";
+import type { AccountLabel } from "../src/lib/accounts/accounts.types.ts";
 import { DEFAULT_OPENING_KIND, OPENING_KINDS } from "../src/lib/cases/cases.config.ts";
 import type { OpeningKind } from "../src/lib/cases/cases.types.ts";
 import { createCaseStatsCache } from "./cases/case-stats-cache.ts";
@@ -21,8 +27,8 @@ import { encodeBody } from "./compression.ts";
 import { isAllowedHost } from "./host-guard.ts";
 import { createHistorySync } from "./cases/history-sync.ts";
 import { openDatabase } from "./db/db.ts";
-import { buildDashboard, summarizeValue } from "./dashboard.ts";
-import { collectItems } from "./items/collect.ts";
+import { buildDashboard, mergeHistories, summarizeValue } from "./dashboard.ts";
+import { collectAllItems, collectItems } from "./items/collect.ts";
 import type { TerminalOffer, TerminalOfferResponse } from "../src/lib/items/item.types.ts";
 import { loadCatalog, readUInt32 } from "./items/catalog.ts";
 import {
@@ -48,10 +54,12 @@ import {
   TEXT_PLAIN,
 } from "./server.config.ts";
 import type { SnapshotTimers } from "./server.types.ts";
+import { bootstrapAccounts } from "./accounts/accounts.bootstrap.ts";
+import { createAccountManager } from "./accounts/account-manager.ts";
+import { createSessionStore } from "./steam/session-store.ts";
 import { createRealGateway } from "./steam/steam.real.ts";
-import { UserFacingError } from "./steam/steam.types.ts";
+import { UserFacingError, type StorageGateway } from "./steam/steam.types.ts";
 import { computeTradeUp, listTradeUpCandidates, type TradeUpCandidate } from "./tradeup.ts";
-import { buildSummaryReport } from "./report.ts";
 import { findTradeUps } from "./tradeup-finder.ts";
 
 const HTTP = {
@@ -81,8 +89,18 @@ const TRACKED_SCOPES_KEY = "pref:price-scopes";
 const settings = readSettings();
 const db = openDatabase(settings.dataDir);
 const catalog = await loadCatalog(db);
-const gateway = createRealGateway(db, settings.dataDir, (raw) => catalog.describe(raw).view.name);
-const historySync = createHistorySync(db, gateway);
+const sessions = createSessionStore(settings.dataDir);
+const saved = bootstrapAccounts(db, sessions);
+const accounts = createAccountManager({
+  db,
+  sessions,
+  saved,
+  createGateway: (session) =>
+    createRealGateway(db, sessions, (raw) => catalog.describe(raw).view.name, session),
+});
+const historySync = createHistorySync(db, (steamId, refresh) =>
+  accounts.get(steamId).getWebCookies(refresh),
+);
 const caseStats = createCaseStatsCache(db);
 
 /** Writes `payload`, gzipped when worthwhile. Skips dead sockets and never rejects. */
@@ -157,28 +175,53 @@ async function readBody(req: IncomingMessage): Promise<unknown> {
   }
 }
 
+function asRecord(body: unknown): Record<string, unknown> {
+  return typeof body === "object" && body !== null ? (body as Record<string, unknown>) : {};
+}
+
+/** The account a state-changing request acts on. There is deliberately no default: a move must name its account. */
+function parseAccountId(body: unknown): string {
+  const { accountId } = asRecord(body);
+  if (typeof accountId !== "string" || !STEAM_ID_PATTERN.test(accountId))
+    throw new UserFacingError("Choose an account for this request", HTTP.badRequest);
+  return accountId;
+}
+
+type AccountScope = { readonly kind: "one"; readonly steamId: string } | { readonly kind: "all" };
+
+/** `?account=<steamId>`, or `all` for the read-only views that can combine accounts. */
+function parseAccountScope(url: URL, allowAll: boolean): AccountScope {
+  const value = url.searchParams.get("account");
+  if (value === ALL_ACCOUNTS && allowAll) return { kind: "all" };
+  if (value === null || !STEAM_ID_PATTERN.test(value))
+    throw new UserFacingError("Choose an account for this request", HTTP.badRequest);
+  return { kind: "one", steamId: value };
+}
+
 function parseTransferRequest(body: unknown): TransferRequest {
-  const record = typeof body === "object" && body !== null ? (body as Record<string, unknown>) : {};
+  const accountId = parseAccountId(body);
+  const record = asRecord(body);
   const { from, to, itemIds } = record;
   const isId = (value: unknown): value is string =>
     typeof value === "string" && ITEM_ID_PATTERN.test(value);
   if (!isId(from) || !isId(to) || !Array.isArray(itemIds) || !itemIds.every(isId)) {
     throw new UserFacingError("Invalid transfer request", HTTP.badRequest);
   }
-  return { from, to, itemIds };
+  return { accountId, from, to, itemIds };
 }
 
 function parseActivateRequest(body: unknown): ActivateTerminalRequest {
-  const id = typeof body === "object" && body !== null ? (body as { id?: unknown }).id : undefined;
+  const accountId = parseAccountId(body);
+  const { id } = asRecord(body);
   if (typeof id !== "string" || !ITEM_ID_PATTERN.test(id)) {
     throw new UserFacingError("Invalid activation request", HTTP.badRequest);
   }
-  return { id };
+  return { accountId, id };
 }
 
 function parseRenameRequest(body: unknown): RenameUnitRequest {
-  const record = typeof body === "object" && body !== null ? (body as Record<string, unknown>) : {};
-  const { id, name } = record;
+  const accountId = parseAccountId(body);
+  const { id, name } = asRecord(body);
   if (typeof id !== "string" || !ITEM_ID_PATTERN.test(id) || typeof name !== "string") {
     throw new UserFacingError("Invalid rename request", HTTP.badRequest);
   }
@@ -193,7 +236,20 @@ function parseRenameRequest(body: unknown): RenameUnitRequest {
       HTTP.badRequest,
     );
   }
-  return { id, name: trimmed };
+  return { accountId, id, name: trimmed };
+}
+
+function parseLabel(body: unknown): AccountLabel | null {
+  const { label } = asRecord(body);
+  if (label === null) return null;
+  const known = ACCOUNT_LABELS.find((candidate) => candidate === label);
+  if (!known) throw new UserFacingError("Unknown account label", HTTP.badRequest);
+  return known;
+}
+
+function singleAccount(scope: AccountScope): { readonly steamId: string } {
+  if (scope.kind === "all") throw new UserFacingError("Choose one account", HTTP.badRequest);
+  return scope;
 }
 
 function parseCurrency(url: URL): string {
@@ -262,17 +318,27 @@ function assertJsonBody(req: IncomingMessage): void {
   }
 }
 
-function requireReady(): string {
-  const steamId = gateway.getSteamId();
-  if (gateway.getSnapshot().auth.status !== "ready" || !steamId)
-    throw new UserFacingError("Sign in with Steam first", HTTP.unauthorized);
-  return steamId;
+/** The account's gateway once it has synced; connects it on first use. */
+function readyGateway(steamId: string): StorageGateway {
+  const gateway = accounts.get(steamId);
+  if (gateway.getSnapshot().auth.status !== "ready")
+    throw new UserFacingError("That account isn't connected yet", HTTP.conflict);
+  return gateway;
+}
+
+/** Gateways of every account that is connected right now; the others are skipped, not waited for. */
+function readyGateways(): StorageGateway[] {
+  return accounts
+    .all()
+    .map(({ gateway }) => gateway)
+    .filter((gateway) => gateway.getSnapshot().auth.status === "ready");
 }
 
 /** Persists a value snapshot at most once per interval so the dashboard can chart history. */
 const snapshotsInFlight = new Set<string>();
 
-async function recordSnapshot(steamId: string, scope: PriceScope): Promise<void> {
+async function recordSnapshot(gateway: StorageGateway, scope: PriceScope): Promise<void> {
+  const steamId = gateway.getSteamId();
   const key = { steamId, currency: historyCurrency(scope) };
   const flightKey = `${steamId}:${key.currency}`;
   if (snapshotsInFlight.has(flightKey)) return;
@@ -280,13 +346,14 @@ async function recordSnapshot(steamId: string, scope: PriceScope): Promise<void>
   if (last !== undefined && Date.now() - last < SERVER_LIMITS.snapshotIntervalMs) return;
   snapshotsInFlight.add(flightKey);
   try {
-    await writeSnapshot(key, scope);
+    await writeSnapshot(gateway, key, scope);
   } finally {
     snapshotsInFlight.delete(flightKey);
   }
 }
 
 async function writeSnapshot(
+  gateway: StorageGateway,
   key: { readonly steamId: string; readonly currency: string },
   scope: PriceScope,
 ): Promise<void> {
@@ -314,8 +381,8 @@ function handleEvents(req: IncomingMessage, res: ServerResponse): void {
   const send = (snapshot: unknown) => {
     if (!res.writableEnded && !res.destroyed) res.write(`data: ${JSON.stringify(snapshot)}\n\n`);
   };
-  send(gateway.getSnapshot());
-  const unsubscribe = gateway.subscribe(send);
+  send(accounts.getSnapshot());
+  const unsubscribe = accounts.subscribe(send);
   const keepAlive = setInterval(() => {
     if (!res.writableEnded && !res.destroyed) res.write(": keep-alive\n\n");
   }, SSE_KEEP_ALIVE_MS);
@@ -388,34 +455,43 @@ const server = createServer(async (req, res) => {
     const path = url.pathname;
     if (path === STORAGE_API.events && method === "GET") return handleEvents(req, res);
     if (path === STORAGE_API.state && method === "GET")
-      return sendJson(res, HTTP.ok, gateway.getSnapshot());
+      return sendJson(res, HTTP.ok, accounts.getSnapshot());
 
     if (path === STORAGE_API.items && method === "GET") {
-      requireReady();
+      const account = parseAccountScope(url, true);
+      const gateways = account.kind === "all" ? readyGateways() : [readyGateway(account.steamId)];
       const scope = parseScope(url);
       const { currency } = scope;
       const book = await loadPrices(scope);
       if (aborted(req, res)) return;
-      const items = collectItems(gateway, catalog, book).map((c) => c.view);
+      const items = collectAllItems(gateways, catalog, book).map((c) => c.view);
       return sendJson(res, HTTP.ok, { items, currency, priceUpdatedAt: book.fetchedAt });
     }
 
     if (path === STORAGE_API.dashboard && method === "GET") {
-      const steamId = requireReady();
+      const account = parseAccountScope(url, true);
+      const gateways = account.kind === "all" ? readyGateways() : [readyGateway(account.steamId)];
       const scope = parseScope(url);
       const { currency } = scope;
       rememberScope(scope);
       const book = await loadPrices(scope);
       if (aborted(req, res)) return;
-      const items = collectItems(gateway, catalog, book).map((c) => c.view);
-      const units = gateway.getSnapshot().units;
-      void recordSnapshot(steamId, scope).catch((e: unknown) => console.warn("[snapshot]", e));
+      const items = collectAllItems(gateways, catalog, book).map((c) => c.view);
+      const units = gateways.flatMap((gateway) => gateway.getSnapshot().units);
+      for (const gateway of gateways)
+        void recordSnapshot(gateway, scope).catch((e: unknown) => console.warn("[snapshot]", e));
+      const series = gateways.map((gateway) =>
+        db.listSnapshots({ steamId: gateway.getSteamId(), currency: historyCurrency(scope) }),
+      );
       return sendJson(
         res,
         HTTP.ok,
         buildDashboard({
           items,
-          history: db.listSnapshots({ steamId, currency: historyCurrency(scope) }),
+          history:
+            series.length === 1
+              ? (series[0] ?? [])
+              : mergeHistories(series, SERVER_LIMITS.snapshotIntervalMs),
           currency,
           priceUpdatedAt: book.fetchedAt,
           unitsLoaded: units.filter((u) => u.loaded).length,
@@ -424,37 +500,9 @@ const server = createServer(async (req, res) => {
       );
     }
 
-    if (path === STORAGE_API.report && method === "GET") {
-      const steamId = requireReady();
-      const scope = parseScope(url);
-      const { currency } = scope;
-      const book = await loadPrices(scope);
-      if (aborted(req, res)) return;
-      const items = collectItems(gateway, catalog, book).map((entry) => entry.view);
-      const units = gateway.getSnapshot().units;
-      const dashboard = buildDashboard({
-        items,
-        history: db.listSnapshots({ steamId, currency: historyCurrency(scope) }),
-        currency,
-        priceUpdatedAt: book.fetchedAt,
-        unitsLoaded: units.filter((unit) => unit.loaded).length,
-        unitsTotal: units.length,
-      });
-      const report = buildSummaryReport({
-        period: settings.reportPeriod,
-        history: dashboard.history,
-        holdings: dashboard.topHoldings,
-        currency,
-      });
-      res.setHeader(
-        "content-disposition",
-        `attachment; filename=openinventory-${report.period}-report.json`,
-      );
-      return sendJson(res, HTTP.ok, report);
-    }
-
     if (path === STORAGE_API.cases && method === "GET") {
-      const steamId = requireReady();
+      const { steamId } = singleAccount(parseAccountScope(url, false));
+      readyGateway(steamId);
       historySync.start(steamId, { onlyIfStale: true });
       return sendJson(res, HTTP.ok, {
         stats: caseStats.get(steamId, parseOpeningKind(url)),
@@ -468,7 +516,7 @@ const server = createServer(async (req, res) => {
         path === STORAGE_API.tradeUpFinder) &&
       method === "GET"
     ) {
-      requireReady();
+      const gateway = readyGateway(singleAccount(parseAccountScope(url, false)).steamId);
       const scope = parseScope(url);
       const { currency } = scope;
       const rarity = url.searchParams.get("rarity") ?? "";
@@ -510,23 +558,45 @@ const server = createServer(async (req, res) => {
 
     if (method === "POST") {
       assertSameOrigin(req);
+      assertJsonBody(req);
+      const body = await readBody(req);
+      if (path === STORAGE_API.accountLogin) {
+        await accounts.startLogin();
+        return void res.writeHead(HTTP.noContent).end();
+      }
+      if (path === STORAGE_API.accountLoginCancel) {
+        accounts.cancelLogin();
+        return void res.writeHead(HTTP.noContent).end();
+      }
+      if (path === STORAGE_API.accountRemove) {
+        accounts.remove(parseAccountId(body));
+        return void res.writeHead(HTTP.noContent).end();
+      }
+      if (path === STORAGE_API.accountLabel) {
+        accounts.setLabel(parseAccountId(body), parseLabel(body));
+        return void res.writeHead(HTTP.noContent).end();
+      }
+      if (path === STORAGE_API.accountConnect) {
+        accounts.get(parseAccountId(body));
+        return void res.writeHead(HTTP.noContent).end();
+      }
+      if (path === STORAGE_API.accountReconnect) {
+        accounts.get(parseAccountId(body)).reconnect();
+        return void res.writeHead(HTTP.noContent).end();
+      }
       if (path === STORAGE_API.transfer) {
-        assertJsonBody(req);
-        requireReady();
-        gateway.transferItems(parseTransferRequest(await readBody(req)));
+        const request = parseTransferRequest(body);
+        readyGateway(request.accountId).transferItems(request);
         return void res.writeHead(HTTP.accepted).end();
       }
       if (path === STORAGE_API.renameUnit) {
-        assertJsonBody(req);
-        requireReady();
-        const { id, name } = parseRenameRequest(await readBody(req));
-        await gateway.renameUnit(id, name);
+        const { accountId, id, name } = parseRenameRequest(body);
+        await readyGateway(accountId).renameUnit(id, name);
         return void res.writeHead(HTTP.noContent).end();
       }
       if (path === STORAGE_API.activateTerminal) {
-        assertJsonBody(req);
-        requireReady();
-        const { id } = parseActivateRequest(await readBody(req));
+        const { accountId, id } = parseActivateRequest(body);
+        const gateway = readyGateway(accountId);
         const raw = gateway.getInventory().find((item) => item.id === id);
         const terminal = raw ? catalog.describe(raw).view.terminal : null;
         if (!terminal) throw new UserFacingError("That item isn't a Terminal", HTTP.badRequest);
@@ -536,10 +606,9 @@ const server = createServer(async (req, res) => {
         return void res.writeHead(HTTP.noContent).end();
       }
       if (path === STORAGE_API.terminalOffer || path === STORAGE_API.terminalNextOffer) {
-        assertJsonBody(req);
-        requireReady();
         const scope = parseScope(url);
-        const { id } = parseActivateRequest(await readBody(req));
+        const { accountId, id } = parseActivateRequest(body);
+        const gateway = readyGateway(accountId);
         const terminalRaw = gateway.getInventory().find((item) => item.id === id);
         const terminal = terminalRaw ? catalog.describe(terminalRaw).view.terminal : null;
         if (!terminal?.isActive)
@@ -569,27 +638,21 @@ const server = createServer(async (req, res) => {
         } satisfies TerminalOfferResponse);
       }
       if (path === STORAGE_API.casesSync) {
-        historySync.start(requireReady());
+        const accountId = parseAccountId(body);
+        readyGateway(accountId);
+        historySync.start(accountId);
         return void res.writeHead(HTTP.accepted).end();
       }
       if (path === STORAGE_API.transferCancel) {
-        gateway.cancelTransfer();
+        accounts.get(parseAccountId(body)).cancelTransfer();
         return void res.writeHead(HTTP.noContent).end();
       }
       if (path === STORAGE_API.transferDismiss) {
-        gateway.dismissTransfer();
-        return void res.writeHead(HTTP.noContent).end();
-      }
-      if (path === STORAGE_API.qrLogin) {
-        await gateway.startQrLogin();
-        return void res.writeHead(HTTP.noContent).end();
-      }
-      if (path === STORAGE_API.logout) {
-        gateway.logout();
+        accounts.get(parseAccountId(body)).dismissTransfer();
         return void res.writeHead(HTTP.noContent).end();
       }
       if (path === STORAGE_API.refresh) {
-        requireReady();
+        const gateway = readyGateway(parseAccountId(body));
         await loadPrices(parseScope(url), true);
         gateway.refreshUnits(true).catch((e: unknown) => console.warn("[units]", e));
         return void res.writeHead(HTTP.noContent).end();
@@ -646,68 +709,25 @@ function rememberScope(scope: PriceScope): void {
 }
 
 // Record history even when nobody has the dashboard open. `onReady` fires on every
-// (re)connect, so the timers are only started once.
-let snapshotJobStarted = false;
-const snapshotTimers: SnapshotTimers = {};
-let reportTimer: ReturnType<typeof setInterval> | undefined;
-
-async function deliverScheduledReport(steamId: string): Promise<void> {
-  if (!settings.reportWebhookUrl) return;
-  const now = new Date();
-  const periodKey =
-    settings.reportPeriod === "weekly"
-      ? String(Math.floor(now.getTime() / (7 * 86_400_000)))
-      : `${now.getUTCFullYear()}-${now.getUTCMonth() + 1}`;
-  const markerKey = `report-webhook:${steamId}:${settings.reportPeriod}`;
-  if (db.getCacheStale(markerKey) === periodKey) return;
-  const scope = trackedScopes()[0];
-  if (!scope) return;
-  const book = await loadPrices(scope);
-  const items = collectItems(gateway, catalog, book).map((entry) => entry.view);
-  const units = gateway.getSnapshot().units;
-  const dashboard = buildDashboard({
-    items,
-    history: db.listSnapshots({ steamId, currency: historyCurrency(scope) }),
-    currency: scope.currency,
-    priceUpdatedAt: book.fetchedAt,
-    unitsLoaded: units.filter((unit) => unit.loaded).length,
-    unitsTotal: units.length,
-  });
-  const report = buildSummaryReport({
-    period: settings.reportPeriod,
-    history: dashboard.history,
-    holdings: dashboard.topHoldings,
-    currency: scope.currency,
-  });
-  const response = await fetch(settings.reportWebhookUrl, {
-    method: "POST",
-    headers: { "content-type": JSON_CONTENT_TYPE },
-    body: JSON.stringify(report),
-    signal: AbortSignal.timeout(15_000),
-  });
-  if (!response.ok) throw new Error(`Webhook returned HTTP ${response.status}`);
-  db.setCache(markerKey, periodKey);
-}
-
-gateway.onReady((steamId) => {
-  if (snapshotJobStarted) return;
-  snapshotJobStarted = true;
+// (re)connect of an account, so each account's timers are only started once.
+const snapshotTimers = new Map<string, SnapshotTimers>();
+accounts.onReady((steamId, gateway) => {
+  if (snapshotTimers.has(steamId)) return;
   const tick = () => {
     for (const scope of trackedScopes()) {
-      void recordSnapshot(steamId, scope).catch((e: unknown) => console.warn("[snapshot]", e));
+      void recordSnapshot(gateway, scope).catch((e: unknown) => console.warn("[snapshot]", e));
     }
   };
-  snapshotTimers.initial = setTimeout(tick, SERVER_LIMITS.snapshotInitialDelayMs);
-  snapshotTimers.interval = setInterval(tick, SERVER_LIMITS.snapshotIntervalMs);
-  if (settings.reportWebhookUrl) {
-    reportTimer = setInterval(() => {
-      void deliverScheduledReport(steamId).catch((error: unknown) =>
-        console.warn("[report] webhook delivery failed:", error),
-      );
-    }, SERVER_LIMITS.reportCheckIntervalMs);
-    reportTimer.unref();
-  }
+  snapshotTimers.set(steamId, {
+    initial: setTimeout(tick, SERVER_LIMITS.snapshotInitialDelayMs),
+    interval: setInterval(tick, SERVER_LIMITS.snapshotIntervalMs),
+  });
 });
+
+// Only the first account connects at start (what a single-account install always did, so
+// headless history keeps recording); the rest connect when first used.
+const [firstAccount] = accounts.ids();
+if (firstAccount) accounts.get(firstAccount);
 
 server.listen(settings.port, settings.host, () => {
   console.log(
@@ -727,9 +747,10 @@ function shutdown(): void {
     process.exit(EXIT_CODE.forced);
   }
   shuttingDown = true;
-  clearTimeout(snapshotTimers.initial);
-  clearInterval(snapshotTimers.interval);
-  if (reportTimer) clearInterval(reportTimer);
+  for (const timers of snapshotTimers.values()) {
+    clearTimeout(timers.initial);
+    clearInterval(timers.interval);
+  }
   for (const stream of eventStreams) stream.end();
   const force = setTimeout(() => server.closeAllConnections(), SERVER_LIMITS.shutdownGraceMs);
   force.unref();

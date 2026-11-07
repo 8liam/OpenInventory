@@ -1,24 +1,23 @@
-import { Link, Outlet } from "@tanstack/react-router";
+import { Link, Outlet, useRouterState } from "@tanstack/react-router";
 import {
   ArrowLeftRight,
   Boxes,
   Laptop,
   LayoutDashboard,
-  LogOut,
   Package,
   PackageOpen,
   Settings,
 } from "lucide-react";
 import type { ComponentType } from "react";
+import { AccountGate } from "~/components/account-gate/account-gate.component";
+import { AccountSwitcher } from "~/components/account-switcher/account-switcher.component";
+import { AddAccountDialog } from "~/components/add-account-dialog/add-account-dialog.component";
 import { AuthGate } from "~/components/auth-gate/auth-gate.component";
 import { InventoryPrefetch } from "~/components/inventory-prefetch/inventory-prefetch.component";
 import { Logo } from "~/components/logo/logo.component";
 import { SyncError } from "~/components/sync-error/sync-error.component";
 import { TransferStatus } from "~/components/transfer-status/transfer-status.component";
 import { COPY } from "~/lib/copy/copy.config";
-import { callStorageApi, useStorageSnapshot } from "~/lib/storage/storage.client";
-import { AUTH_STATUS, STORAGE_API } from "~/lib/storage/storage.config";
-import { cn } from "~/utils/cn";
 import { NAV_ITEMS } from "./app-shell.config";
 
 const ICONS: Record<
@@ -34,34 +33,12 @@ const ICONS: Record<
   settings: Settings,
 };
 
-function AccountChip({ className }: { readonly className?: string }) {
-  const { auth } = useStorageSnapshot();
-  if (auth.status !== AUTH_STATUS.ready) return null;
-  return (
-    <div className={cn("flex items-center justify-between gap-2", className)}>
-      <div className="flex min-w-0 items-center gap-2">
-        <span className="size-1.5 shrink-0 rounded-full bg-success" aria-hidden />
-        <span className="truncate text-[13px]">
-          {auth.displayName ?? COPY.account.fallbackName}
-        </span>
-      </div>
-      <button
-        type="button"
-        title={COPY.account.signOut}
-        aria-label={COPY.account.signOut}
-        onClick={() => void callStorageApi(STORAGE_API.logout)}
-        className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-      >
-        <LogOut size={14} />
-      </button>
-    </div>
-  );
-}
-
 export function AppShell() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   return (
     <AuthGate>
       <InventoryPrefetch />
+      <AddAccountDialog />
       <div
         aria-hidden
         className="fixed inset-x-0 top-0 z-50 hidden h-6 [-webkit-app-region:drag] desktop-mac:block"
@@ -88,18 +65,20 @@ export function AppShell() {
               );
             })}
           </nav>
-          <AccountChip className="border-t px-3 py-3" />
+          <AccountSwitcher className="border-t px-3 py-3" />
         </aside>
 
         <header className="flex shrink-0 items-center justify-between gap-3 border-b px-4 py-2.5 md:hidden">
           <Logo />
-          <AccountChip className="min-w-0" />
+          <AccountSwitcher className="min-w-0 flex-1" />
         </header>
 
         <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-hidden p-4 md:gap-5 md:p-6">
           <SyncError />
           <TransferStatus />
-          <Outlet />
+          <AccountGate pathname={pathname}>
+            <Outlet />
+          </AccountGate>
         </main>
 
         <nav

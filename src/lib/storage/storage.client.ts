@@ -1,8 +1,18 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useMemo } from "react";
+import { resolveScope } from "../accounts/account-scope";
+import { useAccountSelection } from "../accounts/account-scope.store";
+import { ALL_ACCOUNTS } from "../accounts/accounts.config";
 import { AUTH_STATUS, REMOTE_DATA, STORAGE_API } from "./storage.config";
-import type { ApiError, StorageSnapshot } from "./storage.types";
+import type { ApiError, AppSnapshot, StorageSnapshot } from "./storage.types";
 
-const SIGNED_OUT: StorageSnapshot = {
+const NO_ACCOUNTS: AppSnapshot = {
+  accounts: [],
+  login: { status: AUTH_STATUS.signedOut },
+  revision: 0,
+};
+
+const EMPTY_SNAPSHOT: StorageSnapshot = {
   auth: { status: AUTH_STATUS.signedOut },
   units: [],
   loadingUnits: false,
@@ -11,22 +21,22 @@ const SIGNED_OUT: StorageSnapshot = {
   revision: 0,
 };
 
-let snapshot: StorageSnapshot = SIGNED_OUT;
+let snapshot: AppSnapshot = NO_ACCOUNTS;
 /** False until the server's first push; before that "signed out" is a guess, not a fact. */
 let received = false;
 let source: EventSource | undefined;
 const listeners = new Set<() => void>();
 
-function publish(next: StorageSnapshot): void {
+function publish(next: AppSnapshot): void {
   snapshot = next;
   for (const listener of listeners) listener();
 }
 
-function parseSnapshot(raw: string): StorageSnapshot | undefined {
+function parseSnapshot(raw: string): AppSnapshot | undefined {
   try {
     const value: unknown = JSON.parse(raw);
-    return typeof value === "object" && value !== null && "auth" in value && "units" in value
-      ? (value as StorageSnapshot)
+    return typeof value === "object" && value !== null && "accounts" in value && "login" in value
+      ? (value as AppSnapshot)
       : undefined;
   } catch {
     return undefined;
@@ -41,7 +51,7 @@ function subscribe(listener: () => void): () => void {
       const next = parseSnapshot(event.data);
       if (!next) return;
       received = true;
-      if (next.auth.status === AUTH_STATUS.signedOut) remoteCache.clear();
+      if (next.accounts.length === 0) remoteCache.clear();
       publish(next);
     };
   }
@@ -59,8 +69,37 @@ export function useSnapshotReceived(): boolean {
   return useSyncExternalStore(subscribe, () => received);
 }
 
-export function useStorageSnapshot(): StorageSnapshot {
+/** Every account and the add-account login in progress. */
+export function useAppSnapshot(): AppSnapshot {
   return useSyncExternalStore(subscribe, () => snapshot);
+}
+
+/**
+ * The connection state of the account(s) being viewed. For one account it is that account's
+ * snapshot; for "all" it is a combined one (summed revision, units omitted since unit ids only
+ * mean something within an account).
+ */
+export function useStorageSnapshot(): StorageSnapshot {
+  const app = useAppSnapshot();
+  const selected = useAccountSelection((state) => state.selected);
+  return useMemo(() => {
+    const scope = resolveScope(
+      selected,
+      app.accounts.map((account) => account.steamId),
+    );
+    if (scope === undefined) return EMPTY_SNAPSHOT;
+    if (scope !== ALL_ACCOUNTS)
+      return app.accounts.find((account) => account.steamId === scope)?.snapshot ?? EMPTY_SNAPSHOT;
+    const snapshots = app.accounts.map((account) => account.snapshot);
+    return {
+      auth: { status: AUTH_STATUS.ready, displayName: null },
+      units: [],
+      loadingUnits: snapshots.some((s) => s.loadingUnits),
+      transfer: { status: "idle" },
+      syncError: snapshots.find((s) => s.syncError)?.syncError ?? null,
+      revision: snapshots.reduce((sum, s) => sum + s.revision, 0),
+    } satisfies StorageSnapshot;
+  }, [app, selected]);
 }
 
 async function readError(response: Response): Promise<string> {

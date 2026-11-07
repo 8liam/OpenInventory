@@ -13,7 +13,7 @@ import { OFFER_PANEL } from "./offer-panel.config";
 import type { OfferPanelProps } from "./offer-panel.types";
 
 /** Browse an active Terminal's offer and, after a confirmation, move on to the next one. */
-export function OfferPanel({ terminalId }: OfferPanelProps) {
+export function OfferPanel({ terminalId, accountId }: OfferPanelProps) {
   const copy = COPY.terminal;
   const priceQuery = usePriceQuery();
   const [response, setResponse] = useState<TerminalOfferResponse>();
@@ -25,11 +25,12 @@ export function OfferPanel({ terminalId }: OfferPanelProps) {
   const ask = useCallback(
     async (path: string) => {
       const next = await postForJson<TerminalOfferResponse>(`${path}?${priceQuery}`, {
+        accountId,
         id: terminalId,
       });
       setResponse(next);
     },
-    [priceQuery, terminalId],
+    [accountId, priceQuery, terminalId],
   );
 
   useEffect(() => {
