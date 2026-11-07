@@ -16,7 +16,7 @@
   </tr>
 </table>
 
-Self-hosted CS2 inventory and storage unit tracker. Sign in once with the Steam mobile app and OpenInventory shows what you own, where it is, and what it's worth, with history that builds up over time. Everything is cached in a local SQLite file on your own server. OpenInventory talks to Steam (with your login), fetches public item data and Skinport prices, and your browser loads item images from Steam's CDN.
+Self-hosted CS2 inventory and storage unit tracker. Sign in with the Steam mobile app (add as many accounts as you like) and OpenInventory shows what you own, where it is, and what it's worth, with history that builds up over time. Everything is cached in a local SQLite file on your own server. OpenInventory talks to Steam (with your login), fetches public item data and Skinport prices, and your browser loads item images from Steam's CDN.
 
 - **Dashboard**: total value with 24h/7d/30d change, a value history chart you can switch between total, inventory and storage units over 1D to all time, a tabbed breakdown (type, rarity, wear, location) as a donut, top holdings, and your lowest floats, highest floats and largest stacks.
 - **Items**: every item across your inventory and all storage units, searchable and filterable, with images, floats, stickers, charms (with pattern ids) and prices.
@@ -25,6 +25,7 @@ Self-hosted CS2 inventory and storage unit tracker. Sign in once with the Steam 
 - **Trade-up calculator**: read-only estimate of expected value from your cheapest tradable skins and their collections. OpenInventory can't perform trade-ups.
 
 - **Terminals**: the Terminals page lists your sealed and active Terminals. Browsing an active Terminal's current offer (the item, what the Terminal charges and its market value) is read-only. Two actions are **destructive and irreversible**, and OpenInventory makes an exception to its read-only rule for them: **activating** a sealed Terminal (it is used up and its expiry timer starts, and an active Terminal can't be traded or moved) and asking for the **next offer** (you can't go back to the offer you were on). Each sits behind a confirmation dialog that spells out the effects and needs a tick box. OpenInventory never buys anything from a Terminal.
+- **Multiple accounts**: add accounts with a QR login each and switch between them in the sidebar, or pick **All accounts** on the Dashboard and Items for combined value, history and items (with an account column and filters by account or label). Searching Items in the combined view finds a skin across every account, showing which account and storage unit holds it and its float. Tag accounts as main, trade or alt in Settings. Each account has its own Game Coordinator connection, opened only when you use the account (the first account connects at start so value history keeps recording). Moves, renames and Terminal actions always act on one explicit account.
 - **Move items**: select items on the Items or Storage page and move them between your inventory and storage units (unit to unit goes through your inventory). Each move is confirmed by the Game Coordinator, with live progress, cancel, and a per-item error report. Nothing is ever listed or traded. Apart from moves, renaming storage units and activating Terminals (above), OpenInventory is read-only.
 
 ## Desktop app
@@ -70,11 +71,11 @@ Data (SQLite database, value history and your Steam session) lives in the `openi
 
 ## One session per account
 
-Steam allows a single client session per account, and OpenInventory signs in as one. If another OpenInventory (desktop app, Docker, another machine) or the Steam app is signed in to the same account, each takes the session from the other. OpenInventory stops and says so instead of retrying; close the other one, then press **Sign in**.
+Steam allows a single client session per account, and OpenInventory signs in once per tracked account. If another OpenInventory (desktop app, Docker, another machine) or the Steam app is signed in to the same account, each takes the session from the other. OpenInventory stops and says so instead of retrying; close the other one, then press **Reconnect** on that account.
 
 ## Security
 
-- Your Steam **refresh token** is stored in `session.json` inside the data directory (mode `0600`). Anyone who can read it can act as your account until you press **Sign out**, which deletes it. Protect the volume.
+- Your Steam **refresh token** is stored per account in `sessions/<steamId>.json` inside the data directory (an older single `session.json` is moved there on first start) (mode `0600`). Anyone who can read it can act as your account until you remove that account in Settings, which deletes it. Protect the volume.
 - Without `OPENINVENTORY_PASSWORD`, anyone who can reach the port can see your inventory **and move your items**. Set a password, and put OpenInventory behind a VPN or a TLS reverse proxy if you expose it.
 - State-changing requests are same-origin only and require a JSON body, so another website can't drive your instance from your browser. Without a password the `Host` header must also be an IP, a single-label name, `localhost`, a `*.local`, `*.home.arpa`, `*.internal` or `*.ts.net` name, or listed in `OPENINVENTORY_ALLOWED_HOSTS`, which blocks DNS-rebinding attacks. Other names get a 403 that says which variable to set.
 
