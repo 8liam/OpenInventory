@@ -161,6 +161,7 @@ export async function loadCatalog(db: CatalogCache): Promise<Catalog> {
       collectionsBySkin.set(entry.id, [...(collectionsBySkin.get(entry.id) ?? []), collection.id]);
     }
   }
+  const collectionNameById = new Map(collections.map((c) => [c.id, c.name]));
   const collectionIdsOf = (skin: SkinRecord): readonly string[] =>
     (skin.skin_id ? collectionsBySkin.get(skin.skin_id) : undefined) ?? [];
 
@@ -308,6 +309,7 @@ export async function loadCatalog(db: CatalogCache): Promise<Catalog> {
         skinFacts = {
           skinId: skin.skin_id ?? null,
           collectionIds: collectionIdsOf(skin),
+          collectionNames: collectionIdsOf(skin).flatMap((id) => collectionNameById.get(id) ?? []),
           rarityId: skin.rarity?.id ?? "",
           isStatTrak: skin.stattrak === true,
           isSouvenir: skin.souvenir === true,

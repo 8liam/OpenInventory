@@ -29,6 +29,7 @@ function covert(id: string, skinId: string, statTrak = false): TradeUpCandidate 
   const skin: SkinFacts = {
     skinId,
     collectionIds: [],
+    collectionNames: [],
     rarityId: TRADE_UP.covertRarity,
     isStatTrak: statTrak,
     isSouvenir: false,

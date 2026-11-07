@@ -69,6 +69,8 @@ export type ItemView = ItemBase & {
   readonly price: number | null;
   readonly locationId: string;
   readonly locationName: string;
+  /** Names of the collections a skin belongs to; empty for anything that is not a skin. */
+  readonly collections: readonly string[];
 };
 
 export const INVENTORY_LOCATION_ID = "inventory";

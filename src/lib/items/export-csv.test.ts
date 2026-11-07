@@ -26,6 +26,7 @@ const item: ItemView = {
   price: 12.5,
   locationId: "unit-1",
   locationName: "Main storage",
+  collections: [],
 };
 
 test("exports filtered item fields with spreadsheet-safe escaping", () => {

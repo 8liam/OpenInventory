@@ -25,6 +25,7 @@ export function collectItems(
         price: priceOf(view.marketHashName),
         locationId,
         locationName,
+        collections: skin?.collectionNames ?? [],
       },
     };
   };
