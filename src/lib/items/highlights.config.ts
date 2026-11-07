@@ -1,22 +1,33 @@
 /** Curated seeds are intentionally kept here so pattern guides can be updated without changing the scorer. */
-export const RARITY_SCORING = {
+export const HIGHLIGHTS = {
   floatTailFraction: 0.03,
   floatScore: 30,
   patternScore: 45,
   attachmentScore: 10,
   notableScore: 10,
+  /** Score at which an item earns the single tier marker. */
+  exceptionalScore: 45,
+  floatLabelPrefix: "Float",
+  craftLabel: "Sticker craft",
   /** These are notable AK-47 | Case Hardened Blue Gem seeds from community pattern guides. */
   patterns: [
     {
       finish: "AK-47 | Case Hardened",
       seeds: [661, 151, 179, 321, 387, 670, 955],
-      label: "Blue Gem",
+      label: "Blue gem",
     },
-    { finish: "AK-47 | Case Hardened", seeds: [4, 13, 168, 429, 592, 905], label: "Blue Gem" },
+    { finish: "AK-47 | Case Hardened", seeds: [4, 13, 168, 429, 592, 905], label: "Blue gem" },
     { finish: "M4A1-S | Fade", seeds: [374], label: "100% Fade" },
     { finish: "Butterfly Knife | Fade", seeds: [763], label: "100% Fade" },
     { finish: "Karambit | Fade", seeds: [412], label: "100% Fade" },
     { finish: "Butterfly Knife | Crimson Web", seeds: [921], label: "Crimson Web" },
+  ],
+  /** Gem phases score as patterns (phases 1–4 are common and score nothing), by paint kit id (Doppler and Gamma Doppler knives); names are matched as a fallback. */
+  gemPhases: [
+    { paintIndex: 415, label: "Ruby", finish: "Doppler" },
+    { paintIndex: 416, label: "Sapphire", finish: "Doppler" },
+    { paintIndex: 417, label: "Black Pearl", finish: "Doppler" },
+    { paintIndex: 568, label: "Emerald", finish: "Gamma Doppler" },
   ],
   /** Reference USD values for attachment craft estimates; estimates are not market quotes. */
   attachmentEstimatesUsd: [

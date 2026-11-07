@@ -50,7 +50,7 @@ describe("sortItems", () => {
     assert.equal(ids(sortItems(ITEMS, "name")), "abc");
     assert.equal(ids(ITEMS), "abc");
   });
-  it("sorts by rarity score without mutating the input", () => {
+  it("sorts highlights first without mutating the input", () => {
     const ordinary = item("a", "AK-47 | Redline", 10, 0.3);
     const blueGem = {
       ...ordinary,
@@ -58,7 +58,7 @@ describe("sortItems", () => {
       name: "AK-47 | Case Hardened",
       paintSeed: 661,
     };
-    assert.equal(ids(sortItems([ordinary, blueGem], "rarity-desc")), "ba");
+    assert.equal(ids(sortItems([ordinary, blueGem], "highlights-desc")), "ba");
     assert.equal(ids([ordinary, blueGem]), "ab");
   });
 });

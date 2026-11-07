@@ -17,7 +17,7 @@ export const ITEM_GRID = {
     { id: "price-asc", label: "Price: low to high" },
     { id: "float-asc", label: "Float: low to high" },
     { id: "float-desc", label: "Float: high to low" },
-    { id: "rarity-desc", label: "Rarity score: high to low" },
+    { id: "highlights-desc", label: "Highlights first" },
     { id: "name", label: "Name" },
   ],
   keys: {
