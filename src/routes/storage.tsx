@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { RefreshCw } from "lucide-react";
+import { ListChecks, RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "~/components/button/button.component";
 import { ItemCollection } from "~/components/item-collection/item-collection.component";
@@ -7,6 +7,7 @@ import { ItemTableSkeleton } from "~/components/item-table/item-table.skeleton";
 import { LoadingRegion } from "~/components/loading-region/loading-region.component";
 import { Skeleton } from "~/components/skeleton/skeleton.component";
 import { ViewToggle } from "~/components/view-toggle/view-toggle.component";
+import { OrganiserPanel } from "~/components/organiser-panel/organiser-panel.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { TransferBar } from "~/components/transfer-bar/transfer-bar.component";
 import { UnitCard } from "~/components/unit-card/unit-card.component";
@@ -37,6 +38,7 @@ function StoragePage() {
   );
   const [selectedId, setSelectedId] = useState<string>();
   const [picked, setPicked] = useState<ReadonlySet<string>>(new Set());
+  const [organising, setOrganising] = useState(false);
   const copy = COPY.storage;
 
   const byUnit = useMemo(() => {
@@ -62,6 +64,15 @@ function StoragePage() {
       <PageHeader title={copy.title} description={copy.description}>
         <Button
           small
+          aria-pressed={organising}
+          disabled={snapshot.units.length === 0}
+          onClick={() => setOrganising((on) => !on)}
+        >
+          <ListChecks size={12} />
+          {organising ? copy.closeOrganiser : copy.organise}
+        </Button>
+        <Button
+          small
           disabled={snapshot.loadingUnits}
           onClick={() => void callStorageApi(`${STORAGE_API.refresh}?${priceQuery}`)}
         >
@@ -74,6 +85,12 @@ function StoragePage() {
       </PageHeader>
       {snapshot.units.length === 0 ? (
         <p className="text-muted-foreground">{copy.noUnits}</p>
+      ) : organising ? (
+        <OrganiserPanel
+          items={data.status === "ready" ? data.data.items : []}
+          units={snapshot.units}
+          busy={snapshot.transfer.status === "running"}
+        />
       ) : (
         <div className="flex min-h-0 flex-1 flex-col gap-4 md:flex-row">
           <div className="flex shrink-0 gap-2 overflow-x-auto md:w-72 md:flex-col md:overflow-y-auto md:overflow-x-visible">
