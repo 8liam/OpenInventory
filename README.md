@@ -77,6 +77,7 @@ Steam allows a single client session per account, and OpenInventory signs in as 
 - Your Steam **refresh token** is stored in `session.json` inside the data directory (mode `0600`). Anyone who can read it can act as your account until you press **Sign out**, which deletes it. Protect the volume.
 - Without `OPENINVENTORY_PASSWORD`, anyone who can reach the port can see your inventory **and move your items**. Set a password, and put OpenInventory behind a VPN or a TLS reverse proxy if you expose it.
 - State-changing requests are same-origin only and require a JSON body, so another website can't drive your instance from your browser. Without a password the `Host` header must also be an IP, a single-label name, `localhost`, a `*.local`, `*.home.arpa`, `*.internal` or `*.ts.net` name, or listed in `OPENINVENTORY_ALLOWED_HOSTS`, which blocks DNS-rebinding attacks. Other names get a 403 that says which variable to set.
+- **Share links** (Settings → Share links, or Items → Share selected) are the one exception to the password: anyone with a link can read a fixed, read-only view of the items it covers (all items, one storage unit, or the selection), with optional hidden prices and expiry. Tokens are 256-bit random values and only their SHA-256 hash is stored, so a link is shown once. Revoke it in Settings. The public endpoint never exposes your Steam login, account identifiers, asset ids or any action, and it is rate limited per client address. Behind a reverse proxy every visitor shares one address, so the limit is shared too.
 
 ## Develop
 
