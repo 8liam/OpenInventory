@@ -8,13 +8,12 @@ import type {
 import { UserFacingError } from "../steam/steam.types.ts";
 import {
   SHARE_CURRENCY_PATTERN,
+  SHARE_ERRORS,
   SHARE_ID_PATTERN,
   SHARE_ITEM_ID_PATTERN,
   SHARE_LIMITS,
   SHARE_STATUS,
 } from "./share.config.ts";
-
-const INVALID_SHARE = "Invalid share request";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -58,7 +57,7 @@ export function parseCreateShareRequest(body: unknown): CreateShareRequest {
       ? record.currency
       : undefined;
   if (!scope || !expiry || !marketplace || !currency || typeof record.hidePrices !== "boolean") {
-    throw new UserFacingError(INVALID_SHARE, SHARE_STATUS.badRequest);
+    throw new UserFacingError(SHARE_ERRORS.invalidRequest, SHARE_STATUS.badRequest);
   }
   return { scope, expiry, marketplace, currency, hidePrices: record.hidePrices };
 }
@@ -67,7 +66,7 @@ export function parseCreateShareRequest(body: unknown): CreateShareRequest {
 export function parseRevokeShareRequest(body: unknown): RevokeShareRequest {
   const id = isRecord(body) ? body.id : undefined;
   if (typeof id !== "string" || !SHARE_ID_PATTERN.test(id)) {
-    throw new UserFacingError(INVALID_SHARE, SHARE_STATUS.badRequest);
+    throw new UserFacingError(SHARE_ERRORS.invalidRequest, SHARE_STATUS.badRequest);
   }
   return { id };
 }

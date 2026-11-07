@@ -37,6 +37,9 @@ export const SHARE_ERRORS = {
     "This share is unavailable right now. Try again once the owner's inventory has loaded.",
   rateLimited: "Too many requests",
   methodNotAllowed: "Method not allowed",
+  unitMissing: "That storage unit doesn't exist",
+  itemsGone: "Some of those items are no longer in your inventory",
+  invalidRequest: "Invalid share request",
 } as const;
 
 export const SHARE_STATUS = {

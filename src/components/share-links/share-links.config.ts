@@ -7,4 +7,6 @@ export const SHARE_LINKS = {
   rowClass: "flex flex-wrap items-center justify-between gap-x-3 gap-y-2 py-2.5",
   textClass: "min-w-0",
   metaClass: "text-xs text-muted-foreground",
+  /** Joins a link's created, expiry and price-hidden facts on one line. */
+  metaSeparator: " · ",
 } as const;

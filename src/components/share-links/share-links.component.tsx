@@ -97,7 +97,7 @@ export function ShareLinksPanel() {
                       link.hidePrices ? COPY.shares.hidePricesTag : undefined,
                     ]
                       .filter(Boolean)
-                      .join(" · ")}
+                      .join(SHARE_LINKS.metaSeparator)}
                   </p>
                 </div>
                 <Button

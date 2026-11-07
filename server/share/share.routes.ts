@@ -138,13 +138,10 @@ export type CreateShareDeps = {
 
 function assertScopeExists(scope: ShareScope, deps: CreateShareDeps): void {
   if (scope.kind === "unit" && !deps.unitIds.has(scope.unitId)) {
-    throw new UserFacingError("That storage unit doesn't exist", SHARE_STATUS.badRequest);
+    throw new UserFacingError(SHARE_ERRORS.unitMissing, SHARE_STATUS.badRequest);
   }
   if (scope.kind === "items" && !scope.itemIds.every((id) => deps.knownItemIds.has(id))) {
-    throw new UserFacingError(
-      "Some of those items are no longer in your inventory",
-      SHARE_STATUS.badRequest,
-    );
+    throw new UserFacingError(SHARE_ERRORS.itemsGone, SHARE_STATUS.badRequest);
   }
 }
 

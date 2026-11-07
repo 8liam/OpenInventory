@@ -257,6 +257,8 @@ export const COPY = {
     charms: "Charms",
     wearLabel: "Wear",
     priceLabel: "Price",
+    statTrak: "StatTrak™",
+    souvenir: "Souvenir",
   },
   settings: {
     title: "Settings",
