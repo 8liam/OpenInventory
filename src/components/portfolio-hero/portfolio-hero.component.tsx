@@ -17,6 +17,7 @@ export function PortfolioHero({ dashboard, currency }: PortfolioHeroProps) {
       detail: `${totals.unitsLoaded}/${totals.unitsTotal} units`,
     },
     { label: copy.items, value: formatInteger(totals.itemCount) },
+    { label: copy.tradableNow, value: formatInteger(totals.tradableNowCount) },
   ];
   return (
     <section className="overflow-hidden rounded-xl border bg-card">

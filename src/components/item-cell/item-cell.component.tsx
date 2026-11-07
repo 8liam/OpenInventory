@@ -17,6 +17,7 @@ export function ItemCell({ item }: ItemCellProps) {
       imageUrl={item.imageUrl}
       rarityColor={item.rarityColor}
       customName={item.customName}
+      tradableAfter={item.tradableAfter}
       size={imageSize}
     >
       {item.pattern !== null && (

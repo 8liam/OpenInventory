@@ -1,4 +1,5 @@
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
+import { TradeLockBadge } from "~/components/trade-lock-badge/trade-lock-badge.component";
 import type { ItemLabelProps } from "./item-label.types";
 import { splitItemName } from "./item-label.utils";
 
@@ -9,6 +10,7 @@ export function ItemLabel({
   rarityColor,
   size,
   customName,
+  tradableAfter,
   children,
 }: ItemLabelProps) {
   const [weapon, skin] = splitItemName(name);
@@ -29,6 +31,11 @@ export function ItemLabel({
           {customName && <span className="text-muted-foreground"> “{customName}”</span>}
         </p>
         {children}
+        {tradableAfter !== undefined && tradableAfter !== null && (
+          <p className="mt-0.5">
+            <TradeLockBadge tradableAfter={tradableAfter} />
+          </p>
+        )}
       </div>
     </div>
   );

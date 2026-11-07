@@ -410,10 +410,7 @@ export async function loadCatalog(db: CatalogCache): Promise<Catalog> {
             : null,
         terminal,
         videoUrl: category === SOUVENIR_CHARM_CATEGORY ? (record?.video ?? null) : null,
-        tradableAfter:
-          item.tradable_after && item.tradable_after.getTime() > Date.now()
-            ? item.tradable_after.getTime()
-            : null,
+        tradableAfter: item.tradable_after?.getTime() ?? null,
       },
     };
   }

@@ -8,6 +8,7 @@ import {
   Package,
   PackageOpen,
   Settings,
+  Clock3,
 } from "lucide-react";
 import type { ComponentType } from "react";
 import { AuthGate } from "~/components/auth-gate/auth-gate.component";
@@ -27,6 +28,7 @@ const ICONS: Record<
 > = {
   dashboard: LayoutDashboard,
   items: Boxes,
+  tradability: Clock3,
   storage: Package,
   cases: PackageOpen,
   terminals: Laptop,

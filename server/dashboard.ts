@@ -150,6 +150,9 @@ export function buildDashboard(args: {
     totals: {
       value: totalValue,
       itemCount: items.length,
+      tradableNowCount: items.filter(
+        (item) => item.tradableAfter === null || item.tradableAfter <= now,
+      ).length,
       inventoryValue,
       storageValue,
       unitsLoaded,

@@ -6,6 +6,7 @@ export type ItemLabelProps = {
   readonly rarityColor: string | null;
   readonly size: number;
   readonly customName?: string | null;
+  readonly tradableAfter?: number | null;
   /** Rendered under the name, e.g. stickers. */
   readonly children?: ReactNode;
 };

@@ -51,6 +51,7 @@ export type Dashboard = {
   readonly totals: {
     readonly value: number;
     readonly itemCount: number;
+    readonly tradableNowCount: number;
     readonly inventoryValue: number;
     readonly storageValue: number;
     readonly unitsLoaded: number;

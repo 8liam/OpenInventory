@@ -1,4 +1,5 @@
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
+import { TradeLockBadge } from "~/components/trade-lock-badge/trade-lock-badge.component";
 import { splitItemName } from "~/components/item-label/item-label.utils";
 import { COPY } from "~/lib/copy/copy.config";
 import { cn } from "~/utils/cn";
@@ -66,6 +67,11 @@ export function ItemGridCard({
               className="size-4 accent-primary"
             />
           </label>
+        )}
+        {item.tradableAfter !== null && (
+          <span className="absolute right-1.5 top-1.5">
+            <TradeLockBadge tradableAfter={item.tradableAfter} />
+          </span>
         )}
       </div>
       <div className="mt-2.5 min-w-0">

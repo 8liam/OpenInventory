@@ -15,6 +15,7 @@ import { Route as ItemsRouteImport } from "./routes/items";
 import { Route as SettingsRouteImport } from "./routes/settings";
 import { Route as StorageRouteImport } from "./routes/storage";
 import { Route as TerminalsRouteImport } from "./routes/terminals";
+import { Route as TradabilityRouteImport } from "./routes/tradability";
 import { Route as TradeupRouteImport } from "./routes/tradeup";
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,6 +48,11 @@ const TerminalsRoute = TerminalsRouteImport.update({
   path: "/terminals",
   getParentRoute: () => rootRouteImport,
 } as any);
+const TradabilityRoute = TradabilityRouteImport.update({
+  id: "/tradability",
+  path: "/tradability",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const TradeupRoute = TradeupRouteImport.update({
   id: "/tradeup",
   path: "/tradeup",
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   "/settings": typeof SettingsRoute;
   "/storage": typeof StorageRoute;
   "/terminals": typeof TerminalsRoute;
+  "/tradability": typeof TradabilityRoute;
   "/tradeup": typeof TradeupRoute;
 }
 export interface FileRoutesByTo {
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   "/settings": typeof SettingsRoute;
   "/storage": typeof StorageRoute;
   "/terminals": typeof TerminalsRoute;
+  "/tradability": typeof TradabilityRoute;
   "/tradeup": typeof TradeupRoute;
 }
 export interface FileRoutesById {
@@ -79,14 +87,40 @@ export interface FileRoutesById {
   "/settings": typeof SettingsRoute;
   "/storage": typeof StorageRoute;
   "/terminals": typeof TerminalsRoute;
+  "/tradability": typeof TradabilityRoute;
   "/tradeup": typeof TradeupRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/" | "/cases" | "/items" | "/settings" | "/storage" | "/terminals" | "/tradeup";
+  fullPaths:
+    | "/"
+    | "/cases"
+    | "/items"
+    | "/settings"
+    | "/storage"
+    | "/terminals"
+    | "/tradability"
+    | "/tradeup";
   fileRoutesByTo: FileRoutesByTo;
-  to: "/" | "/cases" | "/items" | "/settings" | "/storage" | "/terminals" | "/tradeup";
-  id: "__root__" | "/" | "/cases" | "/items" | "/settings" | "/storage" | "/terminals" | "/tradeup";
+  to:
+    | "/"
+    | "/cases"
+    | "/items"
+    | "/settings"
+    | "/storage"
+    | "/terminals"
+    | "/tradability"
+    | "/tradeup";
+  id:
+    | "__root__"
+    | "/"
+    | "/cases"
+    | "/items"
+    | "/settings"
+    | "/storage"
+    | "/terminals"
+    | "/tradability"
+    | "/tradeup";
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
@@ -96,6 +130,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute;
   StorageRoute: typeof StorageRoute;
   TerminalsRoute: typeof TerminalsRoute;
+  TradabilityRoute: typeof TradabilityRoute;
   TradeupRoute: typeof TradeupRoute;
 }
 
@@ -143,6 +178,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof TerminalsRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/tradability": {
+      id: "/tradability";
+      path: "/tradability";
+      fullPath: "/tradability";
+      preLoaderRoute: typeof TradabilityRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     "/tradeup": {
       id: "/tradeup";
       path: "/tradeup";
@@ -160,6 +202,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   StorageRoute: StorageRoute,
   TerminalsRoute: TerminalsRoute,
+  TradabilityRoute: TradabilityRoute,
   TradeupRoute: TradeupRoute,
 };
 export const routeTree = rootRouteImport

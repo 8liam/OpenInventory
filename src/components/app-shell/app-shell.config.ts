@@ -1,6 +1,7 @@
 export const NAV_ITEMS = [
   { to: "/", key: "dashboard", icon: "dashboard" },
   { to: "/items", key: "items", icon: "items" },
+  { to: "/tradability", key: "tradability", icon: "tradability" },
   { to: "/storage", key: "storage", icon: "storage" },
   { to: "/cases", key: "cases", icon: "cases" },
   { to: "/terminals", key: "terminals", icon: "terminals" },

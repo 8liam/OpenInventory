@@ -19,6 +19,7 @@ export const COPY = {
   nav: {
     dashboard: "Dashboard",
     items: "Items",
+    tradability: "Tradability",
     storage: "Storage units",
     cases: "Cases",
     terminals: "Terminals",
@@ -28,6 +29,7 @@ export const COPY = {
   navShort: {
     dashboard: "Home",
     items: "Items",
+    tradability: "Unlocks",
     storage: "Storage",
     cases: "Cases",
     terminals: "Terminals",
@@ -92,6 +94,7 @@ export const COPY = {
     inventory: "Inventory",
     storage: "Storage units",
     items: "Items",
+    tradableNow: "Tradable now",
     change: { day: "24h", week: "7d", month: "30d" },
     historyTitle: "Value over time",
     historyEmpty:
@@ -163,6 +166,15 @@ export const COPY = {
     description: "Everything you own across inventory and storage units.",
     allLocations: "All locations",
     allTypes: "All types",
+  },
+  tradability: {
+    title: "Tradability",
+    description: "Upcoming trade unlocks from your Steam inventory.",
+    allDates: "Any date",
+    upcoming: "Upcoming unlocks",
+    unrestricted: "Tradable now",
+    noUpcoming: "No upcoming trade unlocks.",
+    daysUntil: (count: number) => `${count} ${count === 1 ? "day" : "days"}`,
   },
   storage: {
     title: "Storage units",
