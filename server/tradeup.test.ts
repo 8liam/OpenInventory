@@ -1,11 +1,12 @@
 /* oxlint-disable typescript/no-floating-promises -- node:test registers suites synchronously */
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import type { ItemView } from "../src/lib/items/item.types.ts";
+import { INVENTORY_LOCATION_ID, type ItemView } from "../src/lib/items/item.types.ts";
 import { TRADE_UP } from "../src/lib/storage/storage.config.ts";
 import type { Catalog, SkinFacts } from "./items/catalog.types.ts";
 import type { PriceBook } from "./prices/prices.ts";
 import { computeTradeUp, listTradeUpCandidates, type TradeUpCandidate } from "./tradeup.ts";
+import { findTradeUps } from "./tradeup-finder.ts";
 
 const knives = [
   { id: "k1", name: "★ Bayonet" },
@@ -33,7 +34,14 @@ function covert(id: string, skinId: string, statTrak = false): TradeUpCandidate 
     isStatTrak: statTrak,
     isSouvenir: false,
   };
-  const view = { id, price: 10, wear: 0.1, tradableAfter: null, isStatTrak: statTrak } as ItemView;
+  const view = {
+    id,
+    price: 10,
+    wear: 0.1,
+    tradableAfter: null,
+    isStatTrak: statTrak,
+    locationId: INVENTORY_LOCATION_ID,
+  } as ItemView;
   return { view, skin };
 }
 
@@ -73,4 +81,29 @@ test("rejects too many, mixed StatTrak or unknown inputs", () => {
   assert.equal(run(["a", "b", "c", "d", "e", "f"]).ok, false);
   assert.equal(run(["a", "st"]).ok, false);
   assert.equal(run(["nope"]).ok, false);
+});
+
+test("finder ranks complete contracts and excludes storage and trade-locked items by default", () => {
+  const locked = {
+    ...covert("locked", "locked"),
+    view: { ...covert("locked", "locked").view, tradableAfter: 1 },
+  };
+  const stored = {
+    ...covert("stored", "stored"),
+    view: { ...covert("stored", "stored").view, locationId: "unit" },
+  };
+  const result = findTradeUps(
+    [...pool, locked, stored],
+    { rarityId: TRADE_UP.covertRarity, statTrak: "all", includeStorage: false },
+    catalog,
+    prices,
+    "USD",
+  );
+  assert.equal(result.results.length, 2);
+  assert.ok(
+    result.results.every((contract) => contract.inputs.length === TRADE_UP.covertInputCount),
+  );
+  assert.ok(result.results.every((contract) => !contract.inputIds.includes("locked")));
+  assert.ok(result.results.every((contract) => !contract.inputIds.includes("stored")));
+  assert.ok(result.results[0]!.profit >= result.results[1]!.profit);
 });

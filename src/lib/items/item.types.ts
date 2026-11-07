@@ -114,3 +114,24 @@ export type TradeUpOddsResponse =
       readonly outcomes: readonly TradeUpOutcome[];
       readonly currency: string;
     };
+
+export type TradeUpFinderOptions = {
+  readonly rarityId: string;
+  readonly statTrak: "all" | "normal" | "stattrak";
+  readonly includeStorage: boolean;
+};
+
+export type TradeUpFinderResult = {
+  readonly inputIds: readonly string[];
+  readonly inputs: readonly ItemView[];
+  readonly inputCost: number;
+  readonly expectedValue: number;
+  readonly profit: number;
+  readonly odds: TradeUpOddsResponse;
+};
+
+export type TradeUpFinderResponse = {
+  readonly results: readonly TradeUpFinderResult[];
+  readonly currency: string;
+  readonly searched: number;
+};
