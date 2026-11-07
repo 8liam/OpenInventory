@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { RefreshCw } from "lucide-react";
+import { ListChecks, RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "~/components/button/button.component";
 import { ItemCollection } from "~/components/item-collection/item-collection.component";
@@ -7,18 +7,15 @@ import { ItemTableSkeleton } from "~/components/item-table/item-table.skeleton";
 import { LoadingRegion } from "~/components/loading-region/loading-region.component";
 import { Skeleton } from "~/components/skeleton/skeleton.component";
 import { ViewToggle } from "~/components/view-toggle/view-toggle.component";
+import { OrganiserPanel } from "~/components/organiser-panel/organiser-panel.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { TransferBar } from "~/components/transfer-bar/transfer-bar.component";
 import { UnitCard } from "~/components/unit-card/unit-card.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
 import type { InventoryResponse, ItemView } from "~/lib/items/item.types";
-import {
-  callStorageApi,
-  postJson,
-  useRemoteData,
-  useStorageSnapshot,
-} from "~/lib/storage/storage.client";
+import { useScopedPath, useSingleAccountId } from "~/lib/accounts/account-scope.hooks";
+import { postJson, useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { useItemViewMode } from "~/lib/items/view-mode.store";
 import { usePriceQuery, useSettings } from "~/lib/settings/settings.store";
@@ -31,12 +28,14 @@ function StoragePage() {
   const { mode: view, setMode: setView } = useItemViewMode();
   const currency = useSettings((s) => s.currency);
   const priceQuery = usePriceQuery();
+  const accountId = useSingleAccountId();
   const data = useRemoteData<InventoryResponse>(
-    `${STORAGE_API.items}?${priceQuery}`,
+    useScopedPath(`${STORAGE_API.items}?${priceQuery}`),
     snapshot.revision,
   );
   const [selectedId, setSelectedId] = useState<string>();
   const [picked, setPicked] = useState<ReadonlySet<string>>(new Set());
+  const [organising, setOrganising] = useState(false);
   const copy = COPY.storage;
 
   const byUnit = useMemo(() => {
@@ -62,8 +61,20 @@ function StoragePage() {
       <PageHeader title={copy.title} description={copy.description}>
         <Button
           small
+          aria-pressed={organising}
+          disabled={snapshot.units.length === 0}
+          onClick={() => setOrganising((on) => !on)}
+        >
+          <ListChecks size={12} />
+          {organising ? copy.closeOrganiser : copy.organise}
+        </Button>
+        <Button
+          small
           disabled={snapshot.loadingUnits}
-          onClick={() => void callStorageApi(`${STORAGE_API.refresh}?${priceQuery}`)}
+          onClick={() =>
+            accountId !== undefined &&
+            void postJson(`${STORAGE_API.refresh}?${priceQuery}`, { accountId })
+          }
         >
           <RefreshCw
             size={12}
@@ -74,6 +85,14 @@ function StoragePage() {
       </PageHeader>
       {snapshot.units.length === 0 ? (
         <p className="text-muted-foreground">{copy.noUnits}</p>
+      ) : organising ? (
+        <OrganiserPanel
+          items={data.status === "ready" ? data.data.items : []}
+          itemsReady={data.status === "ready"}
+          units={snapshot.units}
+          accountId={accountId}
+          busy={snapshot.transfer.status === "running"}
+        />
       ) : (
         <div className="flex min-h-0 flex-1 flex-col gap-4 md:flex-row">
           <div className="flex shrink-0 gap-2 overflow-x-auto md:w-72 md:flex-col md:overflow-y-auto md:overflow-x-visible">
@@ -85,7 +104,11 @@ function StoragePage() {
                 currency={currency}
                 selected={selected?.id === unit.id}
                 loading={unitPending(unit)}
-                onRename={(name) => postJson(STORAGE_API.renameUnit, { id: unit.id, name })}
+                onRename={(name) =>
+                  accountId === undefined
+                    ? Promise.reject(new Error(COPY.accounts.chooseOneTitle))
+                    : postJson(STORAGE_API.renameUnit, { accountId, id: unit.id, name })
+                }
                 onSelect={() => {
                   setSelectedId(unit.id);
                   setPicked(new Set());

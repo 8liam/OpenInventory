@@ -1,12 +1,24 @@
 import { useState } from "react";
 import { Button } from "~/components/button/button.component";
-import { callStorageApi, useStorageSnapshot } from "~/lib/storage/storage.client";
+import { accountName } from "~/lib/accounts/account-scope.hooks";
+import { postJson, useAppSnapshot } from "~/lib/storage/storage.client";
+import type { AccountState } from "~/lib/storage/storage.types";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { TRANSFER_STATUS } from "./transfer-status.config";
 
-/** Global banner for the running/last transfer; lives above every page. */
-export function TransferStatus() {
-  const { transfer } = useStorageSnapshot();
+/** Banner for one account's running/last transfer. */
+function TransferBanner({
+  account,
+  named,
+}: {
+  readonly account: AccountState;
+  readonly named: boolean;
+}) {
+  const { transfer } = account.snapshot;
+  const accountId = { accountId: account.steamId };
+  const owner = named ? (
+    <p className="mb-1 text-xs text-muted-foreground">{accountName(account)}</p>
+  ) : null;
   const [cancelling, setCancelling] = useState(false);
   if (transfer.status === "idle") return null;
 
@@ -14,6 +26,7 @@ export function TransferStatus() {
     const percent = transfer.total > 0 ? (transfer.done / transfer.total) * 100 : 0;
     return (
       <div className="shrink-0 rounded-lg border bg-card px-4 py-3" role="status">
+        {owner}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="tabular">
             {TRANSFER_STATUS.running(
@@ -22,13 +35,15 @@ export function TransferStatus() {
               transfer.fromName,
               transfer.toName,
             )}
+            {transfer.plan &&
+              ` · ${TRANSFER_STATUS.planStep(transfer.plan.step, transfer.plan.steps)}`}
           </p>
           <Button
             small
             disabled={cancelling}
             onClick={() => {
               setCancelling(true);
-              void callStorageApi(STORAGE_API.transferCancel);
+              void postJson(STORAGE_API.transferCancel, accountId);
             }}
           >
             {cancelling ? TRANSFER_STATUS.cancelling : TRANSFER_STATUS.cancel}
@@ -47,16 +62,19 @@ export function TransferStatus() {
   const failed = transfer.failures.length;
   return (
     <div className="shrink-0 rounded-lg border bg-card px-4 py-3" role="status">
+      {owner}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="tabular">
-          {TRANSFER_STATUS.finished(transfer.done, transfer.total, transfer.toName)}
+          {transfer.plan
+            ? TRANSFER_STATUS.planFinished(transfer.done, transfer.total, transfer.plan.steps)
+            : TRANSFER_STATUS.finished(transfer.done, transfer.total, transfer.toName)}
           {transfer.cancelled && ` · ${TRANSFER_STATUS.cancelled}`}
         </p>
         <Button
           small
           onClick={() => {
             setCancelling(false);
-            void callStorageApi(STORAGE_API.transferDismiss);
+            void postJson(STORAGE_API.transferDismiss, accountId);
           }}
         >
           {TRANSFER_STATUS.dismiss}
@@ -76,4 +94,12 @@ export function TransferStatus() {
       )}
     </div>
   );
+}
+
+/** Global banners for running/finished transfers, one per account; lives above every page. */
+export function TransferStatus() {
+  const { accounts } = useAppSnapshot();
+  return accounts.map((account) => (
+    <TransferBanner key={account.steamId} account={account} named={accounts.length > 1} />
+  ));
 }

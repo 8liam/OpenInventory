@@ -36,6 +36,8 @@ const NAME_PREFIX = {
 const SOUVENIR_CHARM_CATEGORY = "Souvenir Charm";
 const TERMINAL = { marker: "Terminal", sealed: "Sealed ", active: "Active " } as const;
 const VANILLA_SKIN = "Vanilla";
+const DEFAULT_MIN_FLOAT = 0;
+const DEFAULT_MAX_FLOAT = 1;
 const STARRED_CATEGORIES: readonly string[] = ["Knives", "Gloves"];
 
 /** A corrupt (unparsable or non-array) cache row is treated as absent rather than allowed to crash startup. */
@@ -161,6 +163,7 @@ export async function loadCatalog(db: CatalogCache): Promise<Catalog> {
       collectionsBySkin.set(entry.id, [...(collectionsBySkin.get(entry.id) ?? []), collection.id]);
     }
   }
+  const collectionNameById = new Map(collections.map((c) => [c.id, c.name]));
   const collectionIdsOf = (skin: SkinRecord): readonly string[] =>
     (skin.skin_id ? collectionsBySkin.get(skin.skin_id) : undefined) ?? [];
 
@@ -312,9 +315,12 @@ export async function loadCatalog(db: CatalogCache): Promise<Catalog> {
         skinFacts = {
           skinId: skin.skin_id ?? null,
           collectionIds: collectionIdsOf(skin),
+          collectionNames: collectionIdsOf(skin).flatMap((id) => collectionNameById.get(id) ?? []),
           rarityId: skin.rarity?.id ?? "",
           isStatTrak: skin.stattrak === true,
           isSouvenir: skin.souvenir === true,
+          minFloat: skin.min_float ?? DEFAULT_MIN_FLOAT,
+          maxFloat: skin.max_float ?? DEFAULT_MAX_FLOAT,
         };
       }
     } else if (item.def_index === ITEM_DEF.sticker && kitId !== undefined) {
@@ -442,8 +448,8 @@ export async function loadCatalog(db: CatalogCache): Promise<Catalog> {
       const candidates = pool.length > 0 ? pool : variants;
       const painted = candidates.some((v) => v.wear);
       const range = candidates.find((v) => v.min_float !== undefined);
-      const min = range?.min_float ?? 0;
-      const max = range?.max_float ?? 1;
+      const min = range?.min_float ?? DEFAULT_MIN_FLOAT;
+      const max = range?.max_float ?? DEFAULT_MAX_FLOAT;
       const wearName = painted ? wearNameFor(min + float * (max - min)) : null;
       const variant = candidates.find((v) => (wearName ? v.wear?.name === wearName : true));
       if (!variant?.market_hash_name) return undefined;

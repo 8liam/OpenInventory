@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Gem } from "lucide-react";
-import { useDeferredValue, useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { ItemCollection } from "~/components/item-collection/item-collection.component";
 import { ItemTableSkeleton } from "~/components/item-table/item-table.skeleton";
 import { ExportItems } from "~/components/export-items/export-items.component";
@@ -10,6 +10,13 @@ import { TransferBar } from "~/components/transfer-bar/transfer-bar.component";
 import { ViewToggle } from "~/components/view-toggle/view-toggle.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { Select } from "~/components/select/select.component";
+import {
+  accountName,
+  accountText,
+  useAccountScope,
+  useScopedPath,
+} from "~/lib/accounts/account-scope.hooks";
+import { ACCOUNT_LABELS } from "~/lib/accounts/accounts.config";
 import { TiersHelp } from "~/components/tiers-help/tiers-help.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
@@ -31,6 +38,11 @@ export const Route = createFileRoute("/items")({
 });
 
 const ALL = "all";
+const LABEL_PREFIX = "label:";
+
+/** Location ids repeat across accounts (every inventory is "inventory"), so filters key on both. */
+const locationKey = (item: { readonly accountId: string; readonly locationId: string }) =>
+  `${item.accountId}:${item.locationId}`;
 const SELECT_WIDTH = "min-w-0 flex-1 sm:w-48 sm:flex-none";
 
 function ItemsPage() {
@@ -38,8 +50,9 @@ function ItemsPage() {
   const snapshot = useStorageSnapshot();
   const { mode: view, setMode: setView } = useItemViewMode();
   const priceQuery = usePriceQuery();
+  const { accounts, scoped, isAll } = useAccountScope();
   const data = useRemoteData<InventoryResponse>(
-    `${STORAGE_API.items}?${priceQuery}`,
+    useScopedPath(`${STORAGE_API.items}?${priceQuery}`),
     snapshot.revision,
   );
   const [query, setQuery] = useState(linkedQuery);
@@ -49,6 +62,7 @@ function ItemsPage() {
     setAppliedQuery(linkedQuery);
     setQuery(linkedQuery);
   }
+  const [accountFilter, setAccountFilter] = useState(ALL);
   const [location, setLocation] = useState(ALL);
   const [type, setType] = useState(ALL);
   const [highlightsOnly, setHighlightsOnly] = useState(false);
@@ -56,48 +70,101 @@ function ItemsPage() {
   const deferred = useDeferredValue(query);
   const items = data.status === "ready" ? data.data.items : undefined;
 
+  const accountByKey = useMemo(
+    () => new Map(accounts.map((account) => [account.steamId, account])),
+    [accounts],
+  );
+  const accountTextOf = useCallback(
+    (id: string) => {
+      const account = accountByKey.get(id);
+      return account ? accountText(account) : undefined;
+    },
+    [accountByKey],
+  );
+  const accountNames = useMemo(
+    () => (isAll ? new Map(accounts.map((a) => [a.steamId, accountName(a)])) : undefined),
+    [accounts, isAll],
+  );
+  const accountOptions = useMemo(() => {
+    const usedLabels = ACCOUNT_LABELS.filter((label) => scoped.some((a) => a.label === label));
+    return [
+      { id: ALL, label: COPY.accounts.filterAll },
+      ...usedLabels.map((label) => ({
+        id: `${LABEL_PREFIX}${label}`,
+        label: COPY.accounts.filterLabel(COPY.accounts.labels[label]),
+      })),
+      ...scoped.map((a) => ({ id: a.steamId, label: accountName(a) })),
+    ];
+  }, [scoped]);
+  // Account and label filters narrow the rows first, so the location and type counts below match what is shown.
+  const inAccount = useMemo(
+    () =>
+      items?.filter((i) => {
+        if (accountFilter === ALL) return true;
+        if (accountFilter.startsWith(LABEL_PREFIX))
+          return accountByKey.get(i.accountId)?.label === accountFilter.slice(LABEL_PREFIX.length);
+        return i.accountId === accountFilter;
+      }),
+    [items, accountFilter, accountByKey],
+  );
+
   const locationOptions = useMemo(() => {
     const counts = new Map<string, { name: string; count: number }>();
-    for (const item of items ?? []) {
-      const known = counts.get(item.locationId);
+    for (const item of inAccount ?? []) {
+      // Location ids repeat across accounts ("inventory"), so each account's get their own row.
+      const id = locationKey(item);
+      const known = counts.get(id);
       if (known) known.count += 1;
-      else counts.set(item.locationId, { name: item.locationName, count: 1 });
+      else
+        counts.set(id, {
+          name: accountNames
+            ? `${accountNames.get(item.accountId)} · ${item.locationName}`
+            : item.locationName,
+          count: 1,
+        });
     }
     return [
-      { id: ALL, label: COPY.items.allLocations, detail: formatInteger(items?.length ?? 0) },
+      { id: ALL, label: COPY.items.allLocations, detail: formatInteger(inAccount?.length ?? 0) },
       ...[...counts].map(([id, { name, count }]) => ({
         id,
         label: name,
         detail: formatInteger(count),
       })),
     ];
-  }, [items]);
+  }, [inAccount, accountNames]);
   const typeOptions = useMemo(() => {
     const counts = new Map<string, number>();
-    for (const item of items ?? []) counts.set(item.category, (counts.get(item.category) ?? 0) + 1);
+    for (const item of inAccount ?? [])
+      counts.set(item.category, (counts.get(item.category) ?? 0) + 1);
     return [
-      { id: ALL, label: COPY.items.allTypes, detail: formatInteger(items?.length ?? 0) },
+      { id: ALL, label: COPY.items.allTypes, detail: formatInteger(inAccount?.length ?? 0) },
       ...[...counts]
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([id, count]) => ({ id, label: id, detail: formatInteger(count) })),
     ];
-  }, [items]);
+  }, [inAccount]);
   const rows = useMemo(
     () =>
-      items?.filter(
+      inAccount?.filter(
         (i) =>
-          (location === ALL || i.locationId === location) &&
+          (location === ALL || locationKey(i) === location) &&
           (type === ALL || i.category === type) &&
           (!highlightsOnly || itemHighlights(i).reasons.length > 0) &&
-          matchesItem(i, deferred),
+          matchesItem(i, deferred, accountTextOf(i.accountId)),
       ),
-    [items, location, type, highlightsOnly, deferred],
+    [inAccount, location, type, highlightsOnly, deferred, accountTextOf],
   );
 
   const selectedItems = useMemo(
     () => (items ?? []).filter((i) => selected.has(itemRowKey(i))),
     [items, selected],
   );
+
+  // Moves act on one account: its own units are the destinations. Mixed selections are refused by the bar.
+  const selectedBusy = selectedItems.some(
+    (i) => accountByKey.get(i.accountId)?.snapshot.transfer.status === "running",
+  );
+  const transferUnits = accountByKey.get(selectedItems[0]?.accountId ?? "")?.snapshot.units ?? [];
 
   return (
     <>
@@ -111,6 +178,18 @@ function ItemsPage() {
           placeholder={COPY.common.searchPlaceholder}
           className="h-8 w-full rounded-md border border-input bg-card px-2.5 outline-none placeholder:text-muted-foreground focus:border-primary sm:w-56"
         />
+        {isAll && (
+          <Select
+            value={accountFilter}
+            ariaLabel={COPY.accounts.column}
+            className={SELECT_WIDTH}
+            options={accountOptions}
+            onChange={(id) => {
+              setAccountFilter(id);
+              setLocation(ALL);
+            }}
+          />
+        )}
         <Select
           value={location}
           ariaLabel={COPY.itemColumns.location}
@@ -154,8 +233,11 @@ function ItemsPage() {
         {selectedItems.length > 0 && (
           <TransferBar
             selected={selectedItems}
-            units={snapshot.units}
-            busy={snapshot.transfer.status === "running"}
+            units={transferUnits}
+            accountName={
+              accounts.length > 1 ? accountTextOf(selectedItems[0]?.accountId ?? "") : undefined
+            }
+            busy={selectedBusy}
             onClear={() => setSelected(new Set())}
           />
         )}
@@ -165,6 +247,7 @@ function ItemsPage() {
           view={view}
           items={rows}
           currency={data.data.currency}
+          accountNames={accountNames}
           selected={selected}
           onSelectionChange={setSelected}
         />

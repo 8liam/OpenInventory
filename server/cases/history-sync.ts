@@ -16,18 +16,29 @@ export type HistorySync = {
 
 export function createHistorySync(
   db: Database,
-  gateway: Pick<StorageGateway, "getWebCookies">,
+  /** Steam Community cookies for one account's live connection. */
+  getWebCookies: (steamId: string, refresh: boolean) => ReturnType<StorageGateway["getWebCookies"]>,
 ): HistorySync {
-  let running: string | undefined;
-  let progress = { pages: 0, events: 0 };
-  let failure: string | null = null;
+  /** Sync state is per account: one account's failure or progress must never show on another's page. */
+  const runs = new Map<
+    string,
+    { running: boolean; pages: number; events: number; failure: string | null }
+  >();
+  const runOf = (steamId: string) => {
+    let entry = runs.get(steamId);
+    if (!entry) {
+      entry = { running: false, pages: 0, events: 0, failure: null };
+      runs.set(steamId, entry);
+    }
+    return entry;
+  };
 
   /** One page, riding out rate limits and one stale-session refresh. */
   async function readPage(steamId: string, before: HistoryCursor | number): Promise<HistoryPage> {
     let refreshed = false;
     for (let attempt = 0; ; attempt++) {
       try {
-        return await fetchHistoryPage(steamId, await gateway.getWebCookies(refreshed), before);
+        return await fetchHistoryPage(steamId, await getWebCookies(steamId, refreshed), before);
       } catch (error) {
         if (!(error instanceof HistoryError)) throw error;
         if (error.failure === "auth" && !refreshed) {
@@ -53,7 +64,9 @@ export function createHistorySync(
       const page = await readPage(steamId, before);
       const events = parseHistoryPage(page);
       const added = db.saveHistoryEvents(steamId, events);
-      progress = { pages: progress.pages + 1, events: progress.events + added };
+      const progress = runOf(steamId);
+      progress.pages += 1;
+      progress.events += added;
       const reachedEnd = page.cursor === undefined;
       // Once a full pass exists, a page of nothing but known events means we are caught up.
       const caughtUp = state.complete && events.length > 0 && added === 0;
@@ -72,31 +85,34 @@ export function createHistorySync(
   return {
     status(steamId) {
       const state = db.loadHistorySync(steamId);
+      const entry = runOf(steamId);
       return {
-        state: running === steamId ? "running" : failure ? "error" : "idle",
-        pages: progress.pages,
-        events: progress.events,
+        state: entry.running ? "running" : entry.failure ? "error" : "idle",
+        pages: entry.pages,
+        events: entry.events,
         complete: state?.complete ?? false,
-        message: running === steamId ? null : failure,
+        message: entry.running ? null : entry.failure,
         lastSyncAt: state?.updatedAt || null,
       };
     },
     start(steamId, options) {
-      if (running) return;
+      const entry = runOf(steamId);
+      if (entry.running) return;
       const state = db.loadHistorySync(steamId);
       if (options?.onlyIfStale) {
         if (state?.complete && Date.now() - state.updatedAt < SYNC_POLICY.staleAfterMs) return;
       }
-      running = steamId;
-      progress = { pages: 0, events: 0 };
-      failure = null;
+      entry.running = true;
+      entry.pages = 0;
+      entry.events = 0;
+      entry.failure = null;
       void run(steamId)
         .catch((error: unknown) => {
-          failure = error instanceof Error ? error.message : String(error);
+          entry.failure = error instanceof Error ? error.message : String(error);
           console.warn("[history]", error);
         })
         .finally(() => {
-          running = undefined;
+          entry.running = false;
         });
     },
   };

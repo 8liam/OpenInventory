@@ -1,7 +1,7 @@
 /* oxlint-disable typescript/no-floating-promises -- node:test registers suites synchronously */
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { itemsToCsv } from "./export-csv.ts";
+import { itemsToCsv, itemsToJson } from "./export-csv.ts";
 import type { ItemView } from "./item.types.ts";
 
 const item: ItemView = {
@@ -26,6 +26,8 @@ const item: ItemView = {
   price: 12.5,
   locationId: "unit-1",
   locationName: "Main storage",
+  collections: [],
+  accountId: "1",
 };
 
 test("exports filtered item fields with spreadsheet-safe escaping", () => {
@@ -43,4 +45,18 @@ test("every formula trigger is escaped, even behind leading whitespace", () => {
     assert.ok(csv.includes(`"'${customName.replaceAll('"', '""')}"`), JSON.stringify(customName));
   }
   assert.ok(itemsToCsv([item], "USD").includes('"Sticker A"'), "plain text is left alone");
+});
+
+test("exports the selected item fields as readable JSON", () => {
+  assert.deepEqual(JSON.parse(itemsToJson([item], "USD")), [
+    {
+      id: "123",
+      name: 'AK-47 | Redline, "Field-Tested"',
+      location: "Main storage",
+      float: 0.15,
+      stickers: ["Sticker A"],
+      price: 12.5,
+      currency: "USD",
+    },
+  ]);
 });

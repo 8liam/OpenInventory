@@ -1,8 +1,8 @@
 import { itemRowKey } from "./item-key.ts";
 import type { ItemView } from "./item.types.ts";
 
-/** Search the item itself, its attachments and its current location. */
-export function matchesItem(item: ItemView, query: string): boolean {
+/** Search the item itself, its attachments, its current location and (when given) the account's name or label. */
+export function matchesItem(item: ItemView, query: string, accountText?: string): boolean {
   const term = query.trim().toLocaleLowerCase();
   if (!term) return true;
   // Dashboard float links pass a row key, which must land on exactly that item.
@@ -13,6 +13,7 @@ export function matchesItem(item: ItemView, query: string): boolean {
     item.customName,
     item.marketHashName,
     item.locationName,
+    accountText,
     ...item.stickers.map((sticker) => sticker.name),
     ...item.charms.map((charm) => charm.name),
   ].some((value) => value?.toLocaleLowerCase().includes(term));

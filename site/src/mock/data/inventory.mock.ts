@@ -2,7 +2,7 @@ import type { ItemView } from "~/lib/items/item.types";
 import { INVENTORY_LOCATION_ID } from "~/lib/items/item.types";
 import { WEAR_BANDS } from "~/lib/storage/storage.config";
 import type { StorageUnit } from "~/lib/storage/storage.types";
-import { itemColor, itemImage, seeded } from "./mock.config";
+import { MOCK_ACCOUNT_ID, itemColor, itemImage, seeded } from "./mock.config";
 
 type Seed = {
   readonly name: string;
@@ -146,6 +146,8 @@ function make(id: string, loc: string, seed: Seed, price: number, rand: () => nu
     price,
     locationId: loc,
     locationName: locationName(loc),
+    collections: [],
+    accountId: MOCK_ACCOUNT_ID,
   };
 }
 

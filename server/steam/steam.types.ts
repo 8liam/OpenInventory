@@ -1,4 +1,5 @@
 import type { GcItem } from "globaloffensive";
+import type { PlanRequest } from "../../src/lib/organiser/organiser.types.ts";
 import type { StorageSnapshot, TransferRequest } from "../../src/lib/storage/storage.types.ts";
 
 export type { GcItem };
@@ -14,7 +15,13 @@ export type UnitContents = {
 export type StorageGateway = {
   readonly getSnapshot: () => StorageSnapshot;
   readonly subscribe: (listener: SnapshotListener) => () => void;
-  readonly startQrLogin: () => Promise<void>;
+  /** Connects to Steam if this account hasn't been yet. Accounts connect lazily. */
+  readonly ensureConnected: () => void;
+  /** Retries the saved login after an error. */
+  readonly reconnect: () => void;
+  /** Drops the connection but keeps the saved login and cached units. */
+  readonly disconnect: () => void;
+  /** Signs this account out: drops the connection, deletes its saved login and cached units. */
   readonly logout: () => void;
   /** Loose inventory items (storage units and their contents excluded). */
   readonly getInventory: () => readonly GcItem[];
@@ -25,6 +32,8 @@ export type StorageGateway = {
   /** Invoked once the account is connected and units are known. */
   /** Validates and queues a move; resolves once it has started. Progress is in the snapshot. */
   readonly transferItems: (request: TransferRequest) => void;
+  /** Validates the first step and starts an organiser plan as one cancellable job. */
+  readonly transferPlan: (request: PlanRequest) => void;
   /** Renames a storage unit and resolves once the GC reports the new name. */
   readonly renameUnit: (unitId: string, name: string) => Promise<void>;
   /** Activates a sealed Terminal. Irreversible; resolves once the GC confirms it. */
@@ -36,7 +45,7 @@ export type StorageGateway = {
   readonly cancelTransfer: () => void;
   readonly dismissTransfer: () => void;
   readonly onReady: (listener: (steamId: string) => void) => void;
-  readonly getSteamId: () => string | undefined;
+  readonly getSteamId: () => string;
   /** Steam Community cookies (`name=value`), for fetching pages that have no GC equivalent. */
   readonly getWebCookies: (refresh: boolean) => Promise<readonly string[]>;
 };

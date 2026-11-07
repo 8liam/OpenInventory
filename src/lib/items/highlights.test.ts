@@ -30,6 +30,8 @@ function item(overrides: Partial<ItemView> = {}): ItemView {
     price: 100,
     locationId: "inventory",
     locationName: "Inventory",
+    collections: [],
+    accountId: "1",
     ...overrides,
   };
 }

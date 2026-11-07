@@ -27,6 +27,8 @@ const item: ItemView = {
   price: 12.5,
   locationId: "unit-1",
   locationName: "Overflow",
+  collections: [],
+  accountId: "1",
 };
 
 test("finds an item by identity, market name, attachments and location", () => {
@@ -48,4 +50,10 @@ test("a row key from a dashboard link matches only that exact item", () => {
   assert.equal(matchesItem(item, key), true);
   assert.equal(matchesItem({ ...item, id: `${item.id}1` }, key), false, "longer asset id");
   assert.equal(matchesItem({ ...item, locationId: "inventory" }, key), false, "other location");
+  assert.equal(matchesItem({ ...item, accountId: "2" }, key), false, "other account");
+});
+
+test("the account's name or label can be searched when the page supplies it", () => {
+  assert.equal(matchesItem(item, "trade acc"), false);
+  assert.equal(matchesItem(item, "trade acc", "Trade Account · trade"), true);
 });

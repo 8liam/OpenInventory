@@ -6,11 +6,18 @@ export const STORAGE_API = {
   casesSync: "/api/cases/sync",
   state: "/api/state",
   events: "/api/events",
-  qrLogin: "/api/auth/qr",
-  logout: "/api/auth/logout",
+  accounts: "/api/accounts",
+  accountLogin: "/api/accounts/login",
+  accountLoginCancel: "/api/accounts/login/cancel",
+  accountRemove: "/api/accounts/remove",
+  accountLabel: "/api/accounts/label",
+  accountConnect: "/api/accounts/connect",
+  accountReconnect: "/api/accounts/reconnect",
   tradeUp: "/api/tradeup",
   tradeUpOdds: "/api/tradeup/odds",
+  tradeUpFinder: "/api/tradeup/find",
   transfer: "/api/transfer",
+  transferPlan: "/api/transfer/plan",
   transferCancel: "/api/transfer/cancel",
   transferDismiss: "/api/transfer/dismiss",
   renameUnit: "/api/units/rename",
@@ -19,13 +26,19 @@ export const STORAGE_API = {
   terminalNextOffer: "/api/terminals/next-offer",
 } as const;
 
+export const TRADE_UP_FINDER = {
+  candidateLimit: 40,
+  resultLimit: 20,
+  maxContracts: 500,
+} as const;
+
 export const REMOTE_DATA = {
   /** Wait this long after a revision-only change before refetching, so bursts of pushes collapse into one request. */
   revisionDebounceMs: 600,
   /** Most responses kept for instant re-display; the oldest is evicted first. */
   cacheMaxEntries: 16,
   /** Query paths whose URLs are unbounded (one per selection), so their responses are never cached. */
-  uncachedPathPrefixes: ["/api/tradeup/odds"],
+  uncachedPathPrefixes: ["/api/tradeup/odds", "/api/tradeup/find"],
   visibleState: "visible",
   /** Responses at or above this status are server faults and worth retrying. */
   serverErrorStatus: 500,
@@ -35,6 +48,8 @@ export const REMOTE_DATA = {
 
 export const AUTH_STATUS = {
   signedOut: "signed-out",
+  /** A tracked account that hasn't been connected yet (accounts connect on first use). */
+  idle: "idle",
   qrPending: "qr-pending",
   connecting: "connecting",
   ready: "ready",

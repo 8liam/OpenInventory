@@ -1,7 +1,5 @@
 /// <reference path="./globaloffensive.d.ts" />
 import GlobalOffensive from "globaloffensive";
-import QRCode from "qrcode";
-import { EAuthTokenPlatformType, LoginSession } from "steam-session";
 import SteamUser from "steam-user";
 import {
   AUTH_STATUS,
@@ -23,20 +21,27 @@ import {
   UNLOCK_CRATE_NOTIFICATION,
 } from "../../src/lib/storage/storage.config.ts";
 import type { Database } from "../db/db.types.ts";
-import { createSessionFile, type SavedSession } from "./session-file.ts";
+import type { SavedSession } from "./session-file.ts";
+import type { SessionStore } from "./session-store.ts";
 import { createSnapshotStore, type UnitMeta } from "./steam.store.ts";
 import { INVENTORY_LOCATION_ID } from "../../src/lib/items/item.types.ts";
-import type { TransferRequest } from "../../src/lib/storage/storage.types.ts";
+import type { PlanRequest } from "../../src/lib/organiser/organiser.types.ts";
+import type { TransferFailure, TransferRequest } from "../../src/lib/storage/storage.types.ts";
 import { isPlaceholderItemId } from "./item-ids.ts";
 import { encodeNameItem } from "./rename.ts";
 import { encodeRequestOffer, encodeLoadTerminalOffer, encodeOpenCrate } from "./terminal.ts";
-import { runTransfer } from "./transfer.ts";
+import { runTransfer, type TransferOutcome } from "./transfer.ts";
 import {
   UserFacingError,
   type GcItem,
   type StorageGateway,
   type UnitContents,
 } from "./steam.types.ts";
+
+/** Each account throttles independently, so its cooldown is stored under its own key. */
+function loginCooldownKey(steamId: string): string {
+  return `${LOGIN_COOLDOWN_KEY}:${steamId}`;
+}
 
 function toErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -65,19 +70,20 @@ function formatDelay(ms: number): string {
  */
 export function createRealGateway(
   db: Database,
-  dataDir: string,
+  sessions: SessionStore,
   nameOf: (item: GcItem) => string,
+  session: SavedSession,
 ): StorageGateway {
+  const steamId = session.steamId;
   const store = createSnapshotStore();
-  const sessionFile = createSessionFile(dataDir);
   const unitContents = new Map<string, readonly GcItem[]>();
   const readyListeners: ((steamId: string) => void)[] = [];
-  let login: LoginSession | undefined;
   let steam: SteamUser | undefined;
   let csgo: GlobalOffensive | undefined;
-  let steamId: string | undefined;
   /** Kept across reconnects; only cleared on sign-out or a rejected token. */
   let activeSession: SavedSession | undefined;
+  /** Accounts connect lazily: nothing touches Steam until the first `ensureConnected`. */
+  let started = false;
   /** Steam Community cookies for the current connection; refreshed on demand. */
   let webCookies: readonly string[] | undefined;
   let reconnectTimer: NodeJS.Timeout | undefined;
@@ -126,11 +132,8 @@ export function createRealGateway(
     clearTimeout(reconnectTimer);
     reconnectAttempts = 0;
     unitContents.clear();
-    login?.cancelLoginAttempt();
-    login = undefined;
     teardownConnection();
     activeSession = undefined;
-    steamId = undefined;
   }
 
   function fail(message: string): void {
@@ -158,7 +161,7 @@ export function createRealGateway(
     gc: GlobalOffensive,
     unit: UnitMeta,
   ): Promise<readonly GcItem[] | undefined> {
-    if (!gc.haveGCSession || steamId === undefined) return undefined;
+    if (!gc.haveGCSession) return undefined;
     if (unit.itemCount > 0) {
       await new Promise<void>((resolve, reject) => {
         gc.getCasketContents(unit.id, (error) => (error ? reject(error) : resolve()));
@@ -172,9 +175,7 @@ export function createRealGateway(
   }
 
   async function loadUnits(gc: GlobalOffensive, force: boolean): Promise<void> {
-    const current = steamId;
-    if (!current) return;
-    const cached = db.loadUnits(current);
+    const cached = db.loadUnits(steamId);
     store.setLoadingUnits(true);
     try {
       for (const unit of store.units()) {
@@ -215,7 +216,7 @@ export function createRealGateway(
           STORAGE_LIMITS.reconnectMaxMs,
           STORAGE_LIMITS.reconnectBaseMs * 2 ** reconnectAttempts,
         );
-    if (throttled) db.setCache(LOGIN_COOLDOWN_KEY, String(Date.now() + delay));
+    if (throttled) db.setCache(loginCooldownKey(session.steamId), String(Date.now() + delay));
     else reconnectAttempts += 1;
     store.setAuth({
       status: AUTH_STATUS.connecting,
@@ -302,17 +303,15 @@ export function createRealGateway(
   /** Reads a fresh inventory from the GC; the first success is what flips the account to ready. */
   function refreshUnits(force: boolean): Promise<void> {
     return withGcSession(async (gc) => {
-      const current = steamId;
-      if (!current) return;
       const units = readUnitMeta();
       db.pruneUnits(
-        current,
+        steamId,
         units.map((unit) => unit.id),
       );
       store.setUnits(units);
       if (!synced) {
-        restoreCachedUnits(current);
-        markReady(current);
+        restoreCachedUnits(steamId);
+        markReady(steamId);
       }
       await loadUnits(gc, force);
     });
@@ -345,13 +344,13 @@ export function createRealGateway(
   }
 
   function connect(session: SavedSession): void {
-    const { refreshToken, steamId: id } = session;
+    const { refreshToken } = session;
+    const id = steamId;
     activeSession = session;
     let displayName: string | null = session.displayName ?? null;
     store.setAuth({ status: AUTH_STATUS.connecting, detail: "Connecting to Steam…" });
     const client = new SteamUser({ autoRelogin: true });
     steam = client;
-    steamId = id;
     // The persona name is what Steam shows to friends; the login name stays server-side.
     client.on("accountInfo", (name: string) => {
       const persona = name.trim();
@@ -359,7 +358,7 @@ export function createRealGateway(
       displayName = persona;
       if (activeSession && activeSession.displayName !== persona) {
         activeSession = { ...activeSession, displayName: persona };
-        sessionFile.save(activeSession);
+        sessions.forAccount(id).save(activeSession);
       }
       if (synced) store.setAuth({ status: AUTH_STATUS.ready, displayName });
     });
@@ -368,7 +367,7 @@ export function createRealGateway(
     });
     client.on("error", (error: Error & { eresult?: number }) => {
       if (error.eresult !== undefined && TOKEN_REJECTED_ERESULTS.includes(error.eresult)) {
-        sessionFile.clear();
+        sessions.forAccount(id).clear();
         fail(`Steam rejected the saved login (${error.message}). Sign in again.`);
         return;
       }
@@ -397,7 +396,7 @@ export function createRealGateway(
     });
     client.on("loggedOn", () => {
       reconnectAttempts = 0;
-      db.setCache(LOGIN_COOLDOWN_KEY, "0");
+      db.setCache(loginCooldownKey(id), "0");
       // autoRelogin re-fires loggedOn; keep a single GC instance per client.
       if (csgo) return;
       store.setAuth({ status: AUTH_STATUS.connecting, detail: "Connecting to CS2…" });
@@ -626,12 +625,29 @@ export function createRealGateway(
     if (items) store.setUnitCount(unitId, items.length);
   }
 
-  function transferItems(request: TransferRequest): void {
-    if (!csgo || !synced || steamId === undefined) {
+  /** One move of a transfer or plan; the account is fixed by the gateway running it. */
+  type MoveStep = Pick<TransferRequest, "from" | "to" | "itemIds">;
+
+  /** A validated move, with the live facts the run and the resync afterwards need. */
+  type PreparedTransfer = {
+    readonly from: string;
+    readonly to: string;
+    readonly itemIds: readonly string[];
+    readonly fromName: string;
+    readonly toName: string;
+    readonly byId: ReadonlyMap<string, GcItem>;
+    readonly sourceCount: number;
+    readonly destinationCount: number;
+  };
+
+  function requireConnected(): void {
+    if (!csgo || !synced) {
       throw new UserFacingError("Not connected to the CS2 Game Coordinator", STATUS.conflict);
     }
-    if (store.getTransfer().status === "running")
-      throw new UserFacingError("A transfer is already running", STATUS.conflict);
+  }
+
+  /** Checks a move against live state (items still there, destination has room). */
+  function prepareTransfer(request: MoveStep): PreparedTransfer {
     const { from, to } = request;
     const itemIds = [...new Set(request.itemIds)];
     if (itemIds.length === 0 || itemIds.length > STORAGE_LIMITS.maxItemsPerTransfer) {
@@ -669,60 +685,183 @@ export function createRealGateway(
         STATUS.badRequest,
       );
     }
-    const sourceCount = source.length;
+    return {
+      from,
+      to,
+      itemIds,
+      fromName,
+      toName,
+      byId,
+      sourceCount: source.length,
+      destinationCount,
+    };
+  }
+
+  /** Runs one prepared move and resyncs both ends from the GC so cached counts are authoritative. */
+  async function executePrepared(
+    gc: GlobalOffensive,
+    prepared: PreparedTransfer,
+    onProgress: (done: number) => void,
+  ): Promise<TransferOutcome> {
+    const { from, to, itemIds, byId } = prepared;
+    const outcome = await runTransfer({
+      gc,
+      from,
+      to,
+      itemIds,
+      nameOf: (id) => {
+        const raw = byId.get(id);
+        return raw ? nameOf(raw) : id;
+      },
+      onProgress,
+      isCancelled: () => transferCancelled,
+    });
+    try {
+      if (from !== INVENTORY_LOCATION_ID)
+        await reloadAfterMove(gc, from, prepared.sourceCount - outcome.removedFromUnit);
+      if (to !== INVENTORY_LOCATION_ID)
+        await reloadAfterMove(gc, to, prepared.destinationCount + outcome.addedToUnit);
+    } catch (error) {
+      console.warn("[transfer] resync failed:", toErrorMessage(error));
+    }
+    return outcome;
+  }
+
+  function transferItems(request: TransferRequest): void {
+    requireConnected();
+    if (store.getTransfer().status === "running")
+      throw new UserFacingError("A transfer is already running", STATUS.conflict);
+    const prepared = prepareTransfer(request);
+    const { fromName, toName } = prepared;
+    const total = prepared.itemIds.length;
 
     transferCancelled = false;
-    store.setTransfer({ status: "running", total: itemIds.length, done: 0, fromName, toName });
+    store.setTransfer({ status: "running", total, done: 0, fromName, toName, plan: null });
     const run = withGcSession(async (gc) => {
-      const outcome = await runTransfer({
-        gc,
-        from,
-        to,
-        itemIds,
-        nameOf: (id) => {
-          const raw = byId.get(id);
-          return raw ? nameOf(raw) : id;
-        },
-        onProgress: (done) =>
-          store.setTransfer({ status: "running", total: itemIds.length, done, fromName, toName }),
-        isCancelled: () => transferCancelled,
-      });
-      // Resync both ends from the GC so cached contents and counts are authoritative.
-      try {
-        if (from !== INVENTORY_LOCATION_ID)
-          await reloadAfterMove(gc, from, sourceCount - outcome.removedFromUnit);
-        if (to !== INVENTORY_LOCATION_ID)
-          await reloadAfterMove(gc, to, destinationCount + outcome.addedToUnit);
-      } catch (error) {
-        console.warn("[transfer] resync failed:", toErrorMessage(error));
-      }
+      const outcome = await executePrepared(gc, prepared, (done) =>
+        store.setTransfer({ status: "running", total, done, fromName, toName, plan: null }),
+      );
       store.setTransfer({
         status: "finished",
-        total: itemIds.length,
+        total,
         done: outcome.done,
         fromName,
         toName,
         cancelled: outcome.cancelled,
         failures: outcome.failures,
+        plan: null,
       });
     });
     void run.catch((error: unknown) => {
       console.error("[transfer] failed:", error);
       store.setTransfer({
         status: "finished",
-        total: itemIds.length,
+        total,
         done: 0,
         fromName,
         toName,
         cancelled: false,
         failures: [{ itemId: "", name: "Transfer", reason: toErrorMessage(error) }],
+        plan: null,
+      });
+    });
+  }
+
+  /**
+   * Runs an organiser plan as one cancellable job: the first step is validated up
+   * front (so a bad plan is an HTTP error), later steps are re-validated against
+   * live state when they start, and a step that has gone stale is reported as a
+   * failure while the rest carry on.
+   */
+  function transferPlan(request: PlanRequest): void {
+    requireConnected();
+    if (store.getTransfer().status === "running")
+      throw new UserFacingError("A transfer is already running", STATUS.conflict);
+    const [firstStep, ...laterSteps] = request.steps;
+    if (!firstStep) throw new UserFacingError("The plan has no steps", STATUS.badRequest);
+    const first = prepareTransfer(firstStep);
+    const total = request.steps.reduce((sum, step) => sum + new Set(step.itemIds).size, 0);
+    const stepCount = request.steps.length;
+
+    transferCancelled = false;
+    store.setTransfer({
+      status: "running",
+      total,
+      done: 0,
+      fromName: first.fromName,
+      toName: first.toName,
+      plan: { step: 1, steps: stepCount },
+    });
+    const run = withGcSession(async (gc) => {
+      const failures: TransferFailure[] = [];
+      let doneBefore = 0;
+      let cancelled = false;
+      let last = first;
+      const steps: readonly (PreparedTransfer | MoveStep)[] = [first, ...laterSteps];
+      for (const [index, entry] of steps.entries()) {
+        if (transferCancelled) {
+          cancelled = true;
+          break;
+        }
+        let prepared: PreparedTransfer;
+        try {
+          prepared = "byId" in entry ? entry : prepareTransfer(entry);
+        } catch (error) {
+          failures.push({
+            itemId: "",
+            name: `Step ${index + 1} of ${stepCount}`,
+            reason: toErrorMessage(error),
+          });
+          continue;
+        }
+        last = prepared;
+        const base = doneBefore;
+        const outcome = await executePrepared(gc, prepared, (done) =>
+          store.setTransfer({
+            status: "running",
+            total,
+            done: base + done,
+            fromName: prepared.fromName,
+            toName: prepared.toName,
+            plan: { step: index + 1, steps: stepCount },
+          }),
+        );
+        doneBefore += outcome.done;
+        failures.push(...outcome.failures);
+        if (outcome.cancelled) {
+          cancelled = true;
+          break;
+        }
+      }
+      store.setTransfer({
+        status: "finished",
+        total,
+        done: doneBefore,
+        fromName: last.fromName,
+        toName: last.toName,
+        cancelled,
+        failures,
+        plan: { step: stepCount, steps: stepCount },
+      });
+    });
+    void run.catch((error: unknown) => {
+      console.error("[transfer] plan failed:", error);
+      store.setTransfer({
+        status: "finished",
+        total,
+        done: 0,
+        fromName: first.fromName,
+        toName: first.toName,
+        cancelled: false,
+        failures: [{ itemId: "", name: "Plan", reason: toErrorMessage(error) }],
+        plan: { step: stepCount, steps: stepCount },
       });
     });
   }
 
   /** A restart during a throttle would log in early and extend it, so honour the remembered cooldown. */
   function connectAfterCooldown(session: SavedSession): void {
-    const remaining = Number(db.getCacheStale(LOGIN_COOLDOWN_KEY) ?? 0) - Date.now();
+    const remaining = Number(db.getCacheStale(loginCooldownKey(session.steamId)) ?? 0) - Date.now();
     if (remaining <= 0) return connect(session);
     activeSession = session;
     store.setAuth({
@@ -732,8 +871,25 @@ export function createRealGateway(
     reconnectTimer = setTimeout(() => connect(session), remaining);
   }
 
-  const saved = sessionFile.load();
-  if (saved) connectAfterCooldown(saved);
+  store.setAuth({ status: AUTH_STATUS.idle });
+
+  /** Starts the connection the first time it is needed; later calls are no-ops. */
+  function ensureConnected(): void {
+    if (started) return;
+    started = true;
+    connectAfterCooldown(session);
+  }
+
+  /** Explicit retry after an error (e.g. "logged in elsewhere"), using the saved login. */
+  function reconnect(): void {
+    const saved = sessions.forAccount(steamId).load();
+    if (!saved) throw new UserFacingError("Sign in again with the QR code.", STATUS.conflict);
+    clearTimeout(reconnectTimer);
+    teardown();
+    store.reset();
+    started = true;
+    connectAfterCooldown(saved);
+  }
 
   return {
     getSnapshot: () => store.getSnapshot(),
@@ -741,53 +897,19 @@ export function createRealGateway(
     onReady: (listener) => void readyListeners.push(listener),
     getSteamId: () => steamId,
     getWebCookies,
-
-    async startQrLogin() {
+    ensureConnected,
+    reconnect,
+    disconnect() {
       teardown();
       store.reset();
-      const session = new LoginSession(EAuthTokenPlatformType.SteamClient);
-      session.loginTimeout = STORAGE_LIMITS.qrLoginTimeoutMs;
-      login = session;
-      // steam-session keeps its login timer running after `authenticated`, so
-      // timeout/error must only count while this attempt is still pending.
-      const isPending = () => login === session;
-      session.on("timeout", () => {
-        if (isPending()) fail("QR login timed out. Start again.");
-      });
-      session.on("error", (error: Error) => {
-        if (isPending()) fail(`Login failed: ${error.message}`);
-      });
-      session.on("authenticated", () => {
-        const { accountName, steamID, refreshToken } = session;
-        login = undefined;
-        session.cancelLoginAttempt();
-        const id = steamID.getSteamID64();
-        sessionFile.save({ refreshToken, accountName, steamId: id });
-        connect({ refreshToken, accountName, steamId: id });
-      });
-      try {
-        const { qrChallengeUrl } = await session.startWithQR();
-        if (!qrChallengeUrl) throw new Error("Steam did not return a QR challenge");
-        const qrSvg = await QRCode.toString(qrChallengeUrl, { type: "svg", margin: 1 });
-        store.setAuth({ status: AUTH_STATUS.qrPending, qrSvg });
-        // Fired once the QR code has been scanned; the user still has to approve.
-        session.on("remoteInteraction", () =>
-          store.setAuth({
-            status: AUTH_STATUS.connecting,
-            detail: "Approve the sign-in in the Steam app…",
-          }),
-        );
-      } catch (error) {
-        fail(`Could not start Steam QR login: ${toErrorMessage(error)}`);
-      }
     },
 
     logout() {
-      const id = steamId;
       teardown();
       store.reset();
-      sessionFile.clear();
-      if (id) db.clearUnits(id);
+      started = false;
+      sessions.forAccount(steamId).clear();
+      db.clearUnits(steamId);
     },
 
     getInventory: looseInventory,
@@ -805,6 +927,7 @@ export function createRealGateway(
     getTerminalOffer,
     requestNextOffer,
     transferItems,
+    transferPlan,
     cancelTransfer: () => {
       transferCancelled = true;
     },

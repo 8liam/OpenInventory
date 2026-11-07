@@ -1,13 +1,12 @@
 import { AppShellSkeleton } from "~/components/app-shell-skeleton/app-shell-skeleton.component";
 import { SignInScreen } from "~/components/sign-in-screen/sign-in-screen.component";
-import { useSnapshotReceived, useStorageSnapshot } from "~/lib/storage/storage.client";
-import { AUTH_STATUS } from "~/lib/storage/storage.config";
+import { useAppSnapshot, useSnapshotReceived } from "~/lib/storage/storage.client";
 import type { AuthGateProps } from "./auth-gate.types";
 
-/** Everything inside requires a connected Steam account. */
+/** Everything inside needs at least one tracked Steam account; each account's own connection is handled further in. */
 export function AuthGate({ children }: AuthGateProps) {
-  const { auth } = useStorageSnapshot();
+  const { accounts, login } = useAppSnapshot();
   const received = useSnapshotReceived();
   if (!received) return <AppShellSkeleton />;
-  return auth.status === AUTH_STATUS.ready ? <>{children}</> : <SignInScreen auth={auth} />;
+  return accounts.length > 0 ? <>{children}</> : <SignInScreen login={login} />;
 }

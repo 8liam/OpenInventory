@@ -55,9 +55,14 @@ export type GraffitiRecord = NamedRecord & { readonly tint?: { readonly id: numb
 export type SkinFacts = {
   readonly skinId: string | null;
   readonly collectionIds: readonly string[];
+  /** Display names of `collectionIds`, for matching and display. */
+  readonly collectionNames: readonly string[];
   readonly rarityId: string;
   readonly isStatTrak: boolean;
   readonly isSouvenir: boolean;
+  /** The skin's float range; trade-ups normalise each input's float into it. */
+  readonly minFloat: number;
+  readonly maxFloat: number;
 };
 
 export type DescribedItem = {
