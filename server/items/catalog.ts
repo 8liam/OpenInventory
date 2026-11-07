@@ -299,6 +299,8 @@ export async function loadCatalog(db: CatalogCache): Promise<Catalog> {
     let name: string | undefined;
     let marketHashName: string | undefined;
     let skinFacts: DescribedItem["skin"] = null;
+    let minWear: number | null = null;
+    let maxWear: number | null = null;
 
     if (item.paint_index !== undefined && wearName) {
       const base = `${item.def_index}:${Math.round(item.paint_index)}`;
@@ -307,6 +309,8 @@ export async function loadCatalog(db: CatalogCache): Promise<Catalog> {
         skinByKey.get(`${base}:0:0:${wearName}`);
       if (skin) {
         record = skin;
+        minWear = skin.min_float ?? null;
+        maxWear = skin.max_float ?? null;
         category = skin.category?.name ?? "Skin";
         skinFacts = {
           skinId: skin.skin_id ?? null,
@@ -405,6 +409,10 @@ export async function loadCatalog(db: CatalogCache): Promise<Catalog> {
         category,
         customName: item.custom_name ?? null,
         wear: float ?? null,
+        paintSeed: item.paint_seed ?? null,
+        paintIndex: item.paint_index ?? null,
+        minWear,
+        maxWear,
         wearName,
         isStatTrak,
         isSouvenir,

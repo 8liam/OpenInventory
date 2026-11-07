@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Gem } from "lucide-react";
 import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { ItemCollection } from "~/components/item-collection/item-collection.component";
 import { ItemTableSkeleton } from "~/components/item-table/item-table.skeleton";
@@ -16,14 +17,17 @@ import {
   useScopedPath,
 } from "~/lib/accounts/account-scope.hooks";
 import { ACCOUNT_LABELS } from "~/lib/accounts/accounts.config";
+import { TiersHelp } from "~/components/tiers-help/tiers-help.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
 import { matchesItem } from "~/lib/items/item-search";
+import { itemHighlights } from "~/lib/items/highlights";
 import type { InventoryResponse } from "~/lib/items/item.types";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { useItemViewMode } from "~/lib/items/view-mode.store";
 import { usePriceQuery } from "~/lib/settings/settings.store";
+import { cn } from "~/utils/cn";
 import { formatInteger } from "~/utils/format";
 
 export const Route = createFileRoute("/items")({
@@ -61,6 +65,7 @@ function ItemsPage() {
   const [accountFilter, setAccountFilter] = useState(ALL);
   const [location, setLocation] = useState(ALL);
   const [type, setType] = useState(ALL);
+  const [highlightsOnly, setHighlightsOnly] = useState(false);
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
   const deferred = useDeferredValue(query);
   const items = data.status === "ready" ? data.data.items : undefined;
@@ -144,9 +149,10 @@ function ItemsPage() {
         (i) =>
           (location === ALL || locationKey(i) === location) &&
           (type === ALL || i.category === type) &&
+          (!highlightsOnly || itemHighlights(i).reasons.length > 0) &&
           matchesItem(i, deferred, accountTextOf(i.accountId)),
       ),
-    [inAccount, location, type, deferred, accountTextOf],
+    [inAccount, location, type, highlightsOnly, deferred, accountTextOf],
   );
 
   const selectedItems = useMemo(
@@ -198,6 +204,19 @@ function ItemsPage() {
           options={typeOptions}
           onChange={setType}
         />
+        <button
+          type="button"
+          aria-pressed={highlightsOnly}
+          onClick={() => setHighlightsOnly((on) => !on)}
+          className={cn(
+            "flex h-8 shrink-0 items-center gap-1.5 rounded-md bg-muted px-2.5 text-xs text-muted-foreground transition-colors hover:text-foreground",
+            highlightsOnly && "bg-card font-medium text-foreground shadow-sm",
+          )}
+        >
+          <Gem size={14} aria-hidden className={highlightsOnly ? "text-accent" : undefined} />
+          {COPY.items.highlightsOnly}
+        </button>
+        <TiersHelp />
         <ViewToggle value={view} onChange={setView} />
       </PageHeader>
       {data.status === "loading" && (

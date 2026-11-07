@@ -7,6 +7,7 @@ declare module "globaloffensive" {
     readonly def_index: number;
     readonly paint_index?: number;
     readonly paint_wear?: number;
+    readonly paint_seed?: number;
     readonly custom_name?: string;
     readonly casket_id?: string;
     readonly casket_contained_item_count?: number;

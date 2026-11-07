@@ -37,6 +37,13 @@ export function ItemTableSkeleton({ showLocation = true, selectable }: ItemTable
     align: "right",
     cell: textBar("w-14"),
   };
+  const highlights: DataTableSkeletonColumn = {
+    id: "highlights",
+    header: COPY.items.highlights,
+    width: wide ? widths.highlights : widths.highlightsNarrow,
+    align: "right",
+    cell: null,
+  };
   const columns: readonly DataTableSkeletonColumn[] = wide
     ? [
         item,
@@ -58,9 +65,10 @@ export function ItemTableSkeleton({ showLocation = true, selectable }: ItemTable
           align: "right",
           cell: textBar("w-14"),
         },
+        highlights,
         price,
       ]
-    : [item, price];
+    : [item, highlights, price];
   return (
     <DataTableSkeleton
       columns={columns}

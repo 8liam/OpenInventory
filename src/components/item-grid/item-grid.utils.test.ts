@@ -52,6 +52,37 @@ describe("sortItems", () => {
     assert.equal(ids(sortItems(ITEMS, "name")), "abc");
     assert.equal(ids(ITEMS), "abc");
   });
+  it("sorts highlights first: by tier, then price, then untiered, without mutating the input", () => {
+    const base = item("a", "AK-47 | Redline", 500, 0.3);
+    const gem = (id: string, seed: number, price: number): ItemView => ({
+      ...base,
+      id,
+      name: "AK-47 | Case Hardened",
+      paintSeed: seed,
+      price,
+    });
+    const floatOnly: ItemView = {
+      ...base,
+      id: "f",
+      price: 900,
+      wear: 0.0005,
+      minWear: 0,
+      maxWear: 1,
+    };
+    const input = [
+      base,
+      floatOnly,
+      gem("t3", 11, 50),
+      gem("t1cheap", 661, 100),
+      gem("t1rich", 151, 300),
+    ];
+    const before = ids(input);
+    assert.deepEqual(
+      sortItems(input, "highlights-desc").map(({ id }) => id),
+      ["t1rich", "t1cheap", "t3", "f", "a"],
+    );
+    assert.equal(ids(input), before);
+  });
 });
 
 describe("columnsFor", () => {

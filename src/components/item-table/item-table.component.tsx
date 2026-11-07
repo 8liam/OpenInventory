@@ -1,9 +1,11 @@
 import { useMemo } from "react";
 import { DataTable } from "~/components/data-table/data-table.component";
 import type { DataTableColumn } from "~/components/data-table/data-table.types";
+import { ItemTierBadge } from "~/components/item-highlights/item-highlights.component";
 import { ItemCell } from "~/components/item-cell/item-cell.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
+import { highlightSortValue } from "~/lib/items/highlights";
 import type { ItemView } from "~/lib/items/item.types";
 import { formatFloat, formatMoney } from "~/utils/format";
 import { useMediaQuery } from "~/utils/use-media-query";
@@ -35,7 +37,16 @@ export function ItemTable({
       sortValue: (r) => r.price ?? -1,
       cell: (r) => (r.price === null ? COPY.common.empty : formatMoney(r.price, currency)),
     };
-    if (!wide) return [item, price];
+    // Orders rows T1 first, then by price; the cell shows only the tier badge.
+    const highlights: DataTableColumn<ItemView> = {
+      id: "highlights",
+      header: COPY.items.highlights,
+      width: wide ? ITEM_TABLE.widths.highlights : ITEM_TABLE.widths.highlightsNarrow,
+      align: "right",
+      sortValue: highlightSortValue,
+      cell: (r) => <ItemTierBadge item={r} />,
+    };
+    if (!wide) return [item, highlights, price];
     const location: DataTableColumn<ItemView>[] = showLocation
       ? [
           {
@@ -79,6 +90,7 @@ export function ItemTable({
         sortValue: (r) => r.wear ?? -1,
         cell: (r) => (r.wear === null ? COPY.common.empty : formatFloat(r.wear)),
       },
+      highlights,
       price,
     ];
   }, [currency, showLocation, wide, accountNames]);

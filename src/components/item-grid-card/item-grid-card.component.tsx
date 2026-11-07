@@ -1,4 +1,8 @@
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
+import {
+  ItemHighlights,
+  ItemTierBadge,
+} from "~/components/item-highlights/item-highlights.component";
 import { splitItemName } from "~/components/item-label/item-label.utils";
 import { COPY } from "~/lib/copy/copy.config";
 import { cn } from "~/utils/cn";
@@ -48,6 +52,7 @@ export function ItemGridCard({
     >
       <div className="relative">
         <ItemThumb imageUrl={item.imageUrl} rarityColor={item.rarityColor} className={thumbClass} />
+        <ItemTierBadge item={item} className="absolute right-1.5 top-1.5 shadow-sm" />
         {selectable && (
           <label
             className={cn(
@@ -88,6 +93,7 @@ export function ItemGridCard({
           <p className="tabular shrink-0 text-xs text-muted-foreground">{status}</p>
         )}
       </div>
+      <ItemHighlights item={item} />
       {showLocation && (
         <p className="mt-0.5 truncate text-xs text-muted-foreground">
           {accountName ? `${accountName} · ${item.locationName}` : item.locationName}

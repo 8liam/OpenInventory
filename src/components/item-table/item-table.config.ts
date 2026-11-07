@@ -8,6 +8,8 @@ export const ITEM_TABLE = {
     location: "1.6fr",
     type: "1.2fr",
     float: "0.9fr",
+    highlights: "0.7fr",
+    highlightsNarrow: "84px",
     price: { wide: "0.9fr", narrow: "92px" },
   },
   /** Enough rows to fill a tall screen; the rest are clipped. */

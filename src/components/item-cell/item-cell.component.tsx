@@ -5,6 +5,7 @@ import { Link } from "@tanstack/react-router";
 import { TerminalActivate } from "~/components/terminal-activate/terminal-activate.component";
 import { INVENTORY_LOCATION_ID } from "~/lib/items/item.types";
 import { ItemLabel } from "~/components/item-label/item-label.component";
+import { ItemHighlights } from "~/components/item-highlights/item-highlights.component";
 import { ITEM_CELL } from "./item-cell.config";
 import type { ItemCellProps } from "./item-cell.types";
 
@@ -24,6 +25,7 @@ export function ItemCell({ item }: ItemCellProps) {
           {patternLabel} #{item.pattern}
         </p>
       )}
+      <ItemHighlights item={item} />
       {item.terminal !== null && (
         <p className="mt-0.5 text-xs text-muted-foreground">
           {item.terminal.isActive ? COPY.terminal.active : COPY.terminal.sealed}
