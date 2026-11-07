@@ -19,6 +19,7 @@
 Self-hosted CS2 inventory and storage unit tracker. Sign in once with the Steam mobile app and OpenInventory shows what you own, where it is, and what it's worth, with history that builds up over time. Everything is cached in a local SQLite file on your own server. OpenInventory talks to Steam (with your login), fetches public item data and Skinport prices, and your browser loads item images from Steam's CDN.
 
 - **Dashboard**: total value with 24h/7d/30d change, a value history chart you can switch between total, inventory and storage units over 1D to all time, a tabbed breakdown (type, rarity, wear, location) as a donut, top holdings, and your lowest floats, highest floats and largest stacks.
+- **Exports and reports**: download item data and value history as CSV or JSON. The Dashboard also provides a weekly or monthly JSON summary report with portfolio value change and the largest current holdings.
 - **Items**: every item across your inventory and all storage units, searchable and filterable, with images, floats, stickers, charms (with pattern ids) and prices.
 - **Storage units**: all units load automatically; contents are cached so restarts are instant. Capacity (1,000 items) is checked before a move starts.
 - **Cases**: case, souvenir, capsule, trade-up and drop stats read from your Steam inventory history: rarity split, rarest pulls, most opened, per-month volume, and your gold drought. History is synced in the background and stored locally.
@@ -67,6 +68,8 @@ Data (SQLite database, value history and your Steam session) lives in the `openi
 | `OPENINVENTORY_DATA_DIR`      | `/data` in Docker, `~/.openinventory` otherwise | SQLite database and Steam session.                                                                                                                                                                                                                                                           |
 | `OPENINVENTORY_WEB_DIR`       | set in Docker                                   | Built web app to serve. Unset in dev.                                                                                                                                                                                                                                                        |
 | `OPENINVENTORY_ALLOWED_HOSTS` | unset                                           | Comma-separated hostnames accepted when no password is set (`nas.lan,.home.example`; a leading dot also matches subdomains). Needed only for names in public DNS or `.lan`; IPs, single-label names (`nas`), `localhost`, `*.local`, `*.home.arpa`, `*.internal` and `*.ts.net` always work. |
+| `OPENINVENTORY_REPORT_PERIOD` | `weekly`                                        | Summary report window: `weekly` or `monthly` (30 days). |
+| `OPENINVENTORY_REPORT_WEBHOOK_URL` | unset                                    | Optional HTTPS URL to receive one JSON report per period. Delivery is disabled when unset. |
 
 ## One session per account
 

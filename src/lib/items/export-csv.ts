@@ -1,4 +1,5 @@
 import type { ItemView } from "./item.types.ts";
+import type { HistoryPoint } from "./dashboard.types.ts";
 import { EXPORT_CSV } from "./export-csv.config.ts";
 
 const FORMULA_PREFIX = /^[=+\-@]/u;
@@ -52,4 +53,17 @@ export function itemsToJson(items: readonly ItemView[], currency: string): strin
     price: item.price,
     currency,
   })), null, 2);
+}
+
+/** Dashboard value history in spreadsheet-safe CSV form. */
+export function historyToCsv(history: readonly HistoryPoint[], currency: string): string {
+  const lines = [["Date", "Total value", "Inventory value", "Storage value", "Currency"].map(cell).join(",")];
+  for (const point of history) {
+    lines.push([new Date(point.takenAt).toISOString(), point.totalValue, point.inventoryValue, point.storageValue, currency].map(cell).join(","));
+  }
+  return `${EXPORT_CSV.byteOrderMark}${lines.join(EXPORT_CSV.lineBreak)}${EXPORT_CSV.lineBreak}`;
+}
+
+export function historyToJson(history: readonly HistoryPoint[], currency: string): string {
+  return JSON.stringify(history.map((point) => ({ ...point, currency })), null, 2);
 }
