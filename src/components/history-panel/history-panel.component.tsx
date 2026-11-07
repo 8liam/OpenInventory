@@ -1,4 +1,8 @@
 import { useMemo, useState } from "react";
+import { Download } from "lucide-react";
+import { Button } from "~/components/button/button.component";
+import { EXPORT_CSV } from "~/lib/items/export-csv.config";
+import { historyToCsv, historyToJson } from "~/lib/items/export-csv";
 import { Pill } from "~/components/pill/pill.component";
 import { ValueChart } from "~/components/value-chart/value-chart.component";
 import { HISTORY_PANEL } from "./history-panel.config";
@@ -23,6 +27,21 @@ export function HistoryPanel({ history, currency }: HistoryPanelProps) {
   const first = points[0]?.value ?? 0;
   const last = points[points.length - 1]?.value ?? 0;
 
+  function download(format: "csv" | "json"): void {
+    const content =
+      format === "csv" ? historyToCsv(history, currency) : historyToJson(history, currency);
+    const url = URL.createObjectURL(
+      new Blob([content], {
+        type: format === "csv" ? "text/csv;charset=utf-8" : "application/json;charset=utf-8",
+      }),
+    );
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `openinventory-value-history-${new Date().toISOString().slice(0, EXPORT_CSV.dateLength)}.${format}`;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
   return (
     <div className="px-4 pb-3 pt-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -32,6 +51,14 @@ export function HistoryPanel({ history, currency }: HistoryPanelProps) {
               {s.label}
             </Pill>
           ))}
+        </div>
+        <div className="flex gap-1.5">
+          <Button small onClick={() => download("csv")}>
+            <Download size={12} /> CSV
+          </Button>
+          <Button small onClick={() => download("json")}>
+            <Download size={12} /> JSON
+          </Button>
         </div>
         <div className="flex flex-wrap gap-1.5">
           {HISTORY_PANEL.ranges.map((r) => (
