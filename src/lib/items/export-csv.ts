@@ -41,3 +41,15 @@ export function itemsToCsv(items: readonly ItemView[], currency: string): string
   }
   return `${EXPORT_CSV.byteOrderMark}${lines.join(EXPORT_CSV.lineBreak)}${EXPORT_CSV.lineBreak}`;
 }
+
+export function itemsToJson(items: readonly ItemView[], currency: string): string {
+  return JSON.stringify(items.map((item) => ({
+    id: item.id,
+    name: item.name,
+    location: item.locationName,
+    float: item.wear,
+    stickers: item.stickers.map((sticker) => sticker.name),
+    price: item.price,
+    currency,
+  })), null, 2);
+}
