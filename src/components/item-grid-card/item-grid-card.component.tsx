@@ -1,5 +1,8 @@
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
-import { ItemRarity } from "~/components/item-rarity/item-rarity.component";
+import {
+  ItemHighlights,
+  ItemTierMarker,
+} from "~/components/item-highlights/item-highlights.component";
 import { splitItemName } from "~/components/item-label/item-label.utils";
 import { COPY } from "~/lib/copy/copy.config";
 import { cn } from "~/utils/cn";
@@ -48,6 +51,10 @@ export function ItemGridCard({
     >
       <div className="relative">
         <ItemThumb imageUrl={item.imageUrl} rarityColor={item.rarityColor} className={thumbClass} />
+        <ItemTierMarker
+          item={item}
+          className="absolute right-1.5 top-1.5 rounded bg-background/80 p-1"
+        />
         {selectable && (
           <label
             className={cn(
@@ -88,7 +95,7 @@ export function ItemGridCard({
           <p className="tabular shrink-0 text-xs text-muted-foreground">{status}</p>
         )}
       </div>
-      <ItemRarity item={item} />
+      <ItemHighlights item={item} />
       {showLocation && (
         <p className="mt-0.5 truncate text-xs text-muted-foreground">{item.locationName}</p>
       )}

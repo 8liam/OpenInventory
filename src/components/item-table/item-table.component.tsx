@@ -1,10 +1,11 @@
 import { useMemo } from "react";
 import { DataTable } from "~/components/data-table/data-table.component";
 import type { DataTableColumn } from "~/components/data-table/data-table.types";
+import { ItemTierMarker } from "~/components/item-highlights/item-highlights.component";
 import { ItemCell } from "~/components/item-cell/item-cell.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
-import { scoreItemRarity } from "~/lib/items/rarity-scoring";
+import { scoreItemHighlights } from "~/lib/items/highlights";
 import type { ItemView } from "~/lib/items/item.types";
 import { formatFloat, formatMoney } from "~/utils/format";
 import { useMediaQuery } from "~/utils/use-media-query";
@@ -35,15 +36,16 @@ export function ItemTable({
       sortValue: (r) => r.price ?? -1,
       cell: (r) => (r.price === null ? COPY.common.empty : formatMoney(r.price, currency)),
     };
-    const rarity: DataTableColumn<ItemView> = {
-      id: "rarity",
-      header: COPY.items.rarityScore,
-      width: wide ? ITEM_TABLE.widths.rarity : ITEM_TABLE.widths.rarityNarrow,
+    // The score only orders rows; the cell shows nothing but the tier marker.
+    const highlights: DataTableColumn<ItemView> = {
+      id: "highlights",
+      header: COPY.items.highlights,
+      width: wide ? ITEM_TABLE.widths.highlights : ITEM_TABLE.widths.highlightsNarrow,
       align: "right",
-      sortValue: (r) => scoreItemRarity(r).score,
-      cell: (r) => scoreItemRarity(r).score,
+      sortValue: (r) => scoreItemHighlights(r).score,
+      cell: (r) => <ItemTierMarker item={r} />,
     };
-    if (!wide) return [item, rarity, price];
+    if (!wide) return [item, highlights, price];
     const location: DataTableColumn<ItemView>[] = showLocation
       ? [
           {
@@ -73,7 +75,7 @@ export function ItemTable({
         sortValue: (r) => r.wear ?? -1,
         cell: (r) => (r.wear === null ? COPY.common.empty : formatFloat(r.wear)),
       },
-      rarity,
+      highlights,
       price,
     ];
   }, [currency, showLocation, wide]);

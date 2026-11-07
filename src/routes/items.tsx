@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Gem } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
 import { ItemCollection } from "~/components/item-collection/item-collection.component";
 import { ItemTableSkeleton } from "~/components/item-table/item-table.skeleton";
@@ -12,12 +13,13 @@ import { Select } from "~/components/select/select.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
 import { matchesItem } from "~/lib/items/item-search";
-import { scoreItemRarity } from "~/lib/items/rarity-scoring";
+import { scoreItemHighlights } from "~/lib/items/highlights";
 import type { InventoryResponse } from "~/lib/items/item.types";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { useItemViewMode } from "~/lib/items/view-mode.store";
 import { usePriceQuery } from "~/lib/settings/settings.store";
+import { cn } from "~/utils/cn";
 import { formatInteger } from "~/utils/format";
 
 export const Route = createFileRoute("/items")({
@@ -28,7 +30,6 @@ export const Route = createFileRoute("/items")({
 });
 
 const ALL = "all";
-const NOTABLE = "notable";
 const SELECT_WIDTH = "min-w-0 flex-1 sm:w-48 sm:flex-none";
 
 function ItemsPage() {
@@ -49,7 +50,7 @@ function ItemsPage() {
   }
   const [location, setLocation] = useState(ALL);
   const [type, setType] = useState(ALL);
-  const [rarity, setRarity] = useState(ALL);
+  const [highlightsOnly, setHighlightsOnly] = useState(false);
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
   const deferred = useDeferredValue(query);
   const items = data.status === "ready" ? data.data.items : undefined;
@@ -86,10 +87,10 @@ function ItemsPage() {
         (i) =>
           (location === ALL || i.locationId === location) &&
           (type === ALL || i.category === type) &&
-          (rarity !== NOTABLE || scoreItemRarity(i).badges.length > 0) &&
+          (!highlightsOnly || scoreItemHighlights(i).reasons.length > 0) &&
           matchesItem(i, deferred),
       ),
-    [items, location, type, rarity, deferred],
+    [items, location, type, highlightsOnly, deferred],
   );
 
   const selectedItems = useMemo(
@@ -123,16 +124,18 @@ function ItemsPage() {
           options={typeOptions}
           onChange={setType}
         />
-        <Select
-          value={rarity}
-          ariaLabel={COPY.items.allRarity}
-          className={SELECT_WIDTH}
-          options={[
-            { id: ALL, label: COPY.items.allRarity },
-            { id: NOTABLE, label: COPY.items.notableItems },
-          ]}
-          onChange={setRarity}
-        />
+        <button
+          type="button"
+          aria-pressed={highlightsOnly}
+          onClick={() => setHighlightsOnly((on) => !on)}
+          className={cn(
+            "flex h-8 shrink-0 items-center gap-1.5 rounded-md bg-muted px-2.5 text-xs text-muted-foreground transition-colors hover:text-foreground",
+            highlightsOnly && "bg-card font-medium text-foreground shadow-sm",
+          )}
+        >
+          <Gem size={14} aria-hidden className={highlightsOnly ? "text-accent" : undefined} />
+          {COPY.items.highlightsOnly}
+        </button>
         <ViewToggle value={view} onChange={setView} />
       </PageHeader>
       {data.status === "loading" && (
