@@ -6,6 +6,7 @@ import {
   CONDITION_KINDS,
   ORGANISER_LIMITS,
 } from "~/lib/organiser/organiser.config";
+import { randomId } from "~/utils/random-id";
 import type { RuleCondition } from "~/lib/organiser/organiser.types";
 import { RULE_FORM } from "./organiser-rule-form.config";
 import type { OrganiserRuleFormProps } from "./organiser-rule-form.types";
@@ -27,7 +28,7 @@ export function OrganiserRuleForm({ units, suggestions, onAdd }: OrganiserRuleFo
     setTouched(true);
     if (!complete) return;
     onAdd({
-      id: crypto.randomUUID(),
+      id: randomId(),
       targetUnitId: target,
       conditions: conditions.map((c) => ({ kind: c.kind, value: c.value.trim() })),
     });

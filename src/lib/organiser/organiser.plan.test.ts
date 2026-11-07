@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { INVENTORY_LOCATION_ID } from "../items/item.types.ts";
 import { STORAGE_LIMITS } from "../storage/storage.config.ts";
-import { CONDITION_KIND, PROBLEM_KIND } from "./organiser.config.ts";
+import { CONDITION_KIND, ORGANISER_LIMITS, PROBLEM_KIND } from "./organiser.config.ts";
 import { computePlan, matchesRule } from "./organiser.plan.ts";
 import {
   planRequestSchema,
@@ -292,6 +292,20 @@ describe("computePlan", () => {
     const firstIntoB = plan.steps.findIndex((s) => s.to === "b");
     const firstOutOfB = plan.steps.findIndex((s) => s.from === "b");
     assert.ok(firstOutOfB < firstIntoB, "b drains before a pushes into it");
+  });
+
+  it("never emits more steps than a plan request may carry", () => {
+    // One free slot each way forces tiny steps; the rest is reported, not sent.
+    const n = 300;
+    const plan = computePlan({
+      items: [...many("x", "a", n, { name: "to-b" }), ...many("y", "b", n, { name: "to-a" })],
+      units: [unit("a", CAP), unit("b", CAP - 1)],
+      rules: [rule("one", "b", nameHas("to-b")), rule("two", "a", nameHas("to-a"))],
+    });
+    assert.ok(plan.steps.length <= ORGANISER_LIMITS.maxPlanSteps);
+    assert.ok(planRequestSchema.safeParse({ steps: plan.steps }).success);
+    assert.ok(plan.problems.some((p) => p.kind === PROBLEM_KIND.swapBlocked));
+    assert.ok(plan.executable);
   });
 
   it("returns the same plan for the same input", () => {

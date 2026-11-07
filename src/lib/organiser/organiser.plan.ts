@@ -3,6 +3,7 @@ import { STORAGE_LIMITS } from "../storage/storage.config.ts";
 import {
   CONDITION_KIND,
   GC_ACTIONS_PER_MOVE,
+  ORGANISER_LIMITS,
   PROBLEM_KIND,
   SEVERITY_BY_PROBLEM,
   PROBLEM_SEVERITY,
@@ -154,6 +155,7 @@ export function computePlan(input: PlanInput): MovePlan {
       const first = queue[0];
       return first ? capacity - (counts.get(first.to) ?? 0) : 0;
     };
+    if (steps.length >= ORGANISER_LIMITS.maxPlanSteps) break;
     const runnable = pending.filter((queue) => room(queue) > 0);
     if (runnable.length === 0) break;
     const fits = (queue: Candidate[]) => room(queue) >= queue.length;

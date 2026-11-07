@@ -19,7 +19,7 @@ function uniqueSorted(values: Iterable<string | null>): readonly string[] {
   return [...new Set([...values].filter((v): v is string => v !== null && v !== ""))].sort();
 }
 
-export function OrganiserPanel({ items, units, busy }: OrganiserPanelProps) {
+export function OrganiserPanel({ items, units, itemsReady, busy }: OrganiserPanelProps) {
   const { rules, addRule, removeRule, moveRule } = useOrganiser();
   // The plan frozen when the dialog opened, so what is confirmed is what was reviewed.
   const [reviewing, setReviewing] = useState<MovePlan>();
@@ -46,9 +46,11 @@ export function OrganiserPanel({ items, units, busy }: OrganiserPanelProps) {
 
   const blocker = busy
     ? ORGANISER_PANEL.busy
-    : plan.executable
-      ? undefined
-      : ORGANISER_PANEL.runBlocked;
+    : !itemsReady
+      ? ORGANISER_PANEL.itemsUnavailable
+      : plan.executable
+        ? undefined
+        : ORGANISER_PANEL.runBlocked;
 
   return (
     <div
@@ -105,7 +107,11 @@ export function OrganiserPanel({ items, units, busy }: OrganiserPanelProps) {
         <p className="text-xs text-muted-foreground">{ORGANISER_PANEL.storedLocally}</p>
       </section>
       <OrganiserRuleForm units={units} suggestions={suggestions} onAdd={addRule} />
-      <PlanPreview plan={plan} rules={rules} unitNames={unitNames} />
+      {itemsReady ? (
+        <PlanPreview plan={plan} rules={rules} unitNames={unitNames} />
+      ) : (
+        <p className="text-muted-foreground">{ORGANISER_PANEL.itemsUnavailable}</p>
+      )}
       <div className="flex flex-wrap items-center gap-3">
         <Button
           variant="primary"

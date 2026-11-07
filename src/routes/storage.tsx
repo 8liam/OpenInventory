@@ -88,6 +88,7 @@ function StoragePage() {
       ) : organising ? (
         <OrganiserPanel
           items={data.status === "ready" ? data.data.items : []}
+          itemsReady={data.status === "ready"}
           units={snapshot.units}
           busy={snapshot.transfer.status === "running"}
         />

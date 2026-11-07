@@ -19,6 +19,7 @@ export const ORGANISER_PANEL = {
   moveUp: "Move rule up",
   moveDown: "Move rule down",
   remove: "Remove rule",
+  itemsUnavailable: "Waiting for your items to load before a plan can be previewed.",
   storedLocally: "Rules are saved in this browser only.",
   run: "Run plan…",
   runBlocked: "Fix the problems above to run the plan.",
