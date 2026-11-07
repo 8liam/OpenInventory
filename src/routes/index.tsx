@@ -79,16 +79,32 @@ function DashboardPage() {
 
       {showReport && report.status === "ready" && (
         <Panel title={`${report.data.period === "weekly" ? "Weekly" : "Monthly"} summary report`}>
-          <p className="text-sm">Current value: {formatReportMoney(report.data.currentValue, report.data.currency)}</p>
-          <p className="text-sm">Value change: {report.data.valueChange === null ? "Not enough history yet" : formatReportMoney(report.data.valueChange, report.data.currency)}</p>
+          <p className="text-sm">
+            Current value: {formatReportMoney(report.data.currentValue, report.data.currency)}
+          </p>
+          <p className="text-sm">
+            Value change:{" "}
+            {report.data.valueChange === null
+              ? "Not enough history yet"
+              : formatReportMoney(report.data.valueChange, report.data.currency)}
+          </p>
           <ul className="mt-3 space-y-1 text-sm">
             {report.data.topMovers.map((mover) => (
-              <li key={mover.name} className="flex justify-between gap-3"><span>{mover.name} ×{mover.count}</span><span>{formatReportMoney(mover.value, report.data.currency)}</span></li>
+              <li key={mover.name} className="flex justify-between gap-3">
+                <span>
+                  {mover.name} ×{mover.count}
+                </span>
+                <span>{formatReportMoney(mover.value, report.data.currency)}</span>
+              </li>
             ))}
           </ul>
         </Panel>
       )}
-      {showReport && report.status === "error" && <p role="alert" className="text-destructive">{COPY.common.errorPrefix} {report.message}</p>}
+      {showReport && report.status === "error" && (
+        <p role="alert" className="text-destructive">
+          {COPY.common.errorPrefix} {report.message}
+        </p>
+      )}
 
       {dashboard && (
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-4 [&>*]:shrink-0">

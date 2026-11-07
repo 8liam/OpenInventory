@@ -49,7 +49,8 @@ export function readSettings(env: NodeJS.ProcessEnv = process.env): ServerSettin
     } catch {
       throw new Error(`${ENV.reportWebhookUrl} must be an HTTPS URL`);
     }
-    if (parsed.protocol !== "https:") throw new Error(`${ENV.reportWebhookUrl} must be an HTTPS URL`);
+    if (parsed.protocol !== "https:")
+      throw new Error(`${ENV.reportWebhookUrl} must be an HTTPS URL`);
   }
   return {
     host: env[ENV.host] ?? DEFAULT_HOST,

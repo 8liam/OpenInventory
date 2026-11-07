@@ -46,13 +46,15 @@ test("every formula trigger is escaped, even behind leading whitespace", () => {
 });
 
 test("exports the selected item fields as readable JSON", () => {
-  assert.deepEqual(JSON.parse(itemsToJson([item], "USD")), [{
-    id: "123",
-    name: 'AK-47 | Redline, "Field-Tested"',
-    location: "Main storage",
-    float: 0.15,
-    stickers: ["Sticker A"],
-    price: 12.5,
-    currency: "USD",
-  }]);
+  assert.deepEqual(JSON.parse(itemsToJson([item], "USD")), [
+    {
+      id: "123",
+      name: 'AK-47 | Redline, "Field-Tested"',
+      location: "Main storage",
+      float: 0.15,
+      stickers: ["Sticker A"],
+      price: 12.5,
+      currency: "USD",
+    },
+  ]);
 });

@@ -44,26 +44,46 @@ export function itemsToCsv(items: readonly ItemView[], currency: string): string
 }
 
 export function itemsToJson(items: readonly ItemView[], currency: string): string {
-  return JSON.stringify(items.map((item) => ({
-    id: item.id,
-    name: item.name,
-    location: item.locationName,
-    float: item.wear,
-    stickers: item.stickers.map((sticker) => sticker.name),
-    price: item.price,
-    currency,
-  })), null, 2);
+  return JSON.stringify(
+    items.map((item) => ({
+      id: item.id,
+      name: item.name,
+      location: item.locationName,
+      float: item.wear,
+      stickers: item.stickers.map((sticker) => sticker.name),
+      price: item.price,
+      currency,
+    })),
+    null,
+    2,
+  );
 }
 
 /** Dashboard value history in spreadsheet-safe CSV form. */
 export function historyToCsv(history: readonly HistoryPoint[], currency: string): string {
-  const lines = [["Date", "Total value", "Inventory value", "Storage value", "Currency"].map(cell).join(",")];
+  const lines = [
+    ["Date", "Total value", "Inventory value", "Storage value", "Currency"].map(cell).join(","),
+  ];
   for (const point of history) {
-    lines.push([new Date(point.takenAt).toISOString(), point.totalValue, point.inventoryValue, point.storageValue, currency].map(cell).join(","));
+    lines.push(
+      [
+        new Date(point.takenAt).toISOString(),
+        point.totalValue,
+        point.inventoryValue,
+        point.storageValue,
+        currency,
+      ]
+        .map(cell)
+        .join(","),
+    );
   }
   return `${EXPORT_CSV.byteOrderMark}${lines.join(EXPORT_CSV.lineBreak)}${EXPORT_CSV.lineBreak}`;
 }
 
 export function historyToJson(history: readonly HistoryPoint[], currency: string): string {
-  return JSON.stringify(history.map((point) => ({ ...point, currency })), null, 2);
+  return JSON.stringify(
+    history.map((point) => ({ ...point, currency })),
+    null,
+    2,
+  );
 }

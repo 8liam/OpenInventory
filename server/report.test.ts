@@ -14,12 +14,22 @@ test("summary report uses the period baseline and ranks current holdings", () =>
       { takenAt: now, totalValue: 135, inventoryValue: 95, storageValue: 40 },
     ],
     holdings: [
-      { name: "Second", imageUrl: null, rarityColor: null, count: 1, unitPrice: 20, totalValue: 20 },
+      {
+        name: "Second",
+        imageUrl: null,
+        rarityColor: null,
+        count: 1,
+        unitPrice: 20,
+        totalValue: 20,
+      },
       { name: "First", imageUrl: null, rarityColor: null, count: 2, unitPrice: 25, totalValue: 50 },
     ],
   });
 
   assert.equal(report.valueChange, 35);
   assert.equal(report.currentValue, 135);
-  assert.deepEqual(report.topMovers.map(({ name }) => name), ["First", "Second"]);
+  assert.deepEqual(
+    report.topMovers.map(({ name }) => name),
+    ["First", "Second"],
+  );
 });

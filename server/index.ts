@@ -445,7 +445,10 @@ const server = createServer(async (req, res) => {
         holdings: dashboard.topHoldings,
         currency,
       });
-      res.setHeader("content-disposition", `attachment; filename=openinventory-${report.period}-report.json`);
+      res.setHeader(
+        "content-disposition",
+        `attachment; filename=openinventory-${report.period}-report.json`,
+      );
       return sendJson(res, HTTP.ok, report);
     }
 
@@ -624,9 +627,10 @@ let reportTimer: ReturnType<typeof setInterval> | undefined;
 async function deliverScheduledReport(steamId: string): Promise<void> {
   if (!settings.reportWebhookUrl) return;
   const now = new Date();
-  const periodKey = settings.reportPeriod === "weekly"
-    ? String(Math.floor(now.getTime() / (7 * 86_400_000)))
-    : `${now.getUTCFullYear()}-${now.getUTCMonth() + 1}`;
+  const periodKey =
+    settings.reportPeriod === "weekly"
+      ? String(Math.floor(now.getTime() / (7 * 86_400_000)))
+      : `${now.getUTCFullYear()}-${now.getUTCMonth() + 1}`;
   const markerKey = `report-webhook:${steamId}:${settings.reportPeriod}`;
   if (db.getCacheStale(markerKey) === periodKey) return;
   const scope = trackedScopes()[0];
@@ -670,7 +674,9 @@ gateway.onReady((steamId) => {
   snapshotTimers.interval = setInterval(tick, SERVER_LIMITS.snapshotIntervalMs);
   if (settings.reportWebhookUrl) {
     reportTimer = setInterval(() => {
-      void deliverScheduledReport(steamId).catch((error: unknown) => console.warn("[report] webhook delivery failed:", error));
+      void deliverScheduledReport(steamId).catch((error: unknown) =>
+        console.warn("[report] webhook delivery failed:", error),
+      );
     }, SERVER_LIMITS.reportCheckIntervalMs);
     reportTimer.unref();
   }

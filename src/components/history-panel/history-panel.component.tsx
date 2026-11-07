@@ -28,8 +28,13 @@ export function HistoryPanel({ history, currency }: HistoryPanelProps) {
   const last = points[points.length - 1]?.value ?? 0;
 
   function download(format: "csv" | "json"): void {
-    const content = format === "csv" ? historyToCsv(history, currency) : historyToJson(history, currency);
-    const url = URL.createObjectURL(new Blob([content], { type: format === "csv" ? "text/csv;charset=utf-8" : "application/json;charset=utf-8" }));
+    const content =
+      format === "csv" ? historyToCsv(history, currency) : historyToJson(history, currency);
+    const url = URL.createObjectURL(
+      new Blob([content], {
+        type: format === "csv" ? "text/csv;charset=utf-8" : "application/json;charset=utf-8",
+      }),
+    );
     const link = document.createElement("a");
     link.href = url;
     link.download = `openinventory-value-history-${new Date().toISOString().slice(0, EXPORT_CSV.dateLength)}.${format}`;
@@ -48,8 +53,12 @@ export function HistoryPanel({ history, currency }: HistoryPanelProps) {
           ))}
         </div>
         <div className="flex gap-1.5">
-          <Button small onClick={() => download("csv")}><Download size={12} /> CSV</Button>
-          <Button small onClick={() => download("json")}><Download size={12} /> JSON</Button>
+          <Button small onClick={() => download("csv")}>
+            <Download size={12} /> CSV
+          </Button>
+          <Button small onClick={() => download("json")}>
+            <Download size={12} /> JSON
+          </Button>
         </div>
         <div className="flex flex-wrap gap-1.5">
           {HISTORY_PANEL.ranges.map((r) => (

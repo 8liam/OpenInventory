@@ -9,7 +9,11 @@ export type SummaryReport = {
   readonly valueChange: number | null;
   readonly currentValue: number;
   /** Largest current holdings, since historic item-level prices are not stored. */
-  readonly topMovers: readonly { readonly name: string; readonly value: number; readonly count: number }[];
+  readonly topMovers: readonly {
+    readonly name: string;
+    readonly value: number;
+    readonly count: number;
+  }[];
 };
 
 const DAY_MS = 86_400_000;

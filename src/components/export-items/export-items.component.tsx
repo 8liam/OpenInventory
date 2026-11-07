@@ -23,11 +23,21 @@ export function ExportItems({ items, currency }: ExportItemsProps) {
 
   return (
     <>
-      <Button small disabled={items.length === 0} onClick={() => download("csv")} title={EXPORT_ITEMS.description}>
-      <Download size={12} />
-      {EXPORT_ITEMS.label}
-    </Button>
-      <Button small disabled={items.length === 0} onClick={() => download("json")} title={EXPORT_ITEMS.description}>
+      <Button
+        small
+        disabled={items.length === 0}
+        onClick={() => download("csv")}
+        title={EXPORT_ITEMS.description}
+      >
+        <Download size={12} />
+        {EXPORT_ITEMS.label}
+      </Button>
+      <Button
+        small
+        disabled={items.length === 0}
+        onClick={() => download("json")}
+        title={EXPORT_ITEMS.description}
+      >
         <Download size={12} /> Export JSON
       </Button>
     </>
