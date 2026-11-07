@@ -6,11 +6,14 @@ import { HoldingsTable } from "~/components/holdings-table/holdings-table.compon
 import { BreakdownPanel } from "~/components/breakdown-panel/breakdown-panel.component";
 import { DashboardSkeleton } from "~/components/dashboard-skeleton/dashboard-skeleton.component";
 import { Insights } from "~/components/insights/insights.component";
+import { SellSuggestions } from "~/components/sell-suggestions/sell-suggestions.component";
+import { SELL_SUGGESTIONS_CARD } from "~/components/sell-suggestions/sell-suggestions.config";
 import { UpdatedHeader } from "~/components/updated-header/updated-header.component";
 import { Panel } from "~/components/panel/panel.component";
 import { PortfolioHero } from "~/components/portfolio-hero/portfolio-hero.component";
 import { COPY } from "~/lib/copy/copy.config";
 import type { Dashboard } from "~/lib/items/dashboard.types";
+import type { SellSuggestionsResponse } from "~/lib/items/sell-suggestions.types";
 import { callStorageApi, useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { usePriceQuery, useSettings } from "~/lib/settings/settings.store";
@@ -46,7 +49,12 @@ function DashboardPage() {
     }
   }
 
+  const suggestionsData = useRemoteData<SellSuggestionsResponse>(
+    `${STORAGE_API.suggestions}?${priceQuery}`,
+    snapshot.revision,
+  );
   const dashboard = data.status === "ready" ? data.data : undefined;
+  const suggestions = suggestionsData.status === "ready" ? suggestionsData.data : undefined;
   const source = COPY.settings.marketplaces[marketplace];
   return (
     <>
@@ -127,6 +135,11 @@ function DashboardPage() {
           <Panel title={copy.insightsTitle}>
             <Insights insights={dashboard.insights} currency={currency} />
           </Panel>
+          {suggestions && (
+            <Panel title={SELL_SUGGESTIONS_CARD.title}>
+              <SellSuggestions suggestions={suggestions} />
+            </Panel>
+          )}
         </div>
       )}
     </>
