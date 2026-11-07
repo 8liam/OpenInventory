@@ -25,11 +25,12 @@ import type { SavedSession } from "./session-file.ts";
 import type { SessionStore } from "./session-store.ts";
 import { createSnapshotStore, type UnitMeta } from "./steam.store.ts";
 import { INVENTORY_LOCATION_ID } from "../../src/lib/items/item.types.ts";
-import type { TransferRequest } from "../../src/lib/storage/storage.types.ts";
+import type { PlanRequest } from "../../src/lib/organiser/organiser.types.ts";
+import type { TransferFailure, TransferRequest } from "../../src/lib/storage/storage.types.ts";
 import { isPlaceholderItemId } from "./item-ids.ts";
 import { encodeNameItem } from "./rename.ts";
 import { encodeRequestOffer, encodeLoadTerminalOffer, encodeOpenCrate } from "./terminal.ts";
-import { runTransfer } from "./transfer.ts";
+import { runTransfer, type TransferOutcome } from "./transfer.ts";
 import {
   UserFacingError,
   type GcItem,
@@ -624,12 +625,29 @@ export function createRealGateway(
     if (items) store.setUnitCount(unitId, items.length);
   }
 
-  function transferItems(request: TransferRequest): void {
+  /** One move of a transfer or plan; the account is fixed by the gateway running it. */
+  type MoveStep = Pick<TransferRequest, "from" | "to" | "itemIds">;
+
+  /** A validated move, with the live facts the run and the resync afterwards need. */
+  type PreparedTransfer = {
+    readonly from: string;
+    readonly to: string;
+    readonly itemIds: readonly string[];
+    readonly fromName: string;
+    readonly toName: string;
+    readonly byId: ReadonlyMap<string, GcItem>;
+    readonly sourceCount: number;
+    readonly destinationCount: number;
+  };
+
+  function requireConnected(): void {
     if (!csgo || !synced) {
       throw new UserFacingError("Not connected to the CS2 Game Coordinator", STATUS.conflict);
     }
-    if (store.getTransfer().status === "running")
-      throw new UserFacingError("A transfer is already running", STATUS.conflict);
+  }
+
+  /** Checks a move against live state (items still there, destination has room). */
+  function prepareTransfer(request: MoveStep): PreparedTransfer {
     const { from, to } = request;
     const itemIds = [...new Set(request.itemIds)];
     if (itemIds.length === 0 || itemIds.length > STORAGE_LIMITS.maxItemsPerTransfer) {
@@ -667,53 +685,176 @@ export function createRealGateway(
         STATUS.badRequest,
       );
     }
-    const sourceCount = source.length;
+    return {
+      from,
+      to,
+      itemIds,
+      fromName,
+      toName,
+      byId,
+      sourceCount: source.length,
+      destinationCount,
+    };
+  }
+
+  /** Runs one prepared move and resyncs both ends from the GC so cached counts are authoritative. */
+  async function executePrepared(
+    gc: GlobalOffensive,
+    prepared: PreparedTransfer,
+    onProgress: (done: number) => void,
+  ): Promise<TransferOutcome> {
+    const { from, to, itemIds, byId } = prepared;
+    const outcome = await runTransfer({
+      gc,
+      from,
+      to,
+      itemIds,
+      nameOf: (id) => {
+        const raw = byId.get(id);
+        return raw ? nameOf(raw) : id;
+      },
+      onProgress,
+      isCancelled: () => transferCancelled,
+    });
+    try {
+      if (from !== INVENTORY_LOCATION_ID)
+        await reloadAfterMove(gc, from, prepared.sourceCount - outcome.removedFromUnit);
+      if (to !== INVENTORY_LOCATION_ID)
+        await reloadAfterMove(gc, to, prepared.destinationCount + outcome.addedToUnit);
+    } catch (error) {
+      console.warn("[transfer] resync failed:", toErrorMessage(error));
+    }
+    return outcome;
+  }
+
+  function transferItems(request: TransferRequest): void {
+    requireConnected();
+    if (store.getTransfer().status === "running")
+      throw new UserFacingError("A transfer is already running", STATUS.conflict);
+    const prepared = prepareTransfer(request);
+    const { fromName, toName } = prepared;
+    const total = prepared.itemIds.length;
 
     transferCancelled = false;
-    store.setTransfer({ status: "running", total: itemIds.length, done: 0, fromName, toName });
+    store.setTransfer({ status: "running", total, done: 0, fromName, toName, plan: null });
     const run = withGcSession(async (gc) => {
-      const outcome = await runTransfer({
-        gc,
-        from,
-        to,
-        itemIds,
-        nameOf: (id) => {
-          const raw = byId.get(id);
-          return raw ? nameOf(raw) : id;
-        },
-        onProgress: (done) =>
-          store.setTransfer({ status: "running", total: itemIds.length, done, fromName, toName }),
-        isCancelled: () => transferCancelled,
-      });
-      // Resync both ends from the GC so cached contents and counts are authoritative.
-      try {
-        if (from !== INVENTORY_LOCATION_ID)
-          await reloadAfterMove(gc, from, sourceCount - outcome.removedFromUnit);
-        if (to !== INVENTORY_LOCATION_ID)
-          await reloadAfterMove(gc, to, destinationCount + outcome.addedToUnit);
-      } catch (error) {
-        console.warn("[transfer] resync failed:", toErrorMessage(error));
-      }
+      const outcome = await executePrepared(gc, prepared, (done) =>
+        store.setTransfer({ status: "running", total, done, fromName, toName, plan: null }),
+      );
       store.setTransfer({
         status: "finished",
-        total: itemIds.length,
+        total,
         done: outcome.done,
         fromName,
         toName,
         cancelled: outcome.cancelled,
         failures: outcome.failures,
+        plan: null,
       });
     });
     void run.catch((error: unknown) => {
       console.error("[transfer] failed:", error);
       store.setTransfer({
         status: "finished",
-        total: itemIds.length,
+        total,
         done: 0,
         fromName,
         toName,
         cancelled: false,
         failures: [{ itemId: "", name: "Transfer", reason: toErrorMessage(error) }],
+        plan: null,
+      });
+    });
+  }
+
+  /**
+   * Runs an organiser plan as one cancellable job: the first step is validated up
+   * front (so a bad plan is an HTTP error), later steps are re-validated against
+   * live state when they start, and a step that has gone stale is reported as a
+   * failure while the rest carry on.
+   */
+  function transferPlan(request: PlanRequest): void {
+    requireConnected();
+    if (store.getTransfer().status === "running")
+      throw new UserFacingError("A transfer is already running", STATUS.conflict);
+    const [firstStep, ...laterSteps] = request.steps;
+    if (!firstStep) throw new UserFacingError("The plan has no steps", STATUS.badRequest);
+    const first = prepareTransfer(firstStep);
+    const total = request.steps.reduce((sum, step) => sum + new Set(step.itemIds).size, 0);
+    const stepCount = request.steps.length;
+
+    transferCancelled = false;
+    store.setTransfer({
+      status: "running",
+      total,
+      done: 0,
+      fromName: first.fromName,
+      toName: first.toName,
+      plan: { step: 1, steps: stepCount },
+    });
+    const run = withGcSession(async (gc) => {
+      const failures: TransferFailure[] = [];
+      let doneBefore = 0;
+      let cancelled = false;
+      let last = first;
+      const steps: readonly (PreparedTransfer | MoveStep)[] = [first, ...laterSteps];
+      for (const [index, entry] of steps.entries()) {
+        if (transferCancelled) {
+          cancelled = true;
+          break;
+        }
+        let prepared: PreparedTransfer;
+        try {
+          prepared = "byId" in entry ? entry : prepareTransfer(entry);
+        } catch (error) {
+          failures.push({
+            itemId: "",
+            name: `Step ${index + 1} of ${stepCount}`,
+            reason: toErrorMessage(error),
+          });
+          continue;
+        }
+        last = prepared;
+        const base = doneBefore;
+        const outcome = await executePrepared(gc, prepared, (done) =>
+          store.setTransfer({
+            status: "running",
+            total,
+            done: base + done,
+            fromName: prepared.fromName,
+            toName: prepared.toName,
+            plan: { step: index + 1, steps: stepCount },
+          }),
+        );
+        doneBefore += outcome.done;
+        failures.push(...outcome.failures);
+        if (outcome.cancelled) {
+          cancelled = true;
+          break;
+        }
+      }
+      store.setTransfer({
+        status: "finished",
+        total,
+        done: doneBefore,
+        fromName: last.fromName,
+        toName: last.toName,
+        cancelled,
+        failures,
+        plan: { step: stepCount, steps: stepCount },
+      });
+    });
+    void run.catch((error: unknown) => {
+      console.error("[transfer] plan failed:", error);
+      store.setTransfer({
+        status: "finished",
+        total,
+        done: 0,
+        fromName: first.fromName,
+        toName: first.toName,
+        cancelled: false,
+        failures: [{ itemId: "", name: "Plan", reason: toErrorMessage(error) }],
+        plan: { step: stepCount, steps: stepCount },
       });
     });
   }
@@ -786,6 +927,7 @@ export function createRealGateway(
     getTerminalOffer,
     requestNextOffer,
     transferItems,
+    transferPlan,
     cancelTransfer: () => {
       transferCancelled = true;
     },

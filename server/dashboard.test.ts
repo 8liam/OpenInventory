@@ -32,6 +32,7 @@ function item(id: string, overrides: Partial<ItemView> = {}): ItemView {
     price: 10,
     locationId: INVENTORY_LOCATION_ID,
     locationName: "Inventory",
+    collections: [],
     accountId: "1",
     ...overrides,
   };

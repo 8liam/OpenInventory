@@ -27,6 +27,7 @@ const item: ItemView = {
   price: 12.5,
   locationId: "unit-1",
   locationName: "Overflow",
+  collections: [],
   accountId: "1",
 };
 

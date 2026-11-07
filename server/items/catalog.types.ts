@@ -55,6 +55,8 @@ export type GraffitiRecord = NamedRecord & { readonly tint?: { readonly id: numb
 export type SkinFacts = {
   readonly skinId: string | null;
   readonly collectionIds: readonly string[];
+  /** Display names of `collectionIds`, for matching and display. */
+  readonly collectionNames: readonly string[];
   readonly rarityId: string;
   readonly isStatTrak: boolean;
   readonly isSouvenir: boolean;

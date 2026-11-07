@@ -27,6 +27,9 @@ export type TransferFailure = {
   readonly reason: string;
 };
 
+/** Where an organiser plan is: the step being run and how many there are. */
+export type PlanProgress = { readonly step: number; readonly steps: number };
+
 export type TransferState =
   | { readonly status: "idle" }
   | {
@@ -35,6 +38,8 @@ export type TransferState =
       readonly done: number;
       readonly fromName: string;
       readonly toName: string;
+      /** Set while an organiser plan is running; null for a single move. */
+      readonly plan: PlanProgress | null;
     }
   | {
       readonly status: "finished";
@@ -44,6 +49,7 @@ export type TransferState =
       readonly toName: string;
       readonly cancelled: boolean;
       readonly failures: readonly TransferFailure[];
+      readonly plan: PlanProgress | null;
     };
 
 /** Move items between the inventory and/or storage units (location ids; see INVENTORY_LOCATION_ID). */

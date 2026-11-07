@@ -220,6 +220,8 @@ export const COPY = {
     title: "Storage units",
     description: "Contents are copied from the Game Coordinator and cached locally.",
     refreshUnits: "Reload units",
+    organise: "Organise…",
+    closeOrganiser: "Back to units",
     loadingUnits: "Loading units…",
     noUnits: "No storage units found on this account.",
     selectUnit: "Select a unit to see what's inside.",

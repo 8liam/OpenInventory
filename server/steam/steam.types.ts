@@ -1,4 +1,5 @@
 import type { GcItem } from "globaloffensive";
+import type { PlanRequest } from "../../src/lib/organiser/organiser.types.ts";
 import type { StorageSnapshot, TransferRequest } from "../../src/lib/storage/storage.types.ts";
 
 export type { GcItem };
@@ -31,6 +32,8 @@ export type StorageGateway = {
   /** Invoked once the account is connected and units are known. */
   /** Validates and queues a move; resolves once it has started. Progress is in the snapshot. */
   readonly transferItems: (request: TransferRequest) => void;
+  /** Validates the first step and starts an organiser plan as one cancellable job. */
+  readonly transferPlan: (request: PlanRequest) => void;
   /** Renames a storage unit and resolves once the GC reports the new name. */
   readonly renameUnit: (unitId: string, name: string) => Promise<void>;
   /** Activates a sealed Terminal. Irreversible; resolves once the GC confirms it. */

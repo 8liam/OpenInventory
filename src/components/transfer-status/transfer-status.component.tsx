@@ -35,6 +35,8 @@ function TransferBanner({
               transfer.fromName,
               transfer.toName,
             )}
+            {transfer.plan &&
+              ` · ${TRANSFER_STATUS.planStep(transfer.plan.step, transfer.plan.steps)}`}
           </p>
           <Button
             small
@@ -63,7 +65,9 @@ function TransferBanner({
       {owner}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="tabular">
-          {TRANSFER_STATUS.finished(transfer.done, transfer.total, transfer.toName)}
+          {transfer.plan
+            ? TRANSFER_STATUS.planFinished(transfer.done, transfer.total, transfer.plan.steps)
+            : TRANSFER_STATUS.finished(transfer.done, transfer.total, transfer.toName)}
           {transfer.cancelled && ` · ${TRANSFER_STATUS.cancelled}`}
         </p>
         <Button
