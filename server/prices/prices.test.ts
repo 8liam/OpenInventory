@@ -170,3 +170,26 @@ test("a failed shared feed fails every waiter and is not reused by the next load
   assert.equal(book.byName.get("Case")?.price, 5);
   assert.equal(calls.length, 2, "the failed fetch must not stay in flight");
 });
+
+test("steam keeps its rolling averages as a converted trend; partial averages are dropped", async () => {
+  serve({
+    [PRICE_DATA.ratesFile]: { JJJ: 2 },
+    steam: {
+      "Full Trend": { last_24h: 1, last_7d: 2, last_30d: 3, last_90d: 4 },
+      "Partial Trend": { last_24h: 1, last_7d: 2, last_30d: 3 },
+    },
+    buff163: { "Other Feed": { starting_at: { price: 5 } } },
+  });
+  const db = fakeDb();
+  const steam = await getPriceBook(db, "JJJ", "steam");
+  assert.deepEqual(steam.byName.get("Full Trend")?.trend, {
+    last24h: 2,
+    last7d: 4,
+    last30d: 6,
+    last90d: 8,
+  });
+  assert.equal(steam.byName.get("Partial Trend")?.trend, undefined);
+  assert.equal(steam.rate, 2);
+  const buff = await getPriceBook(db, "JJJ", "buff163");
+  assert.equal(buff.byName.get("Other Feed")?.trend, undefined);
+});

@@ -104,10 +104,18 @@ export const PRICE_DATA = {
   /** Static USD price files per marketplace plus an exchange-rate file, all from CSGOTrader. */
   baseUrl: "https://prices.csgotrader.app/latest",
   ratesFile: "exchange_rates",
-  /** Bumped when the stored book shape changes (v2 added Doppler phase prices). */
-  cachePrefix: "prices:v2:",
+  /** Bumped when the stored book shape changes (v2 added Doppler phase prices, v3 trends and the rate). */
+  cachePrefix: "prices:v3:",
   cacheTtlMs: 10 * 60 * 1000,
   fetchTimeoutMs: 30_000,
+  /** The one feed whose rolling averages (`steamTrendFields`) are kept for sell suggestions. */
+  trendMarketplace: "steam",
+  steamTrendFields: {
+    last24h: "last_24h",
+    last7d: "last_7d",
+    last30d: "last_30d",
+    last90d: "last_90d",
+  },
 } as const;
 
 /** Steam economy images accept a size suffix; keeps thumbnails small. */
