@@ -1,10 +1,12 @@
 import { readFile, stat } from "node:fs/promises";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { extname, join, normalize, sep } from "node:path";
-import { timingSafeEqual } from "node:crypto";
+import { randomUUID, timingSafeEqual } from "node:crypto";
+import { SHARE_API } from "../src/lib/shares/share.config.ts";
 import {
   GC_ATTRIBUTE,
   SSE_KEEP_ALIVE_MS,
+  AUTH_STATUS,
   STORAGE_API,
   STORAGE_LIMITS,
 } from "../src/lib/storage/storage.config.ts";
@@ -31,7 +33,19 @@ import {
   MARKETPLACES,
 } from "../src/lib/settings/settings.config.ts";
 import type { Marketplace } from "../src/lib/settings/settings.types.ts";
-import { getPriceBook } from "./prices/prices.ts";
+import { getPriceBook, type PriceBook } from "./prices/prices.ts";
+import { createRateLimiter } from "./share/rate-limit.ts";
+import { parseCreateShareRequest, parseRevokeShareRequest } from "./share/share.parse.ts";
+import {
+  createOwnerShare,
+  handlePublicShare,
+  isUnauthenticatedShellPath,
+  listOwnerShares,
+  revokeOwnerShare,
+  type PublicShareDeps,
+} from "./share/share.routes.ts";
+import { createShareToken } from "./share/share-token.ts";
+import { SHARE_LIMITS } from "./share/share.config.ts";
 import {
   DEFAULT_CONTENT_TYPE,
   ENV,
@@ -54,6 +68,7 @@ import { computeTradeUp, listTradeUpCandidates, type TradeUpCandidate } from "./
 
 const HTTP = {
   ok: 200,
+  created: 201,
   accepted: 202,
   noContent: 204,
   badRequest: 400,
@@ -75,6 +90,9 @@ const VARY_HEADER = "accept-encoding";
 const CONTROL_CHARACTERS = /[\u0000-\u001f\u007f]/;
 const ITEM_ID_PATTERN = /^(\d{1,20}|inventory)$/;
 const TRACKED_SCOPES_KEY = "pref:price-scopes";
+const UNKNOWN_CLIENT = "unknown";
+/** Used to list item ids without fetching prices: the share builder needs only the ids. */
+const NO_PRICES: PriceBook = { byName: new Map(), fetchedAt: 0 };
 
 const settings = readSettings();
 const db = openDatabase(settings.dataDir);
@@ -82,6 +100,11 @@ const catalog = await loadCatalog(db);
 const gateway = createRealGateway(db, settings.dataDir, (raw) => catalog.describe(raw).view.name);
 const historySync = createHistorySync(db, gateway);
 const caseStats = createCaseStatsCache(db);
+const shareLimiter = createRateLimiter({
+  limit: SHARE_LIMITS.rateLimitMax,
+  windowMs: SHARE_LIMITS.rateLimitWindowMs,
+  now: () => Date.now(),
+});
 
 /** Writes `payload`, gzipped when worthwhile. Skips dead sockets and never rejects. */
 async function sendBody(
@@ -267,6 +290,26 @@ function requireReady(): string {
   return steamId;
 }
 
+/** Everything the public share route reads, wired to the live gateway. Read-only: it never records snapshots or scopes. */
+const publicShareDeps: PublicShareDeps = {
+  findLink: (tokenHash) => db.findShareLinkByHash(tokenHash),
+  now: () => Date.now(),
+  limiter: shareLimiter,
+  account: () => ({
+    ready: gateway.getSnapshot().auth.status === AUTH_STATUS.ready,
+    steamId: gateway.getSteamId(),
+  }),
+  loadItems: async (link) => {
+    const book = link.hidePrices
+      ? NO_PRICES
+      : await loadPrices({ currency: link.currency, marketplace: link.marketplace });
+    return {
+      items: collectItems(gateway, catalog, book).map((c) => c.view),
+      units: gateway.getSnapshot().units,
+    };
+  },
+};
+
 /** Persists a value snapshot at most once per interval so the dashboard can chart history. */
 const snapshotsInFlight = new Set<string>();
 
@@ -377,16 +420,39 @@ const server = createServer(async (req, res) => {
         error: `Host not allowed. Add it to ${ENV.allowedHosts} or set ${ENV.password}.`,
       } satisfies ApiError);
     }
-    if (!isAuthorized(req)) {
+    const path = url.pathname;
+    // The public share API is the one unauthenticated endpoint that serves data: GET only, read-only, rate limited.
+    if (path.startsWith(SHARE_API.publicPrefix)) {
+      const result = await handlePublicShare(
+        {
+          method,
+          token: path.slice(SHARE_API.publicPrefix.length),
+          clientKey: req.socket.remoteAddress ?? UNKNOWN_CLIENT,
+        },
+        publicShareDeps,
+      );
+      return await sendBody(
+        res,
+        result.status,
+        { "content-type": JSON_CONTENT_TYPE, ...result.headers },
+        Buffer.from(JSON.stringify(result.body)),
+      );
+    }
+    // The share page, its build assets and the favicon are the only other things served without the password.
+    if (!isUnauthenticatedShellPath(method, path) && !isAuthorized(req)) {
       res.writeHead(HTTP.unauthorized, {
         "www-authenticate": `Basic realm="${SERVER_LIMITS.basicAuthRealm}", charset="UTF-8"`,
       });
       return void res.end();
     }
-    const path = url.pathname;
     if (path === STORAGE_API.events && method === "GET") return handleEvents(req, res);
     if (path === STORAGE_API.state && method === "GET")
       return sendJson(res, HTTP.ok, gateway.getSnapshot());
+
+    if (path === SHARE_API.shares && method === "GET") {
+      const steamId = requireReady();
+      return sendJson(res, HTTP.ok, listOwnerShares(db.listShareLinks(steamId)));
+    }
 
     if (path === STORAGE_API.items && method === "GET") {
       requireReady();
@@ -453,6 +519,28 @@ const server = createServer(async (req, res) => {
 
     if (method === "POST") {
       assertSameOrigin(req);
+      if (path === SHARE_API.shares) {
+        assertJsonBody(req);
+        const steamId = requireReady();
+        const request = parseCreateShareRequest(await readBody(req));
+        const created = createOwnerShare(request, {
+          steamId,
+          now: () => Date.now(),
+          newId: randomUUID,
+          newToken: createShareToken,
+          insert: (link) => db.insertShareLink(link),
+          knownItemIds: new Set(collectItems(gateway, catalog, NO_PRICES).map((c) => c.view.id)),
+          unitIds: new Set(gateway.getSnapshot().units.map((u) => u.id)),
+        });
+        return void sendJson(res, HTTP.created, created);
+      }
+      if (path === SHARE_API.revoke) {
+        assertJsonBody(req);
+        const steamId = requireReady();
+        const { id } = parseRevokeShareRequest(await readBody(req));
+        revokeOwnerShare(id, steamId, (owner, shareId) => db.deleteShareLink(owner, shareId));
+        return void res.writeHead(HTTP.noContent).end();
+      }
       if (path === STORAGE_API.transfer) {
         assertJsonBody(req);
         requireReady();
