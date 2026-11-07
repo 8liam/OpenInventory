@@ -6,7 +6,7 @@
  * Tiers: T1 gems (Ruby, Sapphire, Black Pearl, Emerald; kept tied because sources dispute their order), T2 Phase 2 (priciest numbered phase),
  * T3 Butterfly Knife Doppler Phase 4 (the article names it as the one numbered phase with its own premium). Phases 1 and 3 get no tier.
  * Butterfly Knife and Shadow Daggers use their own paint kit ids for Black Pearl (617), Phase 2 (618) and Sapphire (619).
- * Generated from the sources above by a one-off script; edit by re-running the sources, not by hand.
+ * Generated once from the sources above (script not committed). Extend by hand: keep tiers in source order and update the Source and Retrieved lines.
  */
 import type { PhaseTable } from "../pattern-tiers.types.ts";
 

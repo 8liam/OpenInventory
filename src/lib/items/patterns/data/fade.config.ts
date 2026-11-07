@@ -4,7 +4,7 @@
  * Retrieved: 2026-11-07.
  * Tier cutoffs are OpenInventory's own design over the sourced percentages (not a published tier list): T1 = 100%, T2 >= 99.5%, T3 >= 99%.
  * Seeds below the lowest cutoff are not listed.
- * Generated from the sources above by a one-off script; edit by re-running the sources, not by hand.
+ * Generated once from the sources above (script not committed). Extend by hand: keep tiers in source order and update the Source and Retrieved lines.
  */
 import type { PatternTable } from "../pattern-tiers.types.ts";
 

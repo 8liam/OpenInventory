@@ -5,7 +5,7 @@
  * Tiers: T1 is the most valuable. Tiers are kept while a group's cumulative seed count stays within 100 (T1 always kept); lower published tiers are omitted as not notable.
  * Seed tiers are data from the Steam community guides credited in the repository README; the repository is MIT licensed.
  * Groups with paintIndexes only apply to those paint kits (Doppler and Gamma Doppler phases).
- * Generated from the sources above by a one-off script; edit by re-running the sources, not by hand.
+ * Generated once from the sources above (script not committed). Extend by hand: keep tiers in source order and update the Source and Retrieved lines.
  */
 import type { PatternTable } from "../pattern-tiers.types.ts";
 
