@@ -23,7 +23,8 @@ import {
   UNLOCK_CRATE_NOTIFICATION,
 } from "../../src/lib/storage/storage.config.ts";
 import type { Database } from "../db/db.types.ts";
-import { createSessionFile, type SavedSession } from "./session-file.ts";
+import type { SavedSession } from "./session-file.ts";
+import type { SessionStore } from "./session-store.ts";
 import { createSnapshotStore, type UnitMeta } from "./steam.store.ts";
 import { INVENTORY_LOCATION_ID } from "../../src/lib/items/item.types.ts";
 import type { TransferRequest } from "../../src/lib/storage/storage.types.ts";
@@ -37,6 +38,11 @@ import {
   type StorageGateway,
   type UnitContents,
 } from "./steam.types.ts";
+
+/** Each account throttles independently, so its cooldown is stored under its own key. */
+function loginCooldownKey(steamId: string): string {
+  return `${LOGIN_COOLDOWN_KEY}:${steamId}`;
+}
 
 function toErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -65,11 +71,11 @@ function formatDelay(ms: number): string {
  */
 export function createRealGateway(
   db: Database,
-  dataDir: string,
+  sessions: SessionStore,
   nameOf: (item: GcItem) => string,
+  initial?: SavedSession,
 ): StorageGateway {
   const store = createSnapshotStore();
-  const sessionFile = createSessionFile(dataDir);
   const unitContents = new Map<string, readonly GcItem[]>();
   const readyListeners: ((steamId: string) => void)[] = [];
   let login: LoginSession | undefined;
@@ -215,7 +221,7 @@ export function createRealGateway(
           STORAGE_LIMITS.reconnectMaxMs,
           STORAGE_LIMITS.reconnectBaseMs * 2 ** reconnectAttempts,
         );
-    if (throttled) db.setCache(LOGIN_COOLDOWN_KEY, String(Date.now() + delay));
+    if (throttled) db.setCache(loginCooldownKey(session.steamId), String(Date.now() + delay));
     else reconnectAttempts += 1;
     store.setAuth({
       status: AUTH_STATUS.connecting,
@@ -359,7 +365,7 @@ export function createRealGateway(
       displayName = persona;
       if (activeSession && activeSession.displayName !== persona) {
         activeSession = { ...activeSession, displayName: persona };
-        sessionFile.save(activeSession);
+        sessions.forAccount(id).save(activeSession);
       }
       if (synced) store.setAuth({ status: AUTH_STATUS.ready, displayName });
     });
@@ -368,7 +374,7 @@ export function createRealGateway(
     });
     client.on("error", (error: Error & { eresult?: number }) => {
       if (error.eresult !== undefined && TOKEN_REJECTED_ERESULTS.includes(error.eresult)) {
-        sessionFile.clear();
+        sessions.forAccount(id).clear();
         fail(`Steam rejected the saved login (${error.message}). Sign in again.`);
         return;
       }
@@ -397,7 +403,7 @@ export function createRealGateway(
     });
     client.on("loggedOn", () => {
       reconnectAttempts = 0;
-      db.setCache(LOGIN_COOLDOWN_KEY, "0");
+      db.setCache(loginCooldownKey(id), "0");
       // autoRelogin re-fires loggedOn; keep a single GC instance per client.
       if (csgo) return;
       store.setAuth({ status: AUTH_STATUS.connecting, detail: "Connecting to CS2…" });
@@ -722,7 +728,7 @@ export function createRealGateway(
 
   /** A restart during a throttle would log in early and extend it, so honour the remembered cooldown. */
   function connectAfterCooldown(session: SavedSession): void {
-    const remaining = Number(db.getCacheStale(LOGIN_COOLDOWN_KEY) ?? 0) - Date.now();
+    const remaining = Number(db.getCacheStale(loginCooldownKey(session.steamId)) ?? 0) - Date.now();
     if (remaining <= 0) return connect(session);
     activeSession = session;
     store.setAuth({
@@ -732,8 +738,7 @@ export function createRealGateway(
     reconnectTimer = setTimeout(() => connect(session), remaining);
   }
 
-  const saved = sessionFile.load();
-  if (saved) connectAfterCooldown(saved);
+  if (initial) connectAfterCooldown(initial);
 
   return {
     getSnapshot: () => store.getSnapshot(),
@@ -762,7 +767,8 @@ export function createRealGateway(
         login = undefined;
         session.cancelLoginAttempt();
         const id = steamID.getSteamID64();
-        sessionFile.save({ refreshToken, accountName, steamId: id });
+        sessions.forAccount(id).save({ refreshToken, accountName, steamId: id });
+        db.addAccount(id);
         connect({ refreshToken, accountName, steamId: id });
       });
       try {
@@ -786,8 +792,11 @@ export function createRealGateway(
       const id = steamId;
       teardown();
       store.reset();
-      sessionFile.clear();
-      if (id) db.clearUnits(id);
+      if (id) {
+        sessions.forAccount(id).clear();
+        db.clearUnits(id);
+        db.removeAccount(id);
+      }
     },
 
     getInventory: looseInventory,

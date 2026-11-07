@@ -1,5 +1,5 @@
 import { chmodSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname } from "node:path";
 
 export type SavedSession = {
   readonly refreshToken: string;
@@ -9,12 +9,11 @@ export type SavedSession = {
   readonly displayName?: string;
 };
 
-const FILE_NAME = "session.json";
 const TEMP_SUFFIX = ".tmp";
 const FILE_MODE = 0o600;
 const DIR_MODE = 0o700;
 
-function isSavedSession(value: unknown): value is SavedSession {
+export function isSavedSession(value: unknown): value is SavedSession {
   if (typeof value !== "object" || value === null) return false;
   const record = value as Record<string, unknown>;
   return (
@@ -25,8 +24,7 @@ function isSavedSession(value: unknown): value is SavedSession {
 }
 
 /** Owner-read/write only; the refresh token grants access to the Steam account. */
-export function createSessionFile(dataDir: string) {
-  const file = join(dataDir, FILE_NAME);
+export function createSessionFile(file: string) {
   const temp = file + TEMP_SUFFIX;
   return {
     load(): SavedSession | undefined {
@@ -38,7 +36,7 @@ export function createSessionFile(dataDir: string) {
       }
     },
     save(session: SavedSession): void {
-      mkdirSync(dataDir, { recursive: true, mode: DIR_MODE });
+      mkdirSync(dirname(file), { recursive: true, mode: DIR_MODE });
       // Write, flush, then rename, so neither a crash nor a power cut can truncate the only copy of the token.
       writeFileSync(temp, JSON.stringify(session), { mode: FILE_MODE, flush: true });
       chmodSync(temp, FILE_MODE);

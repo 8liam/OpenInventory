@@ -48,6 +48,8 @@ import {
   TEXT_PLAIN,
 } from "./server.config.ts";
 import type { SnapshotTimers } from "./server.types.ts";
+import { bootstrapAccounts } from "./accounts/accounts.bootstrap.ts";
+import { createSessionStore } from "./steam/session-store.ts";
 import { createRealGateway } from "./steam/steam.real.ts";
 import { UserFacingError } from "./steam/steam.types.ts";
 import { computeTradeUp, listTradeUpCandidates, type TradeUpCandidate } from "./tradeup.ts";
@@ -79,7 +81,14 @@ const TRACKED_SCOPES_KEY = "pref:price-scopes";
 const settings = readSettings();
 const db = openDatabase(settings.dataDir);
 const catalog = await loadCatalog(db);
-const gateway = createRealGateway(db, settings.dataDir, (raw) => catalog.describe(raw).view.name);
+const sessions = createSessionStore(settings.dataDir);
+const [firstSession] = bootstrapAccounts(db, sessions);
+const gateway = createRealGateway(
+  db,
+  sessions,
+  (raw) => catalog.describe(raw).view.name,
+  firstSession,
+);
 const historySync = createHistorySync(db, gateway);
 const caseStats = createCaseStatsCache(db);
 

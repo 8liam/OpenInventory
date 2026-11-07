@@ -4,6 +4,8 @@ import { DatabaseSync } from "node:sqlite";
 import { SERVER_LIMITS } from "../server.config.ts";
 import type { GcItem } from "../steam/steam.types.ts";
 import type { HistoryEvent, HistorySyncState } from "../cases/cases.types.ts";
+import { ACCOUNT_LABELS } from "../../src/lib/accounts/accounts.config.ts";
+import type { Account, AccountLabel } from "../../src/lib/accounts/accounts.types.ts";
 import type { Database, SnapshotKey, ValueSnapshot } from "./db.types.ts";
 
 const DB_FILE = "openinventory.db";
@@ -64,6 +66,41 @@ const SCHEMA = `
     ON value_snapshots (taken_at);
 `;
 
+/**
+ * Schema changes, applied in order and tracked by `PRAGMA user_version`. Never edit an
+ * entry that has shipped; append a new one. Each runs inside a transaction.
+ */
+const MIGRATIONS: readonly string[] = [
+  // Multi-account: every per-account table is already keyed by steam_id, so existing rows
+  // belong to their account unchanged; this table only records which accounts are tracked.
+  `CREATE TABLE IF NOT EXISTS accounts (
+    steam_id TEXT PRIMARY KEY,
+    label TEXT,
+    added_at INTEGER NOT NULL
+  )`,
+];
+const USER_VERSION_SQL = "PRAGMA user_version";
+
+function migrate(db: DatabaseSync): void {
+  const row = db.prepare(USER_VERSION_SQL).get() as { user_version: number } | undefined;
+  const current = row?.user_version ?? 0;
+  for (let version = current; version < MIGRATIONS.length; version++) {
+    db.exec("BEGIN");
+    try {
+      db.exec(MIGRATIONS[version] ?? "");
+      db.exec(`${USER_VERSION_SQL} = ${version + 1}`);
+      db.exec("COMMIT");
+    } catch (error) {
+      db.exec("ROLLBACK");
+      throw error;
+    }
+  }
+}
+
+function isAccountLabel(value: unknown): value is AccountLabel {
+  return ACCOUNT_LABELS.some((label) => label === value);
+}
+
 type BufferJson = { readonly type: typeof BUFFER_TAG; readonly data: readonly number[] };
 
 function isBufferJson(value: unknown): value is BufferJson {
@@ -96,6 +133,7 @@ function openChecked(path: string): DatabaseSync {
   const db = new DatabaseSync(path);
   try {
     db.exec(SCHEMA);
+    migrate(db);
     const verdict = Object.values(db.prepare(QUICK_CHECK_SQL).get() ?? {})[0];
     if (verdict !== QUICK_CHECK_OK)
       throw new IntegrityError(`integrity check failed: ${String(verdict)}`);
@@ -178,6 +216,14 @@ export function openDatabase(dataDir: string): Database {
   const putSync = db.prepare(
     "INSERT INTO history_sync (steam_id, state_json) VALUES (?, ?) ON CONFLICT(steam_id) DO UPDATE SET state_json = excluded.state_json",
   );
+  const listAccounts = db.prepare(
+    "SELECT steam_id, label, added_at FROM accounts ORDER BY added_at, rowid",
+  );
+  const insertAccount = db.prepare(
+    "INSERT OR IGNORE INTO accounts (steam_id, label, added_at) VALUES (?, NULL, ?)",
+  );
+  const updateLabel = db.prepare("UPDATE accounts SET label = ? WHERE steam_id = ?");
+  const deleteAccount = db.prepare("DELETE FROM accounts WHERE steam_id = ?");
   let historyVersion = 0;
   /** Runs `work` atomically: committed on return, rolled back if it throws. */
   const transaction = <T>(work: () => T): T => {
@@ -285,6 +331,21 @@ export function openDatabase(dataDir: string): Database {
     },
     saveHistorySync(steamId, state) {
       putSync.run(steamId, JSON.stringify(state));
+    },
+    listAccounts: () =>
+      (listAccounts.all() as Row[]).map((row): Account => ({
+        steamId: String(row.steam_id),
+        label: isAccountLabel(row.label) ? row.label : null,
+        addedAt: Number(row.added_at),
+      })),
+    addAccount(steamId) {
+      insertAccount.run(steamId, Date.now());
+    },
+    setAccountLabel(steamId, label) {
+      return Number(updateLabel.run(label, steamId).changes) > 0;
+    },
+    removeAccount(steamId) {
+      deleteAccount.run(steamId);
     },
     close: () => db.close(),
   };
