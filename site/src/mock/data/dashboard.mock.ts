@@ -73,6 +73,7 @@ export const DASHBOARD_MOCK: Dashboard = {
   totals: {
     value: TOTAL,
     itemCount: 1675,
+    tradableNowCount: 1412,
     inventoryValue: INVENTORY,
     storageValue: STORAGE,
     unitsLoaded: 4,
