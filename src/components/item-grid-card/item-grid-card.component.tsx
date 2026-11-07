@@ -11,6 +11,7 @@ export function ItemGridCard({
   item,
   currency,
   showLocation,
+  accountName,
   index,
   selectable,
   checked,
@@ -88,7 +89,9 @@ export function ItemGridCard({
         )}
       </div>
       {showLocation && (
-        <p className="mt-0.5 truncate text-xs text-muted-foreground">{item.locationName}</p>
+        <p className="mt-0.5 truncate text-xs text-muted-foreground">
+          {accountName ? `${accountName} · ${item.locationName}` : item.locationName}
+        </p>
       )}
       <div className="mt-auto flex h-6 items-end gap-0.5 overflow-hidden">
         {item.stickers

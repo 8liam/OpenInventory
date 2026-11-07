@@ -13,12 +13,8 @@ import { UnitCard } from "~/components/unit-card/unit-card.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
 import type { InventoryResponse, ItemView } from "~/lib/items/item.types";
-import {
-  callStorageApi,
-  postJson,
-  useRemoteData,
-  useStorageSnapshot,
-} from "~/lib/storage/storage.client";
+import { useScopedPath, useSingleAccountId } from "~/lib/accounts/account-scope.hooks";
+import { postJson, useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { useItemViewMode } from "~/lib/items/view-mode.store";
 import { usePriceQuery, useSettings } from "~/lib/settings/settings.store";
@@ -31,8 +27,9 @@ function StoragePage() {
   const { mode: view, setMode: setView } = useItemViewMode();
   const currency = useSettings((s) => s.currency);
   const priceQuery = usePriceQuery();
+  const accountId = useSingleAccountId();
   const data = useRemoteData<InventoryResponse>(
-    `${STORAGE_API.items}?${priceQuery}`,
+    useScopedPath(`${STORAGE_API.items}?${priceQuery}`),
     snapshot.revision,
   );
   const [selectedId, setSelectedId] = useState<string>();
@@ -63,7 +60,10 @@ function StoragePage() {
         <Button
           small
           disabled={snapshot.loadingUnits}
-          onClick={() => void callStorageApi(`${STORAGE_API.refresh}?${priceQuery}`)}
+          onClick={() =>
+            accountId !== undefined &&
+            void postJson(`${STORAGE_API.refresh}?${priceQuery}`, { accountId })
+          }
         >
           <RefreshCw
             size={12}
@@ -85,7 +85,11 @@ function StoragePage() {
                 currency={currency}
                 selected={selected?.id === unit.id}
                 loading={unitPending(unit)}
-                onRename={(name) => postJson(STORAGE_API.renameUnit, { id: unit.id, name })}
+                onRename={(name) =>
+                  accountId === undefined
+                    ? Promise.reject(new Error(COPY.accounts.chooseOneTitle))
+                    : postJson(STORAGE_API.renameUnit, { accountId, id: unit.id, name })
+                }
                 onSelect={() => {
                   setSelectedId(unit.id);
                   setPicked(new Set());

@@ -6,7 +6,7 @@ import { STORAGE_API } from "~/lib/storage/storage.config";
 import type { TerminalActivateProps } from "./terminal-activate.types";
 
 /** Activating a Terminal is irreversible, so it sits behind an explicit confirmation. */
-export function TerminalActivate({ itemId, name }: TerminalActivateProps) {
+export function TerminalActivate({ itemId, accountId, name }: TerminalActivateProps) {
   const [open, setOpen] = useState(false);
   const copy = COPY.terminal;
   return (
@@ -27,7 +27,7 @@ export function TerminalActivate({ itemId, name }: TerminalActivateProps) {
         confirmLabel={copy.confirmButton}
         workingLabel={copy.working}
         cancelLabel={copy.cancel}
-        onConfirm={() => postJson(STORAGE_API.activateTerminal, { id: itemId })}
+        onConfirm={() => postJson(STORAGE_API.activateTerminal, { accountId, id: itemId })}
         onClose={() => setOpen(false)}
       />
     </>

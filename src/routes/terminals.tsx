@@ -4,6 +4,7 @@ import { TerminalList } from "~/components/terminal-list/terminal-list.component
 import { COPY } from "~/lib/copy/copy.config";
 import type { InventoryResponse } from "~/lib/items/item.types";
 import { usePriceQuery } from "~/lib/settings/settings.store";
+import { useScopedPath } from "~/lib/accounts/account-scope.hooks";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 
@@ -13,7 +14,7 @@ function TerminalsPage() {
   const snapshot = useStorageSnapshot();
   const priceQuery = usePriceQuery();
   const data = useRemoteData<InventoryResponse>(
-    `${STORAGE_API.items}?${priceQuery}`,
+    useScopedPath(`${STORAGE_API.items}?${priceQuery}`),
     snapshot.revision,
   );
   const terminals =

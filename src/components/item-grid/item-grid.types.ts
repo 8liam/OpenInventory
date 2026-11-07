@@ -7,6 +7,8 @@ export type ItemGridProps = {
   readonly items: readonly ItemView[];
   readonly currency: string;
   readonly showLocation?: boolean;
+  /** Account display names by SteamID. When given, cards say which account holds the item. */
+  readonly accountNames?: ReadonlyMap<string, string>;
   readonly selected?: ReadonlySet<string>;
   readonly onSelectionChange?: (next: ReadonlySet<string>) => void;
 };

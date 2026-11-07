@@ -1,7 +1,5 @@
 /// <reference path="./globaloffensive.d.ts" />
 import GlobalOffensive from "globaloffensive";
-import QRCode from "qrcode";
-import { EAuthTokenPlatformType, LoginSession } from "steam-session";
 import SteamUser from "steam-user";
 import {
   AUTH_STATUS,
@@ -73,17 +71,18 @@ export function createRealGateway(
   db: Database,
   sessions: SessionStore,
   nameOf: (item: GcItem) => string,
-  initial?: SavedSession,
+  session: SavedSession,
 ): StorageGateway {
+  const steamId = session.steamId;
   const store = createSnapshotStore();
   const unitContents = new Map<string, readonly GcItem[]>();
   const readyListeners: ((steamId: string) => void)[] = [];
-  let login: LoginSession | undefined;
   let steam: SteamUser | undefined;
   let csgo: GlobalOffensive | undefined;
-  let steamId: string | undefined;
   /** Kept across reconnects; only cleared on sign-out or a rejected token. */
   let activeSession: SavedSession | undefined;
+  /** Accounts connect lazily: nothing touches Steam until the first `ensureConnected`. */
+  let started = false;
   /** Steam Community cookies for the current connection; refreshed on demand. */
   let webCookies: readonly string[] | undefined;
   let reconnectTimer: NodeJS.Timeout | undefined;
@@ -132,11 +131,8 @@ export function createRealGateway(
     clearTimeout(reconnectTimer);
     reconnectAttempts = 0;
     unitContents.clear();
-    login?.cancelLoginAttempt();
-    login = undefined;
     teardownConnection();
     activeSession = undefined;
-    steamId = undefined;
   }
 
   function fail(message: string): void {
@@ -164,7 +160,7 @@ export function createRealGateway(
     gc: GlobalOffensive,
     unit: UnitMeta,
   ): Promise<readonly GcItem[] | undefined> {
-    if (!gc.haveGCSession || steamId === undefined) return undefined;
+    if (!gc.haveGCSession) return undefined;
     if (unit.itemCount > 0) {
       await new Promise<void>((resolve, reject) => {
         gc.getCasketContents(unit.id, (error) => (error ? reject(error) : resolve()));
@@ -178,9 +174,7 @@ export function createRealGateway(
   }
 
   async function loadUnits(gc: GlobalOffensive, force: boolean): Promise<void> {
-    const current = steamId;
-    if (!current) return;
-    const cached = db.loadUnits(current);
+    const cached = db.loadUnits(steamId);
     store.setLoadingUnits(true);
     try {
       for (const unit of store.units()) {
@@ -308,17 +302,15 @@ export function createRealGateway(
   /** Reads a fresh inventory from the GC; the first success is what flips the account to ready. */
   function refreshUnits(force: boolean): Promise<void> {
     return withGcSession(async (gc) => {
-      const current = steamId;
-      if (!current) return;
       const units = readUnitMeta();
       db.pruneUnits(
-        current,
+        steamId,
         units.map((unit) => unit.id),
       );
       store.setUnits(units);
       if (!synced) {
-        restoreCachedUnits(current);
-        markReady(current);
+        restoreCachedUnits(steamId);
+        markReady(steamId);
       }
       await loadUnits(gc, force);
     });
@@ -351,13 +343,13 @@ export function createRealGateway(
   }
 
   function connect(session: SavedSession): void {
-    const { refreshToken, steamId: id } = session;
+    const { refreshToken } = session;
+    const id = steamId;
     activeSession = session;
     let displayName: string | null = session.displayName ?? null;
     store.setAuth({ status: AUTH_STATUS.connecting, detail: "Connecting to Steam…" });
     const client = new SteamUser({ autoRelogin: true });
     steam = client;
-    steamId = id;
     // The persona name is what Steam shows to friends; the login name stays server-side.
     client.on("accountInfo", (name: string) => {
       const persona = name.trim();
@@ -633,7 +625,7 @@ export function createRealGateway(
   }
 
   function transferItems(request: TransferRequest): void {
-    if (!csgo || !synced || steamId === undefined) {
+    if (!csgo || !synced) {
       throw new UserFacingError("Not connected to the CS2 Game Coordinator", STATUS.conflict);
     }
     if (store.getTransfer().status === "running")
@@ -738,7 +730,25 @@ export function createRealGateway(
     reconnectTimer = setTimeout(() => connect(session), remaining);
   }
 
-  if (initial) connectAfterCooldown(initial);
+  store.setAuth({ status: AUTH_STATUS.idle });
+
+  /** Starts the connection the first time it is needed; later calls are no-ops. */
+  function ensureConnected(): void {
+    if (started) return;
+    started = true;
+    connectAfterCooldown(session);
+  }
+
+  /** Explicit retry after an error (e.g. "logged in elsewhere"), using the saved login. */
+  function reconnect(): void {
+    const saved = sessions.forAccount(steamId).load();
+    if (!saved) throw new UserFacingError("Sign in again with the QR code.", STATUS.conflict);
+    clearTimeout(reconnectTimer);
+    teardown();
+    store.reset();
+    started = true;
+    connectAfterCooldown(saved);
+  }
 
   return {
     getSnapshot: () => store.getSnapshot(),
@@ -746,57 +756,19 @@ export function createRealGateway(
     onReady: (listener) => void readyListeners.push(listener),
     getSteamId: () => steamId,
     getWebCookies,
-
-    async startQrLogin() {
+    ensureConnected,
+    reconnect,
+    disconnect() {
       teardown();
       store.reset();
-      const session = new LoginSession(EAuthTokenPlatformType.SteamClient);
-      session.loginTimeout = STORAGE_LIMITS.qrLoginTimeoutMs;
-      login = session;
-      // steam-session keeps its login timer running after `authenticated`, so
-      // timeout/error must only count while this attempt is still pending.
-      const isPending = () => login === session;
-      session.on("timeout", () => {
-        if (isPending()) fail("QR login timed out. Start again.");
-      });
-      session.on("error", (error: Error) => {
-        if (isPending()) fail(`Login failed: ${error.message}`);
-      });
-      session.on("authenticated", () => {
-        const { accountName, steamID, refreshToken } = session;
-        login = undefined;
-        session.cancelLoginAttempt();
-        const id = steamID.getSteamID64();
-        sessions.forAccount(id).save({ refreshToken, accountName, steamId: id });
-        db.addAccount(id);
-        connect({ refreshToken, accountName, steamId: id });
-      });
-      try {
-        const { qrChallengeUrl } = await session.startWithQR();
-        if (!qrChallengeUrl) throw new Error("Steam did not return a QR challenge");
-        const qrSvg = await QRCode.toString(qrChallengeUrl, { type: "svg", margin: 1 });
-        store.setAuth({ status: AUTH_STATUS.qrPending, qrSvg });
-        // Fired once the QR code has been scanned; the user still has to approve.
-        session.on("remoteInteraction", () =>
-          store.setAuth({
-            status: AUTH_STATUS.connecting,
-            detail: "Approve the sign-in in the Steam app…",
-          }),
-        );
-      } catch (error) {
-        fail(`Could not start Steam QR login: ${toErrorMessage(error)}`);
-      }
     },
 
     logout() {
-      const id = steamId;
       teardown();
       store.reset();
-      if (id) {
-        sessions.forAccount(id).clear();
-        db.clearUnits(id);
-        db.removeAccount(id);
-      }
+      started = false;
+      sessions.forAccount(steamId).clear();
+      db.clearUnits(steamId);
     },
 
     getInventory: looseInventory,

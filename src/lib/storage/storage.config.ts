@@ -6,8 +6,13 @@ export const STORAGE_API = {
   casesSync: "/api/cases/sync",
   state: "/api/state",
   events: "/api/events",
-  qrLogin: "/api/auth/qr",
-  logout: "/api/auth/logout",
+  accounts: "/api/accounts",
+  accountLogin: "/api/accounts/login",
+  accountLoginCancel: "/api/accounts/login/cancel",
+  accountRemove: "/api/accounts/remove",
+  accountLabel: "/api/accounts/label",
+  accountConnect: "/api/accounts/connect",
+  accountReconnect: "/api/accounts/reconnect",
   tradeUp: "/api/tradeup",
   tradeUpOdds: "/api/tradeup/odds",
   transfer: "/api/transfer",
@@ -35,6 +40,8 @@ export const REMOTE_DATA = {
 
 export const AUTH_STATUS = {
   signedOut: "signed-out",
+  /** A tracked account that hasn't been connected yet (accounts connect on first use). */
+  idle: "idle",
   qrPending: "qr-pending",
   connecting: "connecting",
   ready: "ready",
