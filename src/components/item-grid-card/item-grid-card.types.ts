@@ -1,5 +1,6 @@
 import type { KeyboardEvent } from "react";
 import type { ItemView } from "~/lib/items/item.types";
+import type { SuggestionReason } from "~/lib/items/sell-suggestions.types";
 
 export type ItemGridCardProps = {
   readonly item: ItemView;
@@ -15,4 +16,5 @@ export type ItemGridCardProps = {
   readonly onToggle: () => void;
   readonly onFocus: () => void;
   readonly onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
+  readonly reasons?: readonly SuggestionReason[];
 };

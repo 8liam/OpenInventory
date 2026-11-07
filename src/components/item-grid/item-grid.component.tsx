@@ -23,6 +23,7 @@ export function ItemGrid({
   showLocation = true,
   selected,
   onSelectionChange,
+  reasonsByKey,
 }: ItemGridProps) {
   const [sort, setSort] = useState<ItemGridSortId>(ITEM_GRID.defaultSort);
   const ordered = useMemo(() => sortItems(items, sort), [items, sort]);
@@ -203,6 +204,7 @@ export function ItemGrid({
                         onToggle={() => toggle(key)}
                         onFocus={() => setActiveIndex(index)}
                         onKeyDown={(event) => onCardKeyDown(event, index, key)}
+                        reasons={reasonsByKey?.get(key)}
                       />
                     );
                   })}

@@ -13,6 +13,8 @@ import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
 import { matchesItem } from "~/lib/items/item-search";
 import type { InventoryResponse } from "~/lib/items/item.types";
+import { reasonsByItemKey } from "~/lib/items/sell-suggestions";
+import type { SellSuggestionsResponse } from "~/lib/items/sell-suggestions.types";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { useItemViewMode } from "~/lib/items/view-mode.store";
@@ -37,6 +39,17 @@ function ItemsPage() {
   const data = useRemoteData<InventoryResponse>(
     `${STORAGE_API.items}?${priceQuery}`,
     snapshot.revision,
+  );
+  const suggestionsData = useRemoteData<SellSuggestionsResponse>(
+    `${STORAGE_API.suggestions}?${priceQuery}`,
+    snapshot.revision,
+  );
+  const reasonsByKey = useMemo(
+    () =>
+      suggestionsData.status === "ready"
+        ? reasonsByItemKey(suggestionsData.data.suggestions)
+        : undefined,
+    [suggestionsData],
   );
   const [query, setQuery] = useState(linkedQuery);
   // A new link (or back/forward) replaces what was typed; typing never rewrites the URL.
@@ -148,6 +161,7 @@ function ItemsPage() {
           currency={data.data.currency}
           selected={selected}
           onSelectionChange={setSelected}
+          reasonsByKey={reasonsByKey}
         />
       )}
     </>

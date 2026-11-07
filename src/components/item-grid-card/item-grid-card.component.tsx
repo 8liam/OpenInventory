@@ -1,4 +1,5 @@
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
+import { SuggestionChip } from "~/components/suggestion-chip/suggestion-chip.component";
 import { splitItemName } from "~/components/item-label/item-label.utils";
 import { COPY } from "~/lib/copy/copy.config";
 import { cn } from "~/utils/cn";
@@ -19,6 +20,7 @@ export function ItemGridCard({
   onToggle,
   onFocus,
   onKeyDown,
+  reasons,
 }: ItemGridCardProps) {
   const [weapon, skin] = splitItemName(item.name);
   const { stickerSize, maxStickers, thumbClass, selectRowLabel } = ITEM_GRID_CARD;
@@ -89,6 +91,13 @@ export function ItemGridCard({
       </div>
       {showLocation && (
         <p className="mt-0.5 truncate text-xs text-muted-foreground">{item.locationName}</p>
+      )}
+      {reasons && reasons.length > 0 && (
+        <div className="mt-1 flex flex-wrap gap-1">
+          {reasons.map((reason) => (
+            <SuggestionChip key={reason.kind} reason={reason} currency={currency} />
+          ))}
+        </div>
       )}
       <div className="mt-auto flex h-6 items-end gap-0.5 overflow-hidden">
         {item.stickers

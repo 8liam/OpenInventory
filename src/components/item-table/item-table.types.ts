@@ -1,4 +1,5 @@
 import type { ItemView } from "~/lib/items/item.types";
+import type { SuggestionReason } from "~/lib/items/sell-suggestions.types";
 
 export type ItemTableProps = {
   readonly items: readonly ItemView[];
@@ -7,6 +8,8 @@ export type ItemTableProps = {
   /** Enables row selection; keys are `rowKey(item)`. */
   readonly selected?: ReadonlySet<string>;
   readonly onSelectionChange?: (next: ReadonlySet<string>) => void;
+  /** Sell-it-now reasons per item, keyed by `itemRowKey`; absent until suggestions load. */
+  readonly reasonsByKey?: ReadonlyMap<string, readonly SuggestionReason[]>;
 };
 
 export type ItemTableSkeletonProps = {

@@ -16,6 +16,7 @@ export function ItemTable({
   showLocation = true,
   selected,
   onSelectionChange,
+  reasonsByKey,
 }: ItemTableProps) {
   const wide = useMediaQuery(ITEM_TABLE.wideQuery);
   const columns = useMemo<readonly DataTableColumn<ItemView>[]>(() => {
@@ -24,7 +25,9 @@ export function ItemTable({
       header: COPY.itemColumns.item,
       width: wide ? ITEM_TABLE.widths.item.wide : ITEM_TABLE.widths.item.narrow,
       sortValue: (r) => r.name,
-      cell: (r) => <ItemCell item={r} />,
+      cell: (r) => (
+        <ItemCell item={r} currency={currency} reasons={reasonsByKey?.get(itemRowKey(r))} />
+      ),
     };
     const price: DataTableColumn<ItemView> = {
       id: "price",
@@ -66,7 +69,7 @@ export function ItemTable({
       },
       price,
     ];
-  }, [currency, showLocation, wide]);
+  }, [currency, reasonsByKey, showLocation, wide]);
 
   const selection = useMemo(
     () =>

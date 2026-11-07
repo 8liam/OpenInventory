@@ -5,10 +5,11 @@ import { Link } from "@tanstack/react-router";
 import { TerminalActivate } from "~/components/terminal-activate/terminal-activate.component";
 import { INVENTORY_LOCATION_ID } from "~/lib/items/item.types";
 import { ItemLabel } from "~/components/item-label/item-label.component";
+import { SuggestionChip } from "~/components/suggestion-chip/suggestion-chip.component";
 import { ITEM_CELL } from "./item-cell.config";
 import type { ItemCellProps } from "./item-cell.types";
 
-export function ItemCell({ item }: ItemCellProps) {
+export function ItemCell({ item, currency, reasons }: ItemCellProps) {
   const { imageSize, stickerSize, charmSize, maxStickers, patternLabel } = ITEM_CELL;
   const hasAttachments = item.stickers.length > 0 || item.charms.length > 0;
   return (
@@ -40,6 +41,13 @@ export function ItemCell({ item }: ItemCellProps) {
         <Link to="/terminals" className="text-[11px] text-muted-foreground hover:text-foreground">
           {COPY.terminal.viewOffer}
         </Link>
+      )}
+      {reasons && reasons.length > 0 && (
+        <div className="mt-1 flex flex-wrap gap-1">
+          {reasons.map((reason) => (
+            <SuggestionChip key={reason.kind} reason={reason} currency={currency} />
+          ))}
+        </div>
       )}
       {item.videoUrl !== null && <HighlightPlayer videoUrl={item.videoUrl} title={item.name} />}
       {hasAttachments && (

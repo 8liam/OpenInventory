@@ -88,7 +88,7 @@ export function TradeUpInputs({
                     onChange={() => onToggle(item.id)}
                   />
                   <div className="min-w-0 flex-1">
-                    <ItemCell item={item} />
+                    <ItemCell item={item} currency={currency} />
                   </div>
                   <span className="tabular w-16 shrink-0 text-right text-muted-foreground">
                     {item.wear === null ? COPY.common.empty : formatFloat(item.wear)}
