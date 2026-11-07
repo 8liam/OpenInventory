@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useDeferredValue, useMemo, useState } from "react";
+import { Button } from "~/components/button/button.component";
 import { ItemCollection } from "~/components/item-collection/item-collection.component";
 import { ItemTableSkeleton } from "~/components/item-table/item-table.skeleton";
 import { ExportItems } from "~/components/export-items/export-items.component";
 import { LoadingRegion } from "~/components/loading-region/loading-region.component";
 import { Reveal } from "~/components/reveal/reveal.component";
 import { TransferBar } from "~/components/transfer-bar/transfer-bar.component";
+import { ShareDialog } from "~/components/share-dialog/share-dialog.component";
 import { ViewToggle } from "~/components/view-toggle/view-toggle.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { Select } from "~/components/select/select.component";
@@ -92,12 +94,16 @@ function ItemsPage() {
     () => (items ?? []).filter((i) => selected.has(itemRowKey(i))),
     [items, selected],
   );
+  const [shareOpen, setShareOpen] = useState(false);
 
   return (
     <>
       <PageHeader title={COPY.items.title} description={COPY.items.description}>
         {rows && data.status === "ready" && (
           <ExportItems items={rows} currency={data.data.currency} />
+        )}
+        {selectedItems.length > 0 && (
+          <Button onClick={() => setShareOpen(true)}>{COPY.shares.shareSelected}</Button>
         )}
         <input
           value={query}
@@ -141,6 +147,12 @@ function ItemsPage() {
           />
         )}
       </Reveal>
+      <ShareDialog
+        open={shareOpen}
+        scope={{ kind: "items", itemIds: selectedItems.map((i) => i.id) }}
+        scopeLabel={COPY.shares.selectedCount(selectedItems.length)}
+        onClose={() => setShareOpen(false)}
+      />
       {rows && data.status === "ready" && (
         <ItemCollection
           view={view}

@@ -4,6 +4,7 @@ import { Button } from "~/components/button/button.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { Panel } from "~/components/panel/panel.component";
 import { Select } from "~/components/select/select.component";
+import { ShareLinksPanel } from "~/components/share-links/share-links.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { callStorageApi } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
@@ -76,6 +77,7 @@ function SettingsPage() {
             {copy.refreshData}
           </Button>
         </Panel>
+        <ShareLinksPanel />
       </div>
     </>
   );
