@@ -23,10 +23,10 @@ export const ORGANISER_PANEL = {
   storedLocally: "Rules are saved in this browser only, separately for each account.",
   iconSize: 14,
   run: "Run plan…",
-  /** Why Run is disabled, checked in this order. */
-  needsRules: "Add a rule to build a plan.",
+  /** Why Run is disabled, checked in this order; short, since the dry run above gives the detail. */
+  needsRules: "No rules to run yet.",
   runBlocked: "Fix the problems above to run the plan.",
-  nothingToMove: "Nothing to move: every matching item is already in place.",
+  nothingToMove: "Already organised, so there's nothing to run.",
   busy: "A transfer is already running.",
   dialog: {
     title: "Run this plan?",
