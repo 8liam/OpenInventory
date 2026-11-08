@@ -75,7 +75,8 @@ export function AppShell() {
           <AccountSwitcher className="min-w-0 flex-1" />
         </header>
 
-        <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-hidden p-4 md:gap-5 md:p-6">
+        {/* Pages scroll their own content; main scrolls only what can't shrink further (a short window). */}
+        <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-y-auto p-4 md:gap-5 md:p-6">
           <LoginOutcome />
           <StaleBanner />
           <SyncError />
