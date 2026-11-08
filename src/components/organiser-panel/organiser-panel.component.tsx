@@ -54,9 +54,13 @@ export function OrganiserPanel({
     ? ORGANISER_PANEL.busy
     : !itemsReady
       ? ORGANISER_PANEL.itemsUnavailable
-      : plan.executable
-        ? undefined
-        : ORGANISER_PANEL.runBlocked;
+      : rules.length === 0
+        ? ORGANISER_PANEL.needsRules
+        : plan.blocked
+          ? ORGANISER_PANEL.runBlocked
+          : plan.executable
+            ? undefined
+            : ORGANISER_PANEL.nothingToMove;
 
   return (
     <div
