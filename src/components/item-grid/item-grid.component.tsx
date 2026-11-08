@@ -128,13 +128,7 @@ export function ItemGrid({
   }
 
   return (
-    <div
-      role="grid"
-      aria-rowcount={rowCount}
-      aria-colcount={columns}
-      aria-multiselectable={selectable ? true : undefined}
-      className={DATA_TABLE.frameClass}
-    >
+    <div className={DATA_TABLE.frameClass}>
       <div className="flex h-11 shrink-0 items-center justify-between gap-3 border-b px-4 text-xs text-muted-foreground">
         {selectable ? (
           <label className="flex items-center gap-2">
@@ -169,7 +163,10 @@ export function ItemGrid({
       <div
         ref={scrollRef}
         className="min-h-0 flex-1 overflow-auto"
-        role={ordered.length === 0 ? undefined : "rowgroup"}
+        role={ordered.length === 0 ? undefined : "grid"}
+        aria-rowcount={ordered.length === 0 ? undefined : rowCount}
+        aria-colcount={ordered.length === 0 ? undefined : columns}
+        aria-multiselectable={ordered.length > 0 && selectable ? true : undefined}
       >
         {ordered.length === 0 ? (
           <div className="p-6 text-muted-foreground">{ITEM_GRID.emptyLabel}</div>

@@ -40,7 +40,11 @@ export function AccountGate({ pathname, children }: AccountGateProps) {
     }
   }, [scoped]);
 
-  const page = <Fragment key={scope}>{children}</Fragment>;
+  // Ungated pages such as Settings do not hold account-scoped drafts. Keep them mounted when
+  // removing the selected account changes scope, so their focus recovery can finish.
+  const page = (
+    <Fragment key={UNGATED_ROUTES.includes(pathname) ? pathname : scope}>{children}</Fragment>
+  );
   if (UNGATED_ROUTES.includes(pathname)) return page;
   if (isAll && !ALL_ACCOUNTS_ROUTES.includes(pathname)) {
     const pageTitle = ACCOUNT_GATE.pageTitles[pathname];

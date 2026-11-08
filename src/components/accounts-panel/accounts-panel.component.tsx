@@ -22,7 +22,11 @@ export function AccountsPanel() {
   const copy = COPY.accounts;
 
   useEffect(() => {
-    if (removedRowGone) restoreLostFocus(addButton.current);
+    if (!removedRowGone) return;
+    // The removed row may disappear before the dialog's close event restores focus.
+    // Wait until that close has finished so the browser cannot move focus back to <body>.
+    const frame = requestAnimationFrame(() => restoreLostFocus(addButton.current));
+    return () => cancelAnimationFrame(frame);
   }, [removedRowGone]);
 
   return (
