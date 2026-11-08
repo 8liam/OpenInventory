@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 export type SelectOption = {
   readonly id: string;
   readonly label: string;
+  /** Short text for a tight trigger; the open list keeps the full label. */
+  readonly triggerLabel?: string;
   /** Quiet text on the right of the row, such as an item count. */
   readonly detail?: string;
   /** Quiet text kept whole beside the label in the trigger while the label truncates, e.g. a SteamID tail. */

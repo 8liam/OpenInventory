@@ -27,9 +27,10 @@ export const ITEM_TABLE = {
     price: { wide: { width: "0.9fr", minWidth: 96 }, narrow: { width: "92px" } },
   } satisfies Record<string, FittableColumn | { wide: FittableColumn; narrow: FittableColumn }>,
   /** The compact table's sort menu, standing in for the Float and Highlights headers. */
-  sortOptions: ITEM_SORTS.map(({ id, label, field, direction }) => ({
+  sortOptions: ITEM_SORTS.map(({ id, label, triggerLabel, field, direction }) => ({
     id,
     label,
+    triggerLabel,
     columnId: field,
     direction,
   })) satisfies readonly DataTableSortOption[],

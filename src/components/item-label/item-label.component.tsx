@@ -1,4 +1,5 @@
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
+import { cn } from "~/utils/cn";
 import { ITEM_LABEL } from "./item-label.config";
 import type { ItemLabelProps } from "./item-label.types";
 import { splitItemName } from "./item-label.utils";
@@ -21,12 +22,17 @@ export function ItemLabel({
         imageUrl={imageUrl}
         rarityColor={rarityColor}
         size={size}
-        className={compactOnNarrow ? "max-[360px]:hidden" : undefined}
+        className={compactOnNarrow ? "max-[375px]:hidden" : undefined}
       />
       {/* Fills the row, so the highlight line's container query sees the real space available. */}
       <div className="min-w-0 flex-1">
         {weapon && (
-          <p className="mb-0.5 truncate text-[11px] uppercase leading-none tracking-wide text-muted-foreground">
+          <p
+            className={cn(
+              "mb-0.5 text-[11px] uppercase leading-none tracking-wide text-muted-foreground",
+              nameFit === "wrap" ? "break-words whitespace-normal" : "truncate",
+            )}
+          >
             {weapon}
           </p>
         )}

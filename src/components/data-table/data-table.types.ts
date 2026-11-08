@@ -30,7 +30,11 @@ export type DataTableColumn<Row> = FittableColumn & {
 };
 
 /** One entry of the compact layout's sort menu: a column (shown or not) and a direction. */
-export type DataTableSortOption = SortState & { readonly id: string; readonly label: string };
+export type DataTableSortOption = SortState & {
+  readonly id: string;
+  readonly label: string;
+  readonly triggerLabel?: string;
+};
 
 /**
  * What the table switches to when its own width can't fit the required columns: fewer, denser

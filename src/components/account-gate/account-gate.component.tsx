@@ -30,7 +30,9 @@ export function AccountGate({ pathname, children }: AccountGateProps) {
   const asked = useRef(new Set<string>());
   const chooseTitleId = useId();
   const copy = COPY.accounts;
-  const hasReadyAccount = scoped.some((account) => account.snapshot.auth.status === AUTH_STATUS.ready);
+  const hasReadyAccount = scoped.some(
+    (account) => account.snapshot.auth.status === AUTH_STATUS.ready,
+  );
   const previousReadiness = useRef({ scope, hasReadyAccount });
 
   useLayoutEffect(() => {

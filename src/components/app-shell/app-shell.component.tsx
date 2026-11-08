@@ -98,7 +98,7 @@ export function AppShell() {
                 to={to}
                 preload="intent"
                 activeOptions={{ exact: to === "/" }}
-                  className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] text-muted-foreground max-[360px]:tracking-tight"
+                className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] text-muted-foreground max-[360px]:tracking-tight"
                 activeProps={{ className: "text-foreground" }}
               >
                 <Icon size={18} strokeWidth={1.75} />

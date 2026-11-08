@@ -55,9 +55,13 @@ export function Select({
     const needle = query.trim().toLowerCase();
     return needle
       ? options.filter((option) =>
-          [option.label, option.detail, option.hint, option.triggerDetail].some((text) =>
-            text?.toLowerCase().includes(needle),
-          ),
+          [
+            option.label,
+            option.triggerLabel,
+            option.detail,
+            option.hint,
+            option.triggerDetail,
+          ].some((text) => text?.toLowerCase().includes(needle)),
         )
       : options;
   }, [options, query]);
@@ -172,7 +176,7 @@ export function Select({
       >
         <span className="flex min-w-0 items-center gap-1.5">
           {selected?.leading}
-          <span className="truncate">{selected?.label ?? ""}</span>
+          <span className="truncate">{selected?.triggerLabel ?? selected?.label ?? ""}</span>
           {selected?.triggerDetail && (
             <span className="shrink-0 text-[11px] text-muted-foreground tabular">
               {selected.triggerDetail}

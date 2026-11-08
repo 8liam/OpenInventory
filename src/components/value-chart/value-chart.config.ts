@@ -1,6 +1,6 @@
 export const VALUE_CHART = {
   height: 280,
-  padding: { top: 16, right: 12, bottom: 28, left: 64 },
+  padding: { top: 16, right: 12, bottom: 28, left: 96 },
   yTicks: 4,
   /** Most x-axis intervals; narrower charts get fewer so labels never collide. */
   maxXTicks: 4,

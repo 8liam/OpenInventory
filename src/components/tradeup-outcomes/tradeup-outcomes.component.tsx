@@ -13,14 +13,15 @@ export function TradeUpOutcomes({ outcomes, currency }: TradeUpOutcomesProps) {
       <ul className="flex flex-col gap-2.5">
         {outcomes.map((outcome) => (
           <li key={`${outcome.name}-${outcome.wearName}`} className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
               <ItemLabel
                 name={outcome.name}
                 imageUrl={outcome.imageUrl}
                 rarityColor={outcome.rarityColor}
                 size={TRADEUP_OUTCOMES.imageSize}
+                nameFit="wrap"
               />
-              <span className="tabular shrink-0 text-right">
+              <span className="tabular flex justify-between gap-2 text-right sm:block sm:shrink-0">
                 <span className="block font-medium">{formatChance(outcome.probability)}</span>
                 <span className="block text-xs text-muted-foreground">
                   {outcome.float !== null && `${formatFloat(outcome.float)} · `}
