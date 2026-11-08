@@ -13,6 +13,7 @@ import { ItemGridCard } from "~/components/item-grid-card/item-grid-card.compone
 import { Select } from "~/components/select/select.component";
 import { itemRowKey } from "~/lib/items/item-key";
 import { formatCount } from "~/utils/plural";
+import { cn } from "~/utils/cn";
 import { ITEM_GRID } from "./item-grid.config";
 import type { ItemGridProps, ItemGridSortId } from "./item-grid.types";
 import { columnsFor, sortItems } from "./item-grid.utils";
@@ -96,7 +97,16 @@ export function ItemGrid({
     );
     if (!target) return;
     focusPending.current = false;
-    target.focus();
+    target.focus({ preventScroll: true });
+    // Keep the outline and its offset inside the scroll viewport when moving upward.
+    const viewport = scrollRef.current;
+    if (!viewport) return;
+    const card = target.getBoundingClientRect();
+    const visible = viewport.getBoundingClientRect();
+    if (card.top < visible.top + ITEM_GRID.focusInset)
+      viewport.scrollTop += card.top - visible.top - ITEM_GRID.focusInset;
+    else if (card.bottom > visible.bottom - ITEM_GRID.focusInset)
+      viewport.scrollTop += card.bottom - visible.bottom + ITEM_GRID.focusInset;
   });
 
   function moveFocus(index: number) {
@@ -128,7 +138,7 @@ export function ItemGrid({
   }
 
   return (
-    <div className={DATA_TABLE.frameClass}>
+    <div className={cn(DATA_TABLE.frameClass, "min-h-[23rem]")}>
       <div className="flex h-11 shrink-0 items-center justify-between gap-3 border-b px-4 text-xs text-muted-foreground">
         {selectable ? (
           <label className="flex items-center gap-2">

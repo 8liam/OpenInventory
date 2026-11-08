@@ -42,10 +42,10 @@ export function TradeUpFinderResults({ finder }: TradeUpFinderResultsProps) {
     <ol
       aria-label={copy.listLabel}
       tabIndex={0}
-      className={cn("flex flex-col gap-3", copy.listClass)}
+      className={cn("flex min-w-0 flex-col gap-3", copy.listClass)}
     >
       {results.map((contract, index) => (
-        <li key={contract.inputIds.join(":")} className="rounded-lg border bg-card p-3">
+        <li key={contract.inputIds.join(":")} className="min-w-0 rounded-lg border bg-card p-3">
           <div className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-1">
             <span className="font-semibold tabular">{copy.rank(index)}</span>
             <dl className="flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -76,13 +76,13 @@ export function TradeUpFinderResults({ finder }: TradeUpFinderResultsProps) {
             {contract.inputs.map((item) => item.name).join(copy.inputSeparator)}
           </p>
           {contract.odds.ok && (
-            <ul className="grid gap-1 text-xs sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="grid min-w-0 gap-1 text-xs sm:grid-cols-2 lg:grid-cols-3">
               {contract.odds.outcomes.map((outcome) => (
                 <li
                   key={`${outcome.name}:${outcome.float}`}
-                  className="flex justify-between gap-2 rounded bg-muted px-2 py-1"
+                  className="flex min-w-0 justify-between gap-2 rounded bg-muted px-2 py-1"
                 >
-                  <span className="truncate">
+                  <span className="min-w-0 truncate">
                     {outcome.name}
                     {copy.outcomeSeparator}
                     {formatChance(outcome.probability)}

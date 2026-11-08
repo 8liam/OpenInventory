@@ -5,6 +5,7 @@ export const ITEM_GRID = {
   minCardWidth: 160,
   gap: 12,
   padding: 12,
+  focusInset: 6,
   /** Fixed so rows can be virtualised; includes the highlight chip line and location line. */
   cardHeight: { withLocation: 272, withoutLocation: 254 },
   overscan: 3,
