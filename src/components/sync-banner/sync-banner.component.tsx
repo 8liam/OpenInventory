@@ -4,7 +4,7 @@ import { COPY } from "~/lib/copy/copy.config";
 import type { SyncBannerProps } from "./sync-banner.types";
 
 /** Progress and the sync button for reading Steam's inventory history. */
-export function SyncBanner({ sync, onSync }: SyncBannerProps) {
+export function SyncBanner({ sync, onSync, requestPending, requestError }: SyncBannerProps) {
   const copy = COPY.cases;
   const running = sync.state === "running";
   return (
@@ -20,6 +20,11 @@ export function SyncBanner({ sync, onSync }: SyncBannerProps) {
             {sync.message}
           </p>
         )}
+        {requestError && (
+          <p role="alert" className="text-destructive">
+            {requestError}
+          </p>
+        )}
         {!running && sync.state !== "error" && sync.lastSyncAt && (
           <p>
             {copy.lastSync} {new Date(sync.lastSyncAt).toLocaleString()}
@@ -28,9 +33,12 @@ export function SyncBanner({ sync, onSync }: SyncBannerProps) {
         {!running && !sync.lastSyncAt && <p>{copy.firstSyncHint}</p>}
         {!sync.complete && sync.lastSyncAt !== null && !running && <p>{copy.partial}</p>}
       </div>
-      <Button small disabled={running} onClick={onSync}>
-        <RefreshCw size={12} className={running ? "motion-safe:animate-spin" : undefined} />
-        {running ? copy.syncing : copy.sync}
+      <Button small disabled={running || requestPending} onClick={onSync}>
+        <RefreshCw
+          size={12}
+          className={running || requestPending ? "motion-safe:animate-spin" : undefined}
+        />
+        {running || requestPending ? copy.syncing : copy.sync}
       </Button>
     </div>
   );

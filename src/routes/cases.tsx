@@ -32,6 +32,8 @@ function CasesPage() {
   const copy = COPY.cases;
   const [tick, setTick] = useState(0);
   const [kind, setKind] = useState<OpeningKind>(DEFAULT_OPENING_KIND);
+  const [syncRequestPending, setSyncRequestPending] = useState(false);
+  const [syncRequestError, setSyncRequestError] = useState<string | null>(null);
   const accountId = useSingleAccountId();
   const accountLabel = useSingleAccountLabel();
   const data = useRemoteData<CasesResponse>(
@@ -50,8 +52,16 @@ function CasesPage() {
 
   async function sync() {
     if (accountId === undefined) return;
-    await postJson(STORAGE_API.casesSync, { accountId });
-    setTick((t) => t + 1);
+    setSyncRequestPending(true);
+    setSyncRequestError(null);
+    try {
+      await postJson(STORAGE_API.casesSync, { accountId });
+      setTick((t) => t + 1);
+    } catch (error) {
+      setSyncRequestError(error instanceof Error ? error.message : copy.syncFailed);
+    } finally {
+      setSyncRequestPending(false);
+    }
   }
 
   const response = data.status === "ready" ? data.data : undefined;
@@ -77,7 +87,12 @@ function CasesPage() {
           tabIndex={0}
           className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-4 [&>*]:shrink-0"
         >
-          <SyncBanner sync={response.sync} onSync={() => void sync()} />
+          <SyncBanner
+            sync={response.sync}
+            onSync={() => void sync()}
+            requestPending={syncRequestPending}
+            requestError={syncRequestError}
+          />
           <KindPills selected={kind} counts={response.stats.kindCounts} onSelect={setKind} />
           {!stats ? (
             <LoadingRegion className="contents">
