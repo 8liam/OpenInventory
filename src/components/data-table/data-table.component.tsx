@@ -237,7 +237,11 @@ export function DataTable<Row>({
                     column.align === "right" && "justify-end",
                   )}
                 >
-                  {column.header}
+                  {column.hideHeader ? (
+                    <span className="sr-only">{column.header}</span>
+                  ) : (
+                    column.header
+                  )}
                 </span>
               )}
             </div>

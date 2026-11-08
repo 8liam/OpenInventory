@@ -95,18 +95,28 @@ export function ItemTable({
       },
       { ...price, ...sizes.price.wide },
     ];
-    // Compact rows carry the owner and the highlight button under the name.
+    // Compact rows carry where the item is and its float, the owner and the highlight button under the name.
+    const compactDetail = (r: ItemView): string =>
+      [showLocation ? r.locationName : "", r.wear === null ? "" : formatFloat(r.wear)]
+        .filter((part) => part !== "")
+        .join(ITEM_TABLE.detailSeparator);
     const narrow: DataTableCompact<ItemView> = {
       columns: [
         {
           ...name,
           ...sizes.item.narrow,
           cell: (r) => (
-            <ItemCell item={r} account={accountNames?.get(r.accountId)} compact nameFit="double" />
+            <ItemCell
+              item={r}
+              detail={compactDetail(r)}
+              account={accountNames?.get(r.accountId)}
+              compact
+              nameFit="double"
+            />
           ),
         },
-        // Compact rows use the sort menu; the Price header remains a label, not a second sorter.
-        { ...price, ...sizes.price.narrow, sortValue: undefined },
+        // The sort menu already says "Price"; the header stays for screen readers only.
+        { ...price, ...sizes.price.narrow, sortValue: undefined, hideHeader: true },
       ],
       rowHeight: accountNames
         ? ITEM_TABLE.rowHeight.narrowWithAccount

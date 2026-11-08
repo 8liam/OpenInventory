@@ -23,6 +23,8 @@ export type FittedColumns<C> = { readonly compact: boolean; readonly columns: re
 export type DataTableColumn<Row> = FittableColumn & {
   readonly id: string;
   readonly header: string;
+  /** Keeps the header for assistive tech but not on screen, when another control already labels the column. */
+  readonly hideHeader?: boolean;
   readonly align?: "left" | "right";
   /** Sort key; omit to make the column unsortable. */
   readonly sortValue?: (row: Row) => SortValue;

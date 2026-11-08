@@ -7,10 +7,13 @@ import { ITEM_SORT_LABEL, ITEM_SORTS } from "~/lib/items/item-sort.config";
 
 export const ITEM_TABLE = {
   /**
-   * Narrow rows are taller: the item name may wrap to two lines above the highlight button, and
-   * `narrowWithAccount` adds the owning account's line in the all-accounts view.
+   * Narrow rows are taller: the item name may wrap to two lines above the location / float line
+   * and the highlight button, and `narrowWithAccount` adds the owning account's line in the
+   * all-accounts view.
    */
-  rowHeight: { wide: 64, narrow: 88, narrowWithAccount: 104 },
+  rowHeight: { wide: 64, narrow: 104, narrowWithAccount: 120 },
+  /** Between the location and the float in a narrow row's detail line. */
+  detailSeparator: " · ",
   /**
    * Grid tracks, shared by the table and its loading skeleton. Minimums keep prices and floats
    * whole; when the table can't fit them all, Type hides first, then Location, then Account.

@@ -12,7 +12,7 @@ import { itemHighlights } from "~/lib/items/highlights";
 import { ITEM_CELL } from "./item-cell.config";
 import type { ItemCellProps } from "./item-cell.types";
 
-export function ItemCell({ item, account, compact = false, nameFit }: ItemCellProps) {
+export function ItemCell({ item, account, detail, compact = false, nameFit }: ItemCellProps) {
   const { imageSize, stickerSize, charmSize, maxStickers, patternLabel } = ITEM_CELL;
   // A sticker without an image would render as a broken-image glyph; its name is in the item data.
   const stickers = item.stickers
@@ -73,6 +73,7 @@ export function ItemCell({ item, account, compact = false, nameFit }: ItemCellPr
       nameFit={nameFit}
       compactOnNarrow={compact}
     >
+      {detail && <p className={ITEM_CELL.detailClass}>{detail}</p>}
       {account && <AccountName name={account} className={ITEM_CELL.accountClass} />}
       {item.pattern !== null && (
         <p className="mt-0.5 text-xs text-muted-foreground">
