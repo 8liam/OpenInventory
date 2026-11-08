@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ListChecks, RefreshCw } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Button } from "~/components/button/button.component";
 import { ItemCollection } from "~/components/item-collection/item-collection.component";
 import { ItemTableSkeleton } from "~/components/item-table/item-table.skeleton";
@@ -44,6 +44,9 @@ function StoragePage() {
   const [selectedId, setSelectedId] = useState<string>();
   const [picked, setPicked] = useState<ReadonlySet<string>>(new Set());
   const [organising, setOrganising] = useState(false);
+  const [reload, setReload] = useState<{ readonly pending: boolean; readonly error?: string }>({
+    pending: false,
+  });
   const copy = COPY.storage;
 
   const byUnit = useMemo(() => {
@@ -63,6 +66,26 @@ function StoragePage() {
   const selectedItems = selected ? (byUnit.get(selected.id) ?? []) : [];
   const pickedItems = selectedItems.filter((item) => picked.has(itemRowKey(item)));
   const selectedValue = selectedItems.reduce((sum, item) => sum + (item.price ?? 0), 0);
+  const reloading = reload.pending || snapshot.loadingUnits;
+  const reloadRef = useRef<HTMLButtonElement>(null);
+  const reloadErrorRef = useRef<HTMLDivElement>(null);
+
+  // The button stays enabled (and focusable) while busy; a second press is ignored instead. The
+  // error stays up through a retry, and if its Retry had focus, focus returns to the button.
+  async function reloadUnits() {
+    if (accountId === undefined || reloading) return;
+    setReload((current) => ({ pending: true, error: current.error }));
+    try {
+      await postJson(`${STORAGE_API.refresh}?${priceQuery}`, { accountId });
+      if (reloadErrorRef.current?.contains(document.activeElement)) reloadRef.current?.focus();
+      setReload({ pending: false });
+    } catch (error) {
+      setReload({
+        pending: false,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
 
   return (
     <>
@@ -73,24 +96,27 @@ function StoragePage() {
           disabled={snapshot.units.length === 0}
           onClick={() => setOrganising((on) => !on)}
         >
-          <ListChecks size={12} />
+          <ListChecks size={STORAGE_PAGE.iconSize} aria-hidden />
           {organising ? copy.closeOrganiser : copy.organise}
         </Button>
-        <Button
-          small
-          disabled={snapshot.loadingUnits}
-          onClick={() =>
-            accountId !== undefined &&
-            void postJson(`${STORAGE_API.refresh}?${priceQuery}`, { accountId })
-          }
-        >
+        <Button ref={reloadRef} small aria-busy={reloading} onClick={() => void reloadUnits()}>
           <RefreshCw
-            size={12}
-            className={snapshot.loadingUnits ? "motion-safe:animate-spin" : undefined}
+            size={STORAGE_PAGE.iconSize}
+            aria-hidden
+            className={reloading ? "motion-safe:animate-spin" : undefined}
           />
-          {snapshot.loadingUnits ? copy.loadingUnits : copy.refreshUnits}
+          {reloading ? copy.loadingUnits : copy.refreshUnits}
         </Button>
       </PageHeader>
+      {reload.error !== undefined && (
+        <div ref={reloadErrorRef} className="contents">
+          <LoadError
+            title={copy.reloadFailed}
+            message={reload.error}
+            onRetry={() => void reloadUnits()}
+          />
+        </div>
+      )}
       {data.status === "error" ? (
         <LoadError message={data.message} onRetry={data.retry} />
       ) : snapshot.units.length === 0 ? (

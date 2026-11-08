@@ -10,4 +10,5 @@ export const STORAGE_PAGE = {
   unitsClass:
     "flex shrink-0 gap-2 overflow-x-auto @min-[56rem]/storage:w-72 @min-[56rem]/storage:flex-col @min-[56rem]/storage:overflow-x-visible @min-[56rem]/storage:overflow-y-auto",
   contentsClass: "flex min-h-0 min-w-0 flex-1 flex-col gap-3",
+  iconSize: 12,
 } as const;

@@ -296,6 +296,7 @@ export const COPY = {
     organise: "Organise…",
     closeOrganiser: "Back to units",
     loadingUnits: "Loading units…",
+    reloadFailed: "Couldn't reload storage units",
     noUnits: "No storage units found on this account.",
     selectUnit: "Select a unit to see what's inside.",
     unitEmpty: "This unit is empty.",
