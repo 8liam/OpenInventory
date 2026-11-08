@@ -89,10 +89,7 @@ export function AccountGate({ pathname, children }: AccountGateProps) {
           </p>
           <span className="flex flex-wrap items-start gap-2">
             {fixable && <AccountActions steamId={fixable.steamId} />}
-            <Link
-              to="/settings"
-              className="inline-flex h-7 items-center whitespace-nowrap rounded-md px-2.5 font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
+            <Link to="/settings" className={ACCOUNT_GATE.settingsLinkClass}>
               {copy.partialSettings}
             </Link>
           </span>
