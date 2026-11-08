@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type SyntheticEvent } from "react";
-import { createPortal } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 import { ItemTierBadge } from "~/components/item-highlights/item-highlights.component";
 import { ITEM_HIGHLIGHTS } from "~/components/item-highlights/item-highlights.config";
 import { COPY } from "~/lib/copy/copy.config";
@@ -92,8 +92,10 @@ export function HighlightDisclosure({ item, showCount = false }: HighlightDisclo
 
   if (tier === null && reasons.length === 0) return null;
 
+  // The panel is unmounted before focus moves, so nothing that happens while it goes away
+  // (a blur, the row re-rendering) can leave focus anywhere but the button.
   function hide(refocus: boolean) {
-    setPlacement(undefined);
+    flushSync(() => setPlacement(undefined));
     if (refocus) trigger.current?.focus();
   }
 
