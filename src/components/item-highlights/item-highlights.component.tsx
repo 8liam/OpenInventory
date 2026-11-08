@@ -12,10 +12,12 @@ import type {
  * Reason chips on one line under the item name, so a row never grows past its fixed height.
  * Chips that don't fit collapse into `+N`, which names the hidden reasons for screen readers.
  */
-export function ItemHighlights({ item, children }: ItemHighlightsProps) {
+export function ItemHighlights({ item, children, visible }: ItemHighlightsProps) {
   const { reasons } = itemHighlights(item);
   if (reasons.length === 0 && !children) return null;
-  const { narrow, wide } = ITEM_HIGHLIGHTS.visibleChips;
+  // A fixed count (e.g. a narrow grid card) applies at every breakpoint.
+  const { narrow, wide } =
+    visible === undefined ? ITEM_HIGHLIGHTS.visibleChips : { narrow: visible, wide: visible };
   const overflow = (from: number) => reasons.slice(from).map((reason) => reason.label);
   const more = (from: number, className: string) =>
     reasons.length > from && (

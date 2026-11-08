@@ -93,7 +93,7 @@ export function ItemGridCard({
           <p className="tabular shrink-0 text-xs text-muted-foreground">{status}</p>
         )}
       </div>
-      <ItemHighlights item={item} />
+      <ItemHighlights item={item} visible={ITEM_GRID_CARD.visibleHighlights} />
       {showLocation && (
         <p className="mt-0.5 truncate text-xs text-muted-foreground">
           {accountName ? `${accountName} · ${item.locationName}` : item.locationName}

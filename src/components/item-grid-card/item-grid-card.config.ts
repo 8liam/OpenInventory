@@ -4,4 +4,6 @@ export const ITEM_GRID_CARD = {
   stickerSize: 16,
   maxStickers: 5,
   selectRowLabel: "Select item",
+  /** Cards are narrow at every width, so one reason chip shows and the rest fold into `+N`. */
+  visibleHighlights: 1,
 } as const;
