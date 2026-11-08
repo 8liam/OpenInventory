@@ -7,7 +7,9 @@ export function PageHeader({ title, description, account, children }: PageHeader
     <header className="flex shrink-0 flex-wrap items-end justify-between gap-3">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-          <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
+          <h1 id={PAGE_HEADER.headingId} tabIndex={-1} className={PAGE_HEADER.headingClass}>
+            {title}
+          </h1>
           {account && (
             <span className="inline-flex max-w-full items-center gap-1 truncate rounded-full border bg-card px-2 py-0.5 text-xs text-muted-foreground">
               <UserRound size={PAGE_HEADER.iconSize} className="shrink-0" aria-hidden />

@@ -4,9 +4,12 @@ export const LOGIN_CARD = {
   headingClass: "text-[15px] font-semibold tracking-tight",
   bodyClass: "mt-1.5 text-muted-foreground",
   /** White behind the QR code in both themes, so phone cameras read it. */
-  qrClass: "mx-auto mt-5 size-52 rounded-md bg-white p-2 [&>svg]:size-full",
+  qrClass: "mx-auto mt-5 size-52 rounded-md bg-white p-2 outline-offset-2 [&>svg]:size-full",
   waitingClass: "mt-3 text-center text-xs text-muted-foreground",
   detailClass: "mt-5 text-muted-foreground",
   errorClass: "mt-4 text-destructive",
   buttonClass: "mt-5 w-full",
+  /** Marks the current step's element, which takes focus when the previous step's vanishes. */
+  stepAttribute: { "data-login-step": "" },
+  stepSelector: "[data-login-step]",
 } as const;

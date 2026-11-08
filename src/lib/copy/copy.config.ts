@@ -14,6 +14,7 @@ export const COPY = {
     body: "Scan the code with the Steam mobile app. OpenInventory opens a CS2 session to read your inventory and storage units. It never lists or trades anything, and only moves items, renames storage units or activates a Terminal when you ask it to.",
     button: "Show QR code",
     waiting: "Waiting for approval in the Steam app…",
+    qrLabel: "Steam sign-in QR code. Scan it with the Steam mobile app.",
     footnote:
       "If CS2 is running on another device, OpenInventory waits until it closes. Launching CS2 later asks Steam to end OpenInventory's session.",
   },

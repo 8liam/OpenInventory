@@ -1,11 +1,13 @@
 import { RefreshCw } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { PAGE_HEADER } from "~/components/page-header/page-header.config";
 import { Button } from "~/components/button/button.component";
 import { useStaleData } from "~/lib/storage/stale-data.store";
 import { retrySnapshotConnection } from "~/lib/storage/storage.client";
 import type { StaleDataState } from "~/lib/storage/storage.types";
 import { formatDateTime, formatRelativeTime } from "~/utils/format";
 import { RELATIVE_TIME } from "~/utils/format.config";
+import { restoreLostFocus } from "~/utils/restore-focus";
 import { STALE_BANNER } from "./stale-banner.config";
 import type { StaleBannerBodyProps, StaleSummary } from "./stale-banner.types";
 
@@ -39,8 +41,8 @@ function StaleBannerBody({ stale }: StaleBannerBodyProps) {
 
   return (
     <div className={STALE_BANNER.rootClass}>
-      <p className="flex min-w-0 items-center gap-2">
-        <Icon size={STALE_BANNER.iconSize} className="shrink-0 text-warning" aria-hidden />
+      <p className={STALE_BANNER.messageClass}>
+        <Icon size={STALE_BANNER.iconSize} className={STALE_BANNER.iconClass} aria-hidden />
         <span>
           {message}
           {since !== null &&
@@ -62,13 +64,33 @@ function StaleBannerBody({ stale }: StaleBannerBodyProps) {
 export function StaleBanner() {
   const stale = useStaleData();
   const visible = stale.reconnecting || stale.staleLoads.length > 0;
+  // A successful Retry removes the banner and the focused button with it; focus goes to the
+  // page heading, just below where the banner was, instead of falling to the page.
+  const hadFocus = useRef(false);
+  useEffect(() => {
+    if (visible || !hadFocus.current) return;
+    hadFocus.current = false;
+    restoreLostFocus(document.getElementById(PAGE_HEADER.headingId));
+  }, [visible]);
   return (
     <>
       {/* Always mounted, so losing the connection is announced politely. */}
       <p role="status" className="sr-only">
         {visible ? summarize(stale).message : ""}
       </p>
-      {visible && <StaleBannerBody stale={stale} />}
+      {visible && (
+        <div
+          className={STALE_BANNER.wrapperClass}
+          onFocus={() => {
+            hadFocus.current = true;
+          }}
+          onBlur={(event) => {
+            if (event.relatedTarget !== null) hadFocus.current = false;
+          }}
+        >
+          <StaleBannerBody stale={stale} />
+        </div>
+      )}
     </>
   );
 }

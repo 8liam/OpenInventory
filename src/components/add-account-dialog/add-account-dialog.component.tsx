@@ -6,6 +6,9 @@ import { useAddAccountDialog } from "~/lib/accounts/add-account-dialog.store";
 import { COPY } from "~/lib/copy/copy.config";
 import { postJson, useAppSnapshot } from "~/lib/storage/storage.client";
 import { AUTH_STATUS, STORAGE_API } from "~/lib/storage/storage.config";
+import { LOGIN_OUTCOME } from "~/components/login-outcome/login-outcome.config";
+import { PAGE_HEADER } from "~/components/page-header/page-header.config";
+import { restoreLostFocus } from "~/utils/restore-focus";
 import { ADD_ACCOUNT_DIALOG } from "./add-account-dialog.config";
 
 /**
@@ -31,7 +34,16 @@ export function AddAccountDialog() {
       sequenceAtOpen.current = currentSequence;
       element.showModal();
     }
-    if (!open && element.open) element.close();
+    if (!open && element.open) {
+      // Closing returns focus to the opener; when that is gone (a re-auth's "Sign in again"
+      // vanishes once the account is fixed), the outcome it produced, or the page, takes it.
+      element.close();
+      restoreLostFocus(
+        document.getElementById(LOGIN_OUTCOME.bannerId) ??
+          document.getElementById(PAGE_HEADER.headingId),
+        element,
+      );
+    }
     // A sequence change while open is the sign-in finishing, handled below, not a reopen.
   }, [open, currentSequence]);
 
@@ -57,7 +69,7 @@ export function AddAccountDialog() {
       aria-describedby={bodyId}
       onClose={dismiss}
     >
-      <div className="flex flex-col gap-4 p-6">
+      <div className={ADD_ACCOUNT_DIALOG.bodyClass}>
         <LoginCard
           login={login}
           framed={false}
@@ -67,7 +79,7 @@ export function AddAccountDialog() {
           body={name ? copy.reauthBody(name) : copy.addBody}
           buttonLabel={COPY.signIn.button}
         />
-        <Button variant="ghost" className="self-end" onClick={dismiss}>
+        <Button variant="ghost" className={ADD_ACCOUNT_DIALOG.cancelClass} onClick={dismiss}>
           {copy.cancel}
         </Button>
       </div>

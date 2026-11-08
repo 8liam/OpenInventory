@@ -36,16 +36,24 @@ export function LoginOutcome() {
         {message}
       </p>
       {account && message && (
-        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-lg border bg-card px-4 py-3">
-          <p className="flex min-w-0 items-center gap-2" aria-hidden>
+        <div
+          id={LOGIN_OUTCOME.bannerId}
+          role="group"
+          aria-label={message}
+          tabIndex={-1}
+          className={LOGIN_OUTCOME.bannerClass}
+        >
+          <p className={LOGIN_OUTCOME.messageClass} aria-hidden>
             <Icon
               size={LOGIN_OUTCOME.iconSize}
-              className={wrongAccount ? "shrink-0 text-warning" : "shrink-0 text-success"}
+              className={
+                wrongAccount ? LOGIN_OUTCOME.iconClass.warning : LOGIN_OUTCOME.iconClass.success
+              }
               aria-hidden
             />
             {message}
           </p>
-          <div className="flex gap-2">
+          <div className={LOGIN_OUTCOME.actionsClass}>
             {scope !== account.steamId && (
               <Button
                 small
