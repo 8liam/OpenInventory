@@ -1,110 +1,142 @@
 import { Panel } from "~/components/panel/panel.component";
 import { CASE_DROP_ODDS, CASE_DROP_ODDS_SOURCE } from "~/lib/cases/cases.config";
-import type { CaseStats } from "~/lib/cases/cases.types";
 import { COPY } from "~/lib/copy/copy.config";
 import { formatInteger } from "~/utils/format";
+import { CASE_RARITY_INSIGHTS } from "./case-rarity-insights.config";
+import type { CaseRarityInsightsProps } from "./case-rarity-insights.types";
 
-const DISPLAY_ORDER = ["milSpec", "restricted", "classified", "covert", "gold"] as const;
+const { classes, copy: insightCopy } = CASE_RARITY_INSIGHTS;
+
+const formatPercent = (value: number) =>
+  insightCopy.percent(value.toFixed(CASE_RARITY_INSIGHTS.percentDecimals));
 
 /** Exact-tier streaks and observed case drops beside published reference odds. */
-export function CaseRarityInsights({ stats }: { readonly stats: CaseStats }) {
+export function CaseRarityInsights({ stats }: CaseRarityInsightsProps) {
   const copy = COPY.cases;
-  const rarities = DISPLAY_ORDER.flatMap((key) => {
+  const rarities = CASE_RARITY_INSIGHTS.displayOrder.flatMap((key) => {
     const rarity = stats.caseRarities.find((entry) => entry.key === key);
     return rarity ? [rarity] : [];
   });
   const classified = rarities.reduce((sum, rarity) => sum + rarity.count, 0);
   const unclassified = stats.total - classified;
+  const hasUncertain = rarities.some((rarity) => rarity.uncertain);
+  const smallSample = classified > 0 && classified < CASE_RARITY_INSIGHTS.smallSampleThreshold;
 
   return (
-    <div className="grid grid-cols-1 gap-4 xl:grid-cols-5">
-      <Panel title={copy.streaksTitle} className="xl:col-span-2 xl:self-start">
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-5 xl:grid-cols-1 xl:gap-y-0">
+    <div className={classes.grid}>
+      <Panel title={copy.streaksTitle} className={classes.streaksPanel}>
+        <dl className={classes.streakList}>
           {rarities.map((rarity) => (
-            <div
-              key={rarity.key}
-              className="min-w-0 xl:grid xl:grid-cols-[minmax(0,1fr)_auto] xl:items-baseline xl:gap-x-3 xl:border-b xl:py-3 xl:last:border-0"
-            >
-              <dt className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div key={rarity.key} className={classes.streak}>
+              <dt className={classes.streakTerm}>
                 <span
-                  className="h-2.5 w-2.5 shrink-0 rounded-full"
+                  className={classes.streakDot}
                   style={{ backgroundColor: `#${rarity.color}` }}
                   aria-hidden="true"
                 />
                 {rarity.label}
               </dt>
-              <dd className="tabular mt-1 text-xl font-semibold leading-tight xl:col-start-2 xl:row-start-1 xl:mt-0">
+              <dd className={classes.streakValue}>
                 {rarity.uncertain
                   ? copy.upperBound(formatInteger(rarity.sinceLast))
                   : formatInteger(rarity.sinceLast)}
               </dd>
               {(!rarity.hasDrop || rarity.uncertain) && (
-                <dd className="text-xs text-muted-foreground xl:col-start-1 xl:row-start-2">
+                <dd className={classes.streakNote}>
                   {rarity.uncertain ? copy.uncertainStreak : copy.noRecordedPull}
                 </dd>
               )}
             </div>
           ))}
         </dl>
+        {hasUncertain && (
+          <details className={classes.explainer}>
+            <summary className={classes.explainerSummary}>{insightCopy.upperBoundSummary}</summary>
+            <div className={classes.explainerBody}>
+              {insightCopy.upperBoundBody.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
+          </details>
+        )}
       </Panel>
-      <Panel title={copy.oddsTitle} className="xl:col-span-3">
-        <p className="mb-4 text-xs leading-relaxed text-muted-foreground">
+      <Panel title={copy.oddsTitle} className={classes.oddsPanel}>
+        <p className={classes.note}>
           {copy.oddsDescription}{" "}
           <a
             href={CASE_DROP_ODDS_SOURCE}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-foreground underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            className={classes.link}
           >
             {copy.oddsSource}
           </a>
-          .
+          . {insightCopy.scaleNote}
         </p>
-        {classified > 0 && classified < 500 && (
-          <p className="mb-4 text-xs leading-relaxed text-muted-foreground">{copy.smallSample}</p>
+        {smallSample && (
+          <p className={classes.note}>
+            {copy.smallSample} {insightCopy.emptyBarNote}
+          </p>
         )}
-        {classified === 0 && <p className="text-sm text-muted-foreground">{copy.noClassified}</p>}
+        {classified === 0 && <p className={classes.empty}>{copy.noClassified}</p>}
         {classified > 0 && (
-          <div className="space-y-4">
+          <div className={classes.rows}>
             {rarities.map((rarity) => {
               const expected = CASE_DROP_ODDS[rarity.key];
-              const observed = classified > 0 ? (rarity.count / classified) * 100 : 0;
+              const observed = (rarity.count / classified) * CASE_RARITY_INSIGHTS.fullTrackPercent;
               const scale = Math.max(expected, observed);
+              const share = (value: number) =>
+                (value / scale) * CASE_RARITY_INSIGHTS.fullTrackPercent;
               return (
-                <div key={rarity.key}>
-                  <div className="mb-1.5 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5 text-xs">
-                    <span className="font-medium">{rarity.label}</span>
-                    <span className="tabular text-muted-foreground">
+                <div
+                  key={rarity.key}
+                  role="group"
+                  aria-label={insightCopy.group(
+                    rarity.label,
+                    formatPercent(observed),
+                    formatPercent(expected),
+                    formatInteger(rarity.count),
+                    formatInteger(classified),
+                  )}
+                >
+                  <div className={classes.rowHead}>
+                    <span className={classes.rowLabel}>{rarity.label}</span>
+                    <span className={classes.rowCount}>
                       {copy.pullShare(formatInteger(rarity.count), formatInteger(classified))}
                     </span>
                   </div>
-                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 text-xs">
-                    <div className="flex min-w-0 items-center gap-2">
-                      <span className="w-14 shrink-0 text-muted-foreground">{copy.observed}</span>
-                      <div className="h-2.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted-foreground/25">
-                        <div
-                          className="h-full rounded-full"
-                          style={{
-                            width: `${(observed / scale) * 100}%`,
-                            backgroundColor: `#${rarity.color}`,
-                          }}
-                        />
-                      </div>
+                  <div className={classes.track} aria-hidden="true">
+                    <div className={classes.fillClip}>
+                      <div
+                        className={classes.fill}
+                        style={{
+                          width: `${share(observed)}%`,
+                          backgroundColor: `#${rarity.color}`,
+                        }}
+                      />
                     </div>
-                    <span className="tabular w-14 text-right font-medium">
-                      {observed.toFixed(2)}%
+                    <div
+                      className={classes.marker}
+                      style={{
+                        left: `calc(${share(expected)}% - ${CASE_RARITY_INSIGHTS.markerWidthPx / 2}px)`,
+                        width: CASE_RARITY_INSIGHTS.markerWidthPx,
+                      }}
+                    />
+                  </div>
+                  <div className={classes.values}>
+                    <span className={classes.value}>
+                      <span
+                        className={classes.legendFill}
+                        style={{ backgroundColor: `#${rarity.color}` }}
+                        aria-hidden="true"
+                      />
+                      <span className={classes.valueName}>{copy.observed}</span>
+                      <span className={classes.valueNumber}>{formatPercent(observed)}</span>
                     </span>
-                    <div className="flex min-w-0 items-center gap-2">
-                      <span className="w-14 shrink-0 text-muted-foreground">{copy.expected}</span>
-                      <div className="h-2.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted-foreground/25">
-                        <div
-                          className="h-full rounded-full bg-muted-foreground/50"
-                          style={{ width: `${(expected / scale) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                    <span className="tabular w-14 text-right text-muted-foreground">
-                      {expected.toFixed(3)}%
+                    <span className={classes.value}>
+                      <span className={classes.legendMarker} aria-hidden="true" />
+                      <span className={classes.valueName}>{copy.expected}</span>
+                      <span className={classes.valueNumber}>{formatPercent(expected)}</span>
                     </span>
                   </div>
                 </div>
@@ -113,7 +145,7 @@ export function CaseRarityInsights({ stats }: { readonly stats: CaseStats }) {
           </div>
         )}
         {unclassified > 0 && (
-          <p className="mt-4 text-xs text-muted-foreground">{copy.unclassified(unclassified)}</p>
+          <p className={classes.unclassified}>{copy.unclassified(unclassified)}</p>
         )}
       </Panel>
     </div>

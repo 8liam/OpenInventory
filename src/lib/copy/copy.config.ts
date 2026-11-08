@@ -254,7 +254,7 @@ export const COPY = {
     streaksTitle: "Cases since last pull",
     oddsTitle: "Your drops vs case odds",
     oddsDescription:
-      "Your observed rates against published weapon-case odds. Each pair of bars has its own scale so rare drops stay visible.",
+      "Your observed rates against published weapon-case odds; percentages are approximate. Source:",
     oddsSource: "Perfect World odds disclosure (2017)",
     observed: "Your rate",
     expected: "Odds",
