@@ -7,8 +7,8 @@ import type { CaseRarityInsightsProps } from "./case-rarity-insights.types";
 
 const { classes, copy: insightCopy } = CASE_RARITY_INSIGHTS;
 
-const formatPercent = (value: number) =>
-  insightCopy.percent(value.toFixed(CASE_RARITY_INSIGHTS.percentDecimals));
+const formatPercent = (value: number, decimals: number = CASE_RARITY_INSIGHTS.percentDecimals) =>
+  insightCopy.percent(value.toFixed(decimals));
 
 /** Exact-tier streaks and observed case drops beside published reference odds. */
 export function CaseRarityInsights({ stats }: CaseRarityInsightsProps) {
@@ -21,6 +21,10 @@ export function CaseRarityInsights({ stats }: CaseRarityInsightsProps) {
   const unclassified = stats.total - classified;
   const hasUncertain = rarities.some((rarity) => rarity.uncertain);
   const smallSample = classified > 0 && classified < CASE_RARITY_INSIGHTS.smallSampleThreshold;
+  // A few pulls cannot support three decimals; the published odds keep theirs.
+  const observedDecimals = smallSample
+    ? CASE_RARITY_INSIGHTS.smallSampleObservedDecimals
+    : CASE_RARITY_INSIGHTS.percentDecimals;
 
   return (
     <div className={classes.grid}>
@@ -93,16 +97,16 @@ export function CaseRarityInsights({ stats }: CaseRarityInsightsProps) {
                   role="group"
                   aria-label={insightCopy.group(
                     rarity.label,
-                    formatPercent(observed),
+                    formatPercent(observed, observedDecimals),
                     formatPercent(expected),
-                    formatInteger(rarity.count),
-                    formatInteger(classified),
+                    rarity.count,
+                    classified,
                   )}
                 >
                   <div className={classes.rowHead}>
                     <span className={classes.rowLabel}>{rarity.label}</span>
                     <span className={classes.rowCount}>
-                      {copy.pullShare(formatInteger(rarity.count), formatInteger(classified))}
+                      {copy.pullShare(rarity.count, classified)}
                     </span>
                   </div>
                   <div className={classes.track} aria-hidden="true">
@@ -131,7 +135,9 @@ export function CaseRarityInsights({ stats }: CaseRarityInsightsProps) {
                         aria-hidden="true"
                       />
                       <span className={classes.valueName}>{copy.observed}</span>
-                      <span className={classes.valueNumber}>{formatPercent(observed)}</span>
+                      <span className={classes.valueNumber}>
+                        {formatPercent(observed, observedDecimals)}
+                      </span>
                     </span>
                     <span className={classes.value}>
                       <span className={classes.legendMarker} aria-hidden="true" />

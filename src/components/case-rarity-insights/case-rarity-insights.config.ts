@@ -1,4 +1,7 @@
 import type { CaseRarityStat } from "~/lib/cases/cases.types";
+import { PULL_NOUN } from "~/lib/copy/copy-nouns.config";
+import { formatInteger } from "~/utils/format";
+import { formatCount } from "~/utils/plural";
 
 export const CASE_RARITY_INSIGHTS = {
   /** Tiers in the order they are listed, rarest last. */
@@ -11,8 +14,10 @@ export const CASE_RARITY_INSIGHTS = {
   ] as const satisfies readonly CaseRarityStat["key"][],
   /** Classified pulls below this count are a small sample, so rates can swing far from the odds. */
   smallSampleThreshold: 500,
-  /** Decimals for both your rate and the published odds, so the two compare like for like. */
+  /** Decimals for the published odds, which the disclosure gives to this precision. */
   percentDecimals: 3,
+  /** Decimals for your rate below the small-sample threshold, where more digits would be false precision. */
+  smallSampleObservedDecimals: 0,
   /** Full width of a track, in percent, and the width of the odds marker, in pixels. */
   fullTrackPercent: 100,
   markerWidthPx: 2,
@@ -53,8 +58,8 @@ export const CASE_RARITY_INSIGHTS = {
   },
   copy: {
     /** One accessible name per tier, so a screen reader hears the pair together. */
-    group: (tier: string, yourRate: string, odds: string, pulls: string, total: string) =>
-      `${tier}: your rate ${yourRate}, published odds ${odds} (${pulls} of ${total} pulls)`,
+    group: (tier: string, yourRate: string, odds: string, pulls: number, total: number) =>
+      `${tier}: your rate ${yourRate}, published odds ${odds} (${formatInteger(pulls)} of ${formatCount(total, PULL_NOUN)})`,
     percent: (value: string) => `${value}%`,
     scaleNote:
       "Each tier has its own scale, so compare a bar with its marker, not one tier with another.",

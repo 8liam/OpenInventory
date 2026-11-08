@@ -1,4 +1,7 @@
 import type { PatternTierMatch } from "../items/patterns/pattern-tiers.types.ts";
+import { formatInteger } from "../../utils/format.ts";
+import { formatCount } from "../../utils/plural.ts";
+import { OPENING_NOUN, PULL_NOUN } from "./copy-nouns.config.ts";
 
 export const COPY = {
   brand: { name: "OpenInventory", tagline: "Self-hosted CS2 inventory and storage unit tracker" },
@@ -251,6 +254,7 @@ export const COPY = {
       latest: "Latest",
     },
     rarityTitle: "What you pulled",
+    unknownRarity: "Unknown rarity",
     streaksTitle: "Cases since last pull",
     oddsTitle: "Your drops vs case odds",
     oddsDescription:
@@ -262,11 +266,12 @@ export const COPY = {
     noRecordedPull: "No confirmed pull",
     upperBound: (count: string) => `Up to ${count}`,
     uncertainStreak: "Unknown rarity in streak",
-    pullShare: (count: string, total: string) => `${count} / ${total} pulls`,
+    pullShare: (count: number, total: number) =>
+      `${formatInteger(count)} / ${formatCount(total, PULL_NOUN)}`,
     smallSample:
       "Small histories can differ sharply from the published odds. Past pulls do not change the odds of the next case.",
     unclassified: (count: number) =>
-      `${count} opening${count === 1 ? "" : "s"} with an unknown rarity excluded from the rate comparison.`,
+      `${formatCount(count, OPENING_NOUN)} with an unknown rarity excluded from the rate comparison.`,
     rarestTitle: "Rarest pulls",
     topItemsTitle: "Most pulled",
     timesSuffix: "×",
