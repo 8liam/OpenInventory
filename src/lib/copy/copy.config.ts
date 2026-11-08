@@ -86,9 +86,8 @@ export const COPY = {
   highlight: { play: "Play highlight", close: "Close", unsupported: "This video can't be played." },
   account: { signOut: "Sign out", fallbackName: "Steam account" },
   accounts: {
-    fallbackName: (steamId: string) => `Steam account …${steamId.slice(-4)}`,
-    /** The name shown when Steam hasn't reported one; the SteamID tail is shown beside it. */
-    fallbackShortName: "Steam account",
+    /** The name shown until Steam reports one; short enough that its SteamID tail survives a narrow trigger. */
+    fallbackName: (suffix: string) => `Account ${suffix}`,
     idSuffix: (steamId: string) => `…${steamId.slice(-4)}`,
     nameWithId: (name: string, suffix: string) => `${name} (${suffix})`,
     allSummary: (count: number, attention: number) =>

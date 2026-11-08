@@ -3,7 +3,7 @@ import { useId, useMemo } from "react";
 import { AccountStatusDot } from "~/components/account-status-dot/account-status-dot.component";
 import { Select } from "~/components/select/select.component";
 import type { SelectOption } from "~/components/select/select.types";
-import { accountIdSuffix } from "~/lib/accounts/account-names";
+import { accountDisplayName } from "~/lib/accounts/account-names";
 import { useAccountScope } from "~/lib/accounts/account-scope.hooks";
 import { useAccountSelection } from "~/lib/accounts/account-scope.store";
 import { authStatusText } from "~/lib/accounts/account-status";
@@ -41,17 +41,22 @@ export function AccountSwitcher({ className }: AccountSwitcherProps) {
     };
     return [
       ...(accounts.length > 1 ? [all] : []),
-      ...accounts.map((account) => ({
-        id: account.steamId,
-        // The SteamID tail sits in `detail`, which never truncates, so same-named accounts stay distinct.
-        label: account.displayName ?? copy.fallbackShortName,
-        detail: accountIdSuffix(account.steamId),
-        hint: copy.optionHint(
-          account.label ? copy.labels[account.label] : undefined,
-          authStatusText(account.snapshot.auth.status),
-        ),
-        leading: <AccountStatusDot status={account.snapshot.auth.status} decorative />,
-      })),
+      ...accounts.map((account) => {
+        // The SteamID tail never truncates, so same-named accounts stay distinct (an unnamed
+        // account's fallback name already ends in it).
+        const { name, suffix } = accountDisplayName(account);
+        return {
+          id: account.steamId,
+          label: name,
+          detail: suffix ?? undefined,
+          triggerDetail: suffix ?? undefined,
+          hint: copy.optionHint(
+            account.label ? copy.labels[account.label] : undefined,
+            authStatusText(account.snapshot.auth.status),
+          ),
+          leading: <AccountStatusDot status={account.snapshot.auth.status} decorative />,
+        };
+      }),
     ];
   }, [accounts, copy]);
   if (scope === undefined) return null;
@@ -66,7 +71,6 @@ export function AccountSwitcher({ className }: AccountSwitcherProps) {
         ariaLabel={copy.switcherLabel}
         className={ACCOUNT_SWITCHER.selectWidth}
         listMinWidth={ACCOUNT_SWITCHER.listMinWidth}
-        showDetailInTrigger
         describedBy={statusId}
         options={options}
         onChange={select}

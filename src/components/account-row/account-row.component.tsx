@@ -4,7 +4,8 @@ import { AccountStatusDot } from "~/components/account-status-dot/account-status
 import { Button } from "~/components/button/button.component";
 import { DangerDialog } from "~/components/danger-dialog/danger-dialog.component";
 import { Select } from "~/components/select/select.component";
-import { accountIdSuffix, accountName, accountNameWithId } from "~/lib/accounts/account-names";
+import { AccountName } from "~/components/account-name/account-name.component";
+import { accountDisplayName, accountName, accountNameWithId } from "~/lib/accounts/account-names";
 import { authStatusText } from "~/lib/accounts/account-status";
 import { ACCOUNT_LABELS } from "~/lib/accounts/accounts.config";
 import type { AccountLabel } from "~/lib/accounts/accounts.types";
@@ -47,10 +48,7 @@ export function AccountRow({ account, onRemoved }: AccountRowProps) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
           <AccountStatusDot status={auth.status} decorative />
-          <span className="truncate">{account.displayName ?? copy.fallbackShortName}</span>
-          <span className="shrink-0 text-xs text-muted-foreground tabular">
-            {accountIdSuffix(account.steamId)}
-          </span>
+          <AccountName name={accountDisplayName(account)} />
           <span className="shrink-0 text-xs text-muted-foreground">
             {authStatusText(auth.status)}
           </span>

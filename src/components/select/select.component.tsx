@@ -37,7 +37,6 @@ export function Select({
   disabled,
   className,
   listMinWidth = SELECT.minListWidth,
-  showDetailInTrigger = false,
   describedBy,
 }: SelectProps) {
   const id = useId();
@@ -170,9 +169,9 @@ export function Select({
         <span className="flex min-w-0 items-center gap-1.5">
           {selected?.leading}
           <span className="truncate">{selected?.label ?? ""}</span>
-          {showDetailInTrigger && selected?.detail && (
+          {selected?.triggerDetail && (
             <span className="shrink-0 text-[11px] text-muted-foreground tabular">
-              {selected.detail}
+              {selected.triggerDetail}
             </span>
           )}
         </span>
