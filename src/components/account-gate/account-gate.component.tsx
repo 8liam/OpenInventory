@@ -6,6 +6,7 @@ import { AccountStatus } from "~/components/account-status/account-status.compon
 import { AccountStatusDot } from "~/components/account-status-dot/account-status-dot.component";
 import { Button } from "~/components/button/button.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
+import { PAGE_HEADER } from "~/components/page-header/page-header.config";
 import { accountNameWithId } from "~/lib/accounts/account-names";
 import { useAccountScope } from "~/lib/accounts/account-scope.hooks";
 import { useAccountSelection } from "~/lib/accounts/account-scope.store";
@@ -13,6 +14,7 @@ import { ALL_ACCOUNTS_ROUTES, UNGATED_ROUTES } from "~/lib/accounts/accounts.con
 import { COPY } from "~/lib/copy/copy.config";
 import { postJson } from "~/lib/storage/storage.client";
 import { AUTH_STATUS, STORAGE_API } from "~/lib/storage/storage.config";
+import { restoreLostFocus } from "~/utils/restore-focus";
 import { ACCOUNT_GATE } from "./account-gate.config";
 import type { AccountGateProps } from "./account-gate.types";
 
@@ -60,7 +62,16 @@ export function AccountGate({ pathname, children }: AccountGateProps) {
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {accounts.map((account) => (
-              <Button key={account.steamId} onClick={() => select(account.steamId)}>
+              <Button
+                key={account.steamId}
+                onClick={() => {
+                  select(account.steamId);
+                  // The account choice disappears when the scoped page mounts.
+                  requestAnimationFrame(() =>
+                    restoreLostFocus(document.getElementById(PAGE_HEADER.headingId)),
+                  );
+                }}
+              >
                 <AccountStatusDot status={account.snapshot.auth.status} />
                 {accountNameWithId(account)}
               </Button>

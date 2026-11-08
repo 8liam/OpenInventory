@@ -76,13 +76,16 @@ export function TradeUpFinderResults({ finder }: TradeUpFinderResultsProps) {
             {contract.inputs.map((item) => item.name).join(copy.inputSeparator)}
           </p>
           {contract.odds.ok && (
-            <ul className="grid min-w-0 gap-1 text-xs sm:grid-cols-2 lg:grid-cols-3">
+            <ul
+              className="grid min-w-0 gap-1 text-xs"
+              style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 28rem), 1fr))" }}
+            >
               {contract.odds.outcomes.map((outcome) => (
                 <li
                   key={`${outcome.name}:${outcome.float}`}
                   className="flex min-w-0 justify-between gap-2 rounded bg-muted px-2 py-1"
                 >
-                  <span className="min-w-0 flex-1 truncate" title={outcome.name}>
+                  <span className="min-w-0 flex-1 break-words" title={outcome.name}>
                     {outcome.name}
                   </span>
                   <span className="shrink-0 tabular text-muted-foreground">
