@@ -14,16 +14,17 @@ const range = (count: number) => Array.from({ length: count }, (_, index) => ind
 /** The best-EV contracts the finder found in this account, or its loading and empty states. */
 export function TradeUpFinderResults({ finder }: TradeUpFinderResultsProps) {
   const copy = TRADEUP_FINDER_RESULTS;
+  const { classes } = copy;
   if (finder.status === REMOTE_STATUS.loading) {
     return (
-      <LoadingRegion className="flex shrink-0 flex-col gap-3">
+      <LoadingRegion className={classes.loading}>
         {range(copy.skeletonCards).map((card) => (
-          <div key={card} className="rounded-lg border p-3">
-            <Skeleton className="mb-2 h-4 w-72 max-w-full" />
-            <Skeleton className="mb-2 h-3 w-96 max-w-full" />
-            <div className="grid gap-1 sm:grid-cols-2 lg:grid-cols-3">
+          <div key={card} className={classes.skeletonCard}>
+            <Skeleton className={classes.skeletonTitle} />
+            <Skeleton className={classes.skeletonSubtitle} />
+            <div className={classes.skeletonOutcomes}>
               {range(copy.skeletonOutcomes).map((outcome) => (
-                <Skeleton key={outcome} className="h-6" />
+                <Skeleton key={outcome} className={classes.skeletonOutcome} />
               ))}
             </div>
           </div>
@@ -39,23 +40,19 @@ export function TradeUpFinderResults({ finder }: TradeUpFinderResultsProps) {
 
   return (
     // Focusable: a scroll area with no controls inside is otherwise out of reach by keyboard.
-    <ol
-      aria-label={copy.listLabel}
-      tabIndex={0}
-      className={cn("flex min-w-0 flex-col gap-3", copy.listClass)}
-    >
+    <ol aria-label={copy.listLabel} tabIndex={0} className={cn(classes.list, copy.listClass)}>
       {results.map((contract, index) => (
-        <li key={contract.inputIds.join(":")} className="min-w-0 rounded-lg border bg-card p-3">
-          <div className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span className="font-semibold tabular">{copy.rank(index)}</span>
-            <dl className="flex flex-wrap items-center gap-x-4 gap-y-1">
+        <li key={contract.inputIds.join(":")} className={classes.card}>
+          <div className={classes.summary}>
+            <span className={classes.rank}>{copy.rank(index)}</span>
+            <dl className={classes.figures}>
               {[
                 { label: copy.expectedValue, value: formatMoney(contract.expectedValue, currency) },
                 { label: copy.cost, value: formatMoney(contract.inputCost, currency) },
                 {
                   label: copy.profit,
                   value: formatMoney(contract.profit, currency),
-                  tone: contract.profit >= 0 ? "text-success" : "text-destructive",
+                  tone: contract.profit >= 0 ? classes.gain : classes.loss,
                 },
                 {
                   label: copy.float,
@@ -64,34 +61,26 @@ export function TradeUpFinderResults({ finder }: TradeUpFinderResultsProps) {
                     : COPY.common.empty,
                 },
               ].map(({ label, value, tone }) => (
-                <div key={label} className="flex gap-1">
-                  <dt className="text-muted-foreground">{label}</dt>
-                  <dd className={cn("tabular", tone)}>{value}</dd>
+                <div key={label} className={classes.figure}>
+                  <dt className={classes.figureLabel}>{label}</dt>
+                  <dd className={cn(classes.figureValue, tone)}>{value}</dd>
                 </div>
               ))}
             </dl>
           </div>
-          <p className="mb-2 text-xs text-muted-foreground">
-            <span className="font-medium text-foreground">{copy.inputs}:</span>{" "}
+          <p className={classes.inputs}>
+            <span className={classes.inputsLabel}>{copy.inputs}:</span>{" "}
             {contract.inputs.map((item) => item.name).join(copy.inputSeparator)}
           </p>
           {contract.odds.ok && (
-            <ul
-              className="grid min-w-0 gap-1 text-xs"
-              style={{ gridTemplateColumns: copy.outcomeColumns }}
-            >
+            <ul className={classes.outcomes} style={{ gridTemplateColumns: copy.outcomeColumns }}>
               {contract.odds.outcomes.map((outcome) => (
-                <li
-                  key={`${outcome.name}:${outcome.float}`}
-                  className="flex min-w-0 justify-between gap-2 rounded bg-muted px-2 py-1"
-                >
-                  <span className="min-w-0 flex-1 break-words" title={outcome.name}>
+                <li key={`${outcome.name}:${outcome.float}`} className={classes.outcome}>
+                  <span className={classes.outcomeName} title={outcome.name}>
                     {outcome.name}
                   </span>
-                  <span className="shrink-0 tabular text-muted-foreground">
-                    {formatChance(outcome.probability)}
-                  </span>
-                  <span className="shrink-0 tabular">
+                  <span className={classes.outcomeChance}>{formatChance(outcome.probability)}</span>
+                  <span className={classes.outcomePrice}>
                     {outcome.price === null
                       ? COPY.common.empty
                       : formatMoney(outcome.price, currency)}

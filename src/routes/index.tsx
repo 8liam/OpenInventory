@@ -10,6 +10,7 @@ import { UpdatedHeader } from "~/components/updated-header/updated-header.compon
 import { Panel } from "~/components/panel/panel.component";
 import { PortfolioHero } from "~/components/portfolio-hero/portfolio-hero.component";
 import { COPY } from "~/lib/copy/copy.config";
+import { PAGE_LAYOUT } from "~/lib/layout/page-layout.config";
 import { DASHBOARD_PAGE } from "~/lib/items/dashboard-page.config";
 import type { Dashboard } from "~/lib/items/dashboard.types";
 import { useScopedPath, useSingleAccountLabel } from "~/lib/accounts/account-scope.hooks";
@@ -45,9 +46,7 @@ function DashboardPage() {
         source={source}
         account={accountLabel}
       >
-        {snapshot.loadingUnits && (
-          <span className="text-xs text-muted-foreground">{copy.unitsLoading}…</span>
-        )}
+        {snapshot.loadingUnits && <span className={PAGE_LAYOUT.note}>{copy.unitsLoading}…</span>}
         <Button
           small
           aria-label={COPY.refresh.ariaFor(refresh.scopeLabel)}
@@ -57,14 +56,14 @@ function DashboardPage() {
         >
           <RefreshCw
             size={DASHBOARD_PAGE.refreshIconSize}
-            className={refresh.busy ? "motion-safe:animate-spin" : undefined}
+            className={refresh.busy ? PAGE_LAYOUT.spinning : undefined}
             aria-hidden
           />
           {refresh.busy ? COPY.common.refreshing : COPY.common.refresh}
         </Button>
       </UpdatedHeader>
       {refresh.error && (
-        <p role="alert" className="text-xs text-destructive">
+        <p role="alert" className={PAGE_LAYOUT.errorNote}>
           {refresh.error}
         </p>
       )}
@@ -79,21 +78,21 @@ function DashboardPage() {
           role="region"
           aria-label={copy.title}
           tabIndex={0}
-          className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-4 [&>*]:shrink-0"
+          className={PAGE_LAYOUT.scrollRegion}
         >
           {dashboard.totals.unitsLoaded < dashboard.totals.unitsTotal && (
-            <p className="text-xs text-warning">{copy.unitsPartial}</p>
+            <p className={DASHBOARD_PAGE.warningClass}>{copy.unitsPartial}</p>
           )}
           <PortfolioHero dashboard={dashboard} currency={currency} />
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
-            <Panel title={copy.holdingsTitle} className="lg:col-span-3">
+          <div className={PAGE_LAYOUT.fiveColumns}>
+            <Panel title={copy.holdingsTitle} className={PAGE_LAYOUT.spanThree}>
               <HoldingsTable holdings={dashboard.topHoldings} currency={currency} />
             </Panel>
             <BreakdownPanel
               dashboard={dashboard}
               currency={currency}
-              className="self-start lg:col-span-2"
+              className={DASHBOARD_PAGE.breakdownClass}
             />
           </div>
 

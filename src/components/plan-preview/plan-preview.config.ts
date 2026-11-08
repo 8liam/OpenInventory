@@ -35,6 +35,18 @@ export const PLAN_PREVIEW = {
         return `${problem.unplaced} ${problem.unplaced === 1 ? "item needs" : "items need"} full units to swap places, which can't be done. Free a slot first.`;
     }
   },
+  classes: {
+    root: "flex flex-col gap-3",
+    heading: "font-medium",
+    subheading: "text-sm font-medium",
+    muted: "text-muted-foreground",
+    note: "text-xs text-muted-foreground",
+    tabular: "tabular",
+    problems: "flex flex-col gap-1",
+    problemList: "list-disc space-y-1 pl-5 text-sm",
+    stepList: "mt-1 list-decimal space-y-0.5 pl-5 text-sm text-muted-foreground",
+    lineList: "mt-1 space-y-0.5 text-sm text-muted-foreground",
+  },
   errorClass: "text-destructive",
   warningClass: "text-amber-600 dark:text-amber-400",
 } as const;

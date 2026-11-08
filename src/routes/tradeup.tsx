@@ -23,6 +23,7 @@ import { useRestoreFocusOnRecovery } from "~/lib/storage/recovered-focus.hooks";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API, TRADE_UP, TRADE_UP_FINDER } from "~/lib/storage/storage.config";
 import { usePriceQuery } from "~/lib/settings/settings.store";
+import { TRADEUP_PAGE } from "~/lib/tradeup/tradeup-page.config";
 import { formatChance, formatFloat, formatMoney, formatPercent } from "~/utils/format";
 
 export const Route = createFileRoute("/tradeup")({ component: TradeUpPage });
@@ -111,7 +112,7 @@ function TradeUpPage() {
         role="region"
         aria-label={copy.title}
         tabIndex={0}
-        className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-2 [&>*]:shrink-0"
+        className={TRADEUP_PAGE.classes.scrollRegion}
       >
         <TradeUpFinderControls
           statTrak={finderStatTrak}
@@ -136,7 +137,7 @@ function TradeUpPage() {
           />
         )}
         {ready && (
-          <div className="flex flex-col gap-4">
+          <div className={TRADEUP_PAGE.classes.calculator}>
             <TradeUpInputs
               candidates={ready.candidates}
               selectedIds={selectedIds}
@@ -146,16 +147,18 @@ function TradeUpPage() {
               onAutoFill={autoFill}
               onClear={() => setSelection([])}
             />
-            {orderedIds.length === 0 && <p className="text-muted-foreground">{copy.pickPrompt}</p>}
+            {orderedIds.length === 0 && (
+              <p className={TRADEUP_PAGE.classes.muted}>{copy.pickPrompt}</p>
+            )}
             {odds.status === "error" && (
               <LoadError message={odds.message} onRetry={odds.retry} retrying={odds.retrying} />
             )}
             {odds.status === "ready" && !odds.data.ok && orderedIds.length > 0 && (
-              <p className="text-muted-foreground">{odds.data.reason}</p>
+              <p className={TRADEUP_PAGE.classes.muted}>{odds.data.reason}</p>
             )}
             {result && orderedIds.length > 0 && (
               <>
-                <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+                <div className={TRADEUP_PAGE.classes.metrics}>
                   <Metric
                     label={copy.inputCost}
                     value={formatMoney(result.inputCost, result.currency)}
@@ -177,12 +180,12 @@ function TradeUpPage() {
                   <Metric label={copy.chanceToProfit} value={formatChance(result.chanceToProfit)} />
                 </div>
                 {result.selected < result.inputCount && (
-                  <p className="text-xs text-muted-foreground">
+                  <p className={TRADEUP_PAGE.classes.note}>
                     {copy.selectMore(result.inputCount - result.selected)}
                   </p>
                 )}
                 <TradeUpOutcomes outcomes={result.outcomes} currency={result.currency} />
-                <p className="text-xs text-muted-foreground">{copy.formulaNote}</p>
+                <p className={TRADEUP_PAGE.classes.note}>{copy.formulaNote}</p>
               </>
             )}
           </div>
