@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { AccountName } from "~/components/account-name/account-name.component";
 import { DataTable } from "~/components/data-table/data-table.component";
 import type { DataTableColumn } from "~/components/data-table/data-table.types";
 import { ItemHighlightCell } from "~/components/item-highlights/item-highlights.component";
@@ -27,7 +28,10 @@ export function ItemTable({
       header: COPY.itemColumns.item,
       width: wide ? ITEM_TABLE.widths.item.wide : ITEM_TABLE.widths.item.narrow,
       sortValue: (r) => r.name,
-      cell: (r) => <ItemCell item={r} />,
+      // Narrow rows have no Account column, so the owner moves under the name.
+      cell: (r) => (
+        <ItemCell item={r} account={wide ? undefined : accountNames?.get(r.accountId)} />
+      ),
     };
     const price: DataTableColumn<ItemView> = {
       id: "price",
@@ -64,10 +68,11 @@ export function ItemTable({
             id: "account",
             header: COPY.accounts.column,
             width: ITEM_TABLE.widths.account,
-            sortValue: (r) => accountNames.get(r.accountId) ?? "",
-            cell: (r) => (
-              <span className="text-muted-foreground">{accountNames.get(r.accountId)}</span>
-            ),
+            sortValue: (r) => accountNames.get(r.accountId)?.name ?? "",
+            cell: (r) => {
+              const name = accountNames.get(r.accountId);
+              return name && <AccountName name={name} className="text-muted-foreground" />;
+            },
           },
         ]
       : [];
@@ -117,7 +122,13 @@ export function ItemTable({
       rows={items}
       columns={columns}
       getRowKey={itemRowKey}
-      rowHeight={wide ? ITEM_TABLE.rowHeight.wide : ITEM_TABLE.rowHeight.narrow}
+      rowHeight={
+        wide
+          ? ITEM_TABLE.rowHeight.wide
+          : accountNames
+            ? ITEM_TABLE.rowHeight.narrowWithAccount
+            : ITEM_TABLE.rowHeight.narrow
+      }
       initialSort={{ columnId: "price", direction: "desc" }}
       selection={selection}
     />

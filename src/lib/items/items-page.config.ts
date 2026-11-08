@@ -17,4 +17,6 @@ export const ITEMS_PAGE = {
   highlightsToggleClass:
     "gap-1.5 px-2.5 text-xs max-sm:h-9 aria-pressed:border-accent-strong/60 aria-pressed:bg-accent/15 aria-pressed:text-foreground",
   iconSize: 14,
+  /** With every account in view the location list also names each owner, so it opens wider. */
+  locationListMinWidth: 264,
 } as const;

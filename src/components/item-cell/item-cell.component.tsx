@@ -6,10 +6,11 @@ import { TerminalActivate } from "~/components/terminal-activate/terminal-activa
 import { INVENTORY_LOCATION_ID } from "~/lib/items/item.types";
 import { ItemLabel } from "~/components/item-label/item-label.component";
 import { ItemHighlights } from "~/components/item-highlights/item-highlights.component";
+import { AccountName } from "~/components/account-name/account-name.component";
 import { ITEM_CELL } from "./item-cell.config";
 import type { ItemCellProps } from "./item-cell.types";
 
-export function ItemCell({ item }: ItemCellProps) {
+export function ItemCell({ item, account }: ItemCellProps) {
   const { imageSize, stickerSize, charmSize, maxStickers, patternLabel } = ITEM_CELL;
   // A sticker without an image would render as a broken-image glyph; its name is in the item data.
   const stickers = item.stickers
@@ -24,6 +25,7 @@ export function ItemCell({ item }: ItemCellProps) {
       customName={item.customName}
       size={imageSize}
     >
+      {account && <AccountName name={account} className={ITEM_CELL.accountClass} />}
       {item.pattern !== null && (
         <p className="mt-0.5 text-xs text-muted-foreground">
           {patternLabel} #{item.pattern}

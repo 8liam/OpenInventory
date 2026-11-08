@@ -14,8 +14,8 @@ import { FilteredEmpty } from "~/components/filtered-empty/filtered-empty.compon
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { Select } from "~/components/select/select.component";
 import {
+  accountDisplayName,
   accountIdSuffix,
-  accountName,
   accountNameWithId,
   accountText,
 } from "~/lib/accounts/account-names";
@@ -27,7 +27,7 @@ import { itemRowKey } from "~/lib/items/item-key";
 import { matchesItem } from "~/lib/items/item-search";
 import { itemHighlights } from "~/lib/items/highlights";
 import { ALL_FILTER, ITEMS_PAGE, LABEL_FILTER_PREFIX } from "~/lib/items/items-page.config";
-import type { InventoryResponse } from "~/lib/items/item.types";
+import type { InventoryResponse, ItemView } from "~/lib/items/item.types";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { useItemViewMode } from "~/lib/items/view-mode.store";
@@ -88,7 +88,7 @@ function ItemsPage() {
     [accountByKey],
   );
   const accountNames = useMemo(
-    () => (isAll ? new Map(accounts.map((a) => [a.steamId, accountName(a)])) : undefined),
+    () => (isAll ? new Map(accounts.map((a) => [a.steamId, accountDisplayName(a)])) : undefined),
     [accounts, isAll],
   );
   const accountOptions = useMemo(() => {
@@ -99,11 +99,15 @@ function ItemsPage() {
         id: `${LABEL_FILTER_PREFIX}${label}`,
         label: COPY.accounts.filterLabel(COPY.accounts.labels[label]),
       })),
-      ...scoped.map((a) => ({
-        id: a.steamId,
-        label: a.displayName ?? COPY.accounts.fallbackShortName,
-        detail: accountIdSuffix(a.steamId),
-      })),
+      ...scoped.map((a) => {
+        const { name, suffix } = accountDisplayName(a);
+        return {
+          id: a.steamId,
+          label: name,
+          detail: suffix ?? undefined,
+          triggerDetail: suffix ?? undefined,
+        };
+      }),
     ];
   }, [scoped]);
   const accountFilter = isAll ? validFilter(accountPick, accountOptions) : ALL_FILTER;
@@ -122,19 +126,13 @@ function ItemsPage() {
   );
 
   const locationOptions = useMemo(() => {
-    const counts = new Map<string, { name: string; count: number }>();
+    const counts = new Map<string, { item: ItemView; count: number }>();
     for (const item of inAccount ?? []) {
       // Location ids repeat across accounts ("inventory"), so each account's get their own row.
       const id = locationKey(item);
       const known = counts.get(id);
       if (known) known.count += 1;
-      else
-        counts.set(id, {
-          name: accountNames
-            ? `${accountNames.get(item.accountId)} · ${item.locationName}`
-            : item.locationName,
-          count: 1,
-        });
+      else counts.set(id, { item, count: 1 });
     }
     return [
       {
@@ -142,13 +140,20 @@ function ItemsPage() {
         label: COPY.items.allLocations,
         detail: formatInteger(inAccount?.length ?? 0),
       },
-      ...[...counts].map(([id, { name, count }]) => ({
-        id,
-        label: name,
-        detail: formatInteger(count),
-      })),
+      ...[...counts].map(([id, { item, count }]) => {
+        // With every account in view, each location names its owner: the full name and SteamID tail
+        // in the list, and the tail (which never truncates) beside the location in the trigger.
+        const owner = accountByKey.get(item.accountId);
+        return {
+          id,
+          label: item.locationName,
+          detail: formatInteger(count),
+          hint: isAll && owner ? accountNameWithId(owner) : undefined,
+          triggerDetail: isAll ? accountIdSuffix(item.accountId) : undefined,
+        };
+      }),
     ];
-  }, [inAccount, accountNames]);
+  }, [inAccount, accountByKey, isAll]);
   const typeOptions = useMemo(() => {
     const counts = new Map<string, number>();
     for (const item of inAccount ?? [])
@@ -232,6 +237,7 @@ function ItemsPage() {
             value={location}
             ariaLabel={COPY.itemColumns.location}
             className={ITEMS_PAGE.selectClass}
+            listMinWidth={isAll ? ITEMS_PAGE.locationListMinWidth : undefined}
             options={locationOptions}
             onChange={setLocation}
           />

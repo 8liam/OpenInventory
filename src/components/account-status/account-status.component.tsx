@@ -1,6 +1,6 @@
 import { AccountActions } from "~/components/account-actions/account-actions.component";
 import { AccountStatusDot } from "~/components/account-status-dot/account-status-dot.component";
-import { accountName } from "~/lib/accounts/account-names";
+import { accountNameWithId } from "~/lib/accounts/account-names";
 import { COPY } from "~/lib/copy/copy.config";
 import { AUTH_STATUS } from "~/lib/storage/storage.config";
 import { ACCOUNT_STATUS } from "./account-status.config";
@@ -14,11 +14,13 @@ export function AccountStatus({ account }: AccountStatusProps) {
   return (
     <section
       className={ACCOUNT_STATUS.cardClass}
-      aria-label={copy.notReadyTitle(accountName(account))}
+      aria-label={copy.notReadyTitle(accountNameWithId(account))}
     >
       <div className="flex items-center gap-2">
         <AccountStatusDot status={auth.status} />
-        <h2 className="text-[13px] font-medium">{copy.notReadyTitle(accountName(account))}</h2>
+        <h2 className="text-[13px] font-medium">
+          {copy.notReadyTitle(accountNameWithId(account))}
+        </h2>
       </div>
       {auth.status === AUTH_STATUS.error ? (
         <>

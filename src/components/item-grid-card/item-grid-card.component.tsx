@@ -7,6 +7,7 @@ import { splitItemName } from "~/components/item-label/item-label.utils";
 import { COPY } from "~/lib/copy/copy.config";
 import { cn } from "~/utils/cn";
 import { formatFloat, formatMoney } from "~/utils/format";
+import { AccountName } from "~/components/account-name/account-name.component";
 import { ITEM_GRID_CARD } from "./item-grid-card.config";
 import type { ItemGridCardProps } from "./item-grid-card.types";
 
@@ -95,8 +96,14 @@ export function ItemGridCard({
       </div>
       <ItemHighlights item={item} visible={ITEM_GRID_CARD.visibleHighlights} />
       {showLocation && (
-        <p className="mt-0.5 truncate text-xs text-muted-foreground">
-          {accountName ? `${accountName} · ${item.locationName}` : item.locationName}
+        <p className={ITEM_GRID_CARD.locationClass}>
+          {accountName && (
+            <>
+              <AccountName name={accountName} className="shrink" />
+              <span aria-hidden>{ITEM_GRID_CARD.locationSeparator}</span>
+            </>
+          )}
+          <span className="truncate">{item.locationName}</span>
         </p>
       )}
       <div className="mt-auto flex h-6 items-end gap-0.5 overflow-hidden">
