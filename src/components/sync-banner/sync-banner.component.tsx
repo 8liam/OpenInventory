@@ -1,12 +1,14 @@
 import { RefreshCw } from "lucide-react";
 import { Button } from "~/components/button/button.component";
 import { COPY } from "~/lib/copy/copy.config";
+import { SYNC_BANNER } from "./sync-banner.config";
 import type { SyncBannerProps } from "./sync-banner.types";
 
 /** Progress and the sync button for reading Steam's inventory history. */
 export function SyncBanner({ sync, onSync, requestPending, requestError }: SyncBannerProps) {
   const copy = COPY.cases;
   const running = sync.state === "running";
+  const busy = running || requestPending;
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card px-4 py-3">
       <div className="min-w-0 text-xs text-muted-foreground">
@@ -33,12 +35,22 @@ export function SyncBanner({ sync, onSync, requestPending, requestError }: SyncB
         {!running && !sync.lastSyncAt && <p>{copy.firstSyncHint}</p>}
         {!sync.complete && sync.lastSyncAt !== null && !running && <p>{copy.partial}</p>}
       </div>
-      <Button small disabled={running || requestPending} onClick={onSync}>
+      <p role="status" className="sr-only">
+        {busy ? copy.syncStarted : ""}
+      </p>
+      {/* Stays focusable while busy (a disabled button would drop focus to the page); a press is ignored. */}
+      <Button
+        small
+        aria-disabled={busy}
+        className={busy ? SYNC_BANNER.busyClass : undefined}
+        onClick={busy ? undefined : onSync}
+      >
         <RefreshCw
-          size={12}
-          className={running || requestPending ? "motion-safe:animate-spin" : undefined}
+          size={SYNC_BANNER.iconSize}
+          aria-hidden
+          className={busy ? SYNC_BANNER.spinClass : undefined}
         />
-        {running || requestPending ? copy.syncing : copy.sync}
+        {busy ? copy.syncing : copy.sync}
       </Button>
     </div>
   );

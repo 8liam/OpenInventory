@@ -207,6 +207,7 @@ export const COPY = {
     sync: "Sync history",
     syncFailed: "Couldn't start the history sync. Try again.",
     syncing: "Syncing",
+    syncStarted: "Syncing history…",
     syncProgress: "pages read",
     eventsFound: "new events",
     lastSync: "Last synced",
