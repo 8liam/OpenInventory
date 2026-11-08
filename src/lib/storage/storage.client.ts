@@ -2,12 +2,14 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import { resolveScope } from "../accounts/account-scope";
 import { useAccountSelection } from "../accounts/account-scope.store";
 import { ALL_ACCOUNTS } from "../accounts/accounts.config";
+import { clearStale, markStale, setStreamState } from "./stale-data.store";
 import {
   AUTH_STATUS,
   REMOTE_DATA,
   REMOTE_STATUS,
   SNAPSHOT_CONNECTION,
   STORAGE_API,
+  STREAM_RECONNECT,
 } from "./storage.config";
 import type {
   ApiError,
@@ -38,6 +40,10 @@ let snapshot: AppSnapshot = NO_ACCOUNTS;
 let received = false;
 let connection: SnapshotConnection = SNAPSHOT_CONNECTION.connecting;
 let source: EventSource | undefined;
+/** When the last snapshot arrived, so a dropped stream can say how old the screen is. */
+let lastSnapshotAt: number | null = null;
+let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
+let reconnectAttempts = 0;
 const listeners = new Set<() => void>();
 
 function notify(): void {
@@ -52,7 +58,21 @@ function publish(next: AppSnapshot): void {
 function setConnection(next: SnapshotConnection): void {
   if (connection === next) return;
   connection = next;
+  setStreamState(next === SNAPSHOT_CONNECTION.reconnecting, lastSnapshotAt);
   notify();
+}
+
+/** Re-opens a stream the browser gave up on, waiting longer after each failed attempt. */
+function scheduleReconnect(): void {
+  clearTimeout(reconnectTimer);
+  const { delaysMs } = STREAM_RECONNECT;
+  const wait = delaysMs[Math.min(reconnectAttempts, delaysMs.length - 1)] ?? delaysMs[0];
+  reconnectAttempts += 1;
+  reconnectTimer = setTimeout(() => {
+    if (listeners.size === 0) return;
+    source?.close();
+    openSource();
+  }, wait);
 }
 
 function parseSnapshot(raw: string): AppSnapshot | undefined {
@@ -84,14 +104,25 @@ function openSource(): void {
       return;
     }
     received = true;
+    lastSnapshotAt = Date.now();
+    reconnectAttempts = 0;
+    clearTimeout(reconnectTimer);
     if (next.accounts.length === 0) remoteCache.clear();
     connection = SNAPSHOT_CONNECTION.open;
+    setStreamState(false, lastSnapshotAt);
     publish(next);
   };
   opened.onerror = () => {
-    // EventSource retries dropped streams itself, but gives up for good on a bad response.
-    // Once data has arrived the last snapshot stays usable, so only the first load reports it.
-    if (!received) setConnection(SNAPSHOT_CONNECTION.disconnected);
+    // Before any data, the first-load screen reports the failure and offers Retry.
+    if (!received) {
+      setConnection(SNAPSHOT_CONNECTION.disconnected);
+      return;
+    }
+    // After that the last snapshot stays on screen under a "reconnecting" banner. EventSource
+    // retries a dropped stream itself but gives up for good on a bad response (e.g. a proxy
+    // 502), so a closed stream is re-opened here.
+    setConnection(SNAPSHOT_CONNECTION.reconnecting);
+    if (opened.readyState === EventSource.CLOSED) scheduleReconnect();
   };
 }
 
@@ -101,6 +132,7 @@ function subscribe(listener: () => void): () => void {
   return () => {
     listeners.delete(listener);
     if (listeners.size === 0) {
+      clearTimeout(reconnectTimer);
       source?.close();
       source = undefined;
     }
@@ -119,8 +151,10 @@ export function useSnapshotConnection(): SnapshotConnection {
 
 /** Drops the current event stream and opens a new one (a closed EventSource never reconnects by itself). */
 export function retrySnapshotConnection(): void {
+  clearTimeout(reconnectTimer);
+  reconnectAttempts = 0;
   source?.close();
-  setConnection(SNAPSHOT_CONNECTION.connecting);
+  setConnection(received ? SNAPSHOT_CONNECTION.reconnecting : SNAPSHOT_CONNECTION.connecting);
   if (listeners.size > 0) openSource();
   else source = undefined;
 }
@@ -206,22 +240,27 @@ function scopeOf(path: string | undefined): string | null {
   return query === undefined ? null : new URLSearchParams(query).get(REMOTE_DATA.scopeParam);
 }
 
-/** Last good response per path, so revisiting a page shows data instantly while it refetches. */
-const remoteCache = new Map<string, unknown>();
+/** Last good response per path and when it arrived, so revisiting a page shows data instantly while it refetches. */
+const remoteCache = new Map<string, { readonly data: unknown; readonly at: number }>();
 
 function isCacheable(path: string): boolean {
   return !REMOTE_DATA.uncachedPathPrefixes.some((prefix) => path.startsWith(prefix));
 }
 
 function readCache<T>(path: string | undefined): StoredRemoteData<T> | undefined {
-  if (!path || !remoteCache.has(path)) return undefined;
-  return { status: REMOTE_STATUS.ready, data: remoteCache.get(path) as T };
+  const entry = path === undefined ? undefined : remoteCache.get(path);
+  return entry && { status: REMOTE_STATUS.ready, data: entry.data as T };
 }
 
-function writeCache(path: string, data: unknown): void {
+/** When `path`'s cached response arrived, if it has one. */
+function cachedAt(path: string | undefined): number | undefined {
+  return path === undefined ? undefined : remoteCache.get(path)?.at;
+}
+
+function writeCache(path: string, data: unknown, at: number): void {
   if (!isCacheable(path)) return;
   remoteCache.delete(path);
-  remoteCache.set(path, data);
+  remoteCache.set(path, { data, at });
   while (remoteCache.size > REMOTE_DATA.cacheMaxEntries) {
     const oldest = remoteCache.keys().next();
     if (oldest.done) break;
@@ -252,9 +291,15 @@ export function usePageVisible(): boolean {
  * A failed load carries `retry`, which fetches again at once.
  */
 export function useRemoteData<T>(path: string | undefined, revision: number): RemoteData<T> {
-  const [loaded, setLoaded] = useState<{ path: string | undefined; value: StoredRemoteData<T> }>(
-    () => ({ path, value: readCache<T>(path) ?? LOADING }),
-  );
+  // `at` is when the data shown arrived, so a failed refresh can say how old it is.
+  const [loaded, setLoaded] = useState<{
+    path: string | undefined;
+    value: StoredRemoteData<T>;
+    at?: number;
+  }>(() => ({ path, value: readCache<T>(path) ?? LOADING, at: cachedAt(path) }));
+  const latest = useRef(loaded);
+  latest.current = loaded;
+  const [staleKey] = useState(() => Symbol(REMOTE_DATA.staleKeyDescription));
   const visible = usePageVisible();
   const lastPath = useRef<string | undefined>(undefined);
   const lastVisible = useRef(visible);
@@ -271,12 +316,24 @@ export function useRemoteData<T>(path: string | undefined, revision: number): Re
     setRetryTick((tick) => tick + 1);
   }, []);
 
+  // Refetches at once without blanking what is on screen (the stale banner's Retry).
+  const refresh = useCallback(() => {
+    failures.current = 0;
+    manualRetry.current = true;
+    setRetryTick((tick) => tick + 1);
+  }, []);
+
+  // A page that goes away (or moves to another path) no longer has anything stale to report.
+  useEffect(() => () => clearStale(staleKey), [staleKey]);
+
   useEffect(() => {
     if (!path) {
       lastPath.current = undefined;
+      clearStale(staleKey);
       return;
     }
     const pathChanged = lastPath.current !== path;
+    if (pathChanged) clearStale(staleKey);
     const becameVisible = visible && !lastVisible.current;
     const immediate = manualRetry.current;
     manualRetry.current = false;
@@ -304,9 +361,11 @@ export function useRemoteData<T>(path: string | undefined, revision: number): Re
             : new Error(message);
         }
         const data = (await response.json()) as T;
-        writeCache(path, data);
+        const at = Date.now();
+        writeCache(path, data, at);
         failures.current = 0;
-        setLoaded({ path, value: { status: REMOTE_STATUS.ready, data } });
+        clearStale(staleKey);
+        setLoaded({ path, value: { status: REMOTE_STATUS.ready, data }, at });
       } catch (error) {
         if (controller.signal.aborted) return;
         // Forget this revision was fetched, so returning to a hidden tab retries it.
@@ -319,18 +378,20 @@ export function useRemoteData<T>(path: string | undefined, revision: number): Re
           failures.current += 1;
           retryTimer = setTimeout(() => setRetryTick((tick) => tick + 1), wait);
         }
-        // Keep this path's last good response, or its cached copy when revisiting a page.
-        setLoaded((current) =>
+        // Keep this path's last good response, or its cached copy when revisiting a page, and
+        // report it as stale so the page says how old it is instead of failing silently.
+        const message = error instanceof Error ? error.message : String(error);
+        const current = latest.current;
+        const kept =
           current.path === path && current.value.status === REMOTE_STATUS.ready
             ? current
-            : {
-                path,
-                value: readCache<T>(path) ?? {
-                  status: REMOTE_STATUS.error,
-                  message: error instanceof Error ? error.message : String(error),
-                },
-              },
-        );
+            : { path, value: readCache<T>(path), at: cachedAt(path) };
+        if (kept.value === undefined) {
+          setLoaded({ path, value: { status: REMOTE_STATUS.error, message } });
+          return;
+        }
+        if (kept !== current) setLoaded({ path, value: kept.value, at: kept.at });
+        markStale(staleKey, { message, lastSuccessAt: kept.at ?? Date.now(), refresh });
       }
     }, delay);
     return () => {
@@ -338,7 +399,7 @@ export function useRemoteData<T>(path: string | undefined, revision: number): Re
       clearTimeout(retryTimer);
       controller.abort();
     };
-  }, [path, revision, visible, retryTick]);
+  }, [path, revision, visible, retryTick, staleKey, refresh]);
 
   if (!path) return LOADING;
   const value =

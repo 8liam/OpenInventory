@@ -127,3 +127,21 @@ export type RemoteData<T> =
       readonly retry: () => void;
     }
   | { readonly status: typeof REMOTE_STATUS.ready; readonly data: T };
+
+/** A page load whose refresh failed while its last good data stays on screen. */
+export type StaleLoad = {
+  readonly message: string;
+  /** When the data on screen was fetched (epoch ms). */
+  readonly lastSuccessAt: number;
+  /** Fetches again at once, keeping the data on screen meanwhile. */
+  readonly refresh: () => void;
+};
+
+/** What the stale-data banner needs: whether the live stream dropped and which loads failed. */
+export type StaleDataState = {
+  /** The live event stream dropped after data arrived and is being re-established. */
+  readonly reconnecting: boolean;
+  /** When the last live snapshot arrived (epoch ms), or null before any did. */
+  readonly lastSnapshotAt: number | null;
+  readonly staleLoads: readonly StaleLoad[];
+};
