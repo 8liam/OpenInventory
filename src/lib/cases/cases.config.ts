@@ -1,6 +1,8 @@
 export const CASES_PAGE = {
   /** How often to refresh while a history sync is running. */
   pollMs: 2_500,
+  /** Slice colour for openings whose rarity Steam did not record: neutral, so it reads as "no data". */
+  unknownRarityColor: "8b8b94",
 } as const;
 
 /** The kinds of inventory-history event the Cases page can break down, in pill order. */

@@ -15,6 +15,7 @@ import { Panel } from "~/components/panel/panel.component";
 import { PulledList } from "~/components/pulled-list/pulled-list.component";
 import { SyncBanner } from "~/components/sync-banner/sync-banner.component";
 import { CASES_PAGE, DEFAULT_OPENING_KIND } from "~/lib/cases/cases.config";
+import { buildRaritySlices } from "~/lib/cases/rarity-slices";
 import type { CasesResponse, OpeningKind } from "~/lib/cases/cases.types";
 import { cn } from "~/utils/cn";
 import { COPY } from "~/lib/copy/copy.config";
@@ -70,17 +71,17 @@ function CasesPage() {
   // A refetch keeps the previous response on screen; never show another kind's numbers under this pill.
   const stats = response?.stats.kind === kind ? response.stats : undefined;
   const emptyText = kind === "case" ? copy.empty : copy.emptyOther;
-  const raritySlices = (stats?.rarity ?? []).map((r) => ({
-    label: r.label,
-    value: r.count,
-    count: r.count,
-    color: `#${r.color}`,
-  }));
+  const raritySlices = buildRaritySlices(stats?.rarity ?? [], stats?.total ?? 0, {
+    label: copy.unknownRarity,
+    color: CASES_PAGE.unknownRarityColor,
+  });
   return (
     <>
       <PageHeader title={copy.title} description={copy.description} account={accountLabel} />
       {data.status === "loading" && <CasesSkeleton />}
-      {data.status === "error" && <LoadError message={data.message} onRetry={data.retry} />}
+      {data.status === "error" && (
+        <LoadError message={data.message} onRetry={data.retry} retrying={data.retrying} />
+      )}
 
       {response && (
         <div
