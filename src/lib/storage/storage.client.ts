@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { resolveScope } from "../accounts/account-scope";
 import { useAccountSelection } from "../accounts/account-scope.store";
 import { ALL_ACCOUNTS } from "../accounts/accounts.config";
@@ -297,8 +305,11 @@ export function useRemoteData<T>(path: string | undefined, revision: number): Re
     value: StoredRemoteData<T>;
     at?: number;
   }>(() => ({ path, value: readCache<T>(path) ?? LOADING, at: cachedAt(path) }));
+  // The fetch callback runs after render, so it reads what is on screen through this ref.
   const latest = useRef(loaded);
-  latest.current = loaded;
+  useLayoutEffect(() => {
+    latest.current = loaded;
+  });
   const [staleKey] = useState(() => Symbol(REMOTE_DATA.staleKeyDescription));
   const visible = usePageVisible();
   const lastPath = useRef<string | undefined>(undefined);
