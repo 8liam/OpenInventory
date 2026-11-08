@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { LoadError } from "~/components/load-error/load-error.component";
 import { useMemo, useState } from "react";
 import { Metric } from "~/components/metric/metric.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
@@ -119,11 +120,7 @@ function TradeUpPage() {
       {finder.status === "loading" && (
         <p className="text-sm text-muted-foreground">{copy.searching}</p>
       )}
-      {finder.status === "error" && (
-        <p role="alert" className="text-destructive">
-          {COPY.common.errorPrefix} {finder.message}
-        </p>
-      )}
+      {finder.status === "error" && <LoadError message={finder.message} onRetry={finder.retry} />}
       {finder.status === "ready" && finder.data.results.length === 0 && (
         <p className="text-sm text-muted-foreground">{copy.noFinderResults}</p>
       )}
@@ -171,9 +168,7 @@ function TradeUpPage() {
       )}
       {(candidates.status === "loading" || (current && !ready)) && <TradeUpSkeleton />}
       {candidates.status === "error" && (
-        <p role="alert" className="text-destructive">
-          {COPY.common.errorPrefix} {candidates.message}
-        </p>
+        <LoadError message={candidates.message} onRetry={candidates.retry} />
       )}
       {candidates.status === "ready" && !candidates.data.ok && (
         <p className="text-muted-foreground">{candidates.data.reason}</p>
@@ -190,11 +185,7 @@ function TradeUpPage() {
             onClear={() => setSelection([])}
           />
           {orderedIds.length === 0 && <p className="text-muted-foreground">{copy.pickPrompt}</p>}
-          {odds.status === "error" && (
-            <p role="alert" className="text-destructive">
-              {COPY.common.errorPrefix} {odds.message}
-            </p>
-          )}
+          {odds.status === "error" && <LoadError message={odds.message} onRetry={odds.retry} />}
           {odds.status === "ready" && !odds.data.ok && orderedIds.length > 0 && (
             <p className="text-muted-foreground">{odds.data.reason}</p>
           )}

@@ -4,7 +4,6 @@ export const COPY = {
   brand: { name: "OpenInventory", tagline: "Self-hosted CS2 inventory and storage unit tracker" },
   common: {
     loading: "Loading…",
-    errorPrefix: "Something went wrong:",
     empty: "—",
     refresh: "Refresh",
     refreshing: "Refreshing…",

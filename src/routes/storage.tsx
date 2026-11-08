@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Button } from "~/components/button/button.component";
 import { ItemCollection } from "~/components/item-collection/item-collection.component";
 import { ItemTableSkeleton } from "~/components/item-table/item-table.skeleton";
+import { LoadError } from "~/components/load-error/load-error.component";
 import { LoadingRegion } from "~/components/loading-region/loading-region.component";
 import { Skeleton } from "~/components/skeleton/skeleton.component";
 import { ViewToggle } from "~/components/view-toggle/view-toggle.component";
@@ -83,7 +84,9 @@ function StoragePage() {
           {snapshot.loadingUnits ? copy.loadingUnits : copy.refreshUnits}
         </Button>
       </PageHeader>
-      {snapshot.units.length === 0 ? (
+      {data.status === "error" ? (
+        <LoadError message={data.message} onRetry={data.retry} />
+      ) : snapshot.units.length === 0 ? (
         <p className="text-muted-foreground">{copy.noUnits}</p>
       ) : organising ? (
         <OrganiserPanel

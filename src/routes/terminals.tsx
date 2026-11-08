@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { LoadError } from "~/components/load-error/load-error.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { TerminalList } from "~/components/terminal-list/terminal-list.component";
 import { COPY } from "~/lib/copy/copy.config";
@@ -26,11 +27,7 @@ function TerminalsPage() {
         {data.status === "loading" && (
           <p className="text-sm text-muted-foreground">{COPY.common.loading}</p>
         )}
-        {data.status === "error" && (
-          <p role="alert" className="text-sm text-destructive">
-            {COPY.common.errorPrefix} {data.message}
-          </p>
-        )}
+        {data.status === "error" && <LoadError message={data.message} onRetry={data.retry} />}
         {data.status === "ready" &&
           (terminals.length === 0 ? (
             <p className="text-sm text-muted-foreground">{COPY.terminal.noTerminals}</p>

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { LoadError } from "~/components/load-error/load-error.component";
 import { Gem } from "lucide-react";
 import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { ItemCollection } from "~/components/item-collection/item-collection.component";
@@ -224,11 +225,7 @@ function ItemsPage() {
           <ItemTableSkeleton selectable />
         </LoadingRegion>
       )}
-      {data.status === "error" && (
-        <p role="alert" className="text-destructive">
-          {COPY.common.errorPrefix} {data.message}
-        </p>
-      )}
+      {data.status === "error" && <LoadError message={data.message} onRetry={data.retry} />}
       <Reveal open={selectedItems.length > 0}>
         {selectedItems.length > 0 && (
           <TransferBar

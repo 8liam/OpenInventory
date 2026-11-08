@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { LoadError } from "~/components/load-error/load-error.component";
 import { useEffect, useState } from "react";
 import { BarList } from "~/components/bar-list/bar-list.component";
 import { CasesSkeleton } from "~/components/cases-skeleton/cases-skeleton.component";
@@ -60,11 +61,7 @@ function CasesPage() {
     <>
       <PageHeader title={copy.title} description={copy.description} />
       {data.status === "loading" && <CasesSkeleton />}
-      {data.status === "error" && (
-        <p role="alert" className="text-destructive">
-          {COPY.common.errorPrefix} {data.message}
-        </p>
-      )}
+      {data.status === "error" && <LoadError message={data.message} onRetry={data.retry} />}
 
       {response && (
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-4 [&>*]:shrink-0">

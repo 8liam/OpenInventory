@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { LoadError } from "~/components/load-error/load-error.component";
 import { RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/button/button.component";
@@ -59,11 +60,7 @@ function DashboardPage() {
       </UpdatedHeader>
 
       {data.status === "loading" && <DashboardSkeleton />}
-      {data.status === "error" && (
-        <p role="alert" className="text-destructive">
-          {COPY.common.errorPrefix} {data.message}
-        </p>
-      )}
+      {data.status === "error" && <LoadError message={data.message} onRetry={data.retry} />}
 
       {dashboard && (
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-4 [&>*]:shrink-0">
