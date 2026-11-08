@@ -1,4 +1,6 @@
 export const TRANSFER_BAR = {
+  regionLabel: "Move items",
+  inventory: "Inventory",
   selectedLabel: (count: number) => `${count} selected`,
   clear: "Clear",
   destination: "Move to",

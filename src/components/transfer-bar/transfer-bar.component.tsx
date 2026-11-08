@@ -9,8 +9,6 @@ import type { TransferRequest } from "~/lib/storage/storage.types";
 import { TRANSFER_BAR } from "./transfer-bar.config";
 import type { TransferBarProps } from "./transfer-bar.types";
 
-const INVENTORY_LABEL = "Inventory";
-
 export function TransferBar({ selected, units, accountName, busy, onClear }: TransferBarProps) {
   const [destination, setDestination] = useState("");
   const [confirming, setConfirming] = useState(false);
@@ -26,7 +24,7 @@ export function TransferBar({ selected, units, accountName, busy, onClear }: Tra
   const options = useMemo(() => {
     const list: { id: string; label: string; disabled: boolean }[] = [];
     if (from !== INVENTORY_LOCATION_ID)
-      list.push({ id: INVENTORY_LOCATION_ID, label: INVENTORY_LABEL, disabled: false });
+      list.push({ id: INVENTORY_LOCATION_ID, label: TRANSFER_BAR.inventory, disabled: false });
     for (const unit of units) {
       if (unit.id === from) continue;
       const full = unit.itemCount + count > STORAGE_LIMITS.unitCapacity;
@@ -43,7 +41,7 @@ export function TransferBar({ selected, units, accountName, busy, onClear }: Tra
     options.find((o) => o.id === id)?.label.replace(/ \(\d+\/\d+\).*$/, "") ?? id;
   const fromName =
     from === INVENTORY_LOCATION_ID
-      ? INVENTORY_LABEL
+      ? TRANSFER_BAR.inventory
       : (units.find((u) => u.id === from)?.name ?? "");
   const unitToUnit =
     from !== undefined &&
@@ -89,7 +87,7 @@ export function TransferBar({ selected, units, accountName, busy, onClear }: Tra
     <div
       className="flex shrink-0 flex-col gap-2 rounded-lg border bg-card px-4 py-3 shadow-sm"
       role="region"
-      aria-label="Move items"
+      aria-label={TRANSFER_BAR.regionLabel}
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <span className="font-medium">{TRANSFER_BAR.selectedLabel(count)}</span>
