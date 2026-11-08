@@ -1,11 +1,12 @@
 import { Plus } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AccountRow } from "~/components/account-row/account-row.component";
 import { Button } from "~/components/button/button.component";
 import { Panel } from "~/components/panel/panel.component";
 import { useAddAccountDialog } from "~/lib/accounts/add-account-dialog.store";
 import { COPY } from "~/lib/copy/copy.config";
 import { useAppSnapshot } from "~/lib/storage/storage.client";
+import { restoreLostFocus } from "~/utils/restore-focus";
 import { ACCOUNTS_PANEL } from "./accounts-panel.config";
 
 /** Settings: every tracked account with its label and a way to remove it, plus adding another. */
@@ -13,18 +14,16 @@ export function AccountsPanel() {
   const { accounts } = useAppSnapshot();
   const openAdd = useAddAccountDialog((state) => state.openAdd);
   const addButton = useRef<HTMLButtonElement>(null);
-  // Set when a removal succeeds; the row (and the focus inside it) only vanishes on the next snapshot.
-  const refocusAfterRemove = useRef(false);
+  // The removed account's row (and its dialog, which held focus) goes when both the POST has
+  // finished and the snapshot without it has arrived, in either order; only then move focus.
+  const [removedId, setRemovedId] = useState<string>();
+  const removedRowGone =
+    removedId !== undefined && !accounts.some((account) => account.steamId === removedId);
   const copy = COPY.accounts;
 
   useEffect(() => {
-    if (!refocusAfterRemove.current) return;
-    const active = document.activeElement;
-    if (active === null || active === document.body || !active.isConnected) {
-      refocusAfterRemove.current = false;
-      addButton.current?.focus();
-    }
-  }, [accounts]);
+    if (removedRowGone) restoreLostFocus(addButton.current);
+  }, [removedRowGone]);
 
   return (
     <Panel
@@ -42,9 +41,7 @@ export function AccountsPanel() {
           <AccountRow
             key={account.steamId}
             account={account}
-            onRemoved={() => {
-              refocusAfterRemove.current = true;
-            }}
+            onRemoved={() => setRemovedId(account.steamId)}
           />
         ))}
       </ul>
