@@ -71,15 +71,6 @@ export const APP_PATCHES: readonly AppPatch[] = [
       },
     ],
   },
-  {
-    file: "components/tradeup-inputs/tradeup-inputs.component.tsx",
-    replacements: [
-      {
-        from: "title={`${item.name} · ${copy.remove}`}",
-        to: "title={`${item.name} · ${copy.remove}`}\n                  aria-label={`${item.name} · ${copy.remove}`}",
-      },
-    ],
-  },
   // Contrast and hover feedback on already-active controls.
   {
     file: "components/pill/pill.component.tsx",
