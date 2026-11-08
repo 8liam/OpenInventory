@@ -31,7 +31,7 @@ export function TiersHelp() {
     if (!open) return;
     const close = () => setPlacement(undefined);
     const onPointerDown = (event: PointerEvent) => {
-      if (!root.current?.contains(event.target as Node)) close();
+      if (!(event.target instanceof Node && root.current?.contains(event.target))) close();
     };
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== TIERS_HELP.closeKey) return;
@@ -49,14 +49,14 @@ export function TiersHelp() {
   }, [open]);
 
   return (
-    <div ref={root} className="relative">
+    <div ref={root} className={TIERS_HELP.rootClass}>
       <Button
         ref={trigger}
         aria-label={tiersHelp.trigger}
         title={tiersHelp.trigger}
         aria-expanded={open}
         aria-controls={panelId}
-        className="px-2 aria-expanded:bg-muted aria-expanded:text-foreground max-sm:h-9"
+        className={TIERS_HELP.triggerClass}
         onClick={() =>
           setPlacement((current) =>
             current || !trigger.current ? undefined : placementFor(trigger.current),
@@ -70,20 +70,20 @@ export function TiersHelp() {
         aria-labelledby={headingId}
         hidden={!open}
         style={placement}
-        className="fixed z-50 max-h-[70vh] overflow-y-auto rounded-md border bg-card p-3 text-xs text-foreground shadow-lg"
+        className={TIERS_HELP.panelClass}
       >
-        <h2 id={headingId} className="text-sm font-medium">
+        <h2 id={headingId} className={TIERS_HELP.titleClass}>
           {tiersHelp.title}
         </h2>
-        <p className="mt-1 text-muted-foreground">{tiersHelp.intro}</p>
-        <ul className="mt-2 space-y-1 text-muted-foreground">
+        <p className={TIERS_HELP.introClass}>{tiersHelp.intro}</p>
+        <ul className={TIERS_HELP.signalsClass}>
           {tiersHelp.signals.map((signal) => (
             <li key={signal.label}>
-              <span className="font-medium text-foreground">{signal.label}:</span> {signal.text}
+              <span className={TIERS_HELP.signalLabelClass}>{signal.label}:</span> {signal.text}
             </li>
           ))}
         </ul>
-        <ul className="mt-2 list-disc space-y-1 pl-4 text-muted-foreground">
+        <ul className={TIERS_HELP.pointsClass}>
           {tiersHelp.points.map((point) => (
             <li key={point}>{point}</li>
           ))}

@@ -85,7 +85,7 @@ export function Select({
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (event: PointerEvent) => {
-      if (!root.current?.contains(event.target as Node)) hide(false);
+      if (!(event.target instanceof Node && root.current?.contains(event.target))) hide(false);
     };
     const onResize = () => hide(false);
     // Opening scrolls the highlighted row into view, which fires scroll events inside the list;
