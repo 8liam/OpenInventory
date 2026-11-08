@@ -11,7 +11,7 @@ export function ExportItems({ items, currency }: ExportItemsProps) {
     const isCsv = format === "csv";
     const url = URL.createObjectURL(
       new Blob([isCsv ? itemsToCsv(items, currency) : itemsToJson(items, currency)], {
-        type: isCsv ? EXPORT_ITEMS.mimeType : "application/json;charset=utf-8",
+        type: isCsv ? EXPORT_ITEMS.mimeType : EXPORT_ITEMS.jsonMimeType,
       }),
     );
     const link = document.createElement("a");
@@ -28,8 +28,9 @@ export function ExportItems({ items, currency }: ExportItemsProps) {
         disabled={items.length === 0}
         onClick={() => download("csv")}
         title={EXPORT_ITEMS.description}
+        className={EXPORT_ITEMS.buttonClass}
       >
-        <Download size={12} />
+        <Download size={EXPORT_ITEMS.iconSize} aria-hidden />
         {EXPORT_ITEMS.label}
       </Button>
       <Button
@@ -37,8 +38,10 @@ export function ExportItems({ items, currency }: ExportItemsProps) {
         disabled={items.length === 0}
         onClick={() => download("json")}
         title={EXPORT_ITEMS.description}
+        className={EXPORT_ITEMS.buttonClass}
       >
-        <Download size={12} /> Export JSON
+        <Download size={EXPORT_ITEMS.iconSize} aria-hidden />
+        {EXPORT_ITEMS.jsonLabel}
       </Button>
     </>
   );

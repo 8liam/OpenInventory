@@ -57,7 +57,7 @@ export function ItemGridCard({
         {selectable && (
           <label
             className={cn(
-              "absolute left-1.5 top-1.5 flex rounded bg-background/80 p-1 transition-opacity [@media(hover:none)]:opacity-100",
+              ITEM_GRID_CARD.checkboxClass,
               checked || checkboxVisible
                 ? "opacity-100"
                 : "opacity-0 focus-within:opacity-100 group-hover:opacity-100",
