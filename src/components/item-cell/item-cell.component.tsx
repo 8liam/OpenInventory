@@ -71,6 +71,7 @@ export function ItemCell({ item, account, compact = false, nameFit }: ItemCellPr
       customName={item.customName}
       size={imageSize}
       nameFit={nameFit}
+      compactOnNarrow={compact}
     >
       {account && <AccountName name={account} className={ITEM_CELL.accountClass} />}
       {item.pattern !== null && (

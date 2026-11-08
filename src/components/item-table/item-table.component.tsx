@@ -105,7 +105,8 @@ export function ItemTable({
             <ItemCell item={r} account={accountNames?.get(r.accountId)} compact nameFit="double" />
           ),
         },
-        { ...price, ...sizes.price.narrow },
+        // Compact rows use the sort menu; the Price header remains a label, not a second sorter.
+        { ...price, ...sizes.price.narrow, sortValue: undefined },
       ],
       rowHeight: accountNames
         ? ITEM_TABLE.rowHeight.narrowWithAccount

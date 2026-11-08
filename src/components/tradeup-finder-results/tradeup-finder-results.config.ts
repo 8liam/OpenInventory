@@ -8,6 +8,8 @@ export const TRADEUP_FINDER_RESULTS = {
   float: "Float",
   inputs: "Inputs",
   inputSeparator: ", ",
+  /** Each outcome column needs room for a full name beside its chance and price. */
+  outcomeColumns: "repeat(auto-fit, minmax(min(100%, 28rem), 1fr))",
   listLabel: "Best EV contracts",
   /** Capped so up to 20 contracts never push the calculator far down the page; scrolls on its own. */
   listClass: "max-h-[40vh] shrink-0 overflow-y-auto",

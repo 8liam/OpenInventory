@@ -78,7 +78,7 @@ export function TradeUpFinderResults({ finder }: TradeUpFinderResultsProps) {
           {contract.odds.ok && (
             <ul
               className="grid min-w-0 gap-1 text-xs"
-              style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 28rem), 1fr))" }}
+              style={{ gridTemplateColumns: copy.outcomeColumns }}
             >
               {contract.odds.outcomes.map((outcome) => (
                 <li

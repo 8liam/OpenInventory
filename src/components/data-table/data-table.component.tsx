@@ -213,23 +213,33 @@ export function DataTable<Row>({
               }
               className="flex min-w-0"
             >
-              <button
-                type="button"
-                disabled={!column.sortValue}
-                onClick={() => toggleSort(column)}
-                className={cn(
-                  "flex h-9 w-full items-center gap-1 enabled:hover:text-foreground",
-                  column.align === "right" && "justify-end",
-                )}
-              >
-                {column.header}
-                {active &&
-                  (activeSort.direction === "asc" ? (
-                    <ArrowUp size={DATA_TABLE.sortIconSize} />
-                  ) : (
-                    <ArrowDown size={DATA_TABLE.sortIconSize} />
-                  ))}
-              </button>
+              {column.sortValue ? (
+                <button
+                  type="button"
+                  onClick={() => toggleSort(column)}
+                  className={cn(
+                    "flex h-9 w-full items-center gap-1 hover:text-foreground",
+                    column.align === "right" && "justify-end",
+                  )}
+                >
+                  {column.header}
+                  {active &&
+                    (activeSort.direction === "asc" ? (
+                      <ArrowUp size={DATA_TABLE.sortIconSize} />
+                    ) : (
+                      <ArrowDown size={DATA_TABLE.sortIconSize} />
+                    ))}
+                </button>
+              ) : (
+                <span
+                  className={cn(
+                    "flex h-9 w-full items-center",
+                    column.align === "right" && "justify-end",
+                  )}
+                >
+                  {column.header}
+                </span>
+              )}
             </div>
           );
         })}

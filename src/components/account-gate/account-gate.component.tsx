@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { TriangleAlert } from "lucide-react";
-import { Fragment, useEffect, useId, useRef } from "react";
+import { Fragment, useEffect, useId, useLayoutEffect, useRef } from "react";
 import { AccountActions } from "~/components/account-actions/account-actions.component";
 import { AccountStatus } from "~/components/account-status/account-status.component";
 import { AccountStatusDot } from "~/components/account-status-dot/account-status-dot.component";
@@ -30,6 +30,20 @@ export function AccountGate({ pathname, children }: AccountGateProps) {
   const asked = useRef(new Set<string>());
   const chooseTitleId = useId();
   const copy = COPY.accounts;
+  const hasReadyAccount = scoped.some((account) => account.snapshot.auth.status === AUTH_STATUS.ready);
+  const previousReadiness = useRef({ scope, hasReadyAccount });
+
+  useLayoutEffect(() => {
+    const previous = previousReadiness.current;
+    if (
+      previous.scope === scope &&
+      !previous.hasReadyAccount &&
+      hasReadyAccount &&
+      !UNGATED_ROUTES.includes(pathname)
+    )
+      restoreLostFocus(document.getElementById(PAGE_HEADER.headingId));
+    previousReadiness.current = { scope, hasReadyAccount };
+  }, [scope, hasReadyAccount, pathname]);
 
   useEffect(() => {
     for (const account of scoped) {

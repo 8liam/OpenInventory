@@ -11,12 +11,18 @@ export function ItemLabel({
   size,
   customName,
   nameFit = "responsive",
+  compactOnNarrow = false,
   children,
 }: ItemLabelProps) {
   const [weapon, skin] = splitItemName(name);
   return (
     <div className="flex min-w-0 items-center gap-3">
-      <ItemThumb imageUrl={imageUrl} rarityColor={rarityColor} size={size} />
+      <ItemThumb
+        imageUrl={imageUrl}
+        rarityColor={rarityColor}
+        size={size}
+        className={compactOnNarrow ? "max-[360px]:hidden" : undefined}
+      />
       {/* Fills the row, so the highlight line's container query sees the real space available. */}
       <div className="min-w-0 flex-1">
         {weapon && (
