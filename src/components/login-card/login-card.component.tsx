@@ -14,7 +14,9 @@ export function LoginCard({
   framed = true,
   headingId,
   bodyId,
+  headingLevel = 2,
 }: LoginCardProps) {
+  const Heading = headingLevel === 1 ? "h1" : "h2";
   const copy = COPY.signIn;
   const [requestError, setRequestError] = useState<string>();
 
@@ -32,9 +34,9 @@ export function LoginCard({
 
   return (
     <div className={framed ? "rounded-lg border bg-card p-6" : undefined}>
-      <h1 id={headingId} className="text-[15px] font-semibold tracking-tight">
+      <Heading id={headingId} className="text-[15px] font-semibold tracking-tight">
         {title}
-      </h1>
+      </Heading>
       <p id={bodyId} className="mt-1.5 text-muted-foreground">
         {body}
       </p>

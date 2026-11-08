@@ -11,4 +11,6 @@ export type LoginCardProps = {
   /** Ids for the heading and body, so a surrounding dialog can name and describe itself by them. */
   readonly headingId?: string;
   readonly bodyId?: string;
+  /** The first-run screen's card is the page's main heading; inside a dialog it sits under the page's. */
+  readonly headingLevel?: 1 | 2;
 };

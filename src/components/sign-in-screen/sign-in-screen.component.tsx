@@ -10,7 +10,13 @@ export function SignInScreen({ login }: SignInScreenProps) {
     <div className="flex h-dvh items-center justify-center p-6">
       <div className="w-full max-w-sm">
         <Logo className="mb-8 justify-center text-lg" />
-        <LoginCard login={login} title={copy.title} body={copy.body} buttonLabel={copy.button} />
+        <LoginCard
+          login={login}
+          title={copy.title}
+          body={copy.body}
+          buttonLabel={copy.button}
+          headingLevel={1}
+        />
         <p className="mt-4 text-center text-xs text-muted-foreground">{copy.footnote}</p>
       </div>
     </div>
