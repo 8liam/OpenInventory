@@ -5,7 +5,7 @@ import { Button } from "~/components/button/button.component";
 import { DangerDialog } from "~/components/danger-dialog/danger-dialog.component";
 import { Select } from "~/components/select/select.component";
 import { AccountName } from "~/components/account-name/account-name.component";
-import { accountDisplayName, accountName, accountNameWithId } from "~/lib/accounts/account-names";
+import { accountDisplayName, accountNameWithId } from "~/lib/accounts/account-names";
 import { authStatusText } from "~/lib/accounts/account-status";
 import { ACCOUNT_LABELS } from "~/lib/accounts/accounts.config";
 import type { AccountLabel } from "~/lib/accounts/accounts.types";
@@ -25,10 +25,11 @@ export function AccountRow({ account, onRemoved }: AccountRowProps) {
   const [removing, setRemoving] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>();
-  const name = accountName(account);
   const { auth } = account.snapshot;
 
   async function setLabel(id: string) {
+    // The select stays enabled while saving, so it keeps focus; a change mid-save is ignored.
+    if (saving) return;
     setError(undefined);
     setSaving(true);
     try {
@@ -44,24 +45,21 @@ export function AccountRow({ account, onRemoved }: AccountRowProps) {
   }
 
   return (
-    <li className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2">
+    <li className={ACCOUNT_ROW.rowClass}>
+      <div className={ACCOUNT_ROW.headClass}>
+        <div className={ACCOUNT_ROW.identityClass}>
           <AccountStatusDot status={auth.status} decorative />
           <AccountName name={accountDisplayName(account)} />
-          <span className="shrink-0 text-xs text-muted-foreground">
-            {authStatusText(auth.status)}
-          </span>
+          <span className={ACCOUNT_ROW.statusClass}>{authStatusText(auth.status)}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <span role="status" className="text-xs text-muted-foreground">
+        <div className={ACCOUNT_ROW.controlsClass} aria-busy={saving}>
+          <span role="status" className={ACCOUNT_ROW.savingClass}>
             {saving ? copy.labelSaving : ""}
           </span>
           <Select
             value={account.label ?? ACCOUNT_ROW.noLabelId}
-            ariaLabel={copy.labelAria(name)}
+            ariaLabel={copy.labelAria(accountNameWithId(account))}
             className={ACCOUNT_ROW.labelSelectWidth}
-            disabled={saving}
             options={[
               { id: ACCOUNT_ROW.noLabelId, label: copy.unlabelled },
               ...ACCOUNT_LABELS.map((label) => ({ id: label, label: copy.labels[label] })),
@@ -79,13 +77,13 @@ export function AccountRow({ account, onRemoved }: AccountRowProps) {
         </div>
       </div>
       {auth.status === AUTH_STATUS.error && (
-        <div className="flex flex-col gap-2 pl-3.5">
-          <p className="text-xs text-destructive">{auth.message}</p>
+        <div className={ACCOUNT_ROW.problemClass}>
+          <p className={ACCOUNT_ROW.problemTextClass}>{auth.message}</p>
           <AccountActions steamId={account.steamId} />
         </div>
       )}
       {error && (
-        <p role="alert" className="text-xs text-destructive">
+        <p role="alert" className={ACCOUNT_ROW.errorClass}>
           {error}
         </p>
       )}
