@@ -71,6 +71,7 @@ export const COPY = {
     pageDescription:
       "Activate Terminals and browse their offers. OpenInventory can't buy from them.",
     confirmTitle: (name: string) => `Activate ${name}?`,
+    confirmTitleFor: (name: string, account: string) => `Activate ${name} on ${account}?`,
     confirmWarning: "This is permanent and can't be undone.",
     confirmEffects: [
       "The sealed Terminal is used up and becomes an active one with an expiry timer.",

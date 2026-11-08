@@ -1,14 +1,18 @@
 import { useState } from "react";
 import { DangerDialog } from "~/components/danger-dialog/danger-dialog.component";
+import { accountNameWithId } from "~/lib/accounts/account-scope.hooks";
 import { COPY } from "~/lib/copy/copy.config";
-import { postJson } from "~/lib/storage/storage.client";
+import { postJson, useAppSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import type { TerminalActivateProps } from "./terminal-activate.types";
 
 /** Activating a Terminal is irreversible, so it sits behind an explicit confirmation. */
 export function TerminalActivate({ itemId, accountId, name }: TerminalActivateProps) {
   const [open, setOpen] = useState(false);
+  const { accounts } = useAppSnapshot();
   const copy = COPY.terminal;
+  // Activation can start from the all-accounts item list, so name the account when there is a choice.
+  const account = accounts.length > 1 ? accounts.find((a) => a.steamId === accountId) : undefined;
   return (
     <>
       <button
@@ -20,7 +24,9 @@ export function TerminalActivate({ itemId, accountId, name }: TerminalActivatePr
       </button>
       <DangerDialog
         open={open}
-        title={copy.confirmTitle(name)}
+        title={
+          account ? copy.confirmTitleFor(name, accountNameWithId(account)) : copy.confirmTitle(name)
+        }
         warning={copy.confirmWarning}
         effects={copy.confirmEffects}
         acknowledgement={copy.confirmCheckbox}
