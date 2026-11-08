@@ -148,8 +148,18 @@ export const COPY = {
     connecting: "Connecting to Steam…",
     signInAgain: "Sign in again",
     chooseOneTitle: "Choose an account",
-    chooseOneBody:
-      "This page works on one account at a time, so moves, renames and Terminal actions always go to the account you pick.",
+    /** Why the page needs one account, by route; read-only pages say so instead of warning about moves. */
+    chooseOneBody: {
+      "/storage":
+        "Storage units belong to one account, so moves and renames always go to the account you pick.",
+      "/terminals":
+        "Terminal offers and activations belong to one account. Pick the one whose Terminals you want to see.",
+      "/tradeup":
+        "The calculator reads one account's skins at a time. It's read-only: nothing is traded or moved.",
+      "/cases":
+        "Case openings are recorded per account. Pick the one whose history you want to see.",
+    } as Readonly<Record<string, string>>,
+    chooseOneFallback: "This page shows one account at a time.",
     partialNotice: (names: readonly string[]) =>
       `${names.join(", ")} ${names.length === 1 ? "isn't" : "aren't"} connected, so ${names.length === 1 ? "its" : "their"} items are left out of this view.`,
     partialSettings: "Open settings",

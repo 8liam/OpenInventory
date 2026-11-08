@@ -1,4 +1,13 @@
+import { COPY } from "~/lib/copy/copy.config";
+
 export const ACCOUNT_GATE = {
+  /** Page headings for the routes that ask for one account, so the prompt keeps the page's name. */
+  pageTitles: {
+    "/storage": COPY.storage.title,
+    "/terminals": COPY.terminal.pageTitle,
+    "/tradeup": COPY.tradeup.title,
+    "/cases": COPY.cases.title,
+  } as Readonly<Record<string, string>>,
   cardClass: "rounded-lg border bg-card p-4",
   /** Foreground text, so the link clears 4.5:1 on the tinted banner in both themes. */
   settingsLinkClass:

@@ -5,6 +5,7 @@ import { AccountActions } from "~/components/account-actions/account-actions.com
 import { AccountStatus } from "~/components/account-status/account-status.component";
 import { AccountStatusDot } from "~/components/account-status-dot/account-status-dot.component";
 import { Button } from "~/components/button/button.component";
+import { PageHeader } from "~/components/page-header/page-header.component";
 import { accountNameWithId } from "~/lib/accounts/account-names";
 import { useAccountScope } from "~/lib/accounts/account-scope.hooks";
 import { useAccountSelection } from "~/lib/accounts/account-scope.store";
@@ -42,21 +43,27 @@ export function AccountGate({ pathname, children }: AccountGateProps) {
   const page = <Fragment key={scope}>{children}</Fragment>;
   if (UNGATED_ROUTES.includes(pathname)) return page;
   if (isAll && !ALL_ACCOUNTS_ROUTES.includes(pathname)) {
+    const pageTitle = ACCOUNT_GATE.pageTitles[pathname];
     return (
-      <section className={ACCOUNT_GATE.cardClass} aria-labelledby={chooseTitleId}>
-        <h2 id={chooseTitleId} className="text-[13px] font-medium">
-          {copy.chooseOneTitle}
-        </h2>
-        <p className="mt-2 text-muted-foreground">{copy.chooseOneBody}</p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {accounts.map((account) => (
-            <Button key={account.steamId} onClick={() => select(account.steamId)}>
-              <AccountStatusDot status={account.snapshot.auth.status} />
-              {accountNameWithId(account)}
-            </Button>
-          ))}
-        </div>
-      </section>
+      <>
+        {pageTitle && <PageHeader title={pageTitle} />}
+        <section className={ACCOUNT_GATE.cardClass} aria-labelledby={chooseTitleId}>
+          <h2 id={chooseTitleId} className="text-[13px] font-medium">
+            {copy.chooseOneTitle}
+          </h2>
+          <p className="mt-2 text-muted-foreground">
+            {copy.chooseOneBody[pathname] ?? copy.chooseOneFallback}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {accounts.map((account) => (
+              <Button key={account.steamId} onClick={() => select(account.steamId)}>
+                <AccountStatusDot status={account.snapshot.auth.status} />
+                {accountNameWithId(account)}
+              </Button>
+            ))}
+          </div>
+        </section>
+      </>
     );
   }
 
