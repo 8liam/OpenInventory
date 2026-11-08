@@ -65,7 +65,7 @@ export function ItemTable({
         ]
       : [];
     const full: readonly DataTableColumn<ItemView>[] = [
-      { ...name, ...sizes.item.wide, cell: (r) => <ItemCell item={r} /> },
+      { ...name, ...sizes.item.wide, cell: (r) => <ItemCell item={r} nameFit="single" /> },
       ...account,
       ...location,
       {
@@ -101,7 +101,9 @@ export function ItemTable({
         {
           ...name,
           ...sizes.item.narrow,
-          cell: (r) => <ItemCell item={r} account={accountNames?.get(r.accountId)} compact />,
+          cell: (r) => (
+            <ItemCell item={r} account={accountNames?.get(r.accountId)} compact nameFit="double" />
+          ),
         },
         { ...price, ...sizes.price.narrow },
       ],

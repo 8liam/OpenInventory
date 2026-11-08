@@ -1,4 +1,5 @@
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
+import { ITEM_LABEL } from "./item-label.config";
 import type { ItemLabelProps } from "./item-label.types";
 import { splitItemName } from "./item-label.utils";
 
@@ -9,6 +10,7 @@ export function ItemLabel({
   rarityColor,
   size,
   customName,
+  nameFit = "responsive",
   children,
 }: ItemLabelProps) {
   const [weapon, skin] = splitItemName(name);
@@ -22,10 +24,7 @@ export function ItemLabel({
             {weapon}
           </p>
         )}
-        <p
-          className="break-words leading-tight max-md:line-clamp-2 max-md:whitespace-normal md:truncate"
-          title={name}
-        >
+        <p className={ITEM_LABEL.nameClass[nameFit]} title={name}>
           {skin}
           {customName && <span className="text-muted-foreground"> “{customName}”</span>}
         </p>
