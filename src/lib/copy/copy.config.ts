@@ -153,7 +153,6 @@ export const COPY = {
       "This page works on one account at a time, so moves, renames and Terminal actions always go to the account you pick.",
     partialNotice: (names: readonly string[]) =>
       `${names.join(", ")} ${names.length === 1 ? "isn't" : "aren't"} connected, so ${names.length === 1 ? "its" : "their"} items are left out of this view.`,
-    partialFix: (name: string) => `Reconnect ${name}…`,
     partialSettings: "Open settings",
     column: "Account",
     filterAll: "All accounts",

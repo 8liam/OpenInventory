@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { TriangleAlert } from "lucide-react";
 import { Fragment, useEffect, useId, useRef } from "react";
+import { AccountActions } from "~/components/account-actions/account-actions.component";
 import { AccountStatus } from "~/components/account-status/account-status.component";
 import { AccountStatusDot } from "~/components/account-status-dot/account-status-dot.component";
 import { Button } from "~/components/button/button.component";
@@ -69,7 +70,9 @@ export function AccountGate({ pathname, children }: AccountGateProps) {
     );
   }
   const waiting = scoped.filter((account) => account.snapshot.auth.status !== AUTH_STATUS.ready);
-  const [onlyWaiting] = waiting.length === 1 ? waiting : [];
+  // One broken account can be fixed right here; otherwise every row in settings has its own actions.
+  const [fixable] =
+    waiting.length === 1 && waiting[0]?.snapshot.auth.status === AUTH_STATUS.error ? waiting : [];
   const notice = waiting.length > 0 ? copy.partialNotice(waiting.map(accountNameWithId)) : "";
   return (
     <>
@@ -83,12 +86,8 @@ export function AccountGate({ pathname, children }: AccountGateProps) {
             <TriangleAlert size={ACCOUNT_GATE.bannerIconSize} className="shrink-0 text-warning" />
             <span>{notice}</span>
           </p>
-          <span className="flex gap-2">
-            {onlyWaiting && (
-              <Button small onClick={() => select(onlyWaiting.steamId)}>
-                {copy.partialFix(accountNameWithId(onlyWaiting))}
-              </Button>
-            )}
+          <span className="flex flex-wrap items-start gap-2">
+            {fixable && <AccountActions steamId={fixable.steamId} />}
             <Link
               to="/settings"
               className="inline-flex h-7 items-center whitespace-nowrap rounded-md px-2.5 font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
