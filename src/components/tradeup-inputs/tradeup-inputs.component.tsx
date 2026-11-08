@@ -44,7 +44,8 @@ export function TradeUpInputs({
               {item ? (
                 <button
                   type="button"
-                  title={`${item.name} · ${copy.remove}`}
+                  title={TRADEUP_INPUTS.slotLabel(item.name, item.rarityName, copy.remove)}
+                  aria-label={TRADEUP_INPUTS.slotLabel(item.name, item.rarityName, copy.remove)}
                   onClick={() => onToggle(item.id)}
                 >
                   <ItemThumb

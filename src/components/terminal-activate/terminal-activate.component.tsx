@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button } from "~/components/button/button.component";
 import { DangerDialog } from "~/components/danger-dialog/danger-dialog.component";
 import { accountNameWithId } from "~/lib/accounts/account-names";
 import { COPY } from "~/lib/copy/copy.config";
@@ -8,7 +9,12 @@ import { TERMINAL_ACTIVATE } from "./terminal-activate.config";
 import type { TerminalActivateProps } from "./terminal-activate.types";
 
 /** Activating a Terminal is irreversible, so it sits behind an explicit confirmation. */
-export function TerminalActivate({ itemId, accountId, name }: TerminalActivateProps) {
+export function TerminalActivate({
+  itemId,
+  accountId,
+  name,
+  presentation = "link",
+}: TerminalActivateProps) {
   const [open, setOpen] = useState(false);
   const { accounts } = useAppSnapshot();
   const copy = COPY.terminal;
@@ -16,13 +22,17 @@ export function TerminalActivate({ itemId, accountId, name }: TerminalActivatePr
   const account = accounts.length > 1 ? accounts.find((a) => a.steamId === accountId) : undefined;
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className={TERMINAL_ACTIVATE.triggerClass}
-      >
-        {copy.activate}
-      </button>
+      {presentation === "button" ? (
+        <Button onClick={() => setOpen(true)}>{copy.activate}</Button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className={TERMINAL_ACTIVATE.triggerClass}
+        >
+          {copy.activate}
+        </button>
+      )}
       <DangerDialog
         open={open}
         title={

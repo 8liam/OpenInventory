@@ -66,7 +66,12 @@ export function TerminalList({ terminals }: TerminalListProps) {
               <div key={item.id} className="flex flex-wrap items-center justify-between gap-2">
                 <TerminalLabel item={item} />
                 {item.locationId === INVENTORY_LOCATION_ID ? (
-                  <TerminalActivate itemId={item.id} accountId={item.accountId} name={item.name} />
+                  <TerminalActivate
+                    itemId={item.id}
+                    accountId={item.accountId}
+                    name={item.name}
+                    presentation="button"
+                  />
                 ) : (
                   <span className="text-xs text-muted-foreground">{COPY.terminal.inStorage}</span>
                 )}
