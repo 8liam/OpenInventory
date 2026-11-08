@@ -62,3 +62,19 @@ export function useScopedPath(path: string): string | undefined {
 export function useSingleAccountId(): string | undefined {
   return useAccountScope().accountId;
 }
+
+/** The single account of a one-account page, or undefined in the all-accounts view. */
+export function useSingleAccount(): AccountState | undefined {
+  const { accountId, scoped } = useAccountScope();
+  return accountId === undefined ? undefined : scoped[0];
+}
+
+/**
+ * The name a one-account page shows in its header and confirmations, unambiguous between
+ * same-named accounts; undefined when only one account is tracked, where it would be noise.
+ */
+export function useSingleAccountLabel(): string | undefined {
+  const { accounts } = useAccountScope();
+  const account = useSingleAccount();
+  return account && accounts.length > 1 ? accountNameWithId(account) : undefined;
+}

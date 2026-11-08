@@ -13,7 +13,7 @@ import type {
   TradeUpFinderResponse,
   TradeUpOddsResponse,
 } from "~/lib/items/item.types";
-import { useScopedPath } from "~/lib/accounts/account-scope.hooks";
+import { useScopedPath, useSingleAccountLabel } from "~/lib/accounts/account-scope.hooks";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API, TRADE_UP } from "~/lib/storage/storage.config";
 import { usePriceQuery } from "~/lib/settings/settings.store";
@@ -32,6 +32,7 @@ const RARITY_OPTIONS = INPUT_RARITIES.map((id) => ({
 function TradeUpPage() {
   const snapshot = useStorageSnapshot();
   const priceQuery = usePriceQuery();
+  const accountLabel = useSingleAccountLabel();
   const [rarity, setRarity] = useState<string>(TRADE_UP.defaultInputRarity);
   const [selection, setSelection] = useState<readonly string[]>([]);
   const [finderStatTrak, setFinderStatTrak] = useState<"all" | "normal" | "stattrak">("all");
@@ -83,7 +84,7 @@ function TradeUpPage() {
 
   return (
     <>
-      <PageHeader title={copy.title} description={copy.description}>
+      <PageHeader title={copy.title} description={copy.description} account={accountLabel}>
         <RarityPicker
           label={copy.rarity}
           options={RARITY_OPTIONS}

@@ -17,7 +17,11 @@ import { CASES_PAGE, DEFAULT_OPENING_KIND } from "~/lib/cases/cases.config";
 import type { CasesResponse, OpeningKind } from "~/lib/cases/cases.types";
 import { cn } from "~/utils/cn";
 import { COPY } from "~/lib/copy/copy.config";
-import { useScopedPath, useSingleAccountId } from "~/lib/accounts/account-scope.hooks";
+import {
+  useScopedPath,
+  useSingleAccountId,
+  useSingleAccountLabel,
+} from "~/lib/accounts/account-scope.hooks";
 import { postJson, usePageVisible, useRemoteData } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 
@@ -28,6 +32,7 @@ function CasesPage() {
   const [tick, setTick] = useState(0);
   const [kind, setKind] = useState<OpeningKind>(DEFAULT_OPENING_KIND);
   const accountId = useSingleAccountId();
+  const accountLabel = useSingleAccountLabel();
   const data = useRemoteData<CasesResponse>(
     useScopedPath(`${STORAGE_API.cases}?kind=${kind}`),
     tick,
@@ -59,7 +64,7 @@ function CasesPage() {
   }));
   return (
     <>
-      <PageHeader title={copy.title} description={copy.description} />
+      <PageHeader title={copy.title} description={copy.description} account={accountLabel} />
       {data.status === "loading" && <CasesSkeleton />}
       {data.status === "error" && <LoadError message={data.message} onRetry={data.retry} />}
 
