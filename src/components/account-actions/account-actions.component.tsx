@@ -5,6 +5,7 @@ import { COPY } from "~/lib/copy/copy.config";
 import { postJson } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { cn } from "~/utils/cn";
+import { ACCOUNT_ACTIONS } from "./account-actions.config";
 import type { AccountActionsProps } from "./account-actions.types";
 
 /** The two ways to fix a broken account: retry its saved login, or sign in to it again. */
@@ -27,8 +28,8 @@ export function AccountActions({ steamId, className }: AccountActionsProps) {
   }
 
   return (
-    <div className={cn("flex flex-col gap-2", className)}>
-      <div className="flex flex-wrap gap-2">
+    <div className={cn(ACCOUNT_ACTIONS.rootClass, className)}>
+      <div className={ACCOUNT_ACTIONS.buttonsClass}>
         <Button small disabled={retrying} onClick={() => void reconnect()}>
           {retrying ? copy.reconnecting : copy.reconnect}
         </Button>
@@ -37,7 +38,7 @@ export function AccountActions({ steamId, className }: AccountActionsProps) {
         </Button>
       </div>
       {failure && (
-        <p role="alert" className="text-xs text-destructive">
+        <p role="alert" className={ACCOUNT_ACTIONS.errorClass}>
           {failure}
         </p>
       )}

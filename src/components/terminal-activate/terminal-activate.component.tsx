@@ -4,6 +4,7 @@ import { accountNameWithId } from "~/lib/accounts/account-names";
 import { COPY } from "~/lib/copy/copy.config";
 import { postJson, useAppSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
+import { TERMINAL_ACTIVATE } from "./terminal-activate.config";
 import type { TerminalActivateProps } from "./terminal-activate.types";
 
 /** Activating a Terminal is irreversible, so it sits behind an explicit confirmation. */
@@ -18,7 +19,7 @@ export function TerminalActivate({ itemId, accountId, name }: TerminalActivatePr
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-[11px] text-destructive hover:underline"
+        className={TERMINAL_ACTIVATE.triggerClass}
       >
         {copy.activate}
       </button>
