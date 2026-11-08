@@ -1,3 +1,4 @@
+import { EmptyState } from "~/components/empty-state/empty-state.component";
 import { LoadError } from "~/components/load-error/load-error.component";
 import { LoadingRegion } from "~/components/loading-region/loading-region.component";
 import { Skeleton } from "~/components/skeleton/skeleton.component";
@@ -33,7 +34,8 @@ export function TradeUpFinderResults({ finder }: TradeUpFinderResultsProps) {
   if (finder.status === REMOTE_STATUS.error)
     return <LoadError message={finder.message} onRetry={finder.retry} />;
   const { results, currency } = finder.data;
-  if (results.length === 0) return <p className="text-muted-foreground">{copy.empty}</p>;
+  if (results.length === 0)
+    return <EmptyState icon={copy.empty.icon} title={copy.empty.title} body={copy.empty.body} />;
 
   return (
     <ol aria-label={copy.listLabel} className={cn("flex flex-col gap-3", copy.listClass)}>

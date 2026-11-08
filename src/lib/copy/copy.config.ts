@@ -317,6 +317,8 @@ export const COPY = {
     clear: "Clear",
     remove: "Click to remove",
     noCandidates: "You have no tradable skins of this rarity.",
+    /** Headline over the server's reason when the calculator has no skins to offer. */
+    calculatorEmpty: "Nothing to calculate yet",
     pickPrompt: "Pick skins above to see what they can turn into.",
     selectMore: (count: number) =>
       `Select ${count} more skin${count === 1 ? "" : "s"} to complete the trade-up; odds shown are for the current picks.`,

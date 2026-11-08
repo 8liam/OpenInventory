@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PackageSearch } from "lucide-react";
+import { EmptyState } from "~/components/empty-state/empty-state.component";
 import { LoadError } from "~/components/load-error/load-error.component";
 import { useMemo, useState } from "react";
 import { Metric } from "~/components/metric/metric.component";
@@ -112,7 +114,11 @@ function TradeUpPage() {
         <LoadError message={candidates.message} onRetry={candidates.retry} />
       )}
       {candidates.status === "ready" && !candidates.data.ok && (
-        <p className="text-muted-foreground">{candidates.data.reason}</p>
+        <EmptyState
+          icon={PackageSearch}
+          title={copy.calculatorEmpty}
+          body={candidates.data.reason}
+        />
       )}
       {ready && (
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-2">
