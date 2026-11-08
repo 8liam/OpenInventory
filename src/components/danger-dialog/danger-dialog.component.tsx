@@ -22,6 +22,7 @@ export function DangerDialog({
   const warningId = useId();
   const [acknowledged, setAcknowledged] = useState(false);
   const [working, setWorking] = useState(false);
+  const workingRef = useRef(false);
   const [error, setError] = useState<string>();
 
   useEffect(() => {
@@ -38,6 +39,8 @@ export function DangerDialog({
   }
 
   async function confirm() {
+    if (workingRef.current) return;
+    workingRef.current = true;
     setWorking(true);
     setError(undefined);
     try {
@@ -46,6 +49,7 @@ export function DangerDialog({
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : String(failure));
     } finally {
+      workingRef.current = false;
       setWorking(false);
     }
   }
@@ -92,9 +96,18 @@ export function DangerDialog({
           <Button disabled={working} onClick={() => dialog.current?.close()}>
             {cancelLabel}
           </Button>
-          <Button variant="destructive" disabled={!acknowledged || working} onClick={confirm}>
+          <Button
+            variant="destructive"
+            disabled={!acknowledged}
+            aria-disabled={working}
+            className={working ? "cursor-wait opacity-50" : undefined}
+            onClick={confirm}
+          >
             {working ? workingLabel : confirmLabel}
           </Button>
+          <span role="status" className="sr-only">
+            {working ? workingLabel : ""}
+          </span>
         </div>
       </div>
     </dialog>

@@ -14,7 +14,8 @@ function expiryText(expiresAt: number, now: number): string {
   if (remaining <= 0) return COPY.terminal.expired;
   const days = Math.floor(remaining / TERMINAL_LIST.dayMs);
   const hours = Math.floor((remaining % TERMINAL_LIST.dayMs) / TERMINAL_LIST.hourMs);
-  const span = days > 0 ? `${days}d ${hours}h` : `${hours}h`;
+  const span =
+    days > 0 ? `${days}d ${hours}h` : hours > 0 ? `${hours}h` : COPY.terminal.expiresSoon;
   return `${COPY.terminal.expiresIn} ${span} (${formatDateTime(expiresAt)})`;
 }
 

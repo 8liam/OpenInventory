@@ -66,6 +66,7 @@ export const COPY = {
     activeHeading: "Active",
     sealedHeading: "Sealed",
     expiresIn: "Expires in",
+    expiresSoon: "less than 1 hour",
     expired: "Expired",
     inStorage: "In a storage unit. Move it to your inventory to activate it.",
     pageTitle: "Terminals",
