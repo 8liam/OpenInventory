@@ -243,7 +243,6 @@ export const COPY = {
     },
     stats: {
       gold: "Gold",
-      sinceGold: "Since last gold",
       toFirstGold: "Cases to first gold",
       statTrak: "StatTrak",
       first: "First",
@@ -258,7 +257,12 @@ export const COPY = {
     observed: "Your rate",
     expected: "Odds",
     noClassified: "No recognized case rarities in this history yet, so rates can't be compared.",
-    neverPulled: "Never pulled",
+    noRecordedPull: "No confirmed pull",
+    upperBound: (count: string) => `Up to ${count}`,
+    uncertainStreak: "Unknown rarity in streak",
+    pullShare: (count: string, total: string) => `${count} / ${total} pulls`,
+    smallSample:
+      "Small histories can differ sharply from the published odds. Past pulls do not change the odds of the next case.",
     unclassified: (count: number) =>
       `${count} opening${count === 1 ? "" : "s"} with an unknown rarity excluded from the rate comparison.`,
     rarestTitle: "Rarest pulls",

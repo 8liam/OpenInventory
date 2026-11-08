@@ -42,7 +42,7 @@ function SummarySkeleton() {
           <Skeleton className="mt-1 h-10 w-32 md:h-12" />
         </div>
         <div className="grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-4">
-          {[0, 1, 2, 3].map((tile) => (
+          {[0, 1, 2].map((tile) => (
             <div key={tile}>
               <Skeleton className="h-4 w-20" />
               <Skeleton className="mt-1 h-6 w-12" />

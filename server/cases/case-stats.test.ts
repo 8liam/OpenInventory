@@ -64,15 +64,25 @@ test("tracks the exact tier of each case pull, including never-pulled tiers", ()
       rarity.count,
       rarity.sinceLast,
       rarity.hasDrop,
+      rarity.uncertain,
     ]),
     [
-      ["gold", 1, 1, true],
-      ["covert", 1, 0, true],
-      ["classified", 1, 2, true],
-      ["restricted", 0, 4, false],
-      ["milSpec", 1, 3, true],
+      ["gold", 1, 1, true, false],
+      ["covert", 1, 0, true, false],
+      ["classified", 1, 2, true, false],
+      ["restricted", 0, 4, false, false],
+      ["milSpec", 1, 3, true, false],
     ],
   );
+});
+
+test("marks streaks with unidentified drops as upper bounds", () => {
+  const unknown = opening(5, "Unknown skin", "b0c3d9", Date.UTC(2026, 3, 5));
+  const stats = buildCaseStats([unknown, ...events], "case");
+  assert.equal(stats.caseRarities.find((rarity) => rarity.key === "covert")?.sinceLast, 1);
+  assert.equal(stats.caseRarities.find((rarity) => rarity.key === "covert")?.uncertain, true);
+  assert.equal(stats.caseRarities.find((rarity) => rarity.key === "restricted")?.sinceLast, 5);
+  assert.equal(stats.caseRarities.find((rarity) => rarity.key === "restricted")?.uncertain, true);
 });
 
 test("handles an account with no openings", () => {

@@ -132,13 +132,19 @@ export function buildCaseStats(events: readonly HistoryEvent[], kind: OpeningKin
             const reward = event.gained[0];
             return reward && bucketKey(reward) === bucket.key;
           });
+          const sinceLast = latest < 0 ? openings.length : latest;
+          const uncertain = cases.slice(0, sinceLast).some((event) => {
+            const reward = event.gained[0];
+            return reward && bucketKey(reward) === "other";
+          });
           return {
             key: bucket.key,
             label: bucket.label,
             color: bucket.color,
             count: rarityCounts.get(bucket.key) ?? 0,
-            sinceLast: latest < 0 ? openings.length : latest,
+            sinceLast,
             hasDrop: latest >= 0,
+            uncertain,
           };
         })
       : [];

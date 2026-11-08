@@ -13,6 +13,8 @@ export type CaseRarityStat = RaritySlice & {
   /** Openings after the latest drop of this exact tier, or all openings if never pulled. */
   readonly sinceLast: number;
   readonly hasDrop: boolean;
+  /** An opening of unknown rarity after this tier's last confirmed pull makes the streak an upper bound. */
+  readonly uncertain: boolean;
 };
 
 export type PulledItem = {

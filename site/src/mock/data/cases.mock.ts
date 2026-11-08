@@ -167,6 +167,7 @@ function stats(kind: OpeningKind): CaseStats {
               count: 1,
               sinceLast: 297,
               hasDrop: true,
+              uncertain: false,
             },
             {
               key: "covert",
@@ -175,6 +176,7 @@ function stats(kind: OpeningKind): CaseStats {
               count: 2,
               sinceLast: 54,
               hasDrop: true,
+              uncertain: false,
             },
             {
               key: "classified",
@@ -183,6 +185,7 @@ function stats(kind: OpeningKind): CaseStats {
               count: 8,
               sinceLast: 16,
               hasDrop: true,
+              uncertain: false,
             },
             {
               key: "restricted",
@@ -191,6 +194,7 @@ function stats(kind: OpeningKind): CaseStats {
               count: 63,
               sinceLast: 6,
               hasDrop: true,
+              uncertain: false,
             },
             {
               key: "milSpec",
@@ -199,6 +203,7 @@ function stats(kind: OpeningKind): CaseStats {
               count: 336,
               sinceLast: 0,
               hasDrop: true,
+              uncertain: false,
             },
           ]
         : [],

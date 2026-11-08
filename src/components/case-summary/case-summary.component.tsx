@@ -14,7 +14,6 @@ export function CaseSummary({ stats }: CaseSummaryProps) {
     stats.kind === "case"
       ? [
           { label: copy.stats.gold, value: count(stats.gold) },
-          { label: copy.stats.sinceGold, value: count(stats.casesSinceGold) },
           { label: copy.stats.toFirstGold, value: count(stats.casesToFirstGold) },
         ]
       : [

@@ -18,7 +18,7 @@ export function CaseRarityInsights({ stats }: { readonly stats: CaseStats }) {
 
   return (
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-5">
-      <Panel title={copy.streaksTitle} className="xl:col-span-2">
+      <Panel title={copy.streaksTitle} className="xl:col-span-2 xl:self-start">
         <dl className="grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-5 xl:grid-cols-1 xl:gap-y-0">
           {rarities.map((rarity) => (
             <div
@@ -34,10 +34,14 @@ export function CaseRarityInsights({ stats }: { readonly stats: CaseStats }) {
                 {rarity.label}
               </dt>
               <dd className="tabular mt-1 text-xl font-semibold leading-tight xl:mt-0">
-                {formatInteger(rarity.sinceLast)}
+                {rarity.uncertain
+                  ? copy.upperBound(formatInteger(rarity.sinceLast))
+                  : formatInteger(rarity.sinceLast)}
               </dd>
-              {!rarity.hasDrop && (
-                <dd className="text-xs text-muted-foreground">{copy.neverPulled}</dd>
+              {(!rarity.hasDrop || rarity.uncertain) && (
+                <dd className="text-xs text-muted-foreground">
+                  {rarity.uncertain ? copy.uncertainStreak : copy.noRecordedPull}
+                </dd>
               )}
             </div>
           ))}
@@ -56,6 +60,9 @@ export function CaseRarityInsights({ stats }: { readonly stats: CaseStats }) {
           </a>
           .
         </p>
+        {classified > 0 && classified < 500 && (
+          <p className="mb-4 text-xs leading-relaxed text-muted-foreground">{copy.smallSample}</p>
+        )}
         {classified === 0 && <p className="text-sm text-muted-foreground">{copy.noClassified}</p>}
         {classified > 0 && (
           <div className="space-y-4">
@@ -68,13 +75,13 @@ export function CaseRarityInsights({ stats }: { readonly stats: CaseStats }) {
                   <div className="mb-1.5 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5 text-xs">
                     <span className="font-medium">{rarity.label}</span>
                     <span className="tabular text-muted-foreground">
-                      {formatInteger(rarity.count)} / {formatInteger(classified)} drops
+                      {copy.pullShare(formatInteger(rarity.count), formatInteger(classified))}
                     </span>
                   </div>
                   <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 text-xs">
                     <div className="flex min-w-0 items-center gap-2">
                       <span className="w-14 shrink-0 text-muted-foreground">{copy.observed}</span>
-                      <div className="h-2.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted">
+                      <div className="h-2.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted-foreground/25">
                         <div
                           className="h-full rounded-full"
                           style={{
@@ -89,7 +96,7 @@ export function CaseRarityInsights({ stats }: { readonly stats: CaseStats }) {
                     </span>
                     <div className="flex min-w-0 items-center gap-2">
                       <span className="w-14 shrink-0 text-muted-foreground">{copy.expected}</span>
-                      <div className="h-2.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted">
+                      <div className="h-2.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted-foreground/25">
                         <div
                           className="h-full rounded-full bg-muted-foreground/50"
                           style={{ width: `${(expected / scale) * 100}%` }}
