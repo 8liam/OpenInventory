@@ -10,7 +10,7 @@ export const TRADEUP_FINDER_RESULTS = {
   inputSeparator: ", ",
   outcomeSeparator: " · ",
   listLabel: "Best EV contracts",
-  /** Scrolls on its own so the calculator below stays on screen. */
+  /** Capped so up to 20 contracts never push the calculator far down the page; scrolls on its own. */
   listClass: "max-h-[40vh] shrink-0 overflow-y-auto",
   empty: {
     icon: SearchX,

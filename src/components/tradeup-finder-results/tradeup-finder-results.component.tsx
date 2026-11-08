@@ -38,7 +38,12 @@ export function TradeUpFinderResults({ finder }: TradeUpFinderResultsProps) {
     return <EmptyState icon={copy.empty.icon} title={copy.empty.title} body={copy.empty.body} />;
 
   return (
-    <ol aria-label={copy.listLabel} className={cn("flex flex-col gap-3", copy.listClass)}>
+    // Focusable: a scroll area with no controls inside is otherwise out of reach by keyboard.
+    <ol
+      aria-label={copy.listLabel}
+      tabIndex={0}
+      className={cn("flex flex-col gap-3", copy.listClass)}
+    >
       {results.map((contract, index) => (
         <li key={contract.inputIds.join(":")} className="rounded-lg border bg-card p-3">
           <div className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-1">

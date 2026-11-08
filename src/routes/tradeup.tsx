@@ -102,79 +102,82 @@ function TradeUpPage() {
           }}
         />
       </PageHeader>
-      <TradeUpFinderControls
-        statTrak={finderStatTrak}
-        onStatTrakChange={setFinderStatTrak}
-        includeStorage={includeStorage}
-        onIncludeStorageChange={setIncludeStorage}
-      />
-      <TradeUpFinderResults finder={finder} />
-      {(candidates.status === "loading" || (current && !ready)) && <TradeUpSkeleton />}
-      {candidates.status === "error" && (
-        <LoadError message={candidates.message} onRetry={candidates.retry} />
-      )}
-      {candidates.status === "ready" && !candidates.data.ok && (
-        <EmptyState
-          icon={PackageSearch}
-          title={copy.calculatorEmpty}
-          body={candidates.data.reason}
+      {/* One scroll region for the whole page, so the calculator never gets squeezed below the finder. */}
+      <div
+        role="region"
+        aria-label={copy.title}
+        tabIndex={0}
+        className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-2 [&>*]:shrink-0"
+      >
+        <TradeUpFinderControls
+          statTrak={finderStatTrak}
+          onStatTrakChange={setFinderStatTrak}
+          includeStorage={includeStorage}
+          onIncludeStorageChange={setIncludeStorage}
         />
-      )}
-      {ready && (
-        <div
-          role="region"
-          aria-label={copy.title}
-          tabIndex={0}
-          className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-2"
-        >
-          <TradeUpInputs
-            candidates={ready.candidates}
-            selectedIds={selectedIds}
-            inputCount={ready.inputCount}
-            currency={ready.currency}
-            onToggle={toggle}
-            onAutoFill={autoFill}
-            onClear={() => setSelection([])}
+        <TradeUpFinderResults finder={finder} />
+        {(candidates.status === "loading" || (current && !ready)) && <TradeUpSkeleton />}
+        {candidates.status === "error" && (
+          <LoadError message={candidates.message} onRetry={candidates.retry} />
+        )}
+        {candidates.status === "ready" && !candidates.data.ok && (
+          <EmptyState
+            icon={PackageSearch}
+            title={copy.calculatorEmpty}
+            body={candidates.data.reason}
           />
-          {orderedIds.length === 0 && <p className="text-muted-foreground">{copy.pickPrompt}</p>}
-          {odds.status === "error" && <LoadError message={odds.message} onRetry={odds.retry} />}
-          {odds.status === "ready" && !odds.data.ok && orderedIds.length > 0 && (
-            <p className="text-muted-foreground">{odds.data.reason}</p>
-          )}
-          {result && orderedIds.length > 0 && (
-            <>
-              <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-                <Metric
-                  label={copy.inputCost}
-                  value={formatMoney(result.inputCost, result.currency)}
-                />
-                <Metric label={copy.averageFloat} value={formatFloat(result.averageFloat)} />
-                <Metric
-                  label={copy.expectedValue}
-                  value={formatMoney(result.expectedValue, result.currency)}
-                />
-                <Metric
-                  label={copy.expectedReturn}
-                  value={
-                    result.inputCost > 0
-                      ? formatPercent(result.expectedValue / result.inputCost - 1)
-                      : COPY.common.empty
-                  }
-                  tone={result.expectedValue >= result.inputCost ? "positive" : "negative"}
-                />
-                <Metric label={copy.chanceToProfit} value={formatChance(result.chanceToProfit)} />
-              </div>
-              {result.selected < result.inputCount && (
-                <p className="text-xs text-muted-foreground">
-                  {copy.selectMore(result.inputCount - result.selected)}
-                </p>
-              )}
-              <TradeUpOutcomes outcomes={result.outcomes} currency={result.currency} />
-              <p className="text-xs text-muted-foreground">{copy.formulaNote}</p>
-            </>
-          )}
-        </div>
-      )}
+        )}
+        {ready && (
+          <div className="flex flex-col gap-4">
+            <TradeUpInputs
+              candidates={ready.candidates}
+              selectedIds={selectedIds}
+              inputCount={ready.inputCount}
+              currency={ready.currency}
+              onToggle={toggle}
+              onAutoFill={autoFill}
+              onClear={() => setSelection([])}
+            />
+            {orderedIds.length === 0 && <p className="text-muted-foreground">{copy.pickPrompt}</p>}
+            {odds.status === "error" && <LoadError message={odds.message} onRetry={odds.retry} />}
+            {odds.status === "ready" && !odds.data.ok && orderedIds.length > 0 && (
+              <p className="text-muted-foreground">{odds.data.reason}</p>
+            )}
+            {result && orderedIds.length > 0 && (
+              <>
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+                  <Metric
+                    label={copy.inputCost}
+                    value={formatMoney(result.inputCost, result.currency)}
+                  />
+                  <Metric label={copy.averageFloat} value={formatFloat(result.averageFloat)} />
+                  <Metric
+                    label={copy.expectedValue}
+                    value={formatMoney(result.expectedValue, result.currency)}
+                  />
+                  <Metric
+                    label={copy.expectedReturn}
+                    value={
+                      result.inputCost > 0
+                        ? formatPercent(result.expectedValue / result.inputCost - 1)
+                        : COPY.common.empty
+                    }
+                    tone={result.expectedValue >= result.inputCost ? "positive" : "negative"}
+                  />
+                  <Metric label={copy.chanceToProfit} value={formatChance(result.chanceToProfit)} />
+                </div>
+                {result.selected < result.inputCount && (
+                  <p className="text-xs text-muted-foreground">
+                    {copy.selectMore(result.inputCount - result.selected)}
+                  </p>
+                )}
+                <TradeUpOutcomes outcomes={result.outcomes} currency={result.currency} />
+                <p className="text-xs text-muted-foreground">{copy.formulaNote}</p>
+              </>
+            )}
+          </div>
+        )}
+      </div>
     </>
   );
 }
