@@ -115,6 +115,11 @@ export function Select({
   }, [open, highlight, id]);
 
   function onListKeyDown(event: KeyboardEvent) {
+    // Tab keeps its default move; the list just closes so it never floats over the next control.
+    if (event.key === SELECT.keys.leave) {
+      hide(false);
+      return;
+    }
     const last = visible.length - 1;
     if (event.key === SELECT.keys.next) setHighlight((index) => Math.min(last, index + 1));
     else if (event.key === SELECT.keys.previous) setHighlight((index) => Math.max(0, index - 1));
@@ -134,7 +139,15 @@ export function Select({
   };
 
   return (
-    <div ref={root} className={cn("relative", className)}>
+    <div
+      ref={root}
+      className={cn("relative", className)}
+      onBlur={(event) => {
+        // Focus moved to something outside (a click elsewhere, or assistive tech jumping away).
+        const next = event.relatedTarget;
+        if (open && next instanceof Node && !root.current?.contains(next)) hide(false);
+      }}
+    >
       <button
         ref={trigger}
         type="button"
@@ -172,8 +185,10 @@ export function Select({
       {open && placement && (
         <div
           style={popoverStyle}
+          // Focusable, so a click on the search row's padding keeps focus inside instead of closing.
+          tabIndex={-1}
           onKeyDown={onListKeyDown}
-          className="fixed z-50 flex flex-col overflow-hidden rounded-md border bg-card text-foreground shadow-lg"
+          className="fixed z-50 flex flex-col overflow-hidden rounded-md border bg-card text-foreground shadow-lg outline-none"
         >
           {searchable && (
             <div className="flex h-9 shrink-0 items-center gap-2 border-b px-2.5">
