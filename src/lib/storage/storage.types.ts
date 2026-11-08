@@ -1,5 +1,5 @@
 import type { Account } from "../accounts/accounts.types.ts";
-import type { AUTH_STATUS } from "./storage.config.ts";
+import type { AUTH_STATUS, REMOTE_STATUS, SNAPSHOT_CONNECTION } from "./storage.config.ts";
 
 export type AuthState =
   | { readonly status: typeof AUTH_STATUS.signedOut }
@@ -102,3 +102,11 @@ export type AppSnapshot = {
 
 /** Error payload shared by every non-2xx API response. */
 export type ApiError = { readonly error: string };
+
+export type SnapshotConnection = (typeof SNAPSHOT_CONNECTION)[keyof typeof SNAPSHOT_CONNECTION];
+
+/** A GET that may still be loading, may have failed (with a way to try again), or has data. */
+export type RemoteData<T> =
+  | { readonly status: typeof REMOTE_STATUS.loading }
+  | { readonly status: typeof REMOTE_STATUS.error; readonly message: string; readonly retry: () => void }
+  | { readonly status: typeof REMOTE_STATUS.ready; readonly data: T };

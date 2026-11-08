@@ -32,7 +32,21 @@ export const TRADE_UP_FINDER = {
   maxContracts: 500,
 } as const;
 
+export const REMOTE_STATUS = { loading: "loading", error: "error", ready: "ready" } as const;
+
+/** The first-load state of the server's event stream. */
+export const SNAPSHOT_CONNECTION = {
+  connecting: "connecting",
+  open: "open",
+  /** The stream failed before any snapshot arrived (server down, proxy error). */
+  disconnected: "disconnected",
+  /** The server answered with a snapshot this page can't read (version mismatch). */
+  incompatible: "incompatible",
+} as const;
+
 export const REMOTE_DATA = {
+  /** Query parameter naming the account a request is about; data never carries across it. */
+  scopeParam: "account",
   /** Wait this long after a revision-only change before refetching, so bursts of pushes collapse into one request. */
   revisionDebounceMs: 600,
   /** Most responses kept for instant re-display; the oldest is evicted first. */
