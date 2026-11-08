@@ -6,21 +6,16 @@ import { PageHeader } from "~/components/page-header/page-header.component";
 import { Panel } from "~/components/panel/panel.component";
 import { Select } from "~/components/select/select.component";
 import { COPY } from "~/lib/copy/copy.config";
-import { useAccountScope } from "~/lib/accounts/account-scope.hooks";
-import { postJson } from "~/lib/storage/storage.client";
-import { STORAGE_API } from "~/lib/storage/storage.config";
+import { useRefreshAccounts } from "~/lib/accounts/refresh-accounts.hooks";
 import { CURRENCIES, MARKETPLACES, THEMES } from "~/lib/settings/settings.config";
-import { usePriceQuery, useSettings } from "~/lib/settings/settings.store";
+import { useSettings } from "~/lib/settings/settings.store";
+import { SETTINGS_PAGE } from "~/lib/settings/settings-page.config";
 
 export const Route = createFileRoute("/settings")({ component: SettingsPage });
 
-const SELECT_WIDTH = "w-40";
-const REFRESH_ICON_SIZE = 14;
-
 function SettingsPage() {
   const { currency, marketplace, theme, setCurrency, setMarketplace, setTheme } = useSettings();
-  const priceQuery = usePriceQuery();
-  const { scoped } = useAccountScope();
+  const refresh = useRefreshAccounts();
   const copy = COPY.settings;
   return (
     <>
@@ -33,7 +28,7 @@ function SettingsPage() {
             <Select
               value={theme}
               ariaLabel={copy.theme}
-              className={SELECT_WIDTH}
+              className={SETTINGS_PAGE.selectWidth}
               options={THEMES.map((t) => ({ id: t, label: copy.themes[t] }))}
               onChange={(id) => {
                 const next = THEMES.find((t) => t === id);
@@ -48,7 +43,7 @@ function SettingsPage() {
             <Select
               value={currency}
               ariaLabel={copy.currency}
-              className={SELECT_WIDTH}
+              className={SETTINGS_PAGE.selectWidth}
               options={CURRENCIES.map((c) => ({ id: c, label: c }))}
               onChange={(id) => {
                 const next = CURRENCIES.find((c) => c === id);
@@ -63,7 +58,7 @@ function SettingsPage() {
             <Select
               value={marketplace}
               ariaLabel={copy.marketplace}
-              className={SELECT_WIDTH}
+              className={SETTINGS_PAGE.selectWidth}
               options={MARKETPLACES.map((m) => ({ id: m, label: copy.marketplaces[m] }))}
               onChange={(id) => {
                 const next = MARKETPLACES.find((m) => m === id);
@@ -75,18 +70,32 @@ function SettingsPage() {
         </Panel>
         <Panel title={copy.dataTitle}>
           <p className="mb-3 text-muted-foreground">{copy.dataBody}</p>
-          <Button
-            onClick={() =>
-              void Promise.all(
-                scoped.map((account) =>
-                  postJson(`${STORAGE_API.refresh}?${priceQuery}`, { accountId: account.steamId }),
-                ),
-              )
-            }
-          >
-            <RefreshCw size={REFRESH_ICON_SIZE} aria-hidden />
-            {copy.refreshData}
-          </Button>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <Button
+              disabled={refresh.busy || !refresh.canRefresh}
+              onClick={() => void refresh.refresh()}
+            >
+              <RefreshCw
+                size={SETTINGS_PAGE.refreshIconSize}
+                className={refresh.busy ? "motion-safe:animate-spin" : undefined}
+                aria-hidden
+              />
+              {refresh.busy ? COPY.common.refreshing : copy.refreshData}
+            </Button>
+            <span className="text-xs text-muted-foreground">
+              {COPY.refresh.scope(refresh.scopeLabel)}
+            </span>
+          </div>
+          {refresh.skipped > 0 && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              {COPY.refresh.skipped(refresh.skipped)}
+            </p>
+          )}
+          {refresh.error && (
+            <p role="alert" className="mt-2 text-xs text-destructive">
+              {refresh.error}
+            </p>
+          )}
         </Panel>
       </div>
     </>

@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LoadError } from "~/components/load-error/load-error.component";
 import { RefreshCw } from "lucide-react";
-import { useState } from "react";
 import { Button } from "~/components/button/button.component";
 import { HoldingsTable } from "~/components/holdings-table/holdings-table.component";
 import { BreakdownPanel } from "~/components/breakdown-panel/breakdown-panel.component";
@@ -11,9 +10,11 @@ import { UpdatedHeader } from "~/components/updated-header/updated-header.compon
 import { Panel } from "~/components/panel/panel.component";
 import { PortfolioHero } from "~/components/portfolio-hero/portfolio-hero.component";
 import { COPY } from "~/lib/copy/copy.config";
+import { DASHBOARD_PAGE } from "~/lib/items/dashboard-page.config";
 import type { Dashboard } from "~/lib/items/dashboard.types";
-import { useAccountScope, useScopedPath } from "~/lib/accounts/account-scope.hooks";
-import { postJson, useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
+import { useScopedPath } from "~/lib/accounts/account-scope.hooks";
+import { useRefreshAccounts } from "~/lib/accounts/refresh-accounts.hooks";
+import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { usePriceQuery, useSettings } from "~/lib/settings/settings.store";
 
@@ -24,26 +25,12 @@ function DashboardPage() {
   const currency = useSettings((s) => s.currency);
   const marketplace = useSettings((s) => s.marketplace);
   const priceQuery = usePriceQuery();
-  const { scoped } = useAccountScope();
   const data = useRemoteData<Dashboard>(
     useScopedPath(`${STORAGE_API.dashboard}?${priceQuery}`),
     snapshot.revision,
   );
-  const [refreshing, setRefreshing] = useState(false);
+  const refresh = useRefreshAccounts();
   const copy = COPY.dashboard;
-
-  async function refresh() {
-    setRefreshing(true);
-    try {
-      await Promise.all(
-        scoped.map((account) =>
-          postJson(`${STORAGE_API.refresh}?${priceQuery}`, { accountId: account.steamId }),
-        ),
-      );
-    } finally {
-      setRefreshing(false);
-    }
-  }
 
   const dashboard = data.status === "ready" ? data.data : undefined;
   const source = COPY.settings.marketplaces[marketplace];
@@ -53,11 +40,26 @@ function DashboardPage() {
         {snapshot.loadingUnits && (
           <span className="text-xs text-muted-foreground">{copy.unitsLoading}…</span>
         )}
-        <Button small disabled={refreshing || snapshot.loadingUnits} onClick={() => void refresh()}>
-          <RefreshCw size={12} className={refreshing ? "motion-safe:animate-spin" : undefined} />
-          {refreshing ? COPY.common.refreshing : COPY.common.refresh}
+        <Button
+          small
+          aria-label={COPY.refresh.ariaFor(refresh.scopeLabel)}
+          title={COPY.refresh.ariaFor(refresh.scopeLabel)}
+          disabled={refresh.busy || snapshot.loadingUnits || !refresh.canRefresh}
+          onClick={() => void refresh.refresh()}
+        >
+          <RefreshCw
+            size={DASHBOARD_PAGE.refreshIconSize}
+            className={refresh.busy ? "motion-safe:animate-spin" : undefined}
+            aria-hidden
+          />
+          {refresh.busy ? COPY.common.refreshing : COPY.common.refresh}
         </Button>
       </UpdatedHeader>
+      {refresh.error && (
+        <p role="alert" className="text-xs text-destructive">
+          {refresh.error}
+        </p>
+      )}
 
       {data.status === "loading" && <DashboardSkeleton />}
       {data.status === "error" && <LoadError message={data.message} onRetry={data.retry} />}

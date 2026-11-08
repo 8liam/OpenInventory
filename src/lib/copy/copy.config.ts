@@ -160,6 +160,14 @@ export const COPY = {
     mixedAccounts: "Select items from one account at a time to move them.",
     bannerFor: (name: string, text: string) => `${name}: ${text}`,
   },
+  refresh: {
+    allAccounts: "all accounts",
+    failed: (failures: readonly string[]) => `Refresh failed. ${failures.join(" ")}`,
+    skipped: (count: number) =>
+      `${count} ${count === 1 ? "account isn't" : "accounts aren't"} connected and will be skipped.`,
+    scope: (label: string) => `Covers: ${label}`,
+    ariaFor: (label: string) => `Refresh ${label}`,
+  },
   itemColumns: { item: "Item", location: "Location", type: "Type", float: "Float", price: "Price" },
   dashboard: {
     title: "Dashboard",
