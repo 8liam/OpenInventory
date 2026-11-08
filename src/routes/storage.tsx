@@ -120,7 +120,7 @@ function StoragePage() {
         </div>
       )}
       {data.status === "error" ? (
-        <LoadError message={data.message} onRetry={data.retry} />
+        <LoadError message={data.message} onRetry={data.retry} retrying={data.retrying} />
       ) : snapshot.units.length === 0 ? (
         <p className="text-muted-foreground">{copy.noUnits}</p>
       ) : organising ? (

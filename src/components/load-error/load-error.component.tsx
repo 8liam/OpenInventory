@@ -3,20 +3,34 @@ import { Button } from "~/components/button/button.component";
 import { LOAD_ERROR } from "./load-error.config";
 import type { LoadErrorProps } from "./load-error.types";
 
+const { classes } = LOAD_ERROR;
+
 /** A failed load or action: what went wrong and a way to try again, in place of an endless skeleton. */
-export function LoadError({ title = LOAD_ERROR.title, message, onRetry }: LoadErrorProps) {
+export function LoadError({
+  title = LOAD_ERROR.title,
+  message,
+  onRetry,
+  retrying = false,
+}: LoadErrorProps) {
   return (
-    <div
-      role="alert"
-      className="flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/40 bg-card px-4 py-3"
-    >
-      <div className="min-w-0">
-        <p className="font-medium">{title}</p>
-        <p className="mt-0.5 text-destructive">{message}</p>
+    <div role="alert" className={classes.root}>
+      <div className={classes.body}>
+        <p className={classes.title}>{title}</p>
+        <p className={classes.message}>{message}</p>
       </div>
-      <Button small onClick={onRetry}>
-        <RefreshCw size={LOAD_ERROR.iconSize} aria-hidden />
-        {LOAD_ERROR.retry}
+      {/* Stays focusable while retrying (a disabled button would drop focus to the page); a press is ignored. */}
+      <Button
+        small
+        aria-disabled={retrying}
+        className={retrying ? LOAD_ERROR.busyClass : undefined}
+        onClick={retrying ? undefined : onRetry}
+      >
+        <RefreshCw
+          size={LOAD_ERROR.iconSize}
+          aria-hidden
+          className={retrying ? LOAD_ERROR.spinClass : undefined}
+        />
+        {retrying ? LOAD_ERROR.retrying : LOAD_ERROR.retry}
       </Button>
     </div>
   );

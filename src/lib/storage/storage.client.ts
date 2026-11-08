@@ -237,7 +237,11 @@ export type { RemoteData } from "./storage.types";
 /** What a failed load keeps between renders; `retry` is attached when it is returned. */
 type StoredRemoteData<T> =
   | Exclude<RemoteData<T>, { readonly status: typeof REMOTE_STATUS.error }>
-  | { readonly status: typeof REMOTE_STATUS.error; readonly message: string };
+  | {
+      readonly status: typeof REMOTE_STATUS.error;
+      readonly message: string;
+      readonly retrying?: boolean;
+    };
 
 const LOADING = { status: REMOTE_STATUS.loading } as const;
 
@@ -323,7 +327,14 @@ export function useRemoteData<T>(path: string | undefined, revision: number): Re
   const retry = useCallback(() => {
     failures.current = 0;
     manualRetry.current = true;
-    setLoaded((current) => ({ path: current.path, value: LOADING }));
+    // A failed page keeps its error (and the focused Retry button) mounted while the retry runs.
+    setLoaded((current) => ({
+      path: current.path,
+      value:
+        current.value.status === REMOTE_STATUS.error
+          ? { ...current.value, retrying: true }
+          : LOADING,
+    }));
     setRetryTick((tick) => tick + 1);
   }, []);
 
@@ -419,5 +430,7 @@ export function useRemoteData<T>(path: string | undefined, revision: number): Re
       : // Another path's data lingers while this one loads (e.g. a new filter), unless this one
         // is cached; data for another account is never shown under this one.
         (readCache<T>(path) ?? (scopeOf(loaded.path) === scopeOf(path) ? loaded.value : LOADING));
-  return value.status === REMOTE_STATUS.error ? { ...value, retry } : value;
+  return value.status === REMOTE_STATUS.error
+    ? { ...value, retrying: value.retrying === true, retry }
+    : value;
 }

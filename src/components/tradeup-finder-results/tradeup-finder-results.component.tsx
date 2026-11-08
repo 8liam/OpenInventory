@@ -32,7 +32,7 @@ export function TradeUpFinderResults({ finder }: TradeUpFinderResultsProps) {
     );
   }
   if (finder.status === REMOTE_STATUS.error)
-    return <LoadError message={finder.message} onRetry={finder.retry} />;
+    return <LoadError message={finder.message} onRetry={finder.retry} retrying={finder.retrying} />;
   const { results, currency } = finder.data;
   if (results.length === 0)
     return <EmptyState icon={copy.empty.icon} title={copy.empty.title} body={copy.empty.body} />;

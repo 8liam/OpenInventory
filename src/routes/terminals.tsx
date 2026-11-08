@@ -34,7 +34,9 @@ function TerminalsPage() {
         {data.status === "loading" && (
           <p className="text-sm text-muted-foreground">{COPY.common.loading}</p>
         )}
-        {data.status === "error" && <LoadError message={data.message} onRetry={data.retry} />}
+        {data.status === "error" && (
+          <LoadError message={data.message} onRetry={data.retry} retrying={data.retrying} />
+        )}
         {data.status === "ready" &&
           (terminals.length === 0 ? (
             <p className="text-sm text-muted-foreground">{COPY.terminal.noTerminals}</p>

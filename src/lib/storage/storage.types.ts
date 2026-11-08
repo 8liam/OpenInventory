@@ -125,6 +125,8 @@ export type RemoteData<T> =
       readonly status: typeof REMOTE_STATUS.error;
       readonly message: string;
       readonly retry: () => void;
+      /** True from Retry until the next response, so the error stays mounted (and focused) meanwhile. */
+      readonly retrying: boolean;
     }
   | { readonly status: typeof REMOTE_STATUS.ready; readonly data: T };
 

@@ -122,7 +122,11 @@ function TradeUpPage() {
         <TradeUpFinderResults finder={finder} />
         {(candidates.status === "loading" || (current && !ready)) && <TradeUpSkeleton />}
         {candidates.status === "error" && (
-          <LoadError message={candidates.message} onRetry={candidates.retry} />
+          <LoadError
+            message={candidates.message}
+            onRetry={candidates.retry}
+            retrying={candidates.retrying}
+          />
         )}
         {candidates.status === "ready" && !candidates.data.ok && (
           <EmptyState
@@ -143,7 +147,9 @@ function TradeUpPage() {
               onClear={() => setSelection([])}
             />
             {orderedIds.length === 0 && <p className="text-muted-foreground">{copy.pickPrompt}</p>}
-            {odds.status === "error" && <LoadError message={odds.message} onRetry={odds.retry} />}
+            {odds.status === "error" && (
+              <LoadError message={odds.message} onRetry={odds.retry} retrying={odds.retrying} />
+            )}
             {odds.status === "ready" && !odds.data.ok && orderedIds.length > 0 && (
               <p className="text-muted-foreground">{odds.data.reason}</p>
             )}
