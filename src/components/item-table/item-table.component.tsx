@@ -4,6 +4,7 @@ import { DataTable } from "~/components/data-table/data-table.component";
 import type { DataTableColumn, DataTableCompact } from "~/components/data-table/data-table.types";
 import { HighlightDisclosure } from "~/components/highlight-disclosure/highlight-disclosure.component";
 import { ItemCell } from "~/components/item-cell/item-cell.component";
+import { ITEM_CELL } from "~/components/item-cell/item-cell.config";
 import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
 import { highlightSortValue } from "~/lib/items/highlights";
@@ -109,6 +110,7 @@ export function ItemTable({
                 [
                   showLocation ? r.locationName : null,
                   r.wear === null ? null : formatFloat(r.wear),
+                  r.pattern === null ? null : `${ITEM_CELL.patternLabel} #${r.pattern}`,
                 ],
                 ITEM_TABLE.detailSeparator,
               )}

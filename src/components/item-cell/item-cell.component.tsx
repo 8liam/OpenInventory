@@ -73,9 +73,13 @@ export function ItemCell({ item, account, detail, compact = false, nameFit }: It
       nameFit={nameFit}
       compactOnNarrow={compact}
     >
-      {detail && <p className={ITEM_CELL.detailClass}>{detail}</p>}
+      {detail && (
+        <p className={ITEM_CELL.detailClass} title={detail}>
+          {detail}
+        </p>
+      )}
       {account && <AccountName name={account} className={ITEM_CELL.accountClass} />}
-      {item.pattern !== null && (
+      {item.pattern !== null && !compact && (
         <p className="mt-0.5 text-xs text-muted-foreground">
           {patternLabel} #{item.pattern}
         </p>
