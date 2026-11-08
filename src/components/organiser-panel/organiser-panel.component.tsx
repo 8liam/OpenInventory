@@ -6,21 +6,27 @@ import { OrganiserRuleForm } from "~/components/organiser-rule-form/organiser-ru
 import { PlanPreview } from "~/components/plan-preview/plan-preview.component";
 import { CONDITION_KIND } from "~/lib/organiser/organiser.config";
 import { computePlan } from "~/lib/organiser/organiser.plan";
-import { useOrganiser } from "~/lib/organiser/organiser.store";
+import { useOrganiserRules } from "~/lib/organiser/organiser.store";
 import type { MovePlan, OrganiserRule } from "~/lib/organiser/organiser.types";
 import { postJson } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { ORGANISER_PANEL } from "./organiser-panel.config";
 import type { OrganiserPanelProps } from "./organiser-panel.types";
 
-const ICON_SIZE = 14;
-
 function uniqueSorted(values: Iterable<string | null>): readonly string[] {
   return [...new Set([...values].filter((v): v is string => v !== null && v !== ""))].sort();
 }
 
-export function OrganiserPanel({ items, units, itemsReady, accountId, busy }: OrganiserPanelProps) {
-  const { rules, addRule, removeRule, moveRule } = useOrganiser();
+export function OrganiserPanel({
+  items,
+  units,
+  itemsReady,
+  accountId,
+  accountName,
+  busy,
+}: OrganiserPanelProps) {
+  const unitIds = useMemo(() => new Set(units.map((unit) => unit.id)), [units]);
+  const { rules, addRule, removeRule, moveRule } = useOrganiserRules(accountId, unitIds);
   // The plan frozen when the dialog opened, so what is confirmed is what was reviewed.
   const [reviewing, setReviewing] = useState<MovePlan>();
 
@@ -82,7 +88,7 @@ export function OrganiserPanel({ items, units, itemsReady, accountId, busy }: Or
                     disabled={index === 0}
                     onClick={() => moveRule(rule.id, -1)}
                   >
-                    <ArrowUp size={ICON_SIZE} />
+                    <ArrowUp size={ORGANISER_PANEL.iconSize} />
                   </Button>
                   <Button
                     small
@@ -90,14 +96,14 @@ export function OrganiserPanel({ items, units, itemsReady, accountId, busy }: Or
                     disabled={index === rules.length - 1}
                     onClick={() => moveRule(rule.id, 1)}
                   >
-                    <ArrowDown size={ICON_SIZE} />
+                    <ArrowDown size={ORGANISER_PANEL.iconSize} />
                   </Button>
                   <Button
                     small
                     aria-label={ORGANISER_PANEL.remove}
                     onClick={() => removeRule(rule.id)}
                   >
-                    <Trash2 size={ICON_SIZE} />
+                    <Trash2 size={ORGANISER_PANEL.iconSize} />
                   </Button>
                 </span>
               </li>
@@ -124,7 +130,9 @@ export function OrganiserPanel({ items, units, itemsReady, accountId, busy }: Or
       </div>
       <DangerDialog
         open={reviewing !== undefined}
-        title={ORGANISER_PANEL.dialog.title}
+        title={
+          accountName ? ORGANISER_PANEL.dialog.titleFor(accountName) : ORGANISER_PANEL.dialog.title
+        }
         warning={
           reviewing
             ? ORGANISER_PANEL.dialog.warning(reviewing.itemsToMove, reviewing.steps.length)

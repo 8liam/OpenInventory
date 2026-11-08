@@ -20,7 +20,9 @@ export const ORGANISER_LIMITS = {
   maxPlanSteps: 500,
 } as const;
 
+/** Rules are per account (unit ids only mean something within one): `openinventory:organiser-rules:<steamId>`. */
 export const ORGANISER_STORAGE_KEY = "openinventory:organiser-rules";
+export const ORGANISER_STORAGE_SEPARATOR = ":";
 
 export const PROBLEM_KIND = {
   unitNotLoaded: "unit-not-loaded",

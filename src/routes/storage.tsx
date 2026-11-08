@@ -15,7 +15,11 @@ import { UnitCard } from "~/components/unit-card/unit-card.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
 import type { InventoryResponse, ItemView } from "~/lib/items/item.types";
-import { useScopedPath, useSingleAccountId } from "~/lib/accounts/account-scope.hooks";
+import {
+  useScopedPath,
+  useSingleAccountId,
+  useSingleAccountLabel,
+} from "~/lib/accounts/account-scope.hooks";
 import { postJson, useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { useItemViewMode } from "~/lib/items/view-mode.store";
@@ -30,6 +34,7 @@ function StoragePage() {
   const currency = useSettings((s) => s.currency);
   const priceQuery = usePriceQuery();
   const accountId = useSingleAccountId();
+  const accountLabel = useSingleAccountLabel();
   const data = useRemoteData<InventoryResponse>(
     useScopedPath(`${STORAGE_API.items}?${priceQuery}`),
     snapshot.revision,
@@ -59,7 +64,7 @@ function StoragePage() {
 
   return (
     <>
-      <PageHeader title={copy.title} description={copy.description}>
+      <PageHeader title={copy.title} description={copy.description} account={accountLabel}>
         <Button
           small
           aria-pressed={organising}
@@ -94,6 +99,7 @@ function StoragePage() {
           itemsReady={data.status === "ready"}
           units={snapshot.units}
           accountId={accountId}
+          accountName={accountLabel}
           busy={snapshot.transfer.status === "running"}
         />
       ) : (
@@ -140,6 +146,7 @@ function StoragePage() {
               <TransferBar
                 selected={pickedItems}
                 units={snapshot.units}
+                accountName={accountLabel}
                 busy={snapshot.transfer.status === "running"}
                 onClear={() => setPicked(new Set())}
               />

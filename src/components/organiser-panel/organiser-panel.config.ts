@@ -20,12 +20,14 @@ export const ORGANISER_PANEL = {
   moveDown: "Move rule down",
   remove: "Remove rule",
   itemsUnavailable: "Waiting for your items to load before a plan can be previewed.",
-  storedLocally: "Rules are saved in this browser only.",
+  storedLocally: "Rules are saved in this browser only, separately for each account.",
+  iconSize: 14,
   run: "Run plan…",
   runBlocked: "Fix the problems above to run the plan.",
   busy: "A transfer is already running.",
   dialog: {
     title: "Run this plan?",
+    titleFor: (account: string) => `Run this plan on ${account}?`,
     warning: (items: number, steps: number) =>
       `This moves ${items} ${items === 1 ? "item" : "items"} in ${steps} ${steps === 1 ? "step" : "steps"}.`,
     effects: [
