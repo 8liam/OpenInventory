@@ -4,7 +4,7 @@ import { Skeleton } from "~/components/skeleton/skeleton.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { REMOTE_STATUS } from "~/lib/storage/storage.config";
 import { cn } from "~/utils/cn";
-import { formatFloat, formatMoney, formatPercent } from "~/utils/format";
+import { formatChance, formatFloat, formatMoney } from "~/utils/format";
 import { TRADEUP_FINDER_RESULTS } from "./tradeup-finder-results.config";
 import type { TradeUpFinderResultsProps } from "./tradeup-finder-results.types";
 
@@ -78,7 +78,7 @@ export function TradeUpFinderResults({ finder }: TradeUpFinderResultsProps) {
                   <span className="truncate">
                     {outcome.name}
                     {copy.outcomeSeparator}
-                    {formatPercent(outcome.probability)}
+                    {formatChance(outcome.probability)}
                   </span>
                   <span className="shrink-0 tabular">
                     {outcome.price === null
