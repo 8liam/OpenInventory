@@ -5,6 +5,7 @@ import { BarList } from "~/components/bar-list/bar-list.component";
 import { CasesSkeleton } from "~/components/cases-skeleton/cases-skeleton.component";
 import { LoadingRegion } from "~/components/loading-region/loading-region.component";
 import { CaseSummary } from "~/components/case-summary/case-summary.component";
+import { CaseRarityInsights } from "~/components/case-rarity-insights/case-rarity-insights.component";
 import { KindPills } from "~/components/kind-pills/kind-pills.component";
 import { DonutChart } from "~/components/donut-chart/donut-chart.component";
 import { MonthlyBars } from "~/components/monthly-bars/monthly-bars.component";
@@ -86,6 +87,7 @@ function CasesPage() {
           ) : (
             <>
               <CaseSummary stats={stats} />
+              {kind === "case" && <CaseRarityInsights stats={stats} />}
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
                 <Panel title={copy.rarityTitle} className="lg:col-span-2">
                   <DonutChart

@@ -61,6 +61,29 @@ export function CasesBodySkeleton() {
   return (
     <>
       <SummarySkeleton />
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-5">
+        <Panel title={copy.streaksTitle} className="xl:col-span-2">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-5 xl:grid-cols-1">
+            {Array.from({ length: 5 }, (_, index) => (
+              <div key={index} className="space-y-1.5">
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-6 w-10" />
+              </div>
+            ))}
+          </div>
+        </Panel>
+        <Panel title={copy.oddsTitle} className="xl:col-span-3">
+          <div className="space-y-5">
+            {Array.from({ length: 5 }, (_, index) => (
+              <div key={index} className="space-y-2">
+                <Skeleton className="h-3 w-28" />
+                <Skeleton className="h-2.5 w-full rounded-full" />
+                <Skeleton className="h-2.5 w-4/5 rounded-full" />
+              </div>
+            ))}
+          </div>
+        </Panel>
+      </div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
         <Panel title={copy.rarityTitle} className="lg:col-span-2">
           <DonutChartSkeleton />

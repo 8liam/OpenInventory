@@ -249,6 +249,16 @@ export const COPY = {
       latest: "Latest",
     },
     rarityTitle: "What you pulled",
+    streaksTitle: "Cases since last pull",
+    oddsTitle: "Your drops vs case odds",
+    oddsDescription:
+      "Observed rates compared with the reference odds you provided. Each pair of bars uses its own scale so rare drops remain visible.",
+    observed: "Your rate",
+    expected: "Odds",
+    noClassified: "No recognized case rarities in this history yet, so rates can't be compared.",
+    neverPulled: "Never pulled",
+    unclassified: (count: number) =>
+      `${count} opening${count === 1 ? "" : "s"} with an unknown rarity excluded from the rate comparison.`,
     rarestTitle: "Rarest pulls",
     topItemsTitle: "Most pulled",
     monthlyTitle: "Cases per month",

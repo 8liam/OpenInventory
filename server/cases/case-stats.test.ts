@@ -56,10 +56,30 @@ test("measures the gold drought in both directions", () => {
   assert.equal(stats.casesToFirstGold, 3); // knife was the 3rd opening ever
 });
 
+test("tracks the exact tier of each case pull, including never-pulled tiers", () => {
+  const stats = buildCaseStats(events, "case");
+  assert.deepEqual(
+    stats.caseRarities.map((rarity) => [
+      rarity.key,
+      rarity.count,
+      rarity.sinceLast,
+      rarity.hasDrop,
+    ]),
+    [
+      ["gold", 1, 1, true],
+      ["covert", 1, 0, true],
+      ["classified", 1, 2, true],
+      ["restricted", 0, 4, false],
+      ["milSpec", 1, 3, true],
+    ],
+  );
+});
+
 test("handles an account with no openings", () => {
   const stats = buildCaseStats([], "case");
   assert.equal(stats.casesSinceGold, null);
   assert.equal(stats.casesToFirstGold, null);
+  assert.ok(stats.caseRarities.every((rarity) => rarity.sinceLast === 0 && !rarity.hasDrop));
   assert.deepEqual(stats.perMonth, []);
 });
 
@@ -102,6 +122,7 @@ test("breaks the same history down by kind", () => {
   assert.equal(capsules.kindCounts.capsule, 1);
   assert.equal(capsules.topCases[0]?.name, "Test Capsule");
   assert.equal(capsules.casesSinceGold, null);
+  assert.deepEqual(capsules.caseRarities, []);
   assert.equal(buildCaseStats(all, "case").total, 4);
 });
 

@@ -7,6 +7,15 @@ export const CASES_PAGE = {
 export const OPENING_KINDS = ["case", "souvenir", "capsule", "tradeUp", "drop"] as const;
 export const DEFAULT_OPENING_KIND = "case" satisfies (typeof OPENING_KINDS)[number];
 
+/** Published case drop rates, in percent. These apply to weapon cases only. */
+export const CASE_DROP_ODDS = {
+  milSpec: 79.92,
+  restricted: 15.98,
+  classified: 3.2,
+  covert: 0.64,
+  gold: 0.26,
+} as const;
+
 /** Kinds whose items can be StatTrak; the counter is noise everywhere else. */
 export const STATTRAK_KINDS: readonly (typeof OPENING_KINDS)[number][] = ["case", "souvenir"];
 
