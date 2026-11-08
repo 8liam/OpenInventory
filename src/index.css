@@ -29,6 +29,8 @@
   --primary-foreground: #ffffff;
   --success: #059669;
   --destructive: #dc2626;
+  /* Behind white text on solid destructive buttons; --destructive is tuned for text instead. */
+  --destructive-solid: #dc2626;
   --warning: #b45309;
   --skeleton: #ececef;
   --skeleton-highlight: #f6f6f8;
@@ -50,6 +52,7 @@
   --primary-foreground: #ffffff;
   --success: #10b981;
   --destructive: #f87171;
+  --destructive-solid: #dc2626;
   --warning: #fbbf24;
   --skeleton: rgb(255 255 255 / 0.06);
   --skeleton-highlight: rgb(255 255 255 / 0.1);
@@ -72,6 +75,10 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-success: var(--success);
   --color-destructive: var(--destructive);
+  --color-destructive-solid: var(--destructive-solid);
+  /* Hovered solid buttons darken, so their white text only gains contrast. */
+  --color-primary-hover: color-mix(in oklab, var(--primary) 88%, black);
+  --color-destructive-solid-hover: color-mix(in oklab, var(--destructive-solid) 88%, black);
   --color-warning: var(--warning);
   --radius-lg: 0.625rem;
   --radius-md: 0.5rem;
