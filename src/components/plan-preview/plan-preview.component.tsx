@@ -7,17 +7,18 @@ import type { PlanPreviewProps } from "./plan-preview.types";
 export function PlanPreview({ plan, rules }: PlanPreviewProps) {
   const ruleLabel = (id: string) => `Rule ${rules.findIndex((rule) => rule.id === id) + 1}`;
   const anyViaInventory = plan.steps.some((step) => step.viaInventory);
+  const matchesNothing = plan.ruleReports.every((report) => report.matched === 0);
 
   return (
     <section className="flex flex-col gap-3" aria-label={PLAN_PREVIEW.heading}>
-      <h3 className="font-medium">{PLAN_PREVIEW.heading}</h3>
+      <h2 className="font-medium">{PLAN_PREVIEW.heading}</h2>
       {rules.length === 0 ? (
         <p className="text-muted-foreground">{PLAN_PREVIEW.noRules}</p>
       ) : (
         <>
           {plan.problems.length > 0 && (
             <div className="flex flex-col gap-1" role="alert">
-              <h4 className="text-sm font-medium">{PLAN_PREVIEW.problemsHeading}</h4>
+              <h3 className="text-sm font-medium">{PLAN_PREVIEW.problemsHeading}</h3>
               <ul className="list-disc space-y-1 pl-5 text-sm">
                 {plan.problems.map((problem) => (
                   <li
@@ -35,7 +36,9 @@ export function PlanPreview({ plan, rules }: PlanPreviewProps) {
             </div>
           )}
           {plan.itemsToMove === 0 ? (
-            <p className="text-muted-foreground">{PLAN_PREVIEW.nothingToMove}</p>
+            <p className="text-muted-foreground">
+              {matchesNothing ? PLAN_PREVIEW.noMatches : PLAN_PREVIEW.nothingToMove}
+            </p>
           ) : (
             <>
               <p className="tabular">
@@ -45,7 +48,7 @@ export function PlanPreview({ plan, rules }: PlanPreviewProps) {
                 <p className="text-xs text-muted-foreground">{PLAN_PREVIEW.inventoryNote}</p>
               )}
               <div>
-                <h4 className="text-sm font-medium">{PLAN_PREVIEW.stepsHeading}</h4>
+                <h3 className="text-sm font-medium">{PLAN_PREVIEW.stepsHeading}</h3>
                 <ol className="mt-1 list-decimal space-y-0.5 pl-5 text-sm text-muted-foreground">
                   {plan.steps.map((step, index) => (
                     <li key={`${index}:${step.from}:${step.to}`} className="tabular">
@@ -56,7 +59,7 @@ export function PlanPreview({ plan, rules }: PlanPreviewProps) {
                 </ol>
               </div>
               <div>
-                <h4 className="text-sm font-medium">{PLAN_PREVIEW.unitsHeading}</h4>
+                <h3 className="text-sm font-medium">{PLAN_PREVIEW.unitsHeading}</h3>
                 <ul className="mt-1 space-y-0.5 text-sm text-muted-foreground">
                   {plan.unitChanges.map((change) => (
                     <li key={change.unitId} className="tabular">
@@ -73,16 +76,18 @@ export function PlanPreview({ plan, rules }: PlanPreviewProps) {
             </>
           )}
           <div>
-            <h4 className="text-sm font-medium">{PLAN_PREVIEW.rulesHeading}</h4>
+            <h3 className="text-sm font-medium">{PLAN_PREVIEW.rulesHeading}</h3>
             <ul className="mt-1 space-y-0.5 text-sm text-muted-foreground">
               {plan.ruleReports.map((report, index) => (
                 <li key={report.ruleId} className="tabular">
-                  {PLAN_PREVIEW.ruleLine(
-                    index + 1,
-                    report.moving,
-                    report.alreadyInPlace,
-                    report.unplaced,
-                  )}
+                  {report.matched === 0
+                    ? PLAN_PREVIEW.ruleNoMatch(index + 1)
+                    : PLAN_PREVIEW.ruleLine(
+                        index + 1,
+                        report.moving,
+                        report.alreadyInPlace,
+                        report.unplaced,
+                      )}
                 </li>
               ))}
             </ul>

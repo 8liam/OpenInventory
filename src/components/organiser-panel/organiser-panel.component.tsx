@@ -60,7 +60,9 @@ export function OrganiserPanel({
           ? ORGANISER_PANEL.runBlocked
           : plan.executable
             ? undefined
-            : ORGANISER_PANEL.nothingToMove;
+            : plan.ruleReports.every((report) => report.matched === 0)
+              ? ORGANISER_PANEL.noMatches
+              : ORGANISER_PANEL.nothingToMove;
 
   return (
     <div
@@ -69,7 +71,7 @@ export function OrganiserPanel({
     >
       <p className="text-muted-foreground">{ORGANISER_PANEL.description}</p>
       <section className="flex flex-col gap-2">
-        <h3 className="font-medium">{ORGANISER_PANEL.rulesHeading}</h3>
+        <h2 className="font-medium">{ORGANISER_PANEL.rulesHeading}</h2>
         {rules.length === 0 ? (
           <p className="text-muted-foreground">{ORGANISER_PANEL.noRules}</p>
         ) : (

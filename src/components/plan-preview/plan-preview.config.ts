@@ -5,6 +5,7 @@ export const PLAN_PREVIEW = {
   heading: "Dry run",
   noRules: "Add a rule to see what would move.",
   nothingToMove: "Nothing to move: every matching item is already where its rule wants it.",
+  noMatches: "Nothing to move: no items match your rules. Check each rule's filters.",
   summary: (items: number, steps: number, actions: number) =>
     `${items} ${items === 1 ? "item" : "items"} would move in ${steps} ${steps === 1 ? "step" : "steps"} (${actions} Game Coordinator ${actions === 1 ? "action" : "actions"}).`,
   inventoryNote:
@@ -20,6 +21,7 @@ export const PLAN_PREVIEW = {
   rulesHeading: "Rules",
   ruleLine: (index: number, moving: number, inPlace: number, unplaced: number) =>
     `Rule ${index}: ${moving} to move, ${inPlace} already in place${unplaced > 0 ? `, ${unplaced} can't be placed` : ""}`,
+  ruleNoMatch: (index: number) => `Rule ${index}: no items match`,
   problemsHeading: "Problems",
   problem: (problem: PlanProblem, ruleLabel: (id: string) => string): string => {
     switch (problem.kind) {

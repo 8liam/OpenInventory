@@ -27,6 +27,7 @@ export const ORGANISER_PANEL = {
   needsRules: "No rules to run yet.",
   runBlocked: "Fix the problems above to run the plan.",
   nothingToMove: "Already organised, so there's nothing to run.",
+  noMatches: "No items match these rules, so there's nothing to run.",
   busy: "A transfer is already running.",
   dialog: {
     title: "Run this plan?",
