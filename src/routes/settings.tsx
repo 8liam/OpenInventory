@@ -17,32 +17,29 @@ function SettingsPage() {
   const { currency, marketplace, theme, setCurrency, setMarketplace, setTheme } = useSettings();
   const refresh = useRefreshAccounts();
   const copy = COPY.settings;
+  const { classes } = SETTINGS_PAGE;
   const dataPanel = (
     <Panel title={copy.dataTitle}>
-      <p className="mb-3 text-muted-foreground">{copy.dataBody}</p>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <p className={classes.body}>{copy.dataBody}</p>
+      <div className={classes.refreshRow}>
         <Button
           disabled={refresh.busy || !refresh.canRefresh}
           onClick={() => void refresh.refresh()}
         >
           <RefreshCw
             size={SETTINGS_PAGE.refreshIconSize}
-            className={refresh.busy ? "motion-safe:animate-spin" : undefined}
+            className={refresh.busy ? classes.spinning : undefined}
             aria-hidden
           />
           {refresh.busy ? COPY.common.refreshing : copy.refreshData}
         </Button>
-        <span className="text-xs text-muted-foreground">
-          {COPY.refresh.scope(refresh.scopeLabel)}
-        </span>
+        <span className={classes.scope}>{COPY.refresh.scope(refresh.scopeLabel)}</span>
       </div>
       {refresh.skipped > 0 && (
-        <p className="mt-2 text-xs text-muted-foreground">
-          {COPY.refresh.skipped(refresh.skipped)}
-        </p>
+        <p className={classes.skipped}>{COPY.refresh.skipped(refresh.skipped)}</p>
       )}
       {refresh.error && (
-        <p role="alert" className="mt-2 text-xs text-destructive">
+        <p role="alert" className={classes.error}>
           {refresh.error}
         </p>
       )}
@@ -59,7 +56,7 @@ function SettingsPage() {
           </div>
           <div className={SETTINGS_PAGE.columnClass}>
             <Panel title={copy.appearance}>
-              <div className="flex items-center justify-between gap-4">
+              <div className={classes.field}>
                 {copy.theme}
                 <Select
                   value={theme}
@@ -74,7 +71,7 @@ function SettingsPage() {
               </div>
             </Panel>
             <Panel title={copy.currencyTitle}>
-              <div className="flex items-center justify-between gap-4">
+              <div className={classes.field}>
                 {copy.currency}
                 <Select
                   value={currency}
@@ -89,7 +86,7 @@ function SettingsPage() {
               </div>
             </Panel>
             <Panel title={copy.marketplaceTitle}>
-              <div className="flex items-center justify-between gap-4">
+              <div className={classes.field}>
                 {copy.marketplace}
                 <Select
                   value={marketplace}
@@ -102,7 +99,7 @@ function SettingsPage() {
                   }}
                 />
               </div>
-              <p className="mt-3 text-muted-foreground">{copy.marketplaceHint}</p>
+              <p className={classes.hint}>{copy.marketplaceHint}</p>
             </Panel>
           </div>
         </div>
