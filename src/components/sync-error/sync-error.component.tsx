@@ -1,7 +1,7 @@
 import { RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/button/button.component";
-import { accountName } from "~/lib/accounts/account-scope.hooks";
+import { accountName } from "~/lib/accounts/account-names";
 import { COPY } from "~/lib/copy/copy.config";
 import { postJson, useAppSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { DangerDialog } from "~/components/danger-dialog/danger-dialog.component";
-import { accountNameWithId } from "~/lib/accounts/account-scope.hooks";
+import { accountNameWithId } from "~/lib/accounts/account-names";
 import { COPY } from "~/lib/copy/copy.config";
 import { postJson, useAppSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";

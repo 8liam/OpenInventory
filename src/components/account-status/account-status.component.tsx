@@ -1,6 +1,6 @@
 import { AccountActions } from "~/components/account-actions/account-actions.component";
 import { AccountStatusDot } from "~/components/account-status-dot/account-status-dot.component";
-import { accountName } from "~/lib/accounts/account-scope.hooks";
+import { accountName } from "~/lib/accounts/account-names";
 import { COPY } from "~/lib/copy/copy.config";
 import { AUTH_STATUS } from "~/lib/storage/storage.config";
 import { ACCOUNT_STATUS } from "./account-status.config";

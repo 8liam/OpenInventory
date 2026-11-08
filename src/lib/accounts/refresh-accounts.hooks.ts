@@ -3,7 +3,8 @@ import { COPY } from "~/lib/copy/copy.config";
 import { usePriceQuery } from "~/lib/settings/settings.store";
 import { postJson } from "~/lib/storage/storage.client";
 import { AUTH_STATUS, STORAGE_API } from "~/lib/storage/storage.config";
-import { accountNameWithId, useAccountScope } from "./account-scope.hooks";
+import { accountNameWithId } from "./account-names";
+import { useAccountScope } from "./account-scope.hooks";
 import type { RefreshAccounts } from "./refresh-accounts.types";
 
 /** Re-reads prices and storage units for the account(s) in view, reporting each failure by account. */

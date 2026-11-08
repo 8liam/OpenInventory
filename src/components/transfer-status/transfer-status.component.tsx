@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "~/components/button/button.component";
-import { accountName } from "~/lib/accounts/account-scope.hooks";
+import { accountName } from "~/lib/accounts/account-names";
 import { postJson, useAppSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { TRANSFER_STATUS } from "./transfer-status.config";

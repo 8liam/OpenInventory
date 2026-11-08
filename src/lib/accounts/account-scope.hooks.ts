@@ -1,34 +1,10 @@
 import { useMemo } from "react";
-import { COPY } from "~/lib/copy/copy.config";
 import { useAppSnapshot } from "~/lib/storage/storage.client";
 import type { AccountState } from "~/lib/storage/storage.types";
 import { resolveScope, scopeAccountIds } from "./account-scope";
 import { useAccountSelection } from "./account-scope.store";
+import { accountNameWithId } from "./account-names";
 import { ALL_ACCOUNTS } from "./accounts.config";
-
-/** What to call an account in the UI: its Steam persona name, or its SteamID's tail until Steam reports one. */
-export function accountName(account: Pick<AccountState, "steamId" | "displayName">): string {
-  return account.displayName ?? COPY.accounts.fallbackName(account.steamId);
-}
-
-/** The stable tail of an account's SteamID, e.g. `…0001`, to tell same-named accounts apart. */
-export function accountIdSuffix(steamId: string): string {
-  return COPY.accounts.idSuffix(steamId);
-}
-
-/** Name that stays unambiguous when two accounts share a persona name, e.g. `bossman (…0001)`. */
-export function accountNameWithId(account: Pick<AccountState, "steamId" | "displayName">): string {
-  return account.displayName === null
-    ? accountName(account)
-    : COPY.accounts.nameWithId(account.displayName, accountIdSuffix(account.steamId));
-}
-
-/** Name plus label, e.g. `Alt account · Trade`; what search matches against. */
-export function accountText(account: AccountState): string {
-  return account.label
-    ? `${accountName(account)} · ${COPY.accounts.labels[account.label]}`
-    : accountName(account);
-}
 
 /** The account(s) the UI is looking at, resolved against the live account list. */
 export function useAccountScope() {

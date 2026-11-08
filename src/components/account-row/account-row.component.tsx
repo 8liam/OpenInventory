@@ -4,11 +4,7 @@ import { AccountStatusDot } from "~/components/account-status-dot/account-status
 import { Button } from "~/components/button/button.component";
 import { DangerDialog } from "~/components/danger-dialog/danger-dialog.component";
 import { Select } from "~/components/select/select.component";
-import {
-  accountIdSuffix,
-  accountName,
-  accountNameWithId,
-} from "~/lib/accounts/account-scope.hooks";
+import { accountIdSuffix, accountName, accountNameWithId } from "~/lib/accounts/account-names";
 import { authStatusText } from "~/lib/accounts/account-status";
 import { ACCOUNT_LABELS } from "~/lib/accounts/accounts.config";
 import type { AccountLabel } from "~/lib/accounts/accounts.types";

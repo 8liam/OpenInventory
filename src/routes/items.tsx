@@ -18,9 +18,8 @@ import {
   accountName,
   accountNameWithId,
   accountText,
-  useAccountScope,
-  useScopedPath,
-} from "~/lib/accounts/account-scope.hooks";
+} from "~/lib/accounts/account-names";
+import { useAccountScope, useScopedPath } from "~/lib/accounts/account-scope.hooks";
 import { ACCOUNT_LABELS } from "~/lib/accounts/accounts.config";
 import { TiersHelp } from "~/components/tiers-help/tiers-help.component";
 import { COPY } from "~/lib/copy/copy.config";

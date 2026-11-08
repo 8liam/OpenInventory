@@ -5,7 +5,8 @@ import { AccountActions } from "~/components/account-actions/account-actions.com
 import { AccountStatus } from "~/components/account-status/account-status.component";
 import { AccountStatusDot } from "~/components/account-status-dot/account-status-dot.component";
 import { Button } from "~/components/button/button.component";
-import { accountNameWithId, useAccountScope } from "~/lib/accounts/account-scope.hooks";
+import { accountNameWithId } from "~/lib/accounts/account-names";
+import { useAccountScope } from "~/lib/accounts/account-scope.hooks";
 import { useAccountSelection } from "~/lib/accounts/account-scope.store";
 import { ALL_ACCOUNTS_ROUTES, UNGATED_ROUTES } from "~/lib/accounts/accounts.config";
 import { COPY } from "~/lib/copy/copy.config";

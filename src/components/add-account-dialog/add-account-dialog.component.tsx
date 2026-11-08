@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef } from "react";
 import { Button } from "~/components/button/button.component";
 import { LoginCard } from "~/components/login-card/login-card.component";
-import { accountNameWithId } from "~/lib/accounts/account-scope.hooks";
+import { accountNameWithId } from "~/lib/accounts/account-names";
 import { useAddAccountDialog } from "~/lib/accounts/add-account-dialog.store";
 import { COPY } from "~/lib/copy/copy.config";
 import { postJson, useAppSnapshot } from "~/lib/storage/storage.client";

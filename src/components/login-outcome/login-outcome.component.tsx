@@ -1,6 +1,7 @@
 import { CircleCheck, TriangleAlert } from "lucide-react";
 import { Button } from "~/components/button/button.component";
-import { accountNameWithId, useAccountScope } from "~/lib/accounts/account-scope.hooks";
+import { accountNameWithId } from "~/lib/accounts/account-names";
+import { useAccountScope } from "~/lib/accounts/account-scope.hooks";
 import { useAccountSelection } from "~/lib/accounts/account-scope.store";
 import { useAddAccountDialog } from "~/lib/accounts/add-account-dialog.store";
 import { COPY } from "~/lib/copy/copy.config";
