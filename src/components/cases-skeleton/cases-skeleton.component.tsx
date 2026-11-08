@@ -113,7 +113,7 @@ export function CasesBodySkeleton() {
 export function CasesSkeleton({ onlyBody }: CasesSkeletonProps) {
   if (onlyBody) return <CasesBodySkeleton />;
   return (
-    <LoadingRegion className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-4 [&>*]:shrink-0">
+    <LoadingRegion className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden pb-4 [&>*]:shrink-0">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card px-4 py-3">
         <Skeleton className="h-4 w-56" />
         <Skeleton className="h-7 w-28 rounded-md" />

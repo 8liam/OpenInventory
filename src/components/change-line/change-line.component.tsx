@@ -28,7 +28,7 @@ export function ChangeLine({ change, currency }: ChangeLineProps) {
           >
             <Arrow size={12} />
             {formatSignedMoney(value ?? 0, currency)}
-            <span className="text-muted-foreground">{label}</span>
+            <span>{label}</span>
           </span>
         );
       })}

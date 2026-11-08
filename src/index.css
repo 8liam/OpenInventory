@@ -27,8 +27,8 @@
   --accent-strong: #3f8f17;
   --primary: oklch(48.8% 0.217 264);
   --primary-foreground: #ffffff;
-  --success: #059669;
-  --destructive: #dc2626;
+  --success: #047857;
+  --destructive: #b91c1c;
   /* Behind white text on solid destructive buttons; --destructive is tuned for text instead. */
   --destructive-solid: #dc2626;
   --warning: #b45309;

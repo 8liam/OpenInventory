@@ -69,7 +69,12 @@ function CasesPage() {
       {data.status === "error" && <LoadError message={data.message} onRetry={data.retry} />}
 
       {response && (
-        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-4 [&>*]:shrink-0">
+        <div
+          role="region"
+          aria-label={copy.title}
+          tabIndex={0}
+          className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-4 [&>*]:shrink-0"
+        >
           <SyncBanner sync={response.sync} onSync={() => void sync()} />
           <KindPills selected={kind} counts={response.stats.kindCounts} onSelect={setKind} />
           {!stats ? (

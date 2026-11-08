@@ -121,7 +121,12 @@ function TradeUpPage() {
         />
       )}
       {ready && (
-        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-2">
+        <div
+          role="region"
+          aria-label={copy.title}
+          tabIndex={0}
+          className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-2"
+        >
           <TradeUpInputs
             candidates={ready.candidates}
             selectedIds={selectedIds}

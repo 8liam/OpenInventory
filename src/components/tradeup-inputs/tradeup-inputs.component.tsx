@@ -76,27 +76,29 @@ export function TradeUpInputs({
               <li key={item.id}>
                 <label
                   className={cn(
-                    "flex cursor-pointer items-center gap-3 rounded-md px-2 py-1.5 hover:bg-muted/50",
+                    "grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 rounded-md px-2 py-1.5 hover:bg-muted/50 lg:grid-cols-[auto_minmax(0,1fr)_4rem_7rem_5rem] lg:gap-x-3",
                     isSelected && "bg-muted/60",
                     disabled && "cursor-not-allowed opacity-40",
                   )}
                 >
                   <input
                     type="checkbox"
+                    className="row-span-2 lg:row-span-1"
                     checked={isSelected}
                     disabled={disabled}
                     onChange={() => onToggle(item.id)}
                   />
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0">
                     <ItemCell item={item} />
                   </div>
-                  <span className="tabular w-16 shrink-0 text-right text-muted-foreground">
-                    {item.wear === null ? COPY.common.empty : formatFloat(item.wear)}
-                  </span>
-                  <span className="w-28 shrink-0 truncate text-right text-xs text-muted-foreground">
-                    {item.locationName}
-                  </span>
-                  <span className="tabular w-20 shrink-0 text-right">
+                  <div className="col-start-2 row-start-2 flex min-w-0 gap-2 text-xs text-muted-foreground lg:contents">
+                    <span className="tabular truncate lg:text-right">
+                      <span className="lg:hidden">{COPY.itemColumns.float}: </span>
+                      {item.wear === null ? COPY.common.empty : formatFloat(item.wear)}
+                    </span>
+                    <span className="truncate lg:text-right">{item.locationName}</span>
+                  </div>
+                  <span className="tabular col-start-3 row-span-2 shrink-0 text-right lg:col-auto lg:row-span-1">
                     {item.price === null ? COPY.common.empty : formatMoney(item.price, currency)}
                   </span>
                 </label>

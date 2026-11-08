@@ -54,7 +54,11 @@ export function Select({
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return needle
-      ? options.filter((option) => option.label.toLowerCase().includes(needle))
+      ? options.filter((option) =>
+          [option.label, option.detail, option.hint, option.triggerDetail].some((text) =>
+            text?.toLowerCase().includes(needle),
+          ),
+        )
       : options;
   }, [options, query]);
 

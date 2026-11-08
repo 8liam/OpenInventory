@@ -82,10 +82,6 @@ export const APP_PATCHES: readonly AppPatch[] = [
   },
   // Contrast and hover feedback on already-active controls.
   {
-    file: "components/kind-pills/kind-pills.component.tsx",
-    replacements: [{ from: "tabular opacity-60", to: "tabular opacity-100" }],
-  },
-  {
     file: "components/pill/pill.component.tsx",
     replacements: [
       {

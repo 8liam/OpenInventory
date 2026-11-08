@@ -1,4 +1,4 @@
-import { Sparkle, X } from "lucide-react";
+import { X } from "lucide-react";
 
 export const HIGHLIGHT_DISCLOSURE = {
   /** Panel width in px, narrowed to fit the viewport on phones. */
@@ -15,15 +15,16 @@ export const HIGHLIGHT_DISCLOSURE = {
   keys: { close: "Escape", tab: "Tab" },
   /** What the panel can move focus between, in order; the panel itself comes first. */
   focusableSelector: "button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])",
-  countIcon: Sparkle,
   closeIcon: X,
   iconSize: 12,
   closeIconSize: 14,
   /** Digits shown for the exact float in the panel; the table rounds to four. */
   floatDigits: 9,
   /** Starts with the badge's visible text (e.g. "T2"), so the spoken name matches what's shown. */
-  triggerLabel: (visibleTier: string | null, name: string, count: number) =>
-    `${visibleTier === null ? "Highlights" : `${visibleTier} highlights`} for ${name}: ${count} ${count === 1 ? "reason" : "reasons"}`,
+  triggerLabel: (visibleTier: string | null, name: string, count: number, showCount: boolean) => {
+    const visible = `${visibleTier ?? ""}${showCount && count > 0 ? `+${count}` : ""}`;
+    return `${visible ? `${visible} highlights` : "Highlights"} for ${name}: ${count} ${count === 1 ? "reason" : "reasons"}`;
+  },
   close: "Close highlights",
   reasonsHeading: "Why it stands out",
   details: { seed: "Pattern seed", float: "Float", stickers: "Stickers", charms: "Charms" },

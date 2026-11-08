@@ -122,7 +122,6 @@ export function HighlightDisclosure({ item, showCount = false }: HighlightDisclo
   }
 
   const MarkerIcon = ITEM_HIGHLIGHTS.markerIcon;
-  const CountIcon = copy.countIcon;
   const CloseIcon = copy.closeIcon;
   const attachments = [
     {
@@ -144,6 +143,7 @@ export function HighlightDisclosure({ item, showCount = false }: HighlightDisclo
           tier === null ? null : `${ITEM_HIGHLIGHTS.tierPrefix}${tier.tier}`,
           item.name,
           reasons.length,
+          showCount,
         )}
         aria-expanded={open}
         aria-controls={panelId}
@@ -166,8 +166,7 @@ export function HighlightDisclosure({ item, showCount = false }: HighlightDisclo
         )}
         {showCount && reasons.length > 0 && (
           <span className={copy.countClass} aria-hidden>
-            <CountIcon size={copy.iconSize} />
-            {reasons.length}
+            +{reasons.length}
           </span>
         )}
       </button>
