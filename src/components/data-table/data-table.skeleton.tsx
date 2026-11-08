@@ -5,7 +5,10 @@ import { DATA_TABLE } from "./data-table.config";
 import { useFittedColumns } from "./data-table.hooks";
 import type { DataTableSkeletonProps } from "./data-table.types";
 
-/** DataTable's frame: real headers and grid, placeholder rows, clipped to the available height. */
+/**
+ * DataTable's frame: real headers and grid, placeholder rows, clipped to the available height.
+ * It is decorative (hidden from assistive tech); the surrounding LoadingRegion announces loading.
+ */
 export function DataTableSkeleton({
   columns: allColumns,
   rowHeight = DATA_TABLE.rowHeight,
@@ -26,6 +29,7 @@ export function DataTableSkeleton({
   return (
     <div
       ref={frameRef}
+      aria-hidden
       className="flex min-h-0 flex-1 flex-col rounded-lg border bg-card"
     >
       <div className="grid shrink-0 border-b px-4 text-xs text-muted-foreground" style={gridStyle}>
@@ -43,7 +47,7 @@ export function DataTableSkeleton({
           </div>
         ))}
       </div>
-      <div className="min-h-0 flex-1 overflow-hidden" role="rowgroup">
+      <div className="min-h-0 flex-1 overflow-hidden">
         {Array.from({ length: rows }, (_, row) => (
           <div
             key={row}
