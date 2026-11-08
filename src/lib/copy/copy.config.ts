@@ -213,6 +213,7 @@ export const COPY = {
       "Pull your inventory history from Steam to see your opening stats. The first sync reads one page every few seconds, so a long history takes a while.",
     partial: "Initial sync still in progress; totals will grow as older pages load.",
     empty: "No case openings found in your history yet.",
+    emptyOther: "No events found for this category in your history yet.",
     kinds: {
       case: {
         pill: "Cases",
@@ -252,7 +253,8 @@ export const COPY = {
     streaksTitle: "Cases since last pull",
     oddsTitle: "Your drops vs case odds",
     oddsDescription:
-      "Observed rates compared with the reference odds you provided. Each pair of bars uses its own scale so rare drops remain visible.",
+      "Your observed rates against published weapon-case odds. Each pair of bars has its own scale so rare drops stay visible.",
+    oddsSource: "Perfect World odds disclosure (2017)",
     observed: "Your rate",
     expected: "Odds",
     noClassified: "No recognized case rarities in this history yet, so rates can't be compared.",
@@ -261,7 +263,6 @@ export const COPY = {
       `${count} opening${count === 1 ? "" : "s"} with an unknown rarity excluded from the rate comparison.`,
     rarestTitle: "Rarest pulls",
     topItemsTitle: "Most pulled",
-    monthlyTitle: "Cases per month",
     timesSuffix: "×",
   },
   items: {

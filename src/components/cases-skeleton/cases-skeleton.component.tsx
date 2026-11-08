@@ -92,7 +92,7 @@ export function CasesBodySkeleton() {
           </div>
         </Panel>
         <div className="flex flex-col gap-4 lg:col-span-3">
-          <Panel title={copy.monthlyTitle}>
+          <Panel title={`${kind.pill} per month`}>
             <Skeleton className="w-full rounded-md" style={{ height: MONTHLY_BARS.height }} />
             <Skeleton className="mt-1.5 h-lh w-full text-[11px]" />
           </Panel>

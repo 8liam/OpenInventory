@@ -57,6 +57,7 @@ function CasesPage() {
   const response = data.status === "ready" ? data.data : undefined;
   // A refetch keeps the previous response on screen; never show another kind's numbers under this pill.
   const stats = response?.stats.kind === kind ? response.stats : undefined;
+  const emptyText = kind === "case" ? copy.empty : copy.emptyOther;
   const raritySlices = (stats?.rarity ?? []).map((r) => ({
     label: r.label,
     value: r.count,
@@ -83,7 +84,7 @@ function CasesPage() {
               <CasesSkeleton onlyBody />
             </LoadingRegion>
           ) : stats.total === 0 ? (
-            !running && <p className="text-muted-foreground">{copy.empty}</p>
+            !running && <p className="text-muted-foreground">{emptyText}</p>
           ) : (
             <>
               <CaseSummary stats={stats} />
@@ -101,11 +102,11 @@ function CasesPage() {
                   </div>
                 </Panel>
                 <div className="flex flex-col gap-4 lg:col-span-3">
-                  <Panel title={copy.monthlyTitle}>
+                  <Panel title={`${copy.kinds[kind].pill} per month`}>
                     <MonthlyBars months={stats.perMonth} />
                   </Panel>
                   <Panel title={copy.rarestTitle}>
-                    <OpeningList openings={stats.rarest} emptyText={copy.empty} />
+                    <OpeningList openings={stats.rarest} emptyText={emptyText} />
                   </Panel>
                 </div>
               </div>
@@ -124,7 +125,7 @@ function CasesPage() {
                   </Panel>
                 )}
                 <Panel title={copy.kinds[kind].recent}>
-                  <OpeningList openings={stats.recent} emptyText={copy.empty} />
+                  <OpeningList openings={stats.recent} emptyText={emptyText} />
                 </Panel>
               </div>
             </>

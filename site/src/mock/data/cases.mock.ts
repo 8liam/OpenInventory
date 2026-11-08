@@ -157,6 +157,51 @@ function stats(kind: OpeningKind): CaseStats {
     casesSinceGold: kind === "case" ? 297 : null,
     casesToFirstGold: kind === "case" ? 115 : null,
     rarity,
+    caseRarities:
+      kind === "case"
+        ? [
+            {
+              key: "gold",
+              label: "Gold",
+              color: "d4af37",
+              count: 1,
+              sinceLast: 297,
+              hasDrop: true,
+            },
+            {
+              key: "covert",
+              label: "Covert",
+              color: "eb4b4b",
+              count: 2,
+              sinceLast: 54,
+              hasDrop: true,
+            },
+            {
+              key: "classified",
+              label: "Classified",
+              color: "d32ce6",
+              count: 8,
+              sinceLast: 16,
+              hasDrop: true,
+            },
+            {
+              key: "restricted",
+              label: "Restricted",
+              color: "8847ff",
+              count: 63,
+              sinceLast: 6,
+              hasDrop: true,
+            },
+            {
+              key: "milSpec",
+              label: "Mil-Spec",
+              color: "4b69ff",
+              count: 336,
+              sinceLast: 0,
+              hasDrop: true,
+            },
+          ]
+        : [],
     rarest:
       kind === "case"
         ? RAREST

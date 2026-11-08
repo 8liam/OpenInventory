@@ -1,12 +1,12 @@
 import { Panel } from "~/components/panel/panel.component";
-import { CASE_DROP_ODDS } from "~/lib/cases/cases.config";
+import { CASE_DROP_ODDS, CASE_DROP_ODDS_SOURCE } from "~/lib/cases/cases.config";
 import type { CaseStats } from "~/lib/cases/cases.types";
 import { COPY } from "~/lib/copy/copy.config";
 import { formatInteger } from "~/utils/format";
 
 const DISPLAY_ORDER = ["milSpec", "restricted", "classified", "covert", "gold"] as const;
 
-/** Exact-tier streaks and observed case drops beside the supplied reference odds. */
+/** Exact-tier streaks and observed case drops beside published reference odds. */
 export function CaseRarityInsights({ stats }: { readonly stats: CaseStats }) {
   const copy = COPY.cases;
   const rarities = DISPLAY_ORDER.flatMap((key) => {
@@ -44,7 +44,18 @@ export function CaseRarityInsights({ stats }: { readonly stats: CaseStats }) {
         </dl>
       </Panel>
       <Panel title={copy.oddsTitle} className="xl:col-span-3">
-        <p className="mb-4 text-xs leading-relaxed text-muted-foreground">{copy.oddsDescription}</p>
+        <p className="mb-4 text-xs leading-relaxed text-muted-foreground">
+          {copy.oddsDescription}{" "}
+          <a
+            href={CASE_DROP_ODDS_SOURCE}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-foreground underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          >
+            {copy.oddsSource}
+          </a>
+          .
+        </p>
         {classified === 0 && <p className="text-sm text-muted-foreground">{copy.noClassified}</p>}
         {classified > 0 && (
           <div className="space-y-4">

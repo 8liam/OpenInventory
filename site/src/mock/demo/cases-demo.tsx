@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { BarList } from "~/components/bar-list/bar-list.component";
 import { CaseSummary } from "~/components/case-summary/case-summary.component";
+import { CaseRarityInsights } from "~/components/case-rarity-insights/case-rarity-insights.component";
 import { DonutChart } from "~/components/donut-chart/donut-chart.component";
 import { KindPills } from "~/components/kind-pills/kind-pills.component";
 import { MonthlyBars } from "~/components/monthly-bars/monthly-bars.component";
@@ -28,6 +29,7 @@ export default function CasesDemo() {
       <PageHeader title={copy.title} description={copy.description} />
       <KindPills selected={kind} counts={stats.kindCounts} onSelect={setKind} />
       <CaseSummary stats={stats} />
+      {kind === "case" && <CaseRarityInsights stats={stats} />}
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-5">
         <Panel title={copy.rarityTitle} className="lg:col-span-2">
           <DonutChart
@@ -41,11 +43,14 @@ export default function CasesDemo() {
           </div>
         </Panel>
         <div className="flex flex-col gap-3 lg:col-span-3">
-          <Panel title={copy.monthlyTitle}>
+          <Panel title={`${copy.kinds[kind].pill} per month`}>
             <MonthlyBars months={stats.perMonth} />
           </Panel>
           <Panel title={copy.rarestTitle}>
-            <OpeningList openings={stats.rarest} emptyText={copy.empty} />
+            <OpeningList
+              openings={stats.rarest}
+              emptyText={kind === "case" ? copy.empty : copy.emptyOther}
+            />
           </Panel>
         </div>
       </div>

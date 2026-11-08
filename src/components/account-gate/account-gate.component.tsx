@@ -7,7 +7,7 @@ import { AccountStatusDot } from "~/components/account-status-dot/account-status
 import { Button } from "~/components/button/button.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { PAGE_HEADER } from "~/components/page-header/page-header.config";
-import { accountNameWithId } from "~/lib/accounts/account-names";
+import { accountDisplayName, accountNameWithId } from "~/lib/accounts/account-names";
 import { useAccountScope } from "~/lib/accounts/account-scope.hooks";
 import { useAccountSelection } from "~/lib/accounts/account-scope.store";
 import { ALL_ACCOUNTS_ROUTES, UNGATED_ROUTES } from "~/lib/accounts/accounts.config";
@@ -77,21 +77,26 @@ export function AccountGate({ pathname, children }: AccountGateProps) {
             {copy.chooseOneBody[pathname] ?? copy.chooseOneFallback}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            {accounts.map((account) => (
-              <Button
-                key={account.steamId}
-                onClick={() => {
-                  select(account.steamId);
-                  // The account choice disappears when the scoped page mounts.
-                  requestAnimationFrame(() =>
-                    restoreLostFocus(document.getElementById(PAGE_HEADER.headingId)),
-                  );
-                }}
-              >
-                <AccountStatusDot status={account.snapshot.auth.status} />
-                {accountNameWithId(account)}
-              </Button>
-            ))}
+            {accounts.map((account) => {
+              const { name, suffix } = accountDisplayName(account);
+              return (
+                <Button
+                  key={account.steamId}
+                  className="max-w-full min-w-0"
+                  onClick={() => {
+                    select(account.steamId);
+                    // The account choice disappears when the scoped page mounts.
+                    requestAnimationFrame(() =>
+                      restoreLostFocus(document.getElementById(PAGE_HEADER.headingId)),
+                    );
+                  }}
+                >
+                  <AccountStatusDot status={account.snapshot.auth.status} />
+                  <span className="min-w-0 truncate">{name}</span>
+                  {suffix && <span className="shrink-0">({suffix})</span>}
+                </Button>
+              );
+            })}
           </div>
         </section>
       </>
