@@ -24,8 +24,9 @@ export const HIGHLIGHT_DISCLOSURE = {
   stickerPrefix: "Sticker | ",
   charmPrefix: "Charm | ",
   listSeparator: ", ",
+  /** On phones an invisible overhang stretches the tap area to ~44px tall without growing the row. */
   triggerClass:
-    "inline-flex shrink-0 items-center gap-1 rounded-md p-0.5 text-muted-foreground outline-offset-1 hover:bg-muted aria-expanded:bg-muted max-md:min-h-7",
+    "relative inline-flex shrink-0 items-center gap-1 rounded-md p-0.5 text-muted-foreground outline-offset-1 hover:bg-muted aria-expanded:bg-muted max-md:min-h-7 max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2 max-md:before:content-['']",
   countClass:
     "tabular inline-flex items-center gap-0.5 rounded bg-foreground/[0.07] px-1.5 py-px text-[11px] leading-4 text-foreground/80",
   panelClass:
