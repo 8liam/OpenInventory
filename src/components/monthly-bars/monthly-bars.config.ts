@@ -3,6 +3,8 @@ export const MONTHLY_BARS = {
   maxMonths: 24,
   /** Up to this many months each bar carries its own count and month; beyond it only the ends are labelled. */
   labelledMax: 12,
+  /** Up to this many bars the month under each is written in full; past it, just the month number (the ends carry the year). */
+  fullMonthMax: 6,
   /** Height kept free in a labelled column for its count above and month below the bar. */
   labelReserve: "2.5rem",
   /** Smallest drawn bar, so a month with a few openings is still visible next to a big one. */
@@ -25,4 +27,6 @@ export const MONTHLY_BARS = {
     count: "tabular font-medium",
   },
   summary: "View monthly counts",
+  /** Splits "2026-09" into its year and month number. */
+  monthSeparator: "-",
 } as const;
