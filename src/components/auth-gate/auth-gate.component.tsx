@@ -6,7 +6,7 @@ import {
   useSnapshotConnection,
   useSnapshotReceived,
 } from "~/lib/storage/storage.client";
-import { SNAPSHOT_CONNECTION } from "~/lib/storage/storage.config";
+import { AUTH_GATE } from "./auth-gate.config";
 import type { AuthGateProps } from "./auth-gate.types";
 
 /** Everything inside needs at least one tracked Steam account; each account's own connection is handled further in. */
@@ -15,12 +15,8 @@ export function AuthGate({ children }: AuthGateProps) {
   const received = useSnapshotReceived();
   const connection = useSnapshotConnection();
   if (!received) {
-    return connection === SNAPSHOT_CONNECTION.disconnected ||
-      connection === SNAPSHOT_CONNECTION.incompatible ? (
-      <ConnectionProblem reason={connection} />
-    ) : (
-      <AppShellSkeleton />
-    );
+    const problem = AUTH_GATE.problemStates.find((state) => state === connection);
+    return problem ? <ConnectionProblem reason={problem} /> : <AppShellSkeleton />;
   }
   return accounts.length > 0 ? <>{children}</> : <SignInScreen login={login} />;
 }
