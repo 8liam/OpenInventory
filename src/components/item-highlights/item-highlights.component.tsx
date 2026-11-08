@@ -2,11 +2,7 @@ import { itemHighlights } from "~/lib/items/highlights";
 import { COPY } from "~/lib/copy/copy.config";
 import { cn } from "~/utils/cn";
 import { ITEM_HIGHLIGHTS } from "./item-highlights.config";
-import type {
-  ItemHighlightCellProps,
-  ItemHighlightsProps,
-  ItemTierBadgeProps,
-} from "./item-highlights.types";
+import type { ItemHighlightsProps, ItemTierBadgeProps } from "./item-highlights.types";
 
 /**
  * Reason chips on one line under the item name, so a row never grows past its fixed height.
@@ -65,16 +61,17 @@ export function ItemHighlights({ item, children, visible }: ItemHighlightsProps)
 }
 
 /** Gem icon and "T1".."TX"; the most valuable tier is accented and lower tiers fade. */
-export function ItemTierBadge({ item, className }: ItemTierBadgeProps) {
+export function ItemTierBadge({ item, className, decorative = false }: ItemTierBadgeProps) {
   const { tier } = itemHighlights(item);
   if (tier === null) return null;
   const Icon = ITEM_HIGHLIGHTS.tierIcon;
   const description = COPY.items.tierDescription(tier);
   return (
     <span
-      role="img"
-      aria-label={description}
-      title={description}
+      role={decorative ? undefined : "img"}
+      aria-label={decorative ? undefined : description}
+      aria-hidden={decorative || undefined}
+      title={decorative ? undefined : description}
       className={cn(
         "tabular inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px]",
         ITEM_HIGHLIGHTS.tierStyles[tier.tier - 1] ?? ITEM_HIGHLIGHTS.fallbackTierStyle,
@@ -84,25 +81,6 @@ export function ItemTierBadge({ item, className }: ItemTierBadgeProps) {
       <Icon size={ITEM_HIGHLIGHTS.tierIconSize} aria-hidden />
       {ITEM_HIGHLIGHTS.tierPrefix}
       {tier.tier}
-    </span>
-  );
-}
-
-/** The Highlights column: the tier badge, or a quiet marker for float- or craft-only highlights. */
-export function ItemHighlightCell({ item }: ItemHighlightCellProps) {
-  const { tier, reasons } = itemHighlights(item);
-  if (tier !== null) return <ItemTierBadge item={item} />;
-  if (reasons.length === 0) return null;
-  const Icon = ITEM_HIGHLIGHTS.markerIcon;
-  const description = COPY.items.highlightMarker(reasons.map((reason) => reason.label));
-  return (
-    <span
-      role="img"
-      aria-label={description}
-      title={description}
-      className="inline-flex align-middle text-muted-foreground"
-    >
-      <Icon size={ITEM_HIGHLIGHTS.markerIconSize} aria-hidden />
     </span>
   );
 }

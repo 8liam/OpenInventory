@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { AccountName } from "~/components/account-name/account-name.component";
 import { DataTable } from "~/components/data-table/data-table.component";
 import type { DataTableColumn } from "~/components/data-table/data-table.types";
-import { ItemHighlightCell } from "~/components/item-highlights/item-highlights.component";
+import { HighlightDisclosure } from "~/components/highlight-disclosure/highlight-disclosure.component";
 import { ItemCell } from "~/components/item-cell/item-cell.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
@@ -31,9 +31,12 @@ export function ItemTable({
       ...sizes.item[layout],
       sortValue: (r) => r.name,
       // Narrow rows have no Account column, so the owner moves under the name.
-      cell: (r) => (
-        <ItemCell item={r} account={wide ? undefined : accountNames?.get(r.accountId)} />
-      ),
+      cell: (r) =>
+        wide ? (
+          <ItemCell item={r} />
+        ) : (
+          <ItemCell item={r} account={accountNames?.get(r.accountId)} compact />
+        ),
     };
     const price: DataTableColumn<ItemView> = {
       id: "price",
@@ -43,16 +46,17 @@ export function ItemTable({
       sortValue: (r) => r.price ?? -1,
       cell: (r) => (r.price === null ? COPY.common.empty : formatMoney(r.price, currency)),
     };
-    // Orders rows T1 first, then other highlights, then by price; the cell shows the tier or a marker.
+    // Orders rows T1 first, then other highlights, then by price; the cell's tier (or marker)
+    // opens every reason. Narrow rows show that button under the name instead of a column.
     const highlights: DataTableColumn<ItemView> = {
       id: "highlights",
       header: COPY.items.highlights,
-      ...sizes.highlights[layout],
+      ...sizes.highlights,
       align: "right",
       sortValue: highlightSortValue,
-      cell: (r) => <ItemHighlightCell item={r} />,
+      cell: (r) => <HighlightDisclosure item={r} />,
     };
-    if (!wide) return [item, highlights, price];
+    if (!wide) return [item, price];
     const location: DataTableColumn<ItemView>[] = showLocation
       ? [
           {

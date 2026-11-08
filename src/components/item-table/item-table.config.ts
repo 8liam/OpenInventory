@@ -2,7 +2,7 @@ import type { FittableColumn } from "~/components/data-table/data-table.types";
 
 export const ITEM_TABLE = {
   /**
-   * Narrow rows are taller: the item name may wrap to two lines above its highlight chips, and
+   * Narrow rows are taller: the item name may wrap to two lines above the highlight button, and
    * `narrowWithAccount` adds the owning account's line in the all-accounts view.
    */
   rowHeight: { wide: 64, narrow: 80, narrowWithAccount: 96 },
@@ -17,7 +17,7 @@ export const ITEM_TABLE = {
     location: { width: "1.6fr", minWidth: 96, hidePriority: 2 },
     type: { width: "1.2fr", minWidth: 80, hidePriority: 1 },
     float: { width: "0.9fr", minWidth: 64 },
-    highlights: { wide: { width: "0.7fr", minWidth: 76 }, narrow: { width: "84px" } },
+    highlights: { width: "0.7fr", minWidth: 76 },
     price: { wide: { width: "0.9fr", minWidth: 96 }, narrow: { width: "92px" } },
   } satisfies Record<string, FittableColumn | { wide: FittableColumn; narrow: FittableColumn }>,
   /** Enough rows to fill a tall screen; the rest are clipped. */

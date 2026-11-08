@@ -12,6 +12,6 @@ export type ItemHighlightsProps = {
 export type ItemTierBadgeProps = {
   readonly item: ItemView;
   readonly className?: string;
+  /** Inside a control that already names the tier, so the badge is visual only. */
+  readonly decorative?: boolean;
 };
-
-export type ItemHighlightCellProps = { readonly item: ItemView };

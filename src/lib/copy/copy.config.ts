@@ -250,7 +250,6 @@ export const COPY = {
     highlightsOnly: "Highlights only",
     highlights: "Highlights",
     moreHighlights: (count: number) => `+${count}`,
-    highlightMarker: (reasons: readonly string[]) => `Highlighted: ${reasons.join(", ")}`,
     accountFilterLabel: "Filter by account",
     anyAccount: "Any account",
     clearFilters: "Clear filters",

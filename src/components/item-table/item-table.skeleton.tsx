@@ -45,7 +45,7 @@ export function ItemTableSkeleton({
   const highlights: DataTableSkeletonColumn = {
     id: "highlights",
     header: COPY.items.highlights,
-    ...sizes.highlights[layout],
+    ...sizes.highlights,
     align: "right",
     cell: null,
   };
@@ -83,7 +83,7 @@ export function ItemTableSkeleton({
         highlights,
         price,
       ]
-    : [item, highlights, price];
+    : [item, price];
   return (
     <DataTableSkeleton
       columns={columns}
