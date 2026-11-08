@@ -1,5 +1,5 @@
 import { ArrowDown, ArrowUp, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import { Button } from "~/components/button/button.component";
 import { DangerDialog } from "~/components/danger-dialog/danger-dialog.component";
 import { OrganiserRuleForm } from "~/components/organiser-rule-form/organiser-rule-form.component";
@@ -9,9 +9,12 @@ import { computePlan } from "~/lib/organiser/organiser.plan";
 import { useOrganiserRules } from "~/lib/organiser/organiser.store";
 import type { MovePlan, OrganiserRule } from "~/lib/organiser/organiser.types";
 import { postJson } from "~/lib/storage/storage.client";
+import { restoreLostFocus } from "~/utils/restore-focus";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { ORGANISER_PANEL } from "./organiser-panel.config";
 import type { OrganiserPanelProps } from "./organiser-panel.types";
+
+const { classes } = ORGANISER_PANEL;
 
 function uniqueSorted(values: Iterable<string | null>): readonly string[] {
   return [...new Set([...values].filter((v): v is string => v !== null && v !== ""))].sort();
@@ -29,6 +32,8 @@ export function OrganiserPanel({
   const { rules, addRule, removeRule, moveRule } = useOrganiserRules(accountId, unitIds);
   // The plan frozen when the dialog opened, so what is confirmed is what was reviewed.
   const [reviewing, setReviewing] = useState<MovePlan>();
+  const runButton = useRef<HTMLButtonElement>(null);
+  const blockerId = useId();
 
   const plan = useMemo(() => computePlan({ items, units, rules }), [items, units, rules]);
   const unitNames = useMemo(() => new Map(units.map((u) => [u.id, u.name])), [units]);
@@ -65,29 +70,23 @@ export function OrganiserPanel({
               : ORGANISER_PANEL.nothingToMove;
 
   return (
-    <div
-      className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto"
-      aria-label={ORGANISER_PANEL.title}
-    >
-      <p className="text-muted-foreground">{ORGANISER_PANEL.description}</p>
-      <section className="flex flex-col gap-2">
-        <h2 className="font-medium">{ORGANISER_PANEL.rulesHeading}</h2>
+    <div className={classes.root} aria-label={ORGANISER_PANEL.title}>
+      <p className={classes.muted}>{ORGANISER_PANEL.description}</p>
+      <section className={classes.rules}>
+        <h2 className={classes.heading}>{ORGANISER_PANEL.rulesHeading}</h2>
         {rules.length === 0 ? (
-          <p className="text-muted-foreground">{ORGANISER_PANEL.noRules}</p>
+          <p className={classes.muted}>{ORGANISER_PANEL.noRules}</p>
         ) : (
-          <ol className="flex flex-col gap-1">
+          <ol className={classes.ruleList}>
             {rules.map((rule, index) => (
-              <li
-                key={rule.id}
-                className="flex items-center justify-between gap-2 rounded border px-3 py-1.5 text-sm"
-              >
-                <span className="min-w-0 truncate">
-                  <span className="tabular text-muted-foreground">
+              <li key={rule.id} className={classes.rule}>
+                <span className={classes.ruleText}>
+                  <span className={classes.rulePrefix}>
                     {ORGANISER_PANEL.rulePrefix(index + 1)}
                   </span>{" "}
                   {describe(rule)}
                 </span>
-                <span className="flex shrink-0 gap-1">
+                <span className={classes.ruleActions}>
                   <Button
                     small
                     aria-label={ORGANISER_PANEL.moveUp}
@@ -116,23 +115,32 @@ export function OrganiserPanel({
             ))}
           </ol>
         )}
-        <p className="text-xs text-muted-foreground">{ORGANISER_PANEL.storedLocally}</p>
+        <p className={classes.note}>{ORGANISER_PANEL.storedLocally}</p>
       </section>
       <OrganiserRuleForm units={units} suggestions={suggestions} onAdd={addRule} />
       {itemsReady ? (
         <PlanPreview plan={plan} rules={rules} unitNames={unitNames} />
       ) : (
-        <p className="text-muted-foreground">{ORGANISER_PANEL.itemsUnavailable}</p>
+        <p className={classes.muted}>{ORGANISER_PANEL.itemsUnavailable}</p>
       )}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className={classes.runRow}>
+        {/* aria-disabled, not disabled: once a run starts the button is "busy", and a disabled
+            opener could not take focus back when the dialog closes. */}
         <Button
+          ref={runButton}
           variant="primary"
-          disabled={blocker !== undefined}
-          onClick={() => setReviewing(plan)}
+          aria-disabled={blocker !== undefined}
+          aria-describedby={blocker === undefined ? undefined : blockerId}
+          className={blocker === undefined ? undefined : classes.runBlocked}
+          onClick={blocker === undefined ? () => setReviewing(plan) : undefined}
         >
           {ORGANISER_PANEL.run}
         </Button>
-        {blocker && <span className="text-xs text-muted-foreground">{blocker}</span>}
+        {blocker && (
+          <span id={blockerId} className={classes.note}>
+            {blocker}
+          </span>
+        )}
       </div>
       <DangerDialog
         open={reviewing !== undefined}
@@ -156,7 +164,11 @@ export function OrganiserPanel({
             steps: reviewing.steps.map(({ from, to, itemIds }) => ({ from, to, itemIds })),
           });
         }}
-        onClose={() => setReviewing(undefined)}
+        onClose={() => {
+          setReviewing(undefined);
+          // The dialog hands focus back to the button that opened it; if that did not happen, do it here.
+          restoreLostFocus(runButton.current);
+        }}
       />
     </div>
   );

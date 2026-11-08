@@ -22,6 +22,22 @@ export const ORGANISER_PANEL = {
   itemsUnavailable: "Waiting for your items to load before a plan can be previewed.",
   storedLocally: "Rules are saved in this browser only, separately for each account.",
   iconSize: 14,
+  classes: {
+    /** Scrolls on its own under the page header. */
+    root: "flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto",
+    muted: "text-muted-foreground",
+    note: "text-xs text-muted-foreground",
+    heading: "font-medium",
+    rules: "flex flex-col gap-2",
+    ruleList: "flex flex-col gap-1",
+    rule: "flex items-center justify-between gap-2 rounded border px-3 py-1.5 text-sm",
+    ruleText: "min-w-0 truncate",
+    rulePrefix: "tabular text-muted-foreground",
+    ruleActions: "flex shrink-0 gap-1",
+    runRow: "flex flex-wrap items-center gap-3",
+    /** Stands in for `disabled:` styles: the button stays focusable and ignores presses. */
+    runBlocked: "pointer-events-none opacity-50",
+  },
   run: "Run plan…",
   /** Why Run is disabled, checked in this order; short, since the dry run above gives the detail. */
   needsRules: "No rules to run yet.",
