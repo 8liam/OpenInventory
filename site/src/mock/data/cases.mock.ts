@@ -57,6 +57,31 @@ const RARITY_BASE: readonly RaritySlice[] = [
   { label: "Other", color: "b0c3d9", count: 2 },
 ];
 
+const OTHER_RARITIES: Record<Exclude<OpeningKind, "case">, readonly RaritySlice[]> = {
+  souvenir: [
+    { label: "Consumer", color: "b0c3d9", count: 25 },
+    { label: "Industrial", color: "5e98d9", count: 5 },
+    { label: "Mil-Spec", color: "4b69ff", count: 1 },
+  ],
+  capsule: [
+    { label: "High Grade", color: "4b69ff", count: 800 },
+    { label: "Remarkable", color: "8847ff", count: 160 },
+    { label: "Exotic", color: "d32ce6", count: 32 },
+    { label: "Extraordinary", color: "eb4b4b", count: 5 },
+  ],
+  tradeUp: [
+    { label: "Restricted", color: "8847ff", count: 10 },
+    { label: "Classified", color: "d32ce6", count: 5 },
+    { label: "Covert", color: "eb4b4b", count: 1 },
+  ],
+  drop: [
+    { label: "Consumer", color: "b0c3d9", count: 320 },
+    { label: "Industrial", color: "5e98d9", count: 115 },
+    { label: "Mil-Spec", color: "4b69ff", count: 29 },
+    { label: "Restricted", color: "8847ff", count: 2 },
+  ],
+};
+
 type OpeningSeed = {
   readonly image: string;
   readonly name: string;
@@ -128,6 +153,59 @@ const RAREST: readonly CaseOpening[] = [
   }),
 ];
 
+const OTHER_RAREST: Record<Exclude<OpeningKind, "case">, readonly CaseOpening[]> = {
+  souvenir: [
+    opening({
+      image: "",
+      name: "Souvenir AK-47 | Safari Mesh",
+      source: "Major Souvenir Package",
+      daysAgo: 120,
+    }),
+    opening({
+      image: "",
+      name: "Souvenir P250 | Sand Dune",
+      source: "Major Souvenir Package",
+      daysAgo: 240,
+    }),
+  ],
+  capsule: [
+    opening({
+      image: "Sticker | Miami Stabbyfish",
+      name: "Sticker | Miami Stabbyfish",
+      source: "Sticker Capsule",
+      daysAgo: 12,
+    }),
+    opening({
+      image: "Sticker | Blue Lethal",
+      name: "Sticker | Blue Lethal",
+      source: "Sticker Capsule",
+      daysAgo: 17,
+    }),
+  ],
+  tradeUp: [
+    {
+      ...opening({
+        image: "M4A1-S | Decimator (Field-Tested)",
+        name: "M4A1-S | Decimator",
+        source: "",
+        daysAgo: 23,
+      }),
+      caseName: null,
+    },
+  ],
+  drop: [
+    {
+      ...opening({
+        image: "P90 | Trigon (Field-Tested)",
+        name: "P90 | Trigon",
+        source: "",
+        daysAgo: 4,
+      }),
+      caseName: null,
+    },
+  ],
+};
+
 const pulled = (image: string, name: string, count: number): PulledItem => ({
   name,
   imageUrl: itemImage(image),
@@ -142,16 +220,14 @@ function stats(kind: OpeningKind): CaseStats {
     month: monthLabel(i),
     count: Math.round(c * scale),
   }));
-  const rarity = RARITY_BASE.map((r) => ({
-    ...r,
-    count: kind === "case" ? r.count : Math.max(1, Math.round(r.count * scale)),
-  }));
+  const rarity = kind === "case" ? RARITY_BASE : OTHER_RARITIES[kind];
+  const rarest = kind === "case" ? RAREST : OTHER_RAREST[kind];
   return {
     kind,
     kindCounts: KIND_COUNTS,
     total,
     gold: kind === "case" ? 1 : 0,
-    statTrak: kind === "case" ? 39 : kind === "souvenir" ? 3 : 0,
+    statTrak: kind === "case" ? 39 : 0,
     firstOpenedAt: MOCK_NOW - 3446 * DAY_MS,
     lastOpenedAt: MOCK_NOW - 3 * DAY_MS,
     casesSinceGold: kind === "case" ? 297 : null,
@@ -207,15 +283,20 @@ function stats(kind: OpeningKind): CaseStats {
             },
           ]
         : [],
-    rarest:
+    rarest,
+    topItems:
       kind === "case"
-        ? RAREST
-        : RAREST.slice(0, 5).map((o, i) => ({ ...o, openedAt: o.openedAt + i * 31 * DAY_MS })),
-    topItems: [
-      pulled("AK-47 | Redline (Field-Tested)", "AK-47 | Redline", 7),
-      pulled("M4A4 | Poly Mag (Minimal Wear)", "M4A4 | Poly Mag", 6),
-      pulled("Negev | Drop Me (Field-Tested)", "Negev | Drop Me", 5),
-    ],
+        ? [
+            pulled("AK-47 | Redline (Field-Tested)", "AK-47 | Redline", 7),
+            pulled("M4A4 | Poly Mag (Minimal Wear)", "M4A4 | Poly Mag", 6),
+            pulled("Negev | Drop Me (Field-Tested)", "Negev | Drop Me", 5),
+          ]
+        : rarest.map((item) => ({
+            name: item.itemName,
+            imageUrl: item.imageUrl,
+            color: item.color,
+            count: 1,
+          })),
     topCases:
       kind === "case"
         ? [

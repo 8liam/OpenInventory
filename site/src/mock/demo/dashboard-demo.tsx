@@ -8,7 +8,7 @@ export default function DashboardDemo() {
   return (
     <div className="oi-app flex flex-col gap-3 p-3">
       <PortfolioHero dashboard={DASHBOARD_MOCK} currency={MOCK_CURRENCY} />
-      <BreakdownPanel dashboard={DASHBOARD_MOCK} currency={MOCK_CURRENCY} />
+      <BreakdownPanel dashboard={DASHBOARD_MOCK} currency={MOCK_CURRENCY} headingLevel={4} />
     </div>
   );
 }
