@@ -82,9 +82,10 @@ export function TradeUpFinderResults({ finder }: TradeUpFinderResultsProps) {
                   key={`${outcome.name}:${outcome.float}`}
                   className="flex min-w-0 justify-between gap-2 rounded bg-muted px-2 py-1"
                 >
-                  <span className="min-w-0 truncate">
+                  <span className="min-w-0 flex-1 truncate" title={outcome.name}>
                     {outcome.name}
-                    {copy.outcomeSeparator}
+                  </span>
+                  <span className="shrink-0 tabular text-muted-foreground">
                     {formatChance(outcome.probability)}
                   </span>
                   <span className="shrink-0 tabular">

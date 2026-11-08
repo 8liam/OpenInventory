@@ -3,6 +3,8 @@ import { COPY } from "~/lib/copy/copy.config";
 export const ACCOUNT_GATE = {
   /** Page headings for the routes that ask for one account, so the prompt keeps the page's name. */
   pageTitles: {
+    "/": COPY.dashboard.title,
+    "/items": COPY.items.title,
     "/storage": COPY.storage.title,
     "/terminals": COPY.terminal.pageTitle,
     "/tradeup": COPY.tradeup.title,

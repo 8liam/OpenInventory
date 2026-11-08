@@ -73,12 +73,16 @@ export function AccountGate({ pathname, children }: AccountGateProps) {
 
   const ready = scoped.filter((account) => account.snapshot.auth.status === AUTH_STATUS.ready);
   if (ready.length === 0) {
+    const pageTitle = ACCOUNT_GATE.pageTitles[pathname];
     return (
-      <div className="flex flex-col gap-3">
-        {scoped.map((account) => (
-          <AccountStatus key={account.steamId} account={account} />
-        ))}
-      </div>
+      <>
+        {pageTitle && <PageHeader title={pageTitle} />}
+        <div className="flex flex-col gap-3">
+          {scoped.map((account) => (
+            <AccountStatus key={account.steamId} account={account} />
+          ))}
+        </div>
+      </>
     );
   }
   const waiting = scoped.filter((account) => account.snapshot.auth.status !== AUTH_STATUS.ready);
