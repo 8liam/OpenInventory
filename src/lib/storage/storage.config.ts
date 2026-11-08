@@ -26,7 +26,20 @@ export const STORAGE_API = {
   terminalNextOffer: "/api/terminals/next-offer",
 } as const;
 
+/** Wire values of the finder's StatTrak filter (`statTrak=` on the finder request). */
+export const TRADE_UP_STATTRAK_FILTER = {
+  all: "all",
+  normal: "normal",
+  statTrak: "stattrak",
+} as const;
+
 export const TRADE_UP_FINDER = {
+  statTrakFilters: [
+    TRADE_UP_STATTRAK_FILTER.all,
+    TRADE_UP_STATTRAK_FILTER.normal,
+    TRADE_UP_STATTRAK_FILTER.statTrak,
+  ],
+  defaultStatTrakFilter: TRADE_UP_STATTRAK_FILTER.all,
   candidateLimit: 40,
   resultLimit: 20,
   maxContracts: 500,

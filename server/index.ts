@@ -7,6 +7,7 @@ import {
   SSE_KEEP_ALIVE_MS,
   STORAGE_API,
   STORAGE_LIMITS,
+  TRADE_UP_FINDER,
 } from "../src/lib/storage/storage.config.ts";
 import type {
   ApiError,
@@ -541,8 +542,9 @@ const server = createServer(async (req, res) => {
         c.skin ? [{ view: c.view, skin: c.skin }] : [],
       );
       if (path === STORAGE_API.tradeUpFinder) {
-        const statTrak = url.searchParams.get("statTrak") ?? "all";
-        if (statTrak !== "all" && statTrak !== "normal" && statTrak !== "stattrak") {
+        const requested = url.searchParams.get("statTrak") ?? TRADE_UP_FINDER.defaultStatTrakFilter;
+        const statTrak = TRADE_UP_FINDER.statTrakFilters.find((filter) => filter === requested);
+        if (statTrak === undefined) {
           throw new UserFacingError("Invalid StatTrak filter", HTTP.badRequest);
         }
         return sendJson(

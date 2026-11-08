@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { Metric } from "~/components/metric/metric.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { RarityPicker } from "~/components/rarity-picker/rarity-picker.component";
+import { TradeUpFinderControls } from "~/components/tradeup-finder-controls/tradeup-finder-controls.component";
+import { TradeUpFinderResults } from "~/components/tradeup-finder-results/tradeup-finder-results.component";
 import { TradeUpInputs } from "~/components/tradeup-inputs/tradeup-inputs.component";
 import { TradeUpOutcomes } from "~/components/tradeup-outcomes/tradeup-outcomes.component";
 import { TradeUpSkeleton } from "~/components/tradeup-skeleton/tradeup-skeleton.component";
@@ -12,10 +14,11 @@ import type {
   TradeUpCandidatesResponse,
   TradeUpFinderResponse,
   TradeUpOddsResponse,
+  TradeUpStatTrakFilter,
 } from "~/lib/items/item.types";
 import { useScopedPath, useSingleAccountLabel } from "~/lib/accounts/account-scope.hooks";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
-import { STORAGE_API, TRADE_UP } from "~/lib/storage/storage.config";
+import { STORAGE_API, TRADE_UP, TRADE_UP_FINDER } from "~/lib/storage/storage.config";
 import { usePriceQuery } from "~/lib/settings/settings.store";
 import { formatChance, formatFloat, formatMoney, formatPercent } from "~/utils/format";
 
@@ -35,7 +38,9 @@ function TradeUpPage() {
   const accountLabel = useSingleAccountLabel();
   const [rarity, setRarity] = useState<string>(TRADE_UP.defaultInputRarity);
   const [selection, setSelection] = useState<readonly string[]>([]);
-  const [finderStatTrak, setFinderStatTrak] = useState<"all" | "normal" | "stattrak">("all");
+  const [finderStatTrak, setFinderStatTrak] = useState<TradeUpStatTrakFilter>(
+    TRADE_UP_FINDER.defaultStatTrakFilter,
+  );
   const [includeStorage, setIncludeStorage] = useState(false);
   const candidatesPath = useScopedPath(`${STORAGE_API.tradeUp}?rarity=${rarity}&${priceQuery}`);
   const candidates = useRemoteData<TradeUpCandidatesResponse>(candidatesPath, snapshot.revision);
@@ -95,78 +100,13 @@ function TradeUpPage() {
           }}
         />
       </PageHeader>
-      <section className="flex flex-wrap items-center gap-3 rounded-lg border border-border p-3">
-        <h2 className="mr-auto font-medium">{copy.finderTitle}</h2>
-        <label className="flex items-center gap-2 text-sm">
-          {copy.statTrakFilter}
-          <select
-            className="rounded border border-border bg-background px-2 py-1"
-            value={finderStatTrak}
-            onChange={(event) => setFinderStatTrak(event.target.value as typeof finderStatTrak)}
-          >
-            <option value="all">{copy.allItems}</option>
-            <option value="normal">{copy.normalOnly}</option>
-            <option value="stattrak">{copy.statTrakOnly}</option>
-          </select>
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={includeStorage}
-            onChange={(event) => setIncludeStorage(event.target.checked)}
-          />
-          {copy.includeStorage}
-        </label>
-      </section>
-      {finder.status === "loading" && (
-        <p className="text-sm text-muted-foreground">{copy.searching}</p>
-      )}
-      {finder.status === "error" && <LoadError message={finder.message} onRetry={finder.retry} />}
-      {finder.status === "ready" && finder.data.results.length === 0 && (
-        <p className="text-sm text-muted-foreground">{copy.noFinderResults}</p>
-      )}
-      {finder.status === "ready" && finder.data.results.length > 0 && (
-        <div className="flex flex-col gap-3 overflow-y-auto">
-          {finder.data.results.map((contract, index) => (
-            <article
-              key={contract.inputIds.join(":")}
-              className="rounded-lg border border-border p-3"
-            >
-              <div className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-                <strong>#{index + 1}</strong>
-                <span>EV {formatMoney(contract.expectedValue, finder.data.currency)}</span>
-                <span>Cost {formatMoney(contract.inputCost, finder.data.currency)}</span>
-                <span className={contract.profit >= 0 ? "text-positive" : "text-destructive"}>
-                  Profit {formatMoney(contract.profit, finder.data.currency)}
-                </span>
-                <span>Float {formatFloat(contract.odds.ok ? contract.odds.averageFloat : 0)}</span>
-              </div>
-              <p className="mb-2 text-xs text-muted-foreground">
-                Inputs: {contract.inputs.map((item) => item.name).join(", ")}
-              </p>
-              {contract.odds.ok && (
-                <div className="grid gap-1 text-xs sm:grid-cols-2 lg:grid-cols-3">
-                  {contract.odds.outcomes.map((outcome) => (
-                    <div
-                      key={`${outcome.name}:${outcome.float}`}
-                      className="flex justify-between gap-2 rounded bg-muted/40 px-2 py-1"
-                    >
-                      <span className="truncate">
-                        {outcome.name} · {formatPercent(outcome.probability)}
-                      </span>
-                      <span className="shrink-0">
-                        {outcome.price === null
-                          ? COPY.common.empty
-                          : formatMoney(outcome.price, finder.data.currency)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </article>
-          ))}
-        </div>
-      )}
+      <TradeUpFinderControls
+        statTrak={finderStatTrak}
+        onStatTrakChange={setFinderStatTrak}
+        includeStorage={includeStorage}
+        onIncludeStorageChange={setIncludeStorage}
+      />
+      <TradeUpFinderResults finder={finder} />
       {(candidates.status === "loading" || (current && !ready)) && <TradeUpSkeleton />}
       {candidates.status === "error" && (
         <LoadError message={candidates.message} onRetry={candidates.retry} />
