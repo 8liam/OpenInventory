@@ -211,7 +211,6 @@ function ItemsPage() {
             <ExportItems items={rows} currency={data.data.currency} />
           )}
           <input
-            type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={COPY.common.searchPlaceholder}
