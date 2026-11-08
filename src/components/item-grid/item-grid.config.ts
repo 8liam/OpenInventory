@@ -10,7 +10,7 @@ export const ITEM_GRID = {
   selectAllText: "Select all",
   sortLabel: "Sort items",
   emptyLabel: "No items",
-  countSuffix: "items",
+  count: { one: "item", other: "items" },
   defaultSort: "price-desc",
   sorts: [
     { id: "price-desc", label: "Price: high to low" },

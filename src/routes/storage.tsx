@@ -24,7 +24,8 @@ import { postJson, useRemoteData, useStorageSnapshot } from "~/lib/storage/stora
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { useItemViewMode } from "~/lib/items/view-mode.store";
 import { usePriceQuery, useSettings } from "~/lib/settings/settings.store";
-import { formatInteger, formatMoney } from "~/utils/format";
+import { formatMoney } from "~/utils/format";
+import { formatCount } from "~/utils/plural";
 
 export const Route = createFileRoute("/storage")({ component: StoragePage });
 
@@ -130,7 +131,7 @@ function StoragePage() {
               <div className="flex items-center justify-between gap-3">
                 <p className="text-muted-foreground">
                   <span className="font-medium text-foreground">{selected.name}</span> ·{" "}
-                  {formatInteger(selected.itemCount)} {copy.items} · {copy.value}{" "}
+                  {formatCount(selected.itemCount, copy.items)} · {copy.value}{" "}
                   {unitPending(selected) ? (
                     <Skeleton className="inline-block h-4 w-14 align-middle" />
                   ) : (

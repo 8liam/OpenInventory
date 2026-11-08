@@ -290,7 +290,7 @@ export const COPY = {
     noUnits: "No storage units found on this account.",
     selectUnit: "Select a unit to see what's inside.",
     unitEmpty: "This unit is empty.",
-    items: "items",
+    items: { one: "item", other: "items" },
     value: "Value",
   },
   tradeup: {

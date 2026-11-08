@@ -11,7 +11,7 @@ import {
 import { ItemGridCard } from "~/components/item-grid-card/item-grid-card.component";
 import { Select } from "~/components/select/select.component";
 import { itemRowKey } from "~/lib/items/item-key";
-import { formatInteger } from "~/utils/format";
+import { formatCount } from "~/utils/plural";
 import { ITEM_GRID } from "./item-grid.config";
 import type { ItemGridProps, ItemGridSortId } from "./item-grid.types";
 import { columnsFor, sortItems } from "./item-grid.utils";
@@ -214,7 +214,7 @@ export function ItemGrid({
         )}
       </div>
       <div className="shrink-0 border-t px-4 py-1.5 text-xs text-muted-foreground">
-        {formatInteger(ordered.length)} {ITEM_GRID.countSuffix}
+        {formatCount(ordered.length, ITEM_GRID.count)}
       </div>
     </div>
   );
