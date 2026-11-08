@@ -2,18 +2,12 @@ import { useState } from "react";
 import { Button } from "~/components/button/button.component";
 import { accountName } from "~/lib/accounts/account-scope.hooks";
 import { postJson, useAppSnapshot } from "~/lib/storage/storage.client";
-import type { AccountState } from "~/lib/storage/storage.types";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { TRANSFER_STATUS } from "./transfer-status.config";
+import type { TransferBannerProps } from "./transfer-status.types";
 
 /** Banner for one account's running/last transfer. */
-function TransferBanner({
-  account,
-  named,
-}: {
-  readonly account: AccountState;
-  readonly named: boolean;
-}) {
+function TransferBanner({ account, named }: TransferBannerProps) {
   const { transfer } = account.snapshot;
   const accountId = { accountId: account.steamId };
   const owner = named ? (

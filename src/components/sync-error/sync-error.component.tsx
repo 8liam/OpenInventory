@@ -6,16 +6,10 @@ import { COPY } from "~/lib/copy/copy.config";
 import { postJson, useAppSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { usePriceQuery } from "~/lib/settings/settings.store";
-import type { AccountState } from "~/lib/storage/storage.types";
 import { SYNC_ERROR } from "./sync-error.config";
+import type { SyncErrorBannerProps } from "./sync-error.types";
 
-function SyncErrorBanner({
-  account,
-  named,
-}: {
-  readonly account: AccountState;
-  readonly named: boolean;
-}) {
+function SyncErrorBanner({ account, named }: SyncErrorBannerProps) {
   const { syncError, loadingUnits } = account.snapshot;
   const priceQuery = usePriceQuery();
   const [retrying, setRetrying] = useState(false);
