@@ -19,6 +19,7 @@ import { buildRaritySlices } from "~/lib/cases/rarity-slices";
 import type { CasesResponse, OpeningKind } from "~/lib/cases/cases.types";
 import { cn } from "~/utils/cn";
 import { COPY } from "~/lib/copy/copy.config";
+import { PAGE_LAYOUT } from "~/lib/layout/page-layout.config";
 import {
   useScopedPath,
   useSingleAccountId,
@@ -88,7 +89,7 @@ function CasesPage() {
           role="region"
           aria-label={copy.title}
           tabIndex={0}
-          className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-4 [&>*]:shrink-0"
+          className={PAGE_LAYOUT.scrollRegion}
         >
           <SyncBanner
             sync={response.sync}
@@ -98,28 +99,28 @@ function CasesPage() {
           />
           <KindPills selected={kind} counts={response.stats.kindCounts} onSelect={setKind} />
           {!stats ? (
-            <LoadingRegion className="contents">
+            <LoadingRegion className={CASES_PAGE.classes.contents}>
               <CasesSkeleton onlyBody />
             </LoadingRegion>
           ) : stats.total === 0 ? (
-            !running && <p className="text-muted-foreground">{emptyText}</p>
+            !running && <p className={CASES_PAGE.classes.muted}>{emptyText}</p>
           ) : (
             <>
               <CaseSummary stats={stats} />
               {kind === "case" && <CaseRarityInsights stats={stats} />}
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
-                <Panel title={copy.rarityTitle} className="lg:col-span-2">
+              <div className={CASES_PAGE.classes.summaryGrid}>
+                <Panel title={copy.rarityTitle} className={CASES_PAGE.classes.rarityPanel}>
                   <DonutChart
                     slices={raritySlices}
                     currency=""
                     totalLabel={copy.kinds[kind].headline}
                     formatValue={(n) => String(n)}
                   />
-                  <div className="mt-5">
+                  <div className={CASES_PAGE.classes.rarityBars}>
                     <BarList slices={raritySlices} currency="" showValue={false} />
                   </div>
                 </Panel>
-                <div className="flex flex-col gap-4 lg:col-span-3">
+                <div className={CASES_PAGE.classes.sideColumn}>
                   <Panel title={`${copy.kinds[kind].pill} per month`}>
                     <MonthlyBars months={stats.perMonth} />
                   </Panel>
@@ -130,8 +131,10 @@ function CasesPage() {
               </div>
               <div
                 className={cn(
-                  "grid grid-cols-1 gap-4",
-                  stats.topCases.length > 0 ? "lg:grid-cols-3" : "lg:grid-cols-2",
+                  CASES_PAGE.classes.listGrid,
+                  stats.topCases.length > 0
+                    ? CASES_PAGE.classes.listGridThree
+                    : CASES_PAGE.classes.listGridTwo,
                 )}
               >
                 <Panel title={copy.topItemsTitle}>

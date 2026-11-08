@@ -3,6 +3,19 @@ export const CASES_PAGE = {
   pollMs: 2_500,
   /** Slice colour for openings whose rarity Steam did not record: neutral, so it reads as "no data". */
   unknownRarityColor: "8b8b94",
+  classes: {
+    contents: "contents",
+    muted: "text-muted-foreground",
+    /** Rarity breakdown beside the monthly and rarest panels from `lg`. */
+    summaryGrid: "grid grid-cols-1 gap-4 lg:grid-cols-5",
+    rarityPanel: "lg:col-span-2",
+    rarityBars: "mt-5",
+    sideColumn: "flex flex-col gap-4 lg:col-span-3",
+    /** `items-start`: a panel with little to list keeps its own height instead of stretching to its tallest neighbour. */
+    listGrid: "grid grid-cols-1 items-start gap-4",
+    listGridThree: "lg:grid-cols-3",
+    listGridTwo: "lg:grid-cols-2",
+  },
 } as const;
 
 /** The kinds of inventory-history event the Cases page can break down, in pill order. */
