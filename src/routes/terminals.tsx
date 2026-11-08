@@ -6,6 +6,7 @@ import { COPY } from "~/lib/copy/copy.config";
 import type { InventoryResponse } from "~/lib/items/item.types";
 import { usePriceQuery } from "~/lib/settings/settings.store";
 import { useScopedPath, useSingleAccountLabel } from "~/lib/accounts/account-scope.hooks";
+import { useRestoreFocusOnRecovery } from "~/lib/storage/recovered-focus.hooks";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 
@@ -19,6 +20,7 @@ function TerminalsPage() {
     useScopedPath(`${STORAGE_API.items}?${priceQuery}`),
     snapshot.revision,
   );
+  useRestoreFocusOnRecovery(data.status);
   const terminals =
     data.status === "ready" ? data.data.items.filter((item) => item.terminal !== null) : [];
   return (

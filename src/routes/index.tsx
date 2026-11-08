@@ -14,6 +14,7 @@ import { DASHBOARD_PAGE } from "~/lib/items/dashboard-page.config";
 import type { Dashboard } from "~/lib/items/dashboard.types";
 import { useScopedPath } from "~/lib/accounts/account-scope.hooks";
 import { useRefreshAccounts } from "~/lib/accounts/refresh-accounts.hooks";
+import { useRestoreFocusOnRecovery } from "~/lib/storage/recovered-focus.hooks";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { usePriceQuery, useSettings } from "~/lib/settings/settings.store";
@@ -32,6 +33,7 @@ function DashboardPage() {
   const refresh = useRefreshAccounts();
   const copy = COPY.dashboard;
 
+  useRestoreFocusOnRecovery(data.status);
   const dashboard = data.status === "ready" ? data.data : undefined;
   const source = COPY.settings.marketplaces[marketplace];
   return (

@@ -23,6 +23,7 @@ import {
   useSingleAccountId,
   useSingleAccountLabel,
 } from "~/lib/accounts/account-scope.hooks";
+import { useRestoreFocusOnRecovery } from "~/lib/storage/recovered-focus.hooks";
 import { postJson, usePageVisible, useRemoteData } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 
@@ -40,6 +41,7 @@ function CasesPage() {
     useScopedPath(`${STORAGE_API.cases}?kind=${kind}`),
     tick,
   );
+  useRestoreFocusOnRecovery(data.status);
   const running = data.status === "ready" && data.data.sync.state === "running";
   const visible = usePageVisible();
 

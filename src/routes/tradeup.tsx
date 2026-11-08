@@ -19,6 +19,7 @@ import type {
   TradeUpStatTrakFilter,
 } from "~/lib/items/item.types";
 import { useScopedPath, useSingleAccountLabel } from "~/lib/accounts/account-scope.hooks";
+import { useRestoreFocusOnRecovery } from "~/lib/storage/recovered-focus.hooks";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API, TRADE_UP, TRADE_UP_FINDER } from "~/lib/storage/storage.config";
 import { usePriceQuery } from "~/lib/settings/settings.store";
@@ -71,6 +72,9 @@ function TradeUpPage() {
     `${STORAGE_API.tradeUpFinder}?rarity=${rarity}&statTrak=${finderStatTrak}&includeStorage=${includeStorage}&${priceQuery}`,
   );
   const finder = useRemoteData<TradeUpFinderResponse>(finderPath, snapshot.revision);
+  useRestoreFocusOnRecovery(candidates.status);
+  useRestoreFocusOnRecovery(odds.status);
+  useRestoreFocusOnRecovery(finder.status);
 
   function toggle(id: string) {
     setSelection((current) =>

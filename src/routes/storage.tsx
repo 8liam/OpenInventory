@@ -20,6 +20,7 @@ import {
   useSingleAccountId,
   useSingleAccountLabel,
 } from "~/lib/accounts/account-scope.hooks";
+import { useRestoreFocusOnRecovery } from "~/lib/storage/recovered-focus.hooks";
 import { postJson, useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { STORAGE_PAGE } from "~/lib/storage/storage-page.config";
@@ -41,6 +42,7 @@ function StoragePage() {
     useScopedPath(`${STORAGE_API.items}?${priceQuery}`),
     snapshot.revision,
   );
+  useRestoreFocusOnRecovery(data.status);
   const [selectedId, setSelectedId] = useState<string>();
   const [picked, setPicked] = useState<ReadonlySet<string>>(new Set());
   const [organising, setOrganising] = useState(false);

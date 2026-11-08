@@ -28,6 +28,7 @@ import { matchesItem } from "~/lib/items/item-search";
 import { itemHighlights } from "~/lib/items/highlights";
 import { ALL_FILTER, ITEMS_PAGE, LABEL_FILTER_PREFIX } from "~/lib/items/items-page.config";
 import type { InventoryResponse, ItemView } from "~/lib/items/item.types";
+import { useRestoreFocusOnRecovery } from "~/lib/storage/recovered-focus.hooks";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { useItemViewMode } from "~/lib/items/view-mode.store";
@@ -60,6 +61,7 @@ function ItemsPage() {
     useScopedPath(`${STORAGE_API.items}?${priceQuery}`),
     snapshot.revision,
   );
+  useRestoreFocusOnRecovery(data.status);
   const [query, setQuery] = useState(linkedQuery);
   // A new link (or back/forward) replaces what was typed; typing never rewrites the URL.
   const [appliedQuery, setAppliedQuery] = useState(linkedQuery);
