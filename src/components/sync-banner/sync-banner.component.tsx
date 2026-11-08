@@ -4,26 +4,28 @@ import { COPY } from "~/lib/copy/copy.config";
 import { SYNC_BANNER } from "./sync-banner.config";
 import type { SyncBannerProps } from "./sync-banner.types";
 
+const { classes } = SYNC_BANNER;
+
 /** Progress and the sync button for reading Steam's inventory history. */
 export function SyncBanner({ sync, onSync, requestPending, requestError }: SyncBannerProps) {
   const copy = COPY.cases;
   const running = sync.state === "running";
   const busy = running || requestPending;
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card px-4 py-3">
-      <div className="min-w-0 text-xs text-muted-foreground">
+    <div className={classes.root}>
+      <div className={classes.status}>
         {running && (
-          <p className="tabular">
+          <p className={classes.progress}>
             {copy.syncing}… {sync.pages} {copy.syncProgress} · {sync.events} {copy.eventsFound}
           </p>
         )}
         {!running && sync.state === "error" && (
-          <p role="alert" className="text-destructive">
+          <p role="alert" className={classes.error}>
             {sync.message}
           </p>
         )}
         {requestError && (
-          <p role="alert" className="text-destructive">
+          <p role="alert" className={classes.error}>
             {requestError}
           </p>
         )}
@@ -35,7 +37,7 @@ export function SyncBanner({ sync, onSync, requestPending, requestError }: SyncB
         {!running && !sync.lastSyncAt && <p>{copy.firstSyncHint}</p>}
         {!sync.complete && sync.lastSyncAt !== null && !running && <p>{copy.partial}</p>}
       </div>
-      <p role="status" className="sr-only">
+      <p role="status" className={classes.srOnly}>
         {busy ? copy.syncStarted : ""}
       </p>
       {/* Stays focusable while busy (a disabled button would drop focus to the page); a press is ignored. */}
