@@ -9,10 +9,14 @@ import { LoadingRegion } from "~/components/loading-region/loading-region.compon
 import { Reveal } from "~/components/reveal/reveal.component";
 import { TransferBar } from "~/components/transfer-bar/transfer-bar.component";
 import { ViewToggle } from "~/components/view-toggle/view-toggle.component";
+import { Button } from "~/components/button/button.component";
+import { FilteredEmpty } from "~/components/filtered-empty/filtered-empty.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { Select } from "~/components/select/select.component";
 import {
+  accountIdSuffix,
   accountName,
+  accountNameWithId,
   accountText,
   useAccountScope,
   useScopedPath,
@@ -23,12 +27,12 @@ import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
 import { matchesItem } from "~/lib/items/item-search";
 import { itemHighlights } from "~/lib/items/highlights";
+import { ALL_FILTER, ITEMS_PAGE, LABEL_FILTER_PREFIX } from "~/lib/items/items-page.config";
 import type { InventoryResponse } from "~/lib/items/item.types";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { useItemViewMode } from "~/lib/items/view-mode.store";
 import { usePriceQuery } from "~/lib/settings/settings.store";
-import { cn } from "~/utils/cn";
 import { formatInteger } from "~/utils/format";
 
 export const Route = createFileRoute("/items")({
@@ -38,13 +42,14 @@ export const Route = createFileRoute("/items")({
   component: ItemsPage,
 });
 
-const ALL = "all";
-const LABEL_PREFIX = "label:";
-
 /** Location ids repeat across accounts (every inventory is "inventory"), so filters key on both. */
 const locationKey = (item: { readonly accountId: string; readonly locationId: string }) =>
   `${item.accountId}:${item.locationId}`;
-const SELECT_WIDTH = "min-w-0 flex-1 sm:w-48 sm:flex-none";
+
+/** `value` while it is still one of `options`, else "no filter"; a stale pick never empties the page. */
+function validFilter(value: string, options: readonly { readonly id: string }[]): string {
+  return options.some((option) => option.id === value) ? value : ALL_FILTER;
+}
 
 function ItemsPage() {
   const { q: linkedQuery = "" } = Route.useSearch();
@@ -63,9 +68,10 @@ function ItemsPage() {
     setAppliedQuery(linkedQuery);
     setQuery(linkedQuery);
   }
-  const [accountFilter, setAccountFilter] = useState(ALL);
-  const [location, setLocation] = useState(ALL);
-  const [type, setType] = useState(ALL);
+  // The page remounts when the sidebar account changes (see AccountGate), so these start fresh per scope.
+  const [accountPick, setAccountFilter] = useState(ALL_FILTER);
+  const [locationPick, setLocation] = useState(ALL_FILTER);
+  const [typePick, setType] = useState(ALL_FILTER);
   const [highlightsOnly, setHighlightsOnly] = useState(false);
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
   const deferred = useDeferredValue(query);
@@ -89,21 +95,28 @@ function ItemsPage() {
   const accountOptions = useMemo(() => {
     const usedLabels = ACCOUNT_LABELS.filter((label) => scoped.some((a) => a.label === label));
     return [
-      { id: ALL, label: COPY.accounts.filterAll },
+      { id: ALL_FILTER, label: COPY.items.anyAccount },
       ...usedLabels.map((label) => ({
-        id: `${LABEL_PREFIX}${label}`,
+        id: `${LABEL_FILTER_PREFIX}${label}`,
         label: COPY.accounts.filterLabel(COPY.accounts.labels[label]),
       })),
-      ...scoped.map((a) => ({ id: a.steamId, label: accountName(a) })),
+      ...scoped.map((a) => ({
+        id: a.steamId,
+        label: a.displayName ?? COPY.accounts.fallbackShortName,
+        detail: accountIdSuffix(a.steamId),
+      })),
     ];
   }, [scoped]);
+  const accountFilter = isAll ? validFilter(accountPick, accountOptions) : ALL_FILTER;
   // Account and label filters narrow the rows first, so the location and type counts below match what is shown.
   const inAccount = useMemo(
     () =>
       items?.filter((i) => {
-        if (accountFilter === ALL) return true;
-        if (accountFilter.startsWith(LABEL_PREFIX))
-          return accountByKey.get(i.accountId)?.label === accountFilter.slice(LABEL_PREFIX.length);
+        if (accountFilter === ALL_FILTER) return true;
+        if (accountFilter.startsWith(LABEL_FILTER_PREFIX))
+          return (
+            accountByKey.get(i.accountId)?.label === accountFilter.slice(LABEL_FILTER_PREFIX.length)
+          );
         return i.accountId === accountFilter;
       }),
     [items, accountFilter, accountByKey],
@@ -125,7 +138,11 @@ function ItemsPage() {
         });
     }
     return [
-      { id: ALL, label: COPY.items.allLocations, detail: formatInteger(inAccount?.length ?? 0) },
+      {
+        id: ALL_FILTER,
+        label: COPY.items.allLocations,
+        detail: formatInteger(inAccount?.length ?? 0),
+      },
       ...[...counts].map(([id, { name, count }]) => ({
         id,
         label: name,
@@ -138,87 +155,112 @@ function ItemsPage() {
     for (const item of inAccount ?? [])
       counts.set(item.category, (counts.get(item.category) ?? 0) + 1);
     return [
-      { id: ALL, label: COPY.items.allTypes, detail: formatInteger(inAccount?.length ?? 0) },
+      { id: ALL_FILTER, label: COPY.items.allTypes, detail: formatInteger(inAccount?.length ?? 0) },
       ...[...counts]
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([id, count]) => ({ id, label: id, detail: formatInteger(count) })),
     ];
   }, [inAccount]);
+  const location = validFilter(locationPick, locationOptions);
+  const type = validFilter(typePick, typeOptions);
   const rows = useMemo(
     () =>
       inAccount?.filter(
         (i) =>
-          (location === ALL || locationKey(i) === location) &&
-          (type === ALL || i.category === type) &&
+          (location === ALL_FILTER || locationKey(i) === location) &&
+          (type === ALL_FILTER || i.category === type) &&
           (!highlightsOnly || itemHighlights(i).reasons.length > 0) &&
           matchesItem(i, deferred, accountTextOf(i.accountId)),
       ),
     [inAccount, location, type, highlightsOnly, deferred, accountTextOf],
   );
 
+  // Only rows on screen count as selected: a filter that hides a row also drops it from the move.
   const selectedItems = useMemo(
-    () => (items ?? []).filter((i) => selected.has(itemRowKey(i))),
-    [items, selected],
+    () => (rows ?? []).filter((i) => selected.has(itemRowKey(i))),
+    [rows, selected],
   );
+  const visibleSelected = useMemo(() => new Set(selectedItems.map(itemRowKey)), [selectedItems]);
+  const filtered =
+    deferred.trim() !== "" ||
+    accountFilter !== ALL_FILTER ||
+    location !== ALL_FILTER ||
+    type !== ALL_FILTER ||
+    highlightsOnly;
+  function clearFilters() {
+    setQuery("");
+    setAccountFilter(ALL_FILTER);
+    setLocation(ALL_FILTER);
+    setType(ALL_FILTER);
+    setHighlightsOnly(false);
+  }
 
   // Moves act on one account: its own units are the destinations. Mixed selections are refused by the bar.
   const selectedBusy = selectedItems.some(
     (i) => accountByKey.get(i.accountId)?.snapshot.transfer.status === "running",
   );
-  const transferUnits = accountByKey.get(selectedItems[0]?.accountId ?? "")?.snapshot.units ?? [];
+  const selectedAccount = accountByKey.get(selectedItems[0]?.accountId ?? "");
+  const transferUnits = selectedAccount?.snapshot.units ?? [];
+  const selectedAccountName = selectedAccount ? accountNameWithId(selectedAccount) : undefined;
 
   return (
     <>
       <PageHeader title={COPY.items.title} description={COPY.items.description}>
-        {rows && data.status === "ready" && (
-          <ExportItems items={rows} currency={data.data.currency} />
-        )}
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={COPY.common.searchPlaceholder}
-          className="h-8 w-full rounded-md border border-input bg-card px-2.5 outline-none placeholder:text-muted-foreground focus:border-primary sm:w-56"
-        />
-        {isAll && (
-          <Select
-            value={accountFilter}
-            ariaLabel={COPY.accounts.column}
-            className={SELECT_WIDTH}
-            options={accountOptions}
-            onChange={(id) => {
-              setAccountFilter(id);
-              setLocation(ALL);
-            }}
-          />
-        )}
-        <Select
-          value={location}
-          ariaLabel={COPY.itemColumns.location}
-          className={SELECT_WIDTH}
-          options={locationOptions}
-          onChange={setLocation}
-        />
-        <Select
-          value={type}
-          ariaLabel={COPY.itemColumns.type}
-          className={SELECT_WIDTH}
-          options={typeOptions}
-          onChange={setType}
-        />
-        <button
-          type="button"
-          aria-pressed={highlightsOnly}
-          onClick={() => setHighlightsOnly((on) => !on)}
-          className={cn(
-            "flex h-8 shrink-0 items-center gap-1.5 rounded-md bg-muted px-2.5 text-xs text-muted-foreground transition-colors hover:text-foreground",
-            highlightsOnly && "bg-card font-medium text-foreground shadow-sm",
+        <div className={ITEMS_PAGE.controlsClass}>
+          {rows && data.status === "ready" && (
+            <ExportItems items={rows} currency={data.data.currency} />
           )}
-        >
-          <Gem size={14} aria-hidden className={highlightsOnly ? "text-accent" : undefined} />
-          {COPY.items.highlightsOnly}
-        </button>
-        <TiersHelp />
-        <ViewToggle value={view} onChange={setView} />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={COPY.common.searchPlaceholder}
+            aria-label={COPY.common.searchPlaceholder}
+            className={ITEMS_PAGE.searchClass}
+          />
+          {isAll && (
+            <Select
+              value={accountFilter}
+              ariaLabel={COPY.items.accountFilterLabel}
+              className={ITEMS_PAGE.accountSelectClass}
+              options={accountOptions}
+              onChange={(id) => {
+                setAccountFilter(id);
+                setLocation(ALL_FILTER);
+              }}
+            />
+          )}
+          <Select
+            value={location}
+            ariaLabel={COPY.itemColumns.location}
+            className={ITEMS_PAGE.selectClass}
+            options={locationOptions}
+            onChange={setLocation}
+          />
+          <Select
+            value={type}
+            ariaLabel={COPY.itemColumns.type}
+            className={ITEMS_PAGE.selectClass}
+            options={typeOptions}
+            onChange={setType}
+          />
+          <div className={ITEMS_PAGE.togglesClass}>
+            <Button
+              aria-pressed={highlightsOnly}
+              onClick={() => setHighlightsOnly((on) => !on)}
+              className={ITEMS_PAGE.highlightsToggleClass}
+            >
+              <Gem
+                size={ITEMS_PAGE.iconSize}
+                aria-hidden
+                className={highlightsOnly ? "text-accent-strong" : "text-muted-foreground"}
+              />
+              {COPY.items.highlightsOnly}
+            </Button>
+            <TiersHelp />
+            <ViewToggle value={view} onChange={setView} />
+          </div>
+        </div>
       </PageHeader>
       {data.status === "loading" && (
         <LoadingRegion className="flex min-h-0 flex-1 flex-col">
@@ -231,23 +273,33 @@ function ItemsPage() {
           <TransferBar
             selected={selectedItems}
             units={transferUnits}
-            accountName={
-              accounts.length > 1 ? accountTextOf(selectedItems[0]?.accountId ?? "") : undefined
-            }
+            accountName={accounts.length > 1 ? selectedAccountName : undefined}
             busy={selectedBusy}
             onClear={() => setSelected(new Set())}
           />
         )}
       </Reveal>
-      {rows && data.status === "ready" && (
-        <ItemCollection
-          view={view}
-          items={rows}
-          currency={data.data.currency}
-          accountNames={accountNames}
-          selected={selected}
-          onSelectionChange={setSelected}
+      {rows && data.status === "ready" && rows.length === 0 && filtered ? (
+        <FilteredEmpty
+          title={highlightsOnly ? COPY.items.noHighlightMatches : COPY.items.noMatches}
+          body={COPY.items.noMatchesBody}
+          actionLabel={COPY.items.clearFilters}
+          onAction={clearFilters}
         />
+      ) : rows && data.status === "ready" && rows.length === 0 ? (
+        <p className="text-muted-foreground">{COPY.items.noItems}</p>
+      ) : (
+        rows &&
+        data.status === "ready" && (
+          <ItemCollection
+            view={view}
+            items={rows}
+            currency={data.data.currency}
+            accountNames={accountNames}
+            selected={visibleSelected}
+            onSelectionChange={setSelected}
+          />
+        )
       )}
     </>
   );

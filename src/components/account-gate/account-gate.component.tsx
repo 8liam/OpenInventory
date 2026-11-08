@@ -1,23 +1,29 @@
-import { useEffect, useRef } from "react";
+import { Link } from "@tanstack/react-router";
+import { TriangleAlert } from "lucide-react";
+import { Fragment, useEffect, useId, useRef } from "react";
 import { AccountStatus } from "~/components/account-status/account-status.component";
+import { AccountStatusDot } from "~/components/account-status-dot/account-status-dot.component";
 import { Button } from "~/components/button/button.component";
-import { accountName, useAccountScope } from "~/lib/accounts/account-scope.hooks";
+import { accountNameWithId, useAccountScope } from "~/lib/accounts/account-scope.hooks";
 import { useAccountSelection } from "~/lib/accounts/account-scope.store";
 import { ALL_ACCOUNTS_ROUTES, UNGATED_ROUTES } from "~/lib/accounts/accounts.config";
 import { COPY } from "~/lib/copy/copy.config";
 import { postJson } from "~/lib/storage/storage.client";
 import { AUTH_STATUS, STORAGE_API } from "~/lib/storage/storage.config";
+import { ACCOUNT_GATE } from "./account-gate.config";
 import type { AccountGateProps } from "./account-gate.types";
 
 /**
  * Decides what a page sees: its account's data once connected, the account's progress or
  * error while not, or a prompt to pick an account on pages that act on exactly one.
  * Accounts connect lazily, so viewing one is what asks the server to connect it.
+ * Pages remount when the account changes, so filters, selections and drafts never carry over.
  */
 export function AccountGate({ pathname, children }: AccountGateProps) {
-  const { accounts, scoped, isAll } = useAccountScope();
+  const { accounts, scope, scoped, isAll } = useAccountScope();
   const select = useAccountSelection((state) => state.select);
   const asked = useRef(new Set<string>());
+  const chooseTitleId = useId();
   const copy = COPY.accounts;
 
   useEffect(() => {
@@ -31,20 +37,24 @@ export function AccountGate({ pathname, children }: AccountGateProps) {
     }
   }, [scoped]);
 
-  if (UNGATED_ROUTES.includes(pathname)) return <>{children}</>;
+  const page = <Fragment key={scope}>{children}</Fragment>;
+  if (UNGATED_ROUTES.includes(pathname)) return page;
   if (isAll && !ALL_ACCOUNTS_ROUTES.includes(pathname)) {
     return (
-      <div className="rounded-lg border bg-card p-4">
-        <h2 className="text-[13px] font-medium">{copy.chooseOneTitle}</h2>
+      <section className={ACCOUNT_GATE.cardClass} aria-labelledby={chooseTitleId}>
+        <h2 id={chooseTitleId} className="text-[13px] font-medium">
+          {copy.chooseOneTitle}
+        </h2>
         <p className="mt-2 text-muted-foreground">{copy.chooseOneBody}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {accounts.map((account) => (
-            <Button key={account.steamId} small onClick={() => select(account.steamId)}>
-              {accountName(account)}
+            <Button key={account.steamId} onClick={() => select(account.steamId)}>
+              <AccountStatusDot status={account.snapshot.auth.status} />
+              {accountNameWithId(account)}
             </Button>
           ))}
         </div>
-      </div>
+      </section>
     );
   }
 
@@ -58,11 +68,37 @@ export function AccountGate({ pathname, children }: AccountGateProps) {
       </div>
     );
   }
-  const waiting = scoped.length - ready.length;
+  const waiting = scoped.filter((account) => account.snapshot.auth.status !== AUTH_STATUS.ready);
+  const [onlyWaiting] = waiting.length === 1 ? waiting : [];
+  const notice = waiting.length > 0 ? copy.partialNotice(waiting.map(accountNameWithId)) : "";
   return (
     <>
-      {waiting > 0 && <p className="text-xs text-warning">{copy.partialNotice(waiting)}</p>}
-      {children}
+      {/* Always mounted, so a newly dropped account is announced politely. */}
+      <p role="status" className="sr-only">
+        {notice}
+      </p>
+      {notice && (
+        <div className={ACCOUNT_GATE.bannerClass}>
+          <p className="flex min-w-0 items-center gap-2" aria-hidden>
+            <TriangleAlert size={ACCOUNT_GATE.bannerIconSize} className="shrink-0 text-warning" />
+            <span>{notice}</span>
+          </p>
+          <span className="flex gap-2">
+            {onlyWaiting && (
+              <Button small onClick={() => select(onlyWaiting.steamId)}>
+                {copy.partialFix(accountNameWithId(onlyWaiting))}
+              </Button>
+            )}
+            <Link
+              to="/settings"
+              className="inline-flex h-7 items-center whitespace-nowrap rounded-md px-2.5 font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              {copy.partialSettings}
+            </Link>
+          </span>
+        </div>
+      )}
+      {page}
     </>
   );
 }

@@ -150,8 +150,10 @@ export const COPY = {
     chooseOneTitle: "Choose an account",
     chooseOneBody:
       "This page works on one account at a time, so moves, renames and Terminal actions always go to the account you pick.",
-    partialNotice: (count: number) =>
-      `${count} ${count === 1 ? "account isn't" : "accounts aren't"} connected yet and ${count === 1 ? "is" : "are"} left out.`,
+    partialNotice: (names: readonly string[]) =>
+      `${names.join(", ")} ${names.length === 1 ? "isn't" : "aren't"} connected, so ${names.length === 1 ? "its" : "their"} items are left out of this view.`,
+    partialFix: (name: string) => `Reconnect ${name}…`,
+    partialSettings: "Open settings",
     column: "Account",
     filterAll: "All accounts",
     filterLabel: (label: string) => `Label: ${label}`,
@@ -240,17 +242,34 @@ export const COPY = {
     allTypes: "All types",
     highlightsOnly: "Highlights only",
     highlights: "Highlights",
+    moreHighlights: (count: number) => `+${count}`,
+    highlightMarker: (reasons: readonly string[]) => `Highlighted: ${reasons.join(", ")}`,
+    accountFilterLabel: "Filter by account",
+    anyAccount: "Any account",
+    clearFilters: "Clear filters",
+    noMatches: "No items match these filters",
+    noHighlightMatches: "No highlights match these filters",
+    noMatchesBody: "Try a different search, or clear the filters to see everything.",
+    noItems: "No items in this account yet.",
     tierDescription: (match: PatternTierMatch) =>
       `Tier ${match.tier} of ${match.tierCount} for ${match.weapon} ${match.finish} (${match.group})`,
     tiersHelp: {
-      trigger: "About tiers",
-      title: "Pattern tiers",
+      trigger: "About highlights and tiers",
+      title: "Highlights and tiers",
       intro:
-        "Skins with a sought-after seed or phase carry a tier badge. T1 is the most valuable tier for that weapon and finish; higher numbers are worth less.",
+        "A highlight is something that can make one copy of a skin worth more than another. Each one shows as a chip under the item name:",
+      signals: [
+        { label: "Float", text: "the float sits in the lowest or highest 3% of the skin's range." },
+        {
+          label: "Pattern",
+          text: "the seed or phase is on a community tier list. It also gets a tier badge, T1 being the most valuable for that weapon and finish.",
+        },
+        { label: "Sticker craft", text: "a rare sticker or charm is applied." },
+      ],
       points: [
         "The same seed can sit in a different tier on a different weapon.",
-        "Tiers come from community tier lists and fade percentages. They ignore float, stickers and price.",
-        "Highlights first lists T1 first, then by price. Highlights only hides everything else.",
+        "Tiers ignore float, stickers and price.",
+        "Sorting by Highlights lists T1 first, then other highlights, then by price. Highlights only hides everything else.",
       ],
     },
   },

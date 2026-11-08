@@ -150,13 +150,13 @@ export function Select({
             show();
           }
         }}
-        className="flex h-8 w-full items-center justify-between gap-3 rounded-md border border-input bg-card pl-3 pr-2.5 text-left text-foreground outline-none transition-colors hover:bg-muted focus-visible:border-primary disabled:pointer-events-none disabled:opacity-50 max-sm:h-9"
+        className="flex h-8 w-full items-center justify-between gap-2 rounded-md border border-input bg-card pl-3 pr-2 text-left text-foreground outline-none transition-colors hover:bg-muted focus-visible:border-primary disabled:pointer-events-none disabled:opacity-50 max-sm:h-9"
       >
-        <span className="flex min-w-0 items-center gap-2">
+        <span className="flex min-w-0 items-center gap-1.5">
           {selected?.leading}
           <span className="truncate">{selected?.label ?? ""}</span>
           {showDetailInTrigger && selected?.detail && (
-            <span className="shrink-0 text-xs text-muted-foreground tabular">
+            <span className="shrink-0 text-[11px] text-muted-foreground tabular">
               {selected.detail}
             </span>
           )}
