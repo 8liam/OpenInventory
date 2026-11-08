@@ -18,6 +18,6 @@ export const RULE_FORM = {
   addRule: "Add rule",
   invalid: "Fill in every condition and choose a unit.",
   inputClass:
-    "h-8 min-w-0 flex-1 rounded border bg-background px-2 text-sm outline-none focus:border-primary/60",
+    "h-8 min-w-0 max-w-sm flex-1 rounded border bg-background px-2 text-sm outline-none focus:border-primary/60",
   listIdPrefix: "organiser-suggestions-",
 } as const;
