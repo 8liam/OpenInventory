@@ -14,6 +14,7 @@ import { AccountSwitcher } from "~/components/account-switcher/account-switcher.
 import { AddAccountDialog } from "~/components/add-account-dialog/add-account-dialog.component";
 import { AuthGate } from "~/components/auth-gate/auth-gate.component";
 import { InventoryPrefetch } from "~/components/inventory-prefetch/inventory-prefetch.component";
+import { LoginOutcome } from "~/components/login-outcome/login-outcome.component";
 import { Logo } from "~/components/logo/logo.component";
 import { SyncError } from "~/components/sync-error/sync-error.component";
 import { TransferStatus } from "~/components/transfer-status/transfer-status.component";
@@ -74,6 +75,7 @@ export function AppShell() {
         </header>
 
         <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-hidden p-4 md:gap-5 md:p-6">
+          <LoginOutcome />
           <SyncError />
           <TransferStatus />
           <AccountGate pathname={pathname}>

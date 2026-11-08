@@ -1,8 +1,14 @@
+import type { ReactNode } from "react";
+
 export type SelectOption = {
   readonly id: string;
   readonly label: string;
   /** Quiet text on the right of the row, such as an item count. */
   readonly detail?: string;
+  /** A second, quieter line under the label, such as an account's status. */
+  readonly hint?: string;
+  /** Shown before the label, in the list and (for the chosen option) the trigger, e.g. a status dot. */
+  readonly leading?: ReactNode;
   readonly disabled?: boolean;
 };
 
@@ -13,6 +19,10 @@ export type SelectProps = {
   readonly ariaLabel: string;
   readonly disabled?: boolean;
   readonly className?: string;
+  /** The open list is at least this wide (px), so long names aren't cut short in a narrow trigger. */
+  readonly listMinWidth?: number;
+  /** Also shows the chosen option's `detail` in the trigger, kept whole while the label truncates. */
+  readonly showDetailInTrigger?: boolean;
 };
 
 /** Where the open list sits, in viewport pixels (it is `position: fixed`). */

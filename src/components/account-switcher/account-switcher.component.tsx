@@ -1,9 +1,11 @@
 import { Plus } from "lucide-react";
 import { useMemo } from "react";
+import { AccountStatusDot } from "~/components/account-status-dot/account-status-dot.component";
 import { Select } from "~/components/select/select.component";
-import { useAccountScope, accountName } from "~/lib/accounts/account-scope.hooks";
+import type { SelectOption } from "~/components/select/select.types";
+import { accountIdSuffix, useAccountScope } from "~/lib/accounts/account-scope.hooks";
 import { useAccountSelection } from "~/lib/accounts/account-scope.store";
-import { authDotClass } from "~/lib/accounts/account-status";
+import { authStatusText } from "~/lib/accounts/account-status";
 import { ALL_ACCOUNTS } from "~/lib/accounts/accounts.config";
 import { useAddAccountDialog } from "~/lib/accounts/add-account-dialog.store";
 import { COPY } from "~/lib/copy/copy.config";
@@ -14,40 +16,52 @@ import type { AccountSwitcherProps } from "./account-switcher.types";
 
 /** Picks which account (or all of them) the app shows, and starts adding another. */
 export function AccountSwitcher({ className }: AccountSwitcherProps) {
-  const { accounts, scope, scoped } = useAccountScope();
+  const { accounts, scope } = useAccountScope();
   const select = useAccountSelection((state) => state.select);
-  const setDialogOpen = useAddAccountDialog((state) => state.setOpen);
+  const openAdd = useAddAccountDialog((state) => state.openAdd);
   const copy = COPY.accounts;
 
-  const options = useMemo(
-    () => [
-      ...(accounts.length > 1 ? [{ id: ALL_ACCOUNTS, label: copy.all }] : []),
+  const options = useMemo<readonly SelectOption[]>(() => {
+    const attention = accounts.filter(
+      (account) => account.snapshot.auth.status !== AUTH_STATUS.ready,
+    ).length;
+    const summary = copy.allSummary(accounts.length, attention);
+    const all: SelectOption = {
+      id: ALL_ACCOUNTS,
+      label: copy.all,
+      hint: summary,
+      leading: (
+        <AccountStatusDot
+          status={attention === 0 ? AUTH_STATUS.ready : AUTH_STATUS.connecting}
+          decorative
+        />
+      ),
+    };
+    return [
+      ...(accounts.length > 1 ? [all] : []),
       ...accounts.map((account) => ({
         id: account.steamId,
-        label: accountName(account),
-        detail: account.label ? copy.labels[account.label] : undefined,
+        // The SteamID tail sits in `detail`, which never truncates, so same-named accounts stay distinct.
+        label: account.displayName ?? copy.fallbackShortName,
+        detail: accountIdSuffix(account.steamId),
+        hint: copy.optionHint(
+          account.label ? copy.labels[account.label] : undefined,
+          authStatusText(account.snapshot.auth.status),
+        ),
+        leading: <AccountStatusDot status={account.snapshot.auth.status} decorative />,
       })),
-    ],
-    [accounts, copy],
-  );
+    ];
+  }, [accounts, copy]);
   if (scope === undefined) return null;
-  const allReady = scoped.every((account) => account.snapshot.auth.status === AUTH_STATUS.ready);
-  const dot =
-    scoped.length === 1 ? authDotClass(scoped[0]?.snapshot.auth ?? { status: "idle" }) : null;
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <span
-        className={cn(
-          "size-1.5 shrink-0 rounded-full",
-          dot ?? (allReady ? "bg-success" : "bg-warning"),
-        )}
-        aria-hidden
-      />
+    <div className={cn("flex items-center gap-1.5", className)}>
       <Select
         value={scope}
         ariaLabel={copy.switcherLabel}
         className={ACCOUNT_SWITCHER.selectWidth}
+        listMinWidth={ACCOUNT_SWITCHER.listMinWidth}
+        showDetailInTrigger
         options={options}
         onChange={select}
       />
@@ -55,10 +69,10 @@ export function AccountSwitcher({ className }: AccountSwitcherProps) {
         type="button"
         title={copy.add}
         aria-label={copy.add}
-        onClick={() => setDialogOpen(true)}
-        className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+        onClick={openAdd}
+        className={ACCOUNT_SWITCHER.addButtonClass}
       >
-        <Plus size={ACCOUNT_SWITCHER.addIconSize} />
+        <Plus size={ACCOUNT_SWITCHER.addIconSize} aria-hidden />
       </button>
     </div>
   );

@@ -20,6 +20,7 @@ import type {
 const NO_ACCOUNTS: AppSnapshot = {
   accounts: [],
   login: { status: AUTH_STATUS.signedOut },
+  lastLogin: null,
   revision: 0,
 };
 
@@ -57,9 +58,16 @@ function setConnection(next: SnapshotConnection): void {
 function parseSnapshot(raw: string): AppSnapshot | undefined {
   try {
     const value: unknown = JSON.parse(raw);
-    return typeof value === "object" && value !== null && "accounts" in value && "login" in value
-      ? (value as AppSnapshot)
-      : undefined;
+    if (
+      typeof value !== "object" ||
+      value === null ||
+      !("accounts" in value) ||
+      !("login" in value)
+    )
+      return undefined;
+    const parsed = value as AppSnapshot;
+    // Servers from before `lastLogin` existed omit it.
+    return { ...parsed, lastLogin: parsed.lastLogin ?? null };
   } catch {
     return undefined;
   }

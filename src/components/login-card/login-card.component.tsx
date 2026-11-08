@@ -6,7 +6,15 @@ import { AUTH_STATUS, STORAGE_API } from "~/lib/storage/storage.config";
 import type { LoginCardProps } from "./login-card.types";
 
 /** The Steam QR sign-in, shared by the first-run screen and the add-account dialog. */
-export function LoginCard({ login, title, body, buttonLabel }: LoginCardProps) {
+export function LoginCard({
+  login,
+  title,
+  body,
+  buttonLabel,
+  framed = true,
+  headingId,
+  bodyId,
+}: LoginCardProps) {
   const copy = COPY.signIn;
   const [requestError, setRequestError] = useState<string>();
 
@@ -23,9 +31,13 @@ export function LoginCard({ login, title, body, buttonLabel }: LoginCardProps) {
   const idle = login.status === AUTH_STATUS.signedOut || login.status === AUTH_STATUS.error;
 
   return (
-    <div className="rounded-lg border bg-card p-6">
-      <h1 className="text-[15px] font-semibold tracking-tight">{title}</h1>
-      <p className="mt-1.5 text-muted-foreground">{body}</p>
+    <div className={framed ? "rounded-lg border bg-card p-6" : undefined}>
+      <h1 id={headingId} className="text-[15px] font-semibold tracking-tight">
+        {title}
+      </h1>
+      <p id={bodyId} className="mt-1.5 text-muted-foreground">
+        {body}
+      </p>
       {login.status === AUTH_STATUS.qrPending && (
         <>
           <div

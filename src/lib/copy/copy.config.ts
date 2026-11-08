@@ -86,13 +86,33 @@ export const COPY = {
   account: { signOut: "Sign out", fallbackName: "Steam account" },
   accounts: {
     fallbackName: (steamId: string) => `Steam account …${steamId.slice(-4)}`,
+    /** The name shown when Steam hasn't reported one; the SteamID tail is shown beside it. */
+    fallbackShortName: "Steam account",
+    idSuffix: (steamId: string) => `…${steamId.slice(-4)}`,
+    nameWithId: (name: string, suffix: string) => `${name} (${suffix})`,
+    allSummary: (count: number, attention: number) =>
+      attention === 0
+        ? `${count} accounts · All connected`
+        : `${count} accounts · ${attention} ${attention === 1 ? "needs" : "need"} attention`,
+    optionHint: (label: string | undefined, status: string) =>
+      label ? `${label} · ${status}` : status,
     switcherLabel: "Account",
     all: "All accounts",
     add: "Add account",
     addTitle: "Add a Steam account",
     addBody:
       "Scan the code with the Steam mobile app on the account you want to add. Each account keeps its own login and its own connection.",
-    close: "Close",
+    reauthTitle: (name: string) => `Sign in to ${name} again`,
+    reauthBody: (name: string) =>
+      `Scan the code with the Steam mobile app signed in to ${name}. Its saved login is replaced; its label and history stay.`,
+    outcome: {
+      added: (name: string) => `Added ${name}.`,
+      reconnected: (name: string) => `Signed in to ${name} again.`,
+      otherAccount: (name: string, target: string) =>
+        `Signed in as ${name}, not ${target}. Sign in again from ${target}'s Steam app to reconnect it.`,
+      switchTo: (name: string) => `View ${name}`,
+      dismiss: "Dismiss",
+    },
     tryAgain: "Show a new QR code",
     unlabelled: "No label",
     labels: { main: "Main", trade: "Trade", alt: "Alt" } as const,
@@ -101,6 +121,8 @@ export const COPY = {
       "Every account signs in on its own and connects to CS2 only when you use it. Labels are for filtering.",
     labelAria: (name: string) => `Label for ${name}`,
     remove: "Remove",
+    removeAria: (name: string) => `Remove ${name}`,
+    labelSaving: "Saving…",
     removeTitle: (name: string) => `Remove ${name}?`,
     removeWarning: "This signs the account out of OpenInventory.",
     removeEffects: [

@@ -12,13 +12,16 @@ import { cn } from "~/utils/cn";
 import { SELECT } from "./select.config";
 import type { SelectOption, SelectPlacement, SelectProps } from "./select.types";
 
-function placementFor(trigger: HTMLElement): SelectPlacement {
+function placementFor(trigger: HTMLElement, minWidth: number): SelectPlacement {
   const rect = trigger.getBoundingClientRect();
   const below = window.innerHeight - rect.bottom - SELECT.viewportMargin - SELECT.gap;
   const above = rect.top - SELECT.viewportMargin - SELECT.gap;
   const openUp = below < SELECT.maxListHeight && above > below;
   const maxHeight = Math.min(SELECT.maxListHeight, openUp ? above : below);
-  const width = Math.max(rect.width, SELECT.minListWidth);
+  const width = Math.min(
+    Math.max(rect.width, minWidth),
+    window.innerWidth - SELECT.viewportMargin * 2,
+  );
   const left = Math.min(rect.left, window.innerWidth - width - SELECT.viewportMargin);
   return openUp
     ? { left, width, bottom: window.innerHeight - rect.top + SELECT.gap, maxHeight }
@@ -26,7 +29,16 @@ function placementFor(trigger: HTMLElement): SelectPlacement {
 }
 
 /** The app's one dropdown: a styled trigger and list, with search once the list is long. */
-export function Select({ value, options, onChange, ariaLabel, disabled, className }: SelectProps) {
+export function Select({
+  value,
+  options,
+  onChange,
+  ariaLabel,
+  disabled,
+  className,
+  listMinWidth = SELECT.minListWidth,
+  showDetailInTrigger = false,
+}: SelectProps) {
   const id = useId();
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -48,7 +60,7 @@ export function Select({ value, options, onChange, ariaLabel, disabled, classNam
 
   function show() {
     if (disabled || !trigger.current) return;
-    setPlacement(placementFor(trigger.current));
+    setPlacement(placementFor(trigger.current, listMinWidth));
     setQuery("");
     setHighlight(
       Math.max(
@@ -140,7 +152,15 @@ export function Select({ value, options, onChange, ariaLabel, disabled, classNam
         }}
         className="flex h-8 w-full items-center justify-between gap-3 rounded-md border border-input bg-card pl-3 pr-2.5 text-left text-foreground outline-none transition-colors hover:bg-muted focus-visible:border-primary disabled:pointer-events-none disabled:opacity-50 max-sm:h-9"
       >
-        <span className="truncate">{selected?.label ?? ""}</span>
+        <span className="flex min-w-0 items-center gap-2">
+          {selected?.leading}
+          <span className="truncate">{selected?.label ?? ""}</span>
+          {showDetailInTrigger && selected?.detail && (
+            <span className="shrink-0 text-xs text-muted-foreground tabular">
+              {selected.detail}
+            </span>
+          )}
+        </span>
         <ChevronsUpDown
           size={SELECT.iconSize}
           className="shrink-0 text-muted-foreground"
@@ -205,7 +225,15 @@ export function Select({ value, options, onChange, ariaLabel, disabled, classNam
                   className={cn("shrink-0", option.id !== value && "invisible")}
                   aria-hidden
                 />
-                <span className="min-w-0 flex-1 truncate">{option.label}</span>
+                {option.leading}
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate">{option.label}</span>
+                  {option.hint && (
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {option.hint}
+                    </span>
+                  )}
+                </span>
                 {option.detail && (
                   <span className="shrink-0 text-xs text-muted-foreground tabular">
                     {option.detail}

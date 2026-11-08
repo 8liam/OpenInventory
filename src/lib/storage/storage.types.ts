@@ -13,6 +13,8 @@ export type AuthState =
     }
   | { readonly status: typeof AUTH_STATUS.error; readonly message: string };
 
+export type AuthStatus = AuthState["status"];
+
 export type StorageUnit = {
   readonly id: string;
   readonly name: string;
@@ -91,11 +93,22 @@ export type AccountState = Account & {
   readonly snapshot: StorageSnapshot;
 };
 
+/** How the most recent QR sign-in ended, so the dialog that started it can say what happened. */
+export type LoginResult = {
+  /** Increases with every finished sign-in, so signing in to the same account twice still reads as new. */
+  readonly sequence: number;
+  readonly steamId: string;
+  /** True when the account wasn't tracked before; false when an existing one signed in again. */
+  readonly added: boolean;
+};
+
 /** Everything the browser needs to render: all accounts, plus the add-account login in progress. */
 export type AppSnapshot = {
   readonly accounts: readonly AccountState[];
   /** The QR login being run to add an account (signed-out when none is). */
   readonly login: AuthState;
+  /** The last sign-in that finished since the server started; null before any has. */
+  readonly lastLogin: LoginResult | null;
   /** Bumps whenever anything in the snapshot changes. */
   readonly revision: number;
 };
@@ -108,5 +121,9 @@ export type SnapshotConnection = (typeof SNAPSHOT_CONNECTION)[keyof typeof SNAPS
 /** A GET that may still be loading, may have failed (with a way to try again), or has data. */
 export type RemoteData<T> =
   | { readonly status: typeof REMOTE_STATUS.loading }
-  | { readonly status: typeof REMOTE_STATUS.error; readonly message: string; readonly retry: () => void }
+  | {
+      readonly status: typeof REMOTE_STATUS.error;
+      readonly message: string;
+      readonly retry: () => void;
+    }
   | { readonly status: typeof REMOTE_STATUS.ready; readonly data: T };
