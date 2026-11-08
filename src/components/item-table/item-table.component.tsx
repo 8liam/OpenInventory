@@ -10,6 +10,7 @@ import { highlightSortValue } from "~/lib/items/highlights";
 import type { ItemView } from "~/lib/items/item.types";
 import { formatFloat, formatMoney } from "~/utils/format";
 import { ITEM_TABLE } from "./item-table.config";
+import { joinDetail } from "./item-table.utils";
 import type { ItemTableProps } from "./item-table.types";
 
 /**
@@ -96,10 +97,6 @@ export function ItemTable({
       { ...price, ...sizes.price.wide },
     ];
     // Compact rows carry where the item is and its float, the owner and the highlight button under the name.
-    const compactDetail = (r: ItemView): string =>
-      [showLocation ? r.locationName : "", r.wear === null ? "" : formatFloat(r.wear)]
-        .filter((part) => part !== "")
-        .join(ITEM_TABLE.detailSeparator);
     const narrow: DataTableCompact<ItemView> = {
       columns: [
         {
@@ -108,7 +105,13 @@ export function ItemTable({
           cell: (r) => (
             <ItemCell
               item={r}
-              detail={compactDetail(r)}
+              detail={joinDetail(
+                [
+                  showLocation ? r.locationName : null,
+                  r.wear === null ? null : formatFloat(r.wear),
+                ],
+                ITEM_TABLE.detailSeparator,
+              )}
               account={accountNames?.get(r.accountId)}
               compact
               nameFit="double"
