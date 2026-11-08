@@ -42,7 +42,11 @@ export function ItemHighlights({ item, children, visible }: ItemHighlightsProps)
               index >= wide && "hidden",
             )}
           >
-            <Icon size={ITEM_HIGHLIGHTS.iconSize} className="shrink-0" aria-hidden />
+            <Icon
+              size={ITEM_HIGHLIGHTS.iconSize}
+              className={ITEM_HIGHLIGHTS.chipIconClass}
+              aria-hidden
+            />
             <span className="truncate">{reason.label}</span>
           </span>
         );

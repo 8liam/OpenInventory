@@ -10,6 +10,8 @@ export const ITEM_HIGHLIGHTS = {
   /** Chips may shrink (their label ellipsises) so the first one still fits a narrow column. */
   chipClass:
     "inline-flex min-w-0 items-center gap-1 rounded bg-foreground/[0.07] px-1.5 py-px text-[11px] leading-4 text-foreground/80",
+  /** Phone table rows are narrow, so chips drop their icon there to leave room for the label. */
+  chipIconClass: "shrink-0 max-md:hidden",
   kindIcons: {
     float: Ruler,
     pattern: Fingerprint,
