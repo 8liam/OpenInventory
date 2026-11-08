@@ -1,5 +1,6 @@
 export const ITEM_TABLE = {
-  rowHeight: 64,
+  /** Narrow rows are taller: the item name may wrap to two lines above its highlight chips. */
+  rowHeight: { wide: 64, narrow: 80 },
   wideQuery: "(min-width: 768px)",
   /** CSS grid tracks, shared by the table and its loading skeleton. */
   widths: {

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { DataTable } from "~/components/data-table/data-table.component";
 import type { DataTableColumn } from "~/components/data-table/data-table.types";
-import { ItemTierBadge } from "~/components/item-highlights/item-highlights.component";
+import { ItemHighlightCell } from "~/components/item-highlights/item-highlights.component";
 import { ItemCell } from "~/components/item-cell/item-cell.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
@@ -37,14 +37,14 @@ export function ItemTable({
       sortValue: (r) => r.price ?? -1,
       cell: (r) => (r.price === null ? COPY.common.empty : formatMoney(r.price, currency)),
     };
-    // Orders rows T1 first, then by price; the cell shows only the tier badge.
+    // Orders rows T1 first, then other highlights, then by price; the cell shows the tier or a marker.
     const highlights: DataTableColumn<ItemView> = {
       id: "highlights",
       header: COPY.items.highlights,
       width: wide ? ITEM_TABLE.widths.highlights : ITEM_TABLE.widths.highlightsNarrow,
       align: "right",
       sortValue: highlightSortValue,
-      cell: (r) => <ItemTierBadge item={r} />,
+      cell: (r) => <ItemHighlightCell item={r} />,
     };
     if (!wide) return [item, highlights, price];
     const location: DataTableColumn<ItemView>[] = showLocation
@@ -117,7 +117,7 @@ export function ItemTable({
       rows={items}
       columns={columns}
       getRowKey={itemRowKey}
-      rowHeight={ITEM_TABLE.rowHeight}
+      rowHeight={wide ? ITEM_TABLE.rowHeight.wide : ITEM_TABLE.rowHeight.narrow}
       initialSort={{ columnId: "price", direction: "desc" }}
       selection={selection}
     />

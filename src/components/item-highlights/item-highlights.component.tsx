@@ -2,26 +2,52 @@ import { itemHighlights } from "~/lib/items/highlights";
 import { COPY } from "~/lib/copy/copy.config";
 import { cn } from "~/utils/cn";
 import { ITEM_HIGHLIGHTS } from "./item-highlights.config";
-import type { ItemHighlightsProps, ItemTierBadgeProps } from "./item-highlights.types";
+import type {
+  ItemHighlightCellProps,
+  ItemHighlightsProps,
+  ItemTierBadgeProps,
+} from "./item-highlights.types";
 
-/** Neutral reason chips under the item name. */
-export function ItemHighlights({ item }: ItemHighlightsProps) {
+/**
+ * Reason chips on one line under the item name, so a row never grows past its fixed height.
+ * Chips that don't fit collapse into `+N`, which names the hidden reasons for screen readers.
+ */
+export function ItemHighlights({ item, children }: ItemHighlightsProps) {
   const { reasons } = itemHighlights(item);
-  if (reasons.length === 0) return null;
+  if (reasons.length === 0 && !children) return null;
+  const { narrow, wide } = ITEM_HIGHLIGHTS.visibleChips;
+  const overflow = (from: number) => reasons.slice(from).map((reason) => reason.label);
+  const more = (from: number, className: string) =>
+    reasons.length > from && (
+      <span
+        className={cn(ITEM_HIGHLIGHTS.chipClass, "tabular shrink-0", className)}
+        title={overflow(from).join(", ")}
+      >
+        <span aria-hidden>{COPY.items.moreHighlights(reasons.length - from)}</span>
+        <span className="sr-only">{overflow(from).join(", ")}</span>
+      </span>
+    );
   return (
-    <div className="mt-0.5 flex flex-wrap items-center gap-1">
-      {reasons.map((reason) => {
+    <div className="mt-1 flex min-w-0 flex-nowrap items-center gap-1 overflow-hidden">
+      {reasons.map((reason, index) => {
         const Icon = ITEM_HIGHLIGHTS.kindIcons[reason.kind];
         return (
           <span
             key={`${reason.kind}-${reason.label}`}
-            className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground"
+            className={cn(
+              ITEM_HIGHLIGHTS.chipClass,
+              index >= narrow && "max-md:hidden",
+              index >= wide && "hidden",
+            )}
           >
-            <Icon size={ITEM_HIGHLIGHTS.iconSize} aria-hidden />
-            {reason.label}
+            <Icon size={ITEM_HIGHLIGHTS.iconSize} className="shrink-0" aria-hidden />
+            <span className="truncate">{reason.label}</span>
           </span>
         );
       })}
+      {more(narrow, "md:hidden")}
+      {more(wide, "max-md:hidden")}
+      {children}
     </div>
   );
 }
@@ -38,7 +64,7 @@ export function ItemTierBadge({ item, className }: ItemTierBadgeProps) {
       aria-label={description}
       title={description}
       className={cn(
-        "tabular inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px]",
+        "tabular inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px]",
         ITEM_HIGHLIGHTS.tierStyles[tier.tier - 1] ?? ITEM_HIGHLIGHTS.fallbackTierStyle,
         className,
       )}
@@ -46,6 +72,25 @@ export function ItemTierBadge({ item, className }: ItemTierBadgeProps) {
       <Icon size={ITEM_HIGHLIGHTS.tierIconSize} aria-hidden />
       {ITEM_HIGHLIGHTS.tierPrefix}
       {tier.tier}
+    </span>
+  );
+}
+
+/** The Highlights column: the tier badge, or a quiet marker for float- or craft-only highlights. */
+export function ItemHighlightCell({ item }: ItemHighlightCellProps) {
+  const { tier, reasons } = itemHighlights(item);
+  if (tier !== null) return <ItemTierBadge item={item} />;
+  if (reasons.length === 0) return null;
+  const Icon = ITEM_HIGHLIGHTS.markerIcon;
+  const description = COPY.items.highlightMarker(reasons.map((reason) => reason.label));
+  return (
+    <span
+      role="img"
+      aria-label={description}
+      title={description}
+      className="inline-flex align-middle text-muted-foreground"
+    >
+      <Icon size={ITEM_HIGHLIGHTS.markerIconSize} aria-hidden />
     </span>
   );
 }

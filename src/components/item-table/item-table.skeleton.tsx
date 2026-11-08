@@ -72,7 +72,7 @@ export function ItemTableSkeleton({ showLocation = true, selectable }: ItemTable
   return (
     <DataTableSkeleton
       columns={columns}
-      rowHeight={ITEM_TABLE.rowHeight}
+      rowHeight={wide ? ITEM_TABLE.rowHeight.wide : ITEM_TABLE.rowHeight.narrow}
       rows={ITEM_TABLE.skeletonRows}
       selectable={selectable}
     />
