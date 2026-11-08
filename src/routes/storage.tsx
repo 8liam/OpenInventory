@@ -11,6 +11,7 @@ import { ViewToggle } from "~/components/view-toggle/view-toggle.component";
 import { OrganiserPanel } from "~/components/organiser-panel/organiser-panel.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { TransferBar } from "~/components/transfer-bar/transfer-bar.component";
+import { UnitStrip } from "~/components/unit-strip/unit-strip.component";
 import { UnitCard } from "~/components/unit-card/unit-card.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
@@ -105,13 +106,13 @@ function StoragePage() {
           <RefreshCw
             size={STORAGE_PAGE.iconSize}
             aria-hidden
-            className={reloading ? "motion-safe:animate-spin" : undefined}
+            className={reloading ? STORAGE_PAGE.classes.spinning : undefined}
           />
           {reloading ? copy.loadingUnits : copy.refreshUnits}
         </Button>
       </PageHeader>
       {reload.error !== undefined && (
-        <div ref={reloadErrorRef} className="contents">
+        <div ref={reloadErrorRef} className={STORAGE_PAGE.classes.errorWrap}>
           <LoadError
             title={copy.reloadFailed}
             message={reload.error}
@@ -122,7 +123,7 @@ function StoragePage() {
       {data.status === "error" ? (
         <LoadError message={data.message} onRetry={data.retry} retrying={data.retrying} />
       ) : snapshot.units.length === 0 ? (
-        <p className="text-muted-foreground">{copy.noUnits}</p>
+        <p className={STORAGE_PAGE.classes.muted}>{copy.noUnits}</p>
       ) : organising ? (
         <OrganiserPanel
           items={data.status === "ready" ? data.data.items : []}
@@ -135,7 +136,7 @@ function StoragePage() {
       ) : (
         <div className={STORAGE_PAGE.containerClass}>
           <div className={STORAGE_PAGE.splitClass}>
-            <div className={STORAGE_PAGE.unitsClass}>
+            <UnitStrip className={STORAGE_PAGE.unitsClass}>
               {snapshot.units.map((unit) => (
                 <UnitCard
                   key={unit.id}
@@ -155,17 +156,17 @@ function StoragePage() {
                   }}
                 />
               ))}
-            </div>
+            </UnitStrip>
             <div className={STORAGE_PAGE.contentsClass}>
               {selected && (
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-muted-foreground">
-                    <span className="font-medium text-foreground">{selected.name}</span> ·{" "}
+                <div className={STORAGE_PAGE.classes.contentsHeader}>
+                  <p className={STORAGE_PAGE.classes.muted}>
+                    <span className={STORAGE_PAGE.classes.unitName}>{selected.name}</span> ·{" "}
                     {formatCount(selected.itemCount, copy.items)} · {copy.value}{" "}
                     {unitPending(selected) ? (
-                      <Skeleton className="inline-block h-4 w-14 align-middle" />
+                      <Skeleton className={STORAGE_PAGE.classes.valueSkeleton} />
                     ) : (
-                      <span className="tabular text-foreground">
+                      <span className={STORAGE_PAGE.classes.value}>
                         {formatMoney(selectedValue, currency)}
                       </span>
                     )}
@@ -192,11 +193,11 @@ function StoragePage() {
                   onSelectionChange={setPicked}
                 />
               ) : selected && unitPending(selected) ? (
-                <LoadingRegion className="flex min-h-0 flex-1 flex-col">
+                <LoadingRegion className={STORAGE_PAGE.classes.skeletonRegion}>
                   <ItemTableSkeleton showLocation={false} selectable />
                 </LoadingRegion>
               ) : (
-                <p className="text-muted-foreground">
+                <p className={STORAGE_PAGE.classes.muted}>
                   {selected?.loaded ? copy.unitEmpty : copy.selectUnit}
                 </p>
               )}
