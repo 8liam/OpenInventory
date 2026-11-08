@@ -38,6 +38,7 @@ export function Select({
   className,
   listMinWidth = SELECT.minListWidth,
   showDetailInTrigger = false,
+  describedBy,
 }: SelectProps) {
   const id = useId();
   const root = useRef<HTMLDivElement>(null);
@@ -139,6 +140,7 @@ export function Select({
         type="button"
         role="combobox"
         aria-label={ariaLabel}
+        aria-describedby={describedBy}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={`${id}-list`}

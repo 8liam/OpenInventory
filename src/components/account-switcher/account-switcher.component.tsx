@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import { useMemo } from "react";
+import { useId, useMemo } from "react";
 import { AccountStatusDot } from "~/components/account-status-dot/account-status-dot.component";
 import { Select } from "~/components/select/select.component";
 import type { SelectOption } from "~/components/select/select.types";
@@ -19,6 +19,7 @@ export function AccountSwitcher({ className }: AccountSwitcherProps) {
   const { accounts, scope } = useAccountScope();
   const select = useAccountSelection((state) => state.select);
   const openAdd = useAddAccountDialog((state) => state.openAdd);
+  const statusId = useId();
   const copy = COPY.accounts;
 
   const options = useMemo<readonly SelectOption[]>(() => {
@@ -53,6 +54,9 @@ export function AccountSwitcher({ className }: AccountSwitcherProps) {
     ];
   }, [accounts, copy]);
   if (scope === undefined) return null;
+  // The trigger's dot is colour only; its option's name, SteamID tail and status line are read instead.
+  const current = options.find((option) => option.id === scope);
+  const description = current ? [current.label, current.detail, current.hint] : [];
 
   return (
     <div className={cn("flex items-center gap-1.5", className)}>
@@ -62,9 +66,13 @@ export function AccountSwitcher({ className }: AccountSwitcherProps) {
         className={ACCOUNT_SWITCHER.selectWidth}
         listMinWidth={ACCOUNT_SWITCHER.listMinWidth}
         showDetailInTrigger
+        describedBy={statusId}
         options={options}
         onChange={select}
       />
+      <span id={statusId} className="sr-only">
+        {description.filter(Boolean).join(", ")}
+      </span>
       <button
         type="button"
         title={copy.add}

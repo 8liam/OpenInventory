@@ -23,6 +23,8 @@ export type SelectProps = {
   readonly listMinWidth?: number;
   /** Also shows the chosen option's `detail` in the trigger, kept whole while the label truncates. */
   readonly showDetailInTrigger?: boolean;
+  /** Id of extra text read after the trigger's name, e.g. the chosen account's connection status. */
+  readonly describedBy?: string;
 };
 
 /** Where the open list sits, in viewport pixels (it is `position: fixed`). */
