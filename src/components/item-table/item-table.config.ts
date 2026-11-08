@@ -1,4 +1,9 @@
-import type { FittableColumn } from "~/components/data-table/data-table.types";
+import type {
+  DataTableSortOption,
+  FittableColumn,
+  SortState,
+} from "~/components/data-table/data-table.types";
+import { ITEM_SORT_LABEL, ITEM_SORTS } from "~/lib/items/item-sort.config";
 
 export const ITEM_TABLE = {
   /**
@@ -7,14 +12,10 @@ export const ITEM_TABLE = {
    */
   rowHeight: { wide: 64, narrow: 80, narrowWithAccount: 96 },
   /**
-   * The wide layout starts at the 960px Electron minimum: below it the columns that never hide
-   * (item, float, highlights, price) don't fit beside the sidebar, so the compact rows take over.
-   */
-  wideQuery: "(min-width: 960px)",
-  /**
    * Grid tracks, shared by the table and its loading skeleton. Minimums keep prices and floats
    * whole; when the table can't fit them all, Type hides first, then Location, then Account.
-   * At 960px with every account in view they leave ~24px spare, room for a classic scrollbar.
+   * When even item, float, highlights and price don't fit the table's own width, it switches
+   * to the narrow (compact) tracks: item and price, with the rest under the name.
    */
   columns: {
     item: { wide: { width: "4fr", minWidth: 208 }, narrow: { width: "minmax(0, 1fr)" } },
@@ -25,6 +26,15 @@ export const ITEM_TABLE = {
     highlights: { width: "0.7fr", minWidth: 76 },
     price: { wide: { width: "0.9fr", minWidth: 96 }, narrow: { width: "92px" } },
   } satisfies Record<string, FittableColumn | { wide: FittableColumn; narrow: FittableColumn }>,
+  /** The compact table's sort menu, standing in for the Float and Highlights headers. */
+  sortOptions: ITEM_SORTS.map(({ id, label, field, direction }) => ({
+    id,
+    label,
+    columnId: field,
+    direction,
+  })) satisfies readonly DataTableSortOption[],
+  sortLabel: ITEM_SORT_LABEL,
+  initialSort: { columnId: "price", direction: "desc" } satisfies SortState,
   /** Enough rows to fill a tall screen; the rest are clipped. */
   skeletonRows: 16,
 } as const;

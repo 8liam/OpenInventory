@@ -1,19 +1,13 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { ArrowDown, ArrowUp } from "lucide-react";
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { Select } from "~/components/select/select.component";
 import { formatCount } from "~/utils/plural";
 import { cn } from "~/utils/cn";
-import { useMediaQuery } from "~/utils/use-media-query";
 import { DATA_TABLE } from "./data-table.config";
 import { useFittedColumns } from "./data-table.hooks";
-import type { DataTableColumn, DataTableProps, SortDirection } from "./data-table.types";
-
-type SortState = { readonly columnId: string; readonly direction: SortDirection } | undefined;
-
-function compare(a: string | number, b: string | number): number {
-  if (typeof a === "number" && typeof b === "number") return a - b;
-  return String(a).localeCompare(String(b));
-}
+import type { DataTableColumn, DataTableProps, SortState } from "./data-table.types";
+import { compareSortValues } from "./data-table.utils";
 
 /**
  * Sorting works on an index permutation and rows are windowed, so a 12k-row
@@ -22,26 +16,26 @@ function compare(a: string | number, b: string | number): number {
 export function DataTable<Row>({
   rows,
   columns: allColumns,
+  compact,
   getRowKey,
   onRowClick,
   initialSort,
-  rowHeight = DATA_TABLE.rowHeight,
+  rowHeight: fullRowHeight = DATA_TABLE.rowHeight,
   selection,
 }: DataTableProps<Row>) {
-  const [sort, setSort] = useState<SortState>(initialSort);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [sort, setSort] = useState<SortState | undefined>(initialSort);
   const selectAllRef = useRef<HTMLInputElement>(null);
-  const touch = useMediaQuery(DATA_TABLE.touchQuery);
-  // Optional columns hide when the table is too narrow for every column's minimum width.
+  // Optional columns hide, then the compact set takes over, as the table's own width shrinks.
   const {
-    ref: frameRef,
+    ref: scrollRef,
+    touch,
+    compact: isCompact,
     columns,
     gridTemplate,
-  } = useFittedColumns(
-    allColumns,
-    selection !== undefined,
-    touch ? DATA_TABLE.touchSelectionColumnWidth : DATA_TABLE.selectionColumnWidth,
-  );
+    gutter,
+  } = useFittedColumns(allColumns, compact?.columns, selection !== undefined);
+  const sortMenu = isCompact ? compact : undefined;
+  const rowHeight = sortMenu ? sortMenu.rowHeight : fullRowHeight;
   const gridStyle = { gridTemplateColumns: gridTemplate, columnGap: DATA_TABLE.columnGap };
   const selected = selection?.selected;
   const selectedCount = useMemo(
@@ -55,15 +49,33 @@ export function DataTable<Row>({
       selectAllRef.current.indeterminate = selectedCount > 0 && !allSelected;
   }, [selectedCount, allSelected]);
 
+  // Sort keys come from every column of both layouts, so a sort outlives the column it came from.
+  const sortValues = useMemo(() => {
+    const values = new Map<string, NonNullable<DataTableColumn<Row>["sortValue"]>>();
+    for (const column of [...allColumns, ...(compact?.columns ?? [])])
+      if (column.sortValue && !values.has(column.id)) values.set(column.id, column.sortValue);
+    return values;
+  }, [allColumns, compact]);
+  // The compact menu replaces the first column's header; every other header sorts by click.
+  const headerColumns = sortMenu ? columns.slice(1) : columns;
+  const shows = (state: SortState) =>
+    sortValues.has(state.columnId) &&
+    (headerColumns.some((column) => column.id === state.columnId && column.sortValue) ||
+      (sortMenu?.sortOptions.some(
+        (option) => option.columnId === state.columnId && option.direction === state.direction,
+      ) ??
+        false));
+  // A sort this layout can't show (its column hid) gives way to the default until it can.
+  const activeSort = sort && shows(sort) ? sort : initialSort;
+
   const order = useMemo(() => {
     const indices = Array.from(rows.keys());
-    const column = allColumns.find((c) => c.id === sort?.columnId);
-    const sortValue = column?.sortValue;
-    if (!sort || !sortValue) return indices;
+    const sortValue = activeSort && sortValues.get(activeSort.columnId);
+    if (!activeSort || !sortValue) return indices;
     const keys = rows.map(sortValue);
-    const sign = sort.direction === "asc" ? 1 : -1;
-    return indices.sort((a, b) => sign * compare(keys[a] ?? 0, keys[b] ?? 0));
-  }, [rows, allColumns, sort]);
+    const sign = activeSort.direction === "asc" ? 1 : -1;
+    return indices.sort((a, b) => compareSortValues(keys[a] ?? null, keys[b] ?? null, sign));
+  }, [rows, sortValues, activeSort]);
 
   const virtualizer = useVirtualizer({
     count: order.length,
@@ -71,6 +83,10 @@ export function DataTable<Row>({
     estimateSize: () => rowHeight,
     overscan: DATA_TABLE.overscan,
   });
+  // Sizes are cached per index, so a layout switch must drop them or rows keep the old height.
+  useLayoutEffect(() => {
+    virtualizer.measure();
+  }, [virtualizer, rowHeight]);
   const virtualRows = virtualizer.getVirtualItems();
 
   // Roving focus: one row is in the tab order. Rows are windowed, so when the active one has
@@ -122,26 +138,35 @@ export function DataTable<Row>({
 
   function toggleSort(column: DataTableColumn<Row>) {
     if (!column.sortValue) return;
-    setSort((current) =>
-      current?.columnId === column.id
-        ? { columnId: column.id, direction: current.direction === "asc" ? "desc" : "asc" }
+    setSort(
+      activeSort?.columnId === column.id
+        ? { columnId: column.id, direction: activeSort.direction === "asc" ? "desc" : "asc" }
         : { columnId: column.id, direction: "desc" },
     );
   }
 
+  const menuValue = sortMenu?.sortOptions.find(
+    (option) =>
+      option.columnId === activeSort?.columnId && option.direction === activeSort.direction,
+  )?.id;
+
   return (
     <div
-      ref={frameRef}
       role="grid"
       aria-rowcount={order.length + 1}
       aria-multiselectable={selection ? true : undefined}
-      className="flex min-h-0 flex-1 flex-col rounded-lg border bg-card"
+      className={DATA_TABLE.frameClass}
     >
       <div
         role="row"
         aria-rowindex={1}
-        className="grid shrink-0 border-b px-4 text-xs text-muted-foreground"
-        style={gridStyle}
+        className={DATA_TABLE.headerClass}
+        // Rows sit inside the scroll area, so the header steps in by the scrollbar to line up.
+        style={{
+          ...gridStyle,
+          paddingLeft: DATA_TABLE.edgePadding,
+          paddingRight: DATA_TABLE.edgePadding + gutter,
+        }}
       >
         {selection && (
           <div role="columnheader" className="flex">
@@ -157,13 +182,35 @@ export function DataTable<Row>({
             </label>
           </div>
         )}
-        {columns.map((column) => {
-          const active = sort?.columnId === column.id;
+        {columns.map((column, index) => {
+          if (sortMenu && index === 0)
+            return (
+              <div
+                key={column.id}
+                role="columnheader"
+                aria-label={column.header}
+                className="flex min-w-0 items-center"
+              >
+                <Select
+                  value={menuValue ?? ""}
+                  ariaLabel={sortMenu.sortLabel}
+                  className={DATA_TABLE.sortSelectClass}
+                  options={sortMenu.sortOptions}
+                  onChange={(id) => {
+                    const option = sortMenu.sortOptions.find((candidate) => candidate.id === id);
+                    if (option) setSort({ columnId: option.columnId, direction: option.direction });
+                  }}
+                />
+              </div>
+            );
+          const active = activeSort?.columnId === column.id;
           return (
             <div
               key={column.id}
               role="columnheader"
-              aria-sort={active ? (sort.direction === "asc" ? "ascending" : "descending") : "none"}
+              aria-sort={
+                active ? (activeSort.direction === "asc" ? "ascending" : "descending") : "none"
+              }
               className="flex min-w-0"
             >
               <button
@@ -177,7 +224,11 @@ export function DataTable<Row>({
               >
                 {column.header}
                 {active &&
-                  (sort.direction === "asc" ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
+                  (activeSort.direction === "asc" ? (
+                    <ArrowUp size={DATA_TABLE.sortIconSize} />
+                  ) : (
+                    <ArrowDown size={DATA_TABLE.sortIconSize} />
+                  ))}
               </button>
             </div>
           );
@@ -186,7 +237,7 @@ export function DataTable<Row>({
       {/* A rowgroup may only hold rows, so the empty message sits in a plain container. */}
       <div
         ref={scrollRef}
-        className="min-h-0 flex-1 overflow-auto"
+        className={DATA_TABLE.scrollClass}
         role={order.length === 0 ? undefined : "rowgroup"}
       >
         {order.length === 0 ? (

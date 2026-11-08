@@ -3,7 +3,6 @@ import type { DataTableSkeletonColumn } from "~/components/data-table/data-table
 import { ITEM_CELL } from "~/components/item-cell/item-cell.config";
 import { Skeleton } from "~/components/skeleton/skeleton.component";
 import { COPY } from "~/lib/copy/copy.config";
-import { useMediaQuery } from "~/utils/use-media-query";
 import { ITEM_TABLE } from "./item-table.config";
 import type { ItemTableSkeletonProps } from "./item-table.types";
 
@@ -15,13 +14,10 @@ export function ItemTableSkeleton({
   showAccount = false,
   selectable,
 }: ItemTableSkeletonProps) {
-  const wide = useMediaQuery(ITEM_TABLE.wideQuery);
-  const layout = wide ? "wide" : "narrow";
   const sizes = ITEM_TABLE.columns;
-  const item: DataTableSkeletonColumn = {
+  const item = {
     id: "item",
     header: COPY.itemColumns.item,
-    ...sizes.item[layout],
     cell: (
       <div className="flex min-w-0 items-center gap-3">
         <Skeleton
@@ -34,14 +30,13 @@ export function ItemTableSkeleton({
         </div>
       </div>
     ),
-  };
-  const price: DataTableSkeletonColumn = {
+  } as const;
+  const price = {
     id: "price",
     header: COPY.itemColumns.price,
-    ...sizes.price[layout],
     align: "right",
     cell: textBar("w-14"),
-  };
+  } as const;
   const highlights: DataTableSkeletonColumn = {
     id: "highlights",
     header: COPY.items.highlights,
@@ -49,45 +44,51 @@ export function ItemTableSkeleton({
     align: "right",
     cell: null,
   };
-  const columns: readonly DataTableSkeletonColumn[] = wide
-    ? [
-        item,
-        ...(showAccount
-          ? [
-              {
-                id: "account",
-                header: COPY.accounts.column,
-                ...sizes.account,
-                cell: textBar("w-20"),
-              },
-            ]
-          : []),
-        ...(showLocation
-          ? [
-              {
-                id: "location",
-                header: COPY.itemColumns.location,
-                ...sizes.location,
-                cell: textBar("w-28"),
-              },
-            ]
-          : []),
-        { id: "type", header: COPY.itemColumns.type, ...sizes.type, cell: textBar("w-16") },
-        {
-          id: "float",
-          header: COPY.itemColumns.float,
-          ...sizes.float,
-          align: "right",
-          cell: textBar("w-14"),
-        },
-        highlights,
-        price,
-      ]
-    : [item, price];
+  const columns: readonly DataTableSkeletonColumn[] = [
+    { ...item, ...sizes.item.wide },
+    ...(showAccount
+      ? [
+          {
+            id: "account",
+            header: COPY.accounts.column,
+            ...sizes.account,
+            cell: textBar("w-20"),
+          },
+        ]
+      : []),
+    ...(showLocation
+      ? [
+          {
+            id: "location",
+            header: COPY.itemColumns.location,
+            ...sizes.location,
+            cell: textBar("w-28"),
+          },
+        ]
+      : []),
+    { id: "type", header: COPY.itemColumns.type, ...sizes.type, cell: textBar("w-16") },
+    {
+      id: "float",
+      header: COPY.itemColumns.float,
+      ...sizes.float,
+      align: "right",
+      cell: textBar("w-14"),
+    },
+    highlights,
+    { ...price, ...sizes.price.wide },
+  ];
+  const compact = {
+    columns: [
+      { ...item, ...sizes.item.narrow },
+      { ...price, ...sizes.price.narrow },
+    ],
+    rowHeight: showAccount ? ITEM_TABLE.rowHeight.narrowWithAccount : ITEM_TABLE.rowHeight.narrow,
+  };
   return (
     <DataTableSkeleton
       columns={columns}
-      rowHeight={wide ? ITEM_TABLE.rowHeight.wide : ITEM_TABLE.rowHeight.narrow}
+      compact={compact}
+      rowHeight={ITEM_TABLE.rowHeight.wide}
       rows={ITEM_TABLE.skeletonRows}
       selectable={selectable}
     />

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { AccountName } from "~/components/account-name/account-name.component";
 import { DataTable } from "~/components/data-table/data-table.component";
-import type { DataTableColumn } from "~/components/data-table/data-table.types";
+import type { DataTableColumn, DataTableCompact } from "~/components/data-table/data-table.types";
 import { HighlightDisclosure } from "~/components/highlight-disclosure/highlight-disclosure.component";
 import { ItemCell } from "~/components/item-cell/item-cell.component";
 import { COPY } from "~/lib/copy/copy.config";
@@ -9,10 +9,14 @@ import { itemRowKey } from "~/lib/items/item-key";
 import { highlightSortValue } from "~/lib/items/highlights";
 import type { ItemView } from "~/lib/items/item.types";
 import { formatFloat, formatMoney } from "~/utils/format";
-import { useMediaQuery } from "~/utils/use-media-query";
 import { ITEM_TABLE } from "./item-table.config";
 import type { ItemTableProps } from "./item-table.types";
 
+/**
+ * Items as a sortable, selectable table. The table picks its layout from its own width: every
+ * column where there is room, or (in a side pane or on a phone) the compact item + price rows
+ * with a sort menu for the columns that went away.
+ */
 export function ItemTable({
   items,
   currency,
@@ -21,42 +25,20 @@ export function ItemTable({
   selected,
   onSelectionChange,
 }: ItemTableProps) {
-  const wide = useMediaQuery(ITEM_TABLE.wideQuery);
-  const layout = wide ? "wide" : "narrow";
-  const sizes = ITEM_TABLE.columns;
-  const columns = useMemo<readonly DataTableColumn<ItemView>[]>(() => {
-    const item: DataTableColumn<ItemView> = {
+  const { columns, compact } = useMemo(() => {
+    const sizes = ITEM_TABLE.columns;
+    const name: Omit<DataTableColumn<ItemView>, "width" | "cell"> = {
       id: "item",
       header: COPY.itemColumns.item,
-      ...sizes.item[layout],
       sortValue: (r) => r.name,
-      // Narrow rows have no Account column, so the owner moves under the name.
-      cell: (r) =>
-        wide ? (
-          <ItemCell item={r} />
-        ) : (
-          <ItemCell item={r} account={accountNames?.get(r.accountId)} compact />
-        ),
     };
-    const price: DataTableColumn<ItemView> = {
+    const price: Omit<DataTableColumn<ItemView>, "width"> = {
       id: "price",
       header: COPY.itemColumns.price,
-      ...sizes.price[layout],
       align: "right",
-      sortValue: (r) => r.price ?? -1,
+      sortValue: (r) => r.price,
       cell: (r) => (r.price === null ? COPY.common.empty : formatMoney(r.price, currency)),
     };
-    // Orders rows T1 first, then other highlights, then by price; the cell's tier (or marker)
-    // opens every reason. Narrow rows show that button under the name instead of a column.
-    const highlights: DataTableColumn<ItemView> = {
-      id: "highlights",
-      header: COPY.items.highlights,
-      ...sizes.highlights,
-      align: "right",
-      sortValue: highlightSortValue,
-      cell: (r) => <HighlightDisclosure item={r} />,
-    };
-    if (!wide) return [item, price];
     const location: DataTableColumn<ItemView>[] = showLocation
       ? [
           {
@@ -74,16 +56,16 @@ export function ItemTable({
             id: "account",
             header: COPY.accounts.column,
             ...sizes.account,
-            sortValue: (r) => accountNames.get(r.accountId)?.name ?? "",
+            sortValue: (r) => accountNames.get(r.accountId)?.name ?? null,
             cell: (r) => {
-              const name = accountNames.get(r.accountId);
-              return name && <AccountName name={name} className="text-muted-foreground" />;
+              const owner = accountNames.get(r.accountId);
+              return owner && <AccountName name={owner} className="text-muted-foreground" />;
             },
           },
         ]
       : [];
-    return [
-      item,
+    const full: readonly DataTableColumn<ItemView>[] = [
+      { ...name, ...sizes.item.wide, cell: (r) => <ItemCell item={r} /> },
       ...account,
       ...location,
       {
@@ -98,13 +80,39 @@ export function ItemTable({
         header: COPY.itemColumns.float,
         ...sizes.float,
         align: "right",
-        sortValue: (r) => r.wear ?? -1,
+        sortValue: (r) => r.wear,
         cell: (r) => (r.wear === null ? COPY.common.empty : formatFloat(r.wear)),
       },
-      highlights,
-      price,
+      // Orders rows T1 first, then other highlights, then by price; the cell's tier (or marker)
+      // opens every reason.
+      {
+        id: "highlights",
+        header: COPY.items.highlights,
+        ...sizes.highlights,
+        align: "right",
+        sortValue: highlightSortValue,
+        cell: (r) => <HighlightDisclosure item={r} />,
+      },
+      { ...price, ...sizes.price.wide },
     ];
-  }, [currency, showLocation, wide, layout, sizes, accountNames]);
+    // Compact rows carry the owner and the highlight button under the name.
+    const narrow: DataTableCompact<ItemView> = {
+      columns: [
+        {
+          ...name,
+          ...sizes.item.narrow,
+          cell: (r) => <ItemCell item={r} account={accountNames?.get(r.accountId)} compact />,
+        },
+        { ...price, ...sizes.price.narrow },
+      ],
+      rowHeight: accountNames
+        ? ITEM_TABLE.rowHeight.narrowWithAccount
+        : ITEM_TABLE.rowHeight.narrow,
+      sortOptions: ITEM_TABLE.sortOptions,
+      sortLabel: ITEM_TABLE.sortLabel,
+    };
+    return { columns: full, compact: narrow };
+  }, [currency, showLocation, accountNames]);
 
   const selection = useMemo(
     () =>
@@ -127,15 +135,10 @@ export function ItemTable({
     <DataTable
       rows={items}
       columns={columns}
+      compact={compact}
       getRowKey={itemRowKey}
-      rowHeight={
-        wide
-          ? ITEM_TABLE.rowHeight.wide
-          : accountNames
-            ? ITEM_TABLE.rowHeight.narrowWithAccount
-            : ITEM_TABLE.rowHeight.narrow
-      }
-      initialSort={{ columnId: "price", direction: "desc" }}
+      rowHeight={ITEM_TABLE.rowHeight.wide}
+      initialSort={ITEM_TABLE.initialSort}
       selection={selection}
     />
   );

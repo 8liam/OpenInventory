@@ -1,6 +1,5 @@
 import { Skeleton } from "~/components/skeleton/skeleton.component";
 import { cn } from "~/utils/cn";
-import { useMediaQuery } from "~/utils/use-media-query";
 import { DATA_TABLE } from "./data-table.config";
 import { useFittedColumns } from "./data-table.hooks";
 import type { DataTableSkeletonProps } from "./data-table.types";
@@ -11,28 +10,30 @@ import type { DataTableSkeletonProps } from "./data-table.types";
  */
 export function DataTableSkeleton({
   columns: allColumns,
-  rowHeight = DATA_TABLE.rowHeight,
+  compact,
+  rowHeight: fullRowHeight = DATA_TABLE.rowHeight,
   rows,
   selectable = false,
 }: DataTableSkeletonProps) {
-  const touch = useMediaQuery(DATA_TABLE.touchQuery);
   const {
-    ref: frameRef,
+    ref: rowsRef,
+    compact: isCompact,
     columns,
     gridTemplate,
-  } = useFittedColumns(
-    allColumns,
-    selectable,
-    touch ? DATA_TABLE.touchSelectionColumnWidth : DATA_TABLE.selectionColumnWidth,
-  );
+    gutter,
+  } = useFittedColumns(allColumns, compact?.columns, selectable);
+  const rowHeight = isCompact && compact ? compact.rowHeight : fullRowHeight;
   const gridStyle = { gridTemplateColumns: gridTemplate, columnGap: DATA_TABLE.columnGap };
   return (
-    <div
-      ref={frameRef}
-      aria-hidden
-      className="flex min-h-0 flex-1 flex-col rounded-lg border bg-card"
-    >
-      <div className="grid shrink-0 border-b px-4 text-xs text-muted-foreground" style={gridStyle}>
+    <div aria-hidden className={DATA_TABLE.frameClass}>
+      <div
+        className={DATA_TABLE.headerClass}
+        style={{
+          ...gridStyle,
+          paddingLeft: DATA_TABLE.edgePadding,
+          paddingRight: DATA_TABLE.edgePadding + gutter,
+        }}
+      >
         {selectable && (
           <div className="flex h-9 items-center">
             <Skeleton className="size-4 rounded-sm" />
@@ -47,7 +48,7 @@ export function DataTableSkeleton({
           </div>
         ))}
       </div>
-      <div className="min-h-0 flex-1 overflow-hidden">
+      <div ref={rowsRef} className={DATA_TABLE.skeletonScrollClass}>
         {Array.from({ length: rows }, (_, row) => (
           <div
             key={row}
