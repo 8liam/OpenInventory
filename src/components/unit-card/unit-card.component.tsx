@@ -25,7 +25,8 @@ export function UnitCard({
   return (
     <div
       className={cn(
-        "relative w-60 shrink-0 rounded-lg border bg-card p-3.5 text-left transition-colors hover:bg-muted md:w-full",
+        "relative shrink-0 rounded-lg border bg-card p-3.5 text-left transition-colors hover:bg-muted",
+        UNIT_CARD.widthClass,
         selected && "border-primary/60 bg-muted",
       )}
     >

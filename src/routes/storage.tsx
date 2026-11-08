@@ -22,6 +22,7 @@ import {
 } from "~/lib/accounts/account-scope.hooks";
 import { postJson, useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
+import { STORAGE_PAGE } from "~/lib/storage/storage-page.config";
 import { useItemViewMode } from "~/lib/items/view-mode.store";
 import { usePriceQuery, useSettings } from "~/lib/settings/settings.store";
 import { formatMoney } from "~/utils/format";
@@ -104,72 +105,74 @@ function StoragePage() {
           busy={snapshot.transfer.status === "running"}
         />
       ) : (
-        <div className="flex min-h-0 flex-1 flex-col gap-4 md:flex-row">
-          <div className="flex shrink-0 gap-2 overflow-x-auto md:w-72 md:flex-col md:overflow-y-auto md:overflow-x-visible">
-            {snapshot.units.map((unit) => (
-              <UnitCard
-                key={unit.id}
-                unit={unit}
-                items={byUnit.get(unit.id) ?? []}
-                currency={currency}
-                selected={selected?.id === unit.id}
-                loading={unitPending(unit)}
-                onRename={(name) =>
-                  accountId === undefined
-                    ? Promise.reject(new Error(COPY.accounts.chooseOneTitle))
-                    : postJson(STORAGE_API.renameUnit, { accountId, id: unit.id, name })
-                }
-                onSelect={() => {
-                  setSelectedId(unit.id);
-                  setPicked(new Set());
-                }}
-              />
-            ))}
-          </div>
-          <div className="flex min-w-0 flex-1 flex-col gap-3">
-            {selected && (
-              <div className="flex items-center justify-between gap-3">
+        <div className={STORAGE_PAGE.containerClass}>
+          <div className={STORAGE_PAGE.splitClass}>
+            <div className={STORAGE_PAGE.unitsClass}>
+              {snapshot.units.map((unit) => (
+                <UnitCard
+                  key={unit.id}
+                  unit={unit}
+                  items={byUnit.get(unit.id) ?? []}
+                  currency={currency}
+                  selected={selected?.id === unit.id}
+                  loading={unitPending(unit)}
+                  onRename={(name) =>
+                    accountId === undefined
+                      ? Promise.reject(new Error(COPY.accounts.chooseOneTitle))
+                      : postJson(STORAGE_API.renameUnit, { accountId, id: unit.id, name })
+                  }
+                  onSelect={() => {
+                    setSelectedId(unit.id);
+                    setPicked(new Set());
+                  }}
+                />
+              ))}
+            </div>
+            <div className={STORAGE_PAGE.contentsClass}>
+              {selected && (
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-muted-foreground">
+                    <span className="font-medium text-foreground">{selected.name}</span> ·{" "}
+                    {formatCount(selected.itemCount, copy.items)} · {copy.value}{" "}
+                    {unitPending(selected) ? (
+                      <Skeleton className="inline-block h-4 w-14 align-middle" />
+                    ) : (
+                      <span className="tabular text-foreground">
+                        {formatMoney(selectedValue, currency)}
+                      </span>
+                    )}
+                  </p>
+                  <ViewToggle value={view} onChange={setView} />
+                </div>
+              )}
+              {pickedItems.length > 0 && (
+                <TransferBar
+                  selected={pickedItems}
+                  units={snapshot.units}
+                  accountName={accountLabel}
+                  busy={snapshot.transfer.status === "running"}
+                  onClear={() => setPicked(new Set())}
+                />
+              )}
+              {selectedItems.length > 0 ? (
+                <ItemCollection
+                  view={view}
+                  items={selectedItems}
+                  currency={currency}
+                  showLocation={false}
+                  selected={picked}
+                  onSelectionChange={setPicked}
+                />
+              ) : selected && unitPending(selected) ? (
+                <LoadingRegion className="flex min-h-0 flex-1 flex-col">
+                  <ItemTableSkeleton showLocation={false} selectable />
+                </LoadingRegion>
+              ) : (
                 <p className="text-muted-foreground">
-                  <span className="font-medium text-foreground">{selected.name}</span> ·{" "}
-                  {formatCount(selected.itemCount, copy.items)} · {copy.value}{" "}
-                  {unitPending(selected) ? (
-                    <Skeleton className="inline-block h-4 w-14 align-middle" />
-                  ) : (
-                    <span className="tabular text-foreground">
-                      {formatMoney(selectedValue, currency)}
-                    </span>
-                  )}
+                  {selected?.loaded ? copy.unitEmpty : copy.selectUnit}
                 </p>
-                <ViewToggle value={view} onChange={setView} />
-              </div>
-            )}
-            {pickedItems.length > 0 && (
-              <TransferBar
-                selected={pickedItems}
-                units={snapshot.units}
-                accountName={accountLabel}
-                busy={snapshot.transfer.status === "running"}
-                onClear={() => setPicked(new Set())}
-              />
-            )}
-            {selectedItems.length > 0 ? (
-              <ItemCollection
-                view={view}
-                items={selectedItems}
-                currency={currency}
-                showLocation={false}
-                selected={picked}
-                onSelectionChange={setPicked}
-              />
-            ) : selected && unitPending(selected) ? (
-              <LoadingRegion className="flex min-h-0 flex-1 flex-col">
-                <ItemTableSkeleton showLocation={false} selectable />
-              </LoadingRegion>
-            ) : (
-              <p className="text-muted-foreground">
-                {selected?.loaded ? copy.unitEmpty : copy.selectUnit}
-              </p>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}
