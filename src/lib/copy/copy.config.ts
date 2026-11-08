@@ -269,6 +269,9 @@ export const COPY = {
     noItems: "No items in this account yet.",
     tierDescription: (match: PatternTierMatch) =>
       `Tier ${match.tier} of ${match.tierCount} for ${match.weapon} ${match.finish} (${match.group})`,
+    /** The tier without the skin's name, for places already headed by it. */
+    tierRank: (match: PatternTierMatch) =>
+      `Tier ${match.tier} of ${match.tierCount} (${match.group})`,
     tiersHelp: {
       trigger: "About highlights and tiers",
       title: "Highlights and tiers",
