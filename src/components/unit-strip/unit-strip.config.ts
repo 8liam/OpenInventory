@@ -5,6 +5,9 @@ export const UNIT_STRIP = {
   tolerance: 2,
   none: { after: 0, before: 0 } satisfies UnitStripOverflow,
   iconSize: 14,
+  reducedMotionQuery: "(prefers-reduced-motion: reduce)",
+  /** What takes focus in a card: its select control. */
+  focusTarget: "button",
   scrollLabel: "Storage units",
   more: (count: number) => `+${count} more`,
   showMore: (count: number) => `Show ${count} more storage ${count === 1 ? "unit" : "units"}`,

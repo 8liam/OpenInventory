@@ -3,7 +3,7 @@ import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "~/utils/cn";
 import { UNIT_STRIP } from "./unit-strip.config";
 import type { UnitStripOverflow, UnitStripProps } from "./unit-strip.types";
-import { measureOverflow } from "./unit-strip.utils";
+import { firstCardAfter, measureOverflow } from "./unit-strip.utils";
 
 const { classes } = UNIT_STRIP;
 
@@ -33,6 +33,20 @@ export function UnitStrip({ children, className }: UnitStripProps) {
     return () => observer.disconnect();
   }, [measure, children]);
 
+  // The button disappears once the last card is in view, so focus moves to the card it revealed
+  // instead of falling to the page.
+  function revealNext() {
+    const card = scroller.current && firstCardAfter(scroller.current);
+    if (!card) return;
+    const reduced = window.matchMedia(UNIT_STRIP.reducedMotionQuery).matches;
+    card.scrollIntoView({
+      inline: "nearest",
+      block: "nearest",
+      behavior: reduced ? "auto" : "smooth",
+    });
+    card.querySelector<HTMLElement>(UNIT_STRIP.focusTarget)?.focus({ preventScroll: true });
+  }
+
   const fade =
     overflow.after > 0 && overflow.before > 0
       ? classes.fadeBoth
@@ -58,12 +72,7 @@ export function UnitStrip({ children, className }: UnitStripProps) {
           type="button"
           className={classes.more}
           aria-label={UNIT_STRIP.showMore(overflow.after)}
-          onClick={() =>
-            scroller.current?.scrollBy({
-              left: scroller.current.clientWidth * 0.8,
-              behavior: "smooth",
-            })
-          }
+          onClick={revealNext}
         >
           {UNIT_STRIP.more(overflow.after)}
           <ChevronRight size={UNIT_STRIP.iconSize} aria-hidden />
