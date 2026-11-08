@@ -5,13 +5,23 @@ export const ITEM_HIGHLIGHTS = {
   iconSize: 11,
   tierIconSize: 12,
   tierPrefix: "T",
-  /** Chips kept on the one line under the name; the rest collapse into a `+N` chip. */
-  visibleChips: { narrow: 1, wide: 3 },
-  /** Chips may shrink (their label ellipsises) so the first one still fits a narrow column. */
+  /**
+   * How many chips fit is decided by the width of the name column itself (a container query),
+   * not the viewport: one chip always, a second from 220px, a third from 320px. The rest fold
+   * into `+N`. Index i of `chipVisibility` styles chip i; chips past the end are always folded.
+   */
+  lineClass: "@container mt-1 flex min-w-0 flex-nowrap items-center gap-1 overflow-hidden",
+  chipVisibility: ["", "hidden @min-[220px]:inline-flex", "hidden @min-[320px]:inline-flex"],
+  /** `+N` for the chips folded at each width: index i is the badge shown while i + 1 chips fit. */
+  moreVisibility: [
+    "@min-[220px]:hidden",
+    "hidden @min-[220px]:inline-flex @min-[320px]:hidden",
+    "hidden @min-[320px]:inline-flex",
+  ],
+  /** Only the first chip may shrink (its label ellipsises), so it still fits a narrow column. */
   chipClass:
     "inline-flex min-w-0 items-center gap-1 rounded bg-foreground/[0.07] px-1.5 py-px text-[11px] leading-4 text-foreground/80",
-  /** Phone table rows are narrow, so chips drop their icon there to leave room for the label. */
-  chipIconClass: "shrink-0 max-md:hidden",
+  chipIconClass: "shrink-0",
   kindIcons: {
     float: Ruler,
     pattern: Fingerprint,

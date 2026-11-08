@@ -14,6 +14,8 @@ export type ItemTableProps = {
 
 export type ItemTableSkeletonProps = {
   readonly showLocation?: boolean;
+  /** Reserves the Account column of the all-accounts view. */
+  readonly showAccount?: boolean;
   /** Reserves the checkbox column so the real table does not shift sideways. */
   readonly selectable?: boolean;
 };

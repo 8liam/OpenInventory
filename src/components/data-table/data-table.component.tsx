@@ -1,9 +1,11 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
-import { formatInteger } from "~/utils/format";
+import { formatCount } from "~/utils/plural";
 import { cn } from "~/utils/cn";
+import { useMediaQuery } from "~/utils/use-media-query";
 import { DATA_TABLE } from "./data-table.config";
+import { useFittedColumns } from "./data-table.hooks";
 import type { DataTableColumn, DataTableProps, SortDirection } from "./data-table.types";
 
 type SortState = { readonly columnId: string; readonly direction: SortDirection } | undefined;
@@ -19,7 +21,7 @@ function compare(a: string | number, b: string | number): number {
  */
 export function DataTable<Row>({
   rows,
-  columns,
+  columns: allColumns,
   getRowKey,
   onRowClick,
   initialSort,
@@ -29,12 +31,18 @@ export function DataTable<Row>({
   const [sort, setSort] = useState<SortState>(initialSort);
   const scrollRef = useRef<HTMLDivElement>(null);
   const selectAllRef = useRef<HTMLInputElement>(null);
-  const gridTemplate = [
-    selection ? DATA_TABLE.selectionColumnWidth : undefined,
-    ...columns.map((c) => c.width),
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const touch = useMediaQuery(DATA_TABLE.touchQuery);
+  // Optional columns hide when the table is too narrow for every column's minimum width.
+  const {
+    ref: frameRef,
+    columns,
+    gridTemplate,
+  } = useFittedColumns(
+    allColumns,
+    selection !== undefined,
+    touch ? DATA_TABLE.touchSelectionColumnWidth : DATA_TABLE.selectionColumnWidth,
+  );
+  const gridStyle = { gridTemplateColumns: gridTemplate, columnGap: DATA_TABLE.columnGap };
   const selected = selection?.selected;
   const selectedCount = useMemo(
     () => (selected ? rows.reduce((n, row) => n + (selected.has(getRowKey(row)) ? 1 : 0), 0) : 0),
@@ -49,13 +57,13 @@ export function DataTable<Row>({
 
   const order = useMemo(() => {
     const indices = Array.from(rows.keys());
-    const column = columns.find((c) => c.id === sort?.columnId);
+    const column = allColumns.find((c) => c.id === sort?.columnId);
     const sortValue = column?.sortValue;
     if (!sort || !sortValue) return indices;
     const keys = rows.map(sortValue);
     const sign = sort.direction === "asc" ? 1 : -1;
     return indices.sort((a, b) => sign * compare(keys[a] ?? 0, keys[b] ?? 0));
-  }, [rows, columns, sort]);
+  }, [rows, allColumns, sort]);
 
   const virtualizer = useVirtualizer({
     count: order.length,
@@ -123,6 +131,7 @@ export function DataTable<Row>({
 
   return (
     <div
+      ref={frameRef}
       role="grid"
       aria-rowcount={order.length + 1}
       aria-multiselectable={selection ? true : undefined}
@@ -132,11 +141,11 @@ export function DataTable<Row>({
         role="row"
         aria-rowindex={1}
         className="grid shrink-0 border-b px-4 text-xs text-muted-foreground"
-        style={{ gridTemplateColumns: gridTemplate }}
+        style={gridStyle}
       >
         {selection && (
           <div role="columnheader" className="flex">
-            <label className="flex h-9 items-center">
+            <label className={touch ? DATA_TABLE.touchCheckboxClass : DATA_TABLE.checkboxClass}>
               <input
                 ref={selectAllRef}
                 type="checkbox"
@@ -215,20 +224,25 @@ export function DataTable<Row>({
                   style={{
                     height: virtualRow.size,
                     transform: `translateY(${virtualRow.start}px)`,
-                    gridTemplateColumns: gridTemplate,
+                    ...gridStyle,
                   }}
                 >
                   {selection && (
                     <div role="gridcell" className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => selection.onToggle(key)}
+                      <label
+                        className={touch ? DATA_TABLE.touchCheckboxClass : DATA_TABLE.checkboxClass}
                         onClick={(e) => e.stopPropagation()}
-                        tabIndex={-1}
-                        aria-label={DATA_TABLE.selectRowLabel}
-                        className="size-4 accent-primary"
-                      />
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => selection.onToggle(key)}
+                          onClick={(e) => e.stopPropagation()}
+                          tabIndex={-1}
+                          aria-label={DATA_TABLE.selectRowLabel}
+                          className="size-4 accent-primary"
+                        />
+                      </label>
                     </div>
                   )}
                   {columns.map((column) => (
@@ -250,7 +264,7 @@ export function DataTable<Row>({
         )}
       </div>
       <div className="shrink-0 border-t px-4 py-1.5 text-xs text-muted-foreground">
-        {formatInteger(rows.length)} {DATA_TABLE.rowCountSuffix}
+        {formatCount(rows.length, DATA_TABLE.rowCount)}
       </div>
     </div>
   );

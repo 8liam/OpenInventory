@@ -22,11 +22,13 @@ export function ItemTable({
   onSelectionChange,
 }: ItemTableProps) {
   const wide = useMediaQuery(ITEM_TABLE.wideQuery);
+  const layout = wide ? "wide" : "narrow";
+  const sizes = ITEM_TABLE.columns;
   const columns = useMemo<readonly DataTableColumn<ItemView>[]>(() => {
     const item: DataTableColumn<ItemView> = {
       id: "item",
       header: COPY.itemColumns.item,
-      width: wide ? ITEM_TABLE.widths.item.wide : ITEM_TABLE.widths.item.narrow,
+      ...sizes.item[layout],
       sortValue: (r) => r.name,
       // Narrow rows have no Account column, so the owner moves under the name.
       cell: (r) => (
@@ -36,7 +38,7 @@ export function ItemTable({
     const price: DataTableColumn<ItemView> = {
       id: "price",
       header: COPY.itemColumns.price,
-      width: wide ? ITEM_TABLE.widths.price.wide : ITEM_TABLE.widths.price.narrow,
+      ...sizes.price[layout],
       align: "right",
       sortValue: (r) => r.price ?? -1,
       cell: (r) => (r.price === null ? COPY.common.empty : formatMoney(r.price, currency)),
@@ -45,7 +47,7 @@ export function ItemTable({
     const highlights: DataTableColumn<ItemView> = {
       id: "highlights",
       header: COPY.items.highlights,
-      width: wide ? ITEM_TABLE.widths.highlights : ITEM_TABLE.widths.highlightsNarrow,
+      ...sizes.highlights[layout],
       align: "right",
       sortValue: highlightSortValue,
       cell: (r) => <ItemHighlightCell item={r} />,
@@ -56,7 +58,7 @@ export function ItemTable({
           {
             id: "location",
             header: COPY.itemColumns.location,
-            width: ITEM_TABLE.widths.location,
+            ...sizes.location,
             sortValue: (r) => r.locationName,
             cell: (r) => <span className="text-muted-foreground">{r.locationName}</span>,
           },
@@ -67,7 +69,7 @@ export function ItemTable({
           {
             id: "account",
             header: COPY.accounts.column,
-            width: ITEM_TABLE.widths.account,
+            ...sizes.account,
             sortValue: (r) => accountNames.get(r.accountId)?.name ?? "",
             cell: (r) => {
               const name = accountNames.get(r.accountId);
@@ -83,14 +85,14 @@ export function ItemTable({
       {
         id: "type",
         header: COPY.itemColumns.type,
-        width: ITEM_TABLE.widths.type,
+        ...sizes.type,
         sortValue: (r) => r.category,
         cell: (r) => <span className="text-muted-foreground">{r.category}</span>,
       },
       {
         id: "float",
         header: COPY.itemColumns.float,
-        width: ITEM_TABLE.widths.float,
+        ...sizes.float,
         align: "right",
         sortValue: (r) => r.wear ?? -1,
         cell: (r) => (r.wear === null ? COPY.common.empty : formatFloat(r.wear)),
@@ -98,7 +100,7 @@ export function ItemTable({
       highlights,
       price,
     ];
-  }, [currency, showLocation, wide, accountNames]);
+  }, [currency, showLocation, wide, layout, sizes, accountNames]);
 
   const selection = useMemo(
     () =>

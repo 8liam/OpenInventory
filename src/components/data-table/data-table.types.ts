@@ -2,11 +2,19 @@ import type { ReactNode } from "react";
 
 export type SortDirection = "asc" | "desc";
 
-export type DataTableColumn<Row> = {
-  readonly id: string;
-  readonly header: string;
+/** The sizing half of a column, shared by the table and its skeleton. */
+export type FittableColumn = {
   /** CSS grid track, e.g. "2fr" or "120px". */
   readonly width: string;
+  /** Floor in px: the track never shrinks below it, so values like prices never clip. */
+  readonly minWidth?: number;
+  /** Set on optional columns; when the minimums don't fit, the lowest priority hides first. */
+  readonly hidePriority?: number;
+};
+
+export type DataTableColumn<Row> = FittableColumn & {
+  readonly id: string;
+  readonly header: string;
   readonly align?: "left" | "right";
   /** Sort key; omit to make the column unsortable. */
   readonly sortValue?: (row: Row) => string | number;
@@ -31,10 +39,9 @@ export type DataTableProps<Row> = {
   readonly initialSort?: { readonly columnId: string; readonly direction: SortDirection };
 };
 
-export type DataTableSkeletonColumn = {
+export type DataTableSkeletonColumn = FittableColumn & {
   readonly id: string;
   readonly header: string;
-  readonly width: string;
   readonly align?: "left" | "right";
   /** Placeholder shown in this column's cell of every row. */
   readonly cell: ReactNode;

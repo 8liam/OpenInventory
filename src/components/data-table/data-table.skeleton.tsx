@@ -1,27 +1,34 @@
 import { Skeleton } from "~/components/skeleton/skeleton.component";
 import { cn } from "~/utils/cn";
+import { useMediaQuery } from "~/utils/use-media-query";
 import { DATA_TABLE } from "./data-table.config";
+import { useFittedColumns } from "./data-table.hooks";
 import type { DataTableSkeletonProps } from "./data-table.types";
 
 /** DataTable's frame: real headers and grid, placeholder rows, clipped to the available height. */
 export function DataTableSkeleton({
-  columns,
+  columns: allColumns,
   rowHeight = DATA_TABLE.rowHeight,
   rows,
-  selectable,
+  selectable = false,
 }: DataTableSkeletonProps) {
-  const gridTemplate = [
-    selectable ? DATA_TABLE.selectionColumnWidth : undefined,
-    ...columns.map((c) => c.width),
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const touch = useMediaQuery(DATA_TABLE.touchQuery);
+  const {
+    ref: frameRef,
+    columns,
+    gridTemplate,
+  } = useFittedColumns(
+    allColumns,
+    selectable,
+    touch ? DATA_TABLE.touchSelectionColumnWidth : DATA_TABLE.selectionColumnWidth,
+  );
+  const gridStyle = { gridTemplateColumns: gridTemplate, columnGap: DATA_TABLE.columnGap };
   return (
-    <div className="flex min-h-0 flex-1 flex-col rounded-lg border bg-card">
-      <div
-        className="grid shrink-0 border-b px-4 text-xs text-muted-foreground"
-        style={{ gridTemplateColumns: gridTemplate }}
-      >
+    <div
+      ref={frameRef}
+      className="flex min-h-0 flex-1 flex-col rounded-lg border bg-card"
+    >
+      <div className="grid shrink-0 border-b px-4 text-xs text-muted-foreground" style={gridStyle}>
         {selectable && (
           <div className="flex h-9 items-center">
             <Skeleton className="size-4 rounded-sm" />
@@ -41,7 +48,7 @@ export function DataTableSkeleton({
           <div
             key={row}
             className="grid items-center border-b px-4"
-            style={{ height: rowHeight, gridTemplateColumns: gridTemplate }}
+            style={{ height: rowHeight, ...gridStyle }}
           >
             {selectable && <Skeleton className="size-4 rounded-sm" />}
             {columns.map((column) => (

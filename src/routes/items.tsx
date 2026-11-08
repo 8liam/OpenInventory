@@ -268,7 +268,7 @@ function ItemsPage() {
       </PageHeader>
       {data.status === "loading" && (
         <LoadingRegion className="flex min-h-0 flex-1 flex-col">
-          <ItemTableSkeleton selectable />
+          <ItemTableSkeleton selectable showAccount={isAll} />
         </LoadingRegion>
       )}
       {data.status === "error" && <LoadError message={data.message} onRetry={data.retry} />}

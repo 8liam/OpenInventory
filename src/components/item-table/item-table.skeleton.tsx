@@ -10,13 +10,18 @@ import type { ItemTableSkeletonProps } from "./item-table.types";
 const textBar = (width: string) => <Skeleton className={`h-4 ${width}`} />;
 
 /** ItemTable's frame (same columns at the same breakpoints) with placeholder rows. */
-export function ItemTableSkeleton({ showLocation = true, selectable }: ItemTableSkeletonProps) {
+export function ItemTableSkeleton({
+  showLocation = true,
+  showAccount = false,
+  selectable,
+}: ItemTableSkeletonProps) {
   const wide = useMediaQuery(ITEM_TABLE.wideQuery);
-  const { widths } = ITEM_TABLE;
+  const layout = wide ? "wide" : "narrow";
+  const sizes = ITEM_TABLE.columns;
   const item: DataTableSkeletonColumn = {
     id: "item",
     header: COPY.itemColumns.item,
-    width: wide ? widths.item.wide : widths.item.narrow,
+    ...sizes.item[layout],
     cell: (
       <div className="flex min-w-0 items-center gap-3">
         <Skeleton
@@ -33,35 +38,45 @@ export function ItemTableSkeleton({ showLocation = true, selectable }: ItemTable
   const price: DataTableSkeletonColumn = {
     id: "price",
     header: COPY.itemColumns.price,
-    width: wide ? widths.price.wide : widths.price.narrow,
+    ...sizes.price[layout],
     align: "right",
     cell: textBar("w-14"),
   };
   const highlights: DataTableSkeletonColumn = {
     id: "highlights",
     header: COPY.items.highlights,
-    width: wide ? widths.highlights : widths.highlightsNarrow,
+    ...sizes.highlights[layout],
     align: "right",
     cell: null,
   };
   const columns: readonly DataTableSkeletonColumn[] = wide
     ? [
         item,
+        ...(showAccount
+          ? [
+              {
+                id: "account",
+                header: COPY.accounts.column,
+                ...sizes.account,
+                cell: textBar("w-20"),
+              },
+            ]
+          : []),
         ...(showLocation
           ? [
               {
                 id: "location",
                 header: COPY.itemColumns.location,
-                width: widths.location,
+                ...sizes.location,
                 cell: textBar("w-28"),
               },
             ]
           : []),
-        { id: "type", header: COPY.itemColumns.type, width: widths.type, cell: textBar("w-16") },
+        { id: "type", header: COPY.itemColumns.type, ...sizes.type, cell: textBar("w-16") },
         {
           id: "float",
           header: COPY.itemColumns.float,
-          width: widths.float,
+          ...sizes.float,
           align: "right",
           cell: textBar("w-14"),
         },

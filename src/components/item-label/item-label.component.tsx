@@ -15,7 +15,8 @@ export function ItemLabel({
   return (
     <div className="flex min-w-0 items-center gap-3">
       <ItemThumb imageUrl={imageUrl} rarityColor={rarityColor} size={size} />
-      <div className="min-w-0">
+      {/* Fills the row, so the highlight line's container query sees the real space available. */}
+      <div className="min-w-0 flex-1">
         {weapon && (
           <p className="mb-0.5 truncate text-[11px] uppercase leading-none tracking-wide text-muted-foreground">
             {weapon}

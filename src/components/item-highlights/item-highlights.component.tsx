@@ -15,32 +15,37 @@ import type {
 export function ItemHighlights({ item, children, visible }: ItemHighlightsProps) {
   const { reasons } = itemHighlights(item);
   if (reasons.length === 0 && !children) return null;
-  // A fixed count (e.g. a narrow grid card) applies at every breakpoint.
-  const { narrow, wide } =
-    visible === undefined ? ITEM_HIGHLIGHTS.visibleChips : { narrow: visible, wide: visible };
-  const overflow = (from: number) => reasons.slice(from).map((reason) => reason.label);
+  const { chipVisibility, moreVisibility } = ITEM_HIGHLIGHTS;
+  // A fixed count (e.g. a grid card) applies at every width; otherwise the line's width decides.
+  const chipClass = (index: number) =>
+    visible === undefined ? (chipVisibility[index] ?? "hidden") : index < visible ? "" : "hidden";
   const more = (from: number, className: string) =>
     reasons.length > from && (
       <span
+        key={from}
         className={cn(ITEM_HIGHLIGHTS.chipClass, "tabular shrink-0", className)}
-        title={overflow(from).join(", ")}
+        title={reasons
+          .slice(from)
+          .map((reason) => reason.label)
+          .join(", ")}
       >
         <span aria-hidden>{COPY.items.moreHighlights(reasons.length - from)}</span>
-        <span className="sr-only">{overflow(from).join(", ")}</span>
+        <span className="sr-only">
+          {reasons
+            .slice(from)
+            .map((reason) => reason.label)
+            .join(", ")}
+        </span>
       </span>
     );
   return (
-    <div className="mt-1 flex min-w-0 flex-nowrap items-center gap-1 overflow-hidden">
+    <div className={ITEM_HIGHLIGHTS.lineClass}>
       {reasons.map((reason, index) => {
         const Icon = ITEM_HIGHLIGHTS.kindIcons[reason.kind];
         return (
           <span
             key={`${reason.kind}-${reason.label}`}
-            className={cn(
-              ITEM_HIGHLIGHTS.chipClass,
-              index >= narrow && "max-md:hidden",
-              index >= wide && "hidden",
-            )}
+            className={cn(ITEM_HIGHLIGHTS.chipClass, index > 0 && "shrink-0", chipClass(index))}
           >
             <Icon
               size={ITEM_HIGHLIGHTS.iconSize}
@@ -51,8 +56,9 @@ export function ItemHighlights({ item, children, visible }: ItemHighlightsProps)
           </span>
         );
       })}
-      {more(narrow, "md:hidden")}
-      {more(wide, "max-md:hidden")}
+      {visible === undefined
+        ? moreVisibility.map((className, from) => more(from + 1, className))
+        : more(visible, "")}
       {children}
     </div>
   );
