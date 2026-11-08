@@ -1,3 +1,5 @@
+import { ITEM_SORT_LABEL, ITEM_SORTS } from "../../lib/items/item-sort.config.ts";
+
 export const ITEM_GRID = {
   /** Cards share the row evenly, so this is the narrowest a card may get before a column is dropped. */
   minCardWidth: 160,
@@ -8,18 +10,11 @@ export const ITEM_GRID = {
   overscan: 3,
   selectAllLabel: "Select all items",
   selectAllText: "Select all",
-  sortLabel: "Sort items",
+  sortLabel: ITEM_SORT_LABEL,
   emptyLabel: "No items",
   count: { one: "item", other: "items" },
   defaultSort: "price-desc",
-  sorts: [
-    { id: "price-desc", label: "Price: high to low" },
-    { id: "price-asc", label: "Price: low to high" },
-    { id: "float-asc", label: "Float: low to high" },
-    { id: "float-desc", label: "Float: high to low" },
-    { id: "highlights-desc", label: "Highlights: best first" },
-    { id: "name", label: "Name" },
-  ],
+  sorts: ITEM_SORTS,
   keys: {
     left: "ArrowLeft",
     right: "ArrowRight",

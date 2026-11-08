@@ -8,6 +8,7 @@ import {
   useState,
   type KeyboardEvent,
 } from "react";
+import { DATA_TABLE } from "~/components/data-table/data-table.config";
 import { ItemGridCard } from "~/components/item-grid-card/item-grid-card.component";
 import { Select } from "~/components/select/select.component";
 import { itemRowKey } from "~/lib/items/item-key";
@@ -132,7 +133,7 @@ export function ItemGrid({
       aria-rowcount={rowCount}
       aria-colcount={columns}
       aria-multiselectable={selectable ? true : undefined}
-      className="flex min-h-0 flex-1 flex-col rounded-lg border bg-card"
+      className={DATA_TABLE.frameClass}
     >
       <div className="flex h-11 shrink-0 items-center justify-between gap-3 border-b px-4 text-xs text-muted-foreground">
         {selectable ? (
@@ -159,7 +160,10 @@ export function ItemGrid({
           ariaLabel={ITEM_GRID.sortLabel}
           className="w-48"
           options={ITEM_GRID.sorts}
-          onChange={(id) => setSort(id as ItemGridSortId)}
+          onChange={(id) => {
+            const next = ITEM_GRID.sorts.find((option) => option.id === id);
+            if (next) setSort(next.id);
+          }}
         />
       </div>
       <div
