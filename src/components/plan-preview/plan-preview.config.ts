@@ -5,6 +5,7 @@ export const PLAN_PREVIEW = {
   heading: "Dry run",
   noRules: "Add a rule to see what would move.",
   nothingToMove: "Nothing to move: every matching item is already where its rule wants it.",
+  noMatches: "Nothing to move: no items match your rules. Check each rule's filters.",
   summary: (items: number, steps: number, actions: number) =>
     `${items} ${items === 1 ? "item" : "items"} would move in ${steps} ${steps === 1 ? "step" : "steps"} (${actions} Game Coordinator ${actions === 1 ? "action" : "actions"}).`,
   inventoryNote:
@@ -20,6 +21,7 @@ export const PLAN_PREVIEW = {
   rulesHeading: "Rules",
   ruleLine: (index: number, moving: number, inPlace: number, unplaced: number) =>
     `Rule ${index}: ${moving} to move, ${inPlace} already in place${unplaced > 0 ? `, ${unplaced} can't be placed` : ""}`,
+  ruleNoMatch: (index: number) => `Rule ${index}: no items match`,
   problemsHeading: "Problems",
   problem: (problem: PlanProblem, ruleLabel: (id: string) => string): string => {
     switch (problem.kind) {
@@ -32,6 +34,18 @@ export const PLAN_PREVIEW = {
       case PROBLEM_KIND.swapBlocked:
         return `${problem.unplaced} ${problem.unplaced === 1 ? "item needs" : "items need"} full units to swap places, which can't be done. Free a slot first.`;
     }
+  },
+  classes: {
+    root: "flex flex-col gap-3",
+    heading: "font-medium",
+    subheading: "text-sm font-medium",
+    muted: "text-muted-foreground",
+    note: "text-xs text-muted-foreground",
+    tabular: "tabular",
+    problems: "flex flex-col gap-1",
+    problemList: "list-disc space-y-1 pl-5 text-sm",
+    stepList: "mt-1 list-decimal space-y-0.5 pl-5 text-sm text-muted-foreground",
+    lineList: "mt-1 space-y-0.5 text-sm text-muted-foreground",
   },
   errorClass: "text-destructive",
   warningClass: "text-amber-600 dark:text-amber-400",

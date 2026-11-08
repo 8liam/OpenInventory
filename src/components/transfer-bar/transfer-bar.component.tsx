@@ -1,21 +1,35 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "~/components/button/button.component";
 import { Select } from "~/components/select/select.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { INVENTORY_LOCATION_ID } from "~/lib/items/item.types";
+import { restoreLostFocus } from "~/utils/restore-focus";
 import { postJson } from "~/lib/storage/storage.client";
 import { STORAGE_API, STORAGE_LIMITS } from "~/lib/storage/storage.config";
 import type { TransferRequest } from "~/lib/storage/storage.types";
+import { focusTransferStatus } from "~/components/transfer-status/transfer-status.utils";
 import { TRANSFER_BAR } from "./transfer-bar.config";
 import type { TransferBarProps } from "./transfer-bar.types";
-
-const INVENTORY_LABEL = "Inventory";
 
 export function TransferBar({ selected, units, accountName, busy, onClear }: TransferBarProps) {
   const [destination, setDestination] = useState("");
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
+  const moveButton = useRef<HTMLButtonElement>(null);
+  const confirmButton = useRef<HTMLButtonElement>(null);
+  const sawConfirming = useRef(false);
+
+  // Move and Confirm swap places, so hand focus from one to the other instead of dropping it.
+  useEffect(() => {
+    if (confirming) {
+      sawConfirming.current = true;
+      confirmButton.current?.focus();
+    } else if (sawConfirming.current) {
+      sawConfirming.current = false;
+      restoreLostFocus(moveButton.current);
+    }
+  }, [confirming]);
 
   const accountIds = useMemo(() => new Set(selected.map((item) => item.accountId)), [selected]);
   const accountId = accountIds.size === 1 ? [...accountIds][0] : undefined;
@@ -26,7 +40,7 @@ export function TransferBar({ selected, units, accountName, busy, onClear }: Tra
   const options = useMemo(() => {
     const list: { id: string; label: string; disabled: boolean }[] = [];
     if (from !== INVENTORY_LOCATION_ID)
-      list.push({ id: INVENTORY_LOCATION_ID, label: INVENTORY_LABEL, disabled: false });
+      list.push({ id: INVENTORY_LOCATION_ID, label: TRANSFER_BAR.inventory, disabled: false });
     for (const unit of units) {
       if (unit.id === from) continue;
       const full = unit.itemCount + count > STORAGE_LIMITS.unitCapacity;
@@ -43,7 +57,7 @@ export function TransferBar({ selected, units, accountName, busy, onClear }: Tra
     options.find((o) => o.id === id)?.label.replace(/ \(\d+\/\d+\).*$/, "") ?? id;
   const fromName =
     from === INVENTORY_LOCATION_ID
-      ? INVENTORY_LABEL
+      ? TRANSFER_BAR.inventory
       : (units.find((u) => u.id === from)?.name ?? "");
   const unitToUnit =
     from !== undefined &&
@@ -75,6 +89,8 @@ export function TransferBar({ selected, units, accountName, busy, onClear }: Tra
         itemIds: selected.map((item) => item.id),
       };
       await postJson(STORAGE_API.transfer, request);
+      // This bar goes away with the selection; the running transfer's status takes focus first.
+      focusTransferStatus();
       setConfirming(false);
       setDestination("");
       onClear();
@@ -89,7 +105,7 @@ export function TransferBar({ selected, units, accountName, busy, onClear }: Tra
     <div
       className="flex shrink-0 flex-col gap-2 rounded-lg border bg-card px-4 py-3 shadow-sm"
       role="region"
-      aria-label="Move items"
+      aria-label={TRANSFER_BAR.regionLabel}
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <span className="font-medium">{TRANSFER_BAR.selectedLabel(count)}</span>
@@ -118,8 +134,9 @@ export function TransferBar({ selected, units, accountName, busy, onClear }: Tra
               />
             </div>
             <Button
+              ref={moveButton}
               variant="primary"
-              className="w-full bg-accent text-accent-foreground sm:w-auto"
+              className="w-full sm:w-auto"
               disabled={blocker !== undefined || !validDestination}
               onClick={() => setConfirming(true)}
             >
@@ -136,7 +153,12 @@ export function TransferBar({ selected, units, accountName, busy, onClear }: Tra
             <p className="text-xs text-muted-foreground">{TRANSFER_BAR.viaInventory}</p>
           )}
           <div className="flex gap-2">
-            <Button variant="primary" disabled={submitting} onClick={() => void submit()}>
+            <Button
+              ref={confirmButton}
+              variant="primary"
+              disabled={submitting}
+              onClick={() => void submit()}
+            >
               {TRANSFER_BAR.confirmButton}
             </Button>
             <Button disabled={submitting} onClick={() => setConfirming(false)}>

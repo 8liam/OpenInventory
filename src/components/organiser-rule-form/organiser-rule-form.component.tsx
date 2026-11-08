@@ -46,7 +46,7 @@ export function OrganiserRuleForm({ units, suggestions, onAdd }: OrganiserRuleFo
         submit();
       }}
     >
-      <h3 className="font-medium">{RULE_FORM.heading}</h3>
+      <h2 className="font-medium">{RULE_FORM.heading}</h2>
       {conditions.map((condition, index) => (
         <div key={index} className="flex flex-wrap items-center gap-2">
           <Select

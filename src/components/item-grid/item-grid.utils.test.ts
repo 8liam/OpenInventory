@@ -49,7 +49,8 @@ describe("sortItems", () => {
     assert.equal(ids(sortItems(ITEMS, "float-desc")), "acb");
   });
   it("sorts by name and leaves the input untouched", () => {
-    assert.equal(ids(sortItems(ITEMS, "name")), "abc");
+    assert.equal(ids(sortItems(ITEMS, "name-asc")), "abc");
+    assert.equal(ids(sortItems(ITEMS, "name-desc")), "cba");
     assert.equal(ids(ITEMS), "abc");
   });
   it("sorts highlights first: by tier, then price, then untiered, without mutating the input", () => {

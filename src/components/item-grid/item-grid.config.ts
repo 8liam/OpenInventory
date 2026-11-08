@@ -1,25 +1,21 @@
+import { ITEM_SORT_LABEL, ITEM_SORTS } from "../../lib/items/item-sort.config.ts";
+
 export const ITEM_GRID = {
   /** Cards share the row evenly, so this is the narrowest a card may get before a column is dropped. */
   minCardWidth: 160,
   gap: 12,
   padding: 12,
-  /** Fixed so rows can be virtualised; the location line adds height. */
-  cardHeight: { withLocation: 248, withoutLocation: 230 },
+  focusInset: 6,
+  /** Fixed so rows can be virtualised; includes the highlight chip line and location line. */
+  cardHeight: { withLocation: 272, withoutLocation: 254 },
   overscan: 3,
   selectAllLabel: "Select all items",
   selectAllText: "Select all",
-  sortLabel: "Sort items",
+  sortLabel: ITEM_SORT_LABEL,
   emptyLabel: "No items",
-  countSuffix: "items",
+  count: { one: "item", other: "items" },
   defaultSort: "price-desc",
-  sorts: [
-    { id: "price-desc", label: "Price: high to low" },
-    { id: "price-asc", label: "Price: low to high" },
-    { id: "float-asc", label: "Float: low to high" },
-    { id: "float-desc", label: "Float: high to low" },
-    { id: "highlights-desc", label: "Highlights first" },
-    { id: "name", label: "Name" },
-  ],
+  sorts: ITEM_SORTS,
   keys: {
     left: "ArrowLeft",
     right: "ArrowRight",

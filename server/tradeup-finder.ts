@@ -3,7 +3,11 @@ import {
   type TradeUpFinderOptions,
   type TradeUpFinderResponse,
 } from "../src/lib/items/item.types.ts";
-import { TRADE_UP, TRADE_UP_FINDER } from "../src/lib/storage/storage.config.ts";
+import {
+  TRADE_UP,
+  TRADE_UP_FINDER,
+  TRADE_UP_STATTRAK_FILTER,
+} from "../src/lib/storage/storage.config.ts";
 import type { Catalog } from "./items/catalog.types.ts";
 import type { PriceBook } from "./prices/prices.ts";
 import { computeTradeUp, inputCountFor, isPriced, type TradeUpCandidate } from "./tradeup.ts";
@@ -23,8 +27,10 @@ export function findTradeUps(
     if (!isPriced(candidate)) return false;
     if (!options.includeStorage && candidate.view.locationId !== INVENTORY_LOCATION_ID)
       return false;
-    if (options.statTrak === "normal" && candidate.skin.isStatTrak) return false;
-    if (options.statTrak === "stattrak" && !candidate.skin.isStatTrak) return false;
+    if (options.statTrak === TRADE_UP_STATTRAK_FILTER.normal && candidate.skin.isStatTrak)
+      return false;
+    if (options.statTrak === TRADE_UP_STATTRAK_FILTER.statTrak && !candidate.skin.isStatTrak)
+      return false;
     if (options.rarityId === TRADE_UP.covertRarity) {
       return (
         candidate.skin.skinId !== null && catalog.specialsFor(candidate.skin.skinId).length > 0

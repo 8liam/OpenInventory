@@ -8,10 +8,12 @@ import {
   useState,
   type KeyboardEvent,
 } from "react";
+import { DATA_TABLE } from "~/components/data-table/data-table.config";
 import { ItemGridCard } from "~/components/item-grid-card/item-grid-card.component";
 import { Select } from "~/components/select/select.component";
 import { itemRowKey } from "~/lib/items/item-key";
-import { formatInteger } from "~/utils/format";
+import { formatCount } from "~/utils/plural";
+import { cn } from "~/utils/cn";
 import { ITEM_GRID } from "./item-grid.config";
 import type { ItemGridProps, ItemGridSortId } from "./item-grid.types";
 import { columnsFor, sortItems } from "./item-grid.utils";
@@ -95,7 +97,16 @@ export function ItemGrid({
     );
     if (!target) return;
     focusPending.current = false;
-    target.focus();
+    target.focus({ preventScroll: true });
+    // Keep the outline and its offset inside the scroll viewport when moving upward.
+    const viewport = scrollRef.current;
+    if (!viewport) return;
+    const card = target.getBoundingClientRect();
+    const visible = viewport.getBoundingClientRect();
+    if (card.top < visible.top + ITEM_GRID.focusInset)
+      viewport.scrollTop += card.top - visible.top - ITEM_GRID.focusInset;
+    else if (card.bottom > visible.bottom - ITEM_GRID.focusInset)
+      viewport.scrollTop += card.bottom - visible.bottom + ITEM_GRID.focusInset;
   });
 
   function moveFocus(index: number) {
@@ -127,13 +138,7 @@ export function ItemGrid({
   }
 
   return (
-    <div
-      role="grid"
-      aria-rowcount={rowCount}
-      aria-colcount={columns}
-      aria-multiselectable={selectable ? true : undefined}
-      className="flex min-h-0 flex-1 flex-col rounded-lg border bg-card"
-    >
+    <div className={cn(DATA_TABLE.frameClass, "min-h-[23rem]")}>
       <div className="flex h-11 shrink-0 items-center justify-between gap-3 border-b px-4 text-xs text-muted-foreground">
         {selectable ? (
           <label className="flex items-center gap-2">
@@ -159,13 +164,19 @@ export function ItemGrid({
           ariaLabel={ITEM_GRID.sortLabel}
           className="w-48"
           options={ITEM_GRID.sorts}
-          onChange={(id) => setSort(id as ItemGridSortId)}
+          onChange={(id) => {
+            const next = ITEM_GRID.sorts.find((option) => option.id === id);
+            if (next) setSort(next.id);
+          }}
         />
       </div>
       <div
         ref={scrollRef}
         className="min-h-0 flex-1 overflow-auto"
-        role={ordered.length === 0 ? undefined : "rowgroup"}
+        role={ordered.length === 0 ? undefined : "grid"}
+        aria-rowcount={ordered.length === 0 ? undefined : rowCount}
+        aria-colcount={ordered.length === 0 ? undefined : columns}
+        aria-multiselectable={ordered.length > 0 && selectable ? true : undefined}
       >
         {ordered.length === 0 ? (
           <div className="p-6 text-muted-foreground">{ITEM_GRID.emptyLabel}</div>
@@ -214,7 +225,7 @@ export function ItemGrid({
         )}
       </div>
       <div className="shrink-0 border-t px-4 py-1.5 text-xs text-muted-foreground">
-        {formatInteger(ordered.length)} {ITEM_GRID.countSuffix}
+        {formatCount(ordered.length, ITEM_GRID.count)}
       </div>
     </div>
   );

@@ -42,7 +42,7 @@ function SummarySkeleton() {
           <Skeleton className="mt-1 h-10 w-32 md:h-12" />
         </div>
         <div className="grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-4">
-          {[0, 1, 2, 3].map((tile) => (
+          {[0, 1, 2].map((tile) => (
             <div key={tile}>
               <Skeleton className="h-4 w-20" />
               <Skeleton className="mt-1 h-6 w-12" />
@@ -61,6 +61,29 @@ export function CasesBodySkeleton() {
   return (
     <>
       <SummarySkeleton />
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-5">
+        <Panel title={copy.streaksTitle} className="xl:col-span-2">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-5 xl:grid-cols-1">
+            {Array.from({ length: 5 }, (_, index) => (
+              <div key={index} className="space-y-1.5">
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-6 w-10" />
+              </div>
+            ))}
+          </div>
+        </Panel>
+        <Panel title={copy.oddsTitle} className="xl:col-span-3">
+          <div className="space-y-5">
+            {Array.from({ length: 5 }, (_, index) => (
+              <div key={index} className="space-y-2">
+                <Skeleton className="h-3 w-28" />
+                <Skeleton className="h-2.5 w-full rounded-full" />
+                <Skeleton className="h-2.5 w-4/5 rounded-full" />
+              </div>
+            ))}
+          </div>
+        </Panel>
+      </div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
         <Panel title={copy.rarityTitle} className="lg:col-span-2">
           <DonutChartSkeleton />
@@ -69,7 +92,7 @@ export function CasesBodySkeleton() {
           </div>
         </Panel>
         <div className="flex flex-col gap-4 lg:col-span-3">
-          <Panel title={copy.monthlyTitle}>
+          <Panel title={`${kind.pill} per month`}>
             <Skeleton className="w-full rounded-md" style={{ height: MONTHLY_BARS.height }} />
             <Skeleton className="mt-1.5 h-lh w-full text-[11px]" />
           </Panel>
@@ -113,7 +136,7 @@ export function CasesBodySkeleton() {
 export function CasesSkeleton({ onlyBody }: CasesSkeletonProps) {
   if (onlyBody) return <CasesBodySkeleton />;
   return (
-    <LoadingRegion className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-4 [&>*]:shrink-0">
+    <LoadingRegion className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden pb-4 [&>*]:shrink-0">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card px-4 py-3">
         <Skeleton className="h-4 w-56" />
         <Skeleton className="h-7 w-28 rounded-md" />

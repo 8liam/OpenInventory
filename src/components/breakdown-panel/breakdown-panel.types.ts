@@ -7,6 +7,7 @@ export type BreakdownPanelProps = {
   readonly dashboard: Dashboard;
   readonly currency: string;
   readonly className?: string;
+  readonly headingLevel?: 2 | 4;
 };
 
 export type BreakdownPanelSkeletonProps = { readonly className?: string };

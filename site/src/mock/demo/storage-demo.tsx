@@ -7,7 +7,8 @@ import { COPY } from "~/lib/copy/copy.config";
 import { itemRowKey } from "~/lib/items/item-key";
 import type { ItemView } from "~/lib/items/item.types";
 import { MOCK_CURRENCY } from "@demo/data/mock.config";
-import { formatInteger, formatMoney } from "~/utils/format";
+import { formatMoney } from "~/utils/format";
+import { formatCount } from "~/utils/plural";
 import { DemoTransferStatus } from "./demo-transfer-status";
 import { useDemoInventory } from "./use-demo-inventory";
 
@@ -57,7 +58,7 @@ export default function StorageDemo() {
           {selected && (
             <p className="text-muted-foreground">
               <span className="font-medium text-foreground">{selected.name}</span> ·{" "}
-              {formatInteger(selected.itemCount)} {copy.items} · {copy.value}{" "}
+              {formatCount(selected.itemCount, copy.items)} · {copy.value}{" "}
               <span className="tabular text-foreground">
                 {formatMoney(selectedValue, MOCK_CURRENCY)}
               </span>

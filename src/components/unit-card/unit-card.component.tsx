@@ -3,7 +3,8 @@ import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
 import { Skeleton } from "~/components/skeleton/skeleton.component";
 import { UnitName } from "~/components/unit-name/unit-name.component";
 import { cn } from "~/utils/cn";
-import { formatInteger, formatMoney } from "~/utils/format";
+import { formatMoney } from "~/utils/format";
+import { formatCount } from "~/utils/plural";
 import { UNIT_CARD } from "./unit-card.config";
 import type { UnitCardProps } from "./unit-card.types";
 
@@ -24,7 +25,8 @@ export function UnitCard({
   return (
     <div
       className={cn(
-        "relative w-60 shrink-0 rounded-lg border bg-card p-3.5 text-left transition-colors hover:bg-muted md:w-full",
+        "relative shrink-0 rounded-lg border bg-card p-3.5 text-left transition-colors hover:bg-muted",
+        UNIT_CARD.widthClass,
         selected && "border-primary/60 bg-muted",
       )}
     >
@@ -40,7 +42,7 @@ export function UnitCard({
         <div className="min-w-0">
           <UnitName name={unit.name} onRename={onRename} />
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {formatInteger(unit.itemCount)} {COPY.storage.items}
+            {formatCount(unit.itemCount, COPY.storage.items)}
           </p>
         </div>
         {loading ? (

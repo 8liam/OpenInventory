@@ -2,6 +2,7 @@ import { IMAGE_SIZE_SUFFIX } from "../../src/lib/storage/storage.config.ts";
 import { OPENING_KINDS } from "../../src/lib/cases/cases.config.ts";
 import type {
   CaseOpening,
+  CaseRarityStat,
   CaseStats,
   OpeningKind,
   PulledItem,
@@ -124,6 +125,29 @@ export function buildCaseStats(events: readonly HistoryEvent[], kind: OpeningKin
     color: bucket.color,
     count: rarityCounts.get(bucket.key) ?? 0,
   })).filter((slice) => slice.count > 0);
+  const caseRarities: CaseRarityStat[] =
+    kind === "case"
+      ? RARITY_BUCKETS.filter((bucket) => bucket.key !== "other").map((bucket) => {
+          const latest = cases.findIndex((event) => {
+            const reward = event.gained[0];
+            return reward && bucketKey(reward) === bucket.key;
+          });
+          const sinceLast = latest < 0 ? openings.length : latest;
+          const uncertain = cases.slice(0, sinceLast).some((event) => {
+            const reward = event.gained[0];
+            return reward && bucketKey(reward) === "other";
+          });
+          return {
+            key: bucket.key,
+            label: bucket.label,
+            color: bucket.color,
+            count: rarityCounts.get(bucket.key) ?? 0,
+            sinceLast,
+            hasDrop: latest >= 0,
+            uncertain,
+          };
+        })
+      : [];
 
   const perMonth = new Map<string, number>();
   for (const opening of [...openings].reverse()) {
@@ -150,6 +174,7 @@ export function buildCaseStats(events: readonly HistoryEvent[], kind: OpeningKin
           : goldIndexNewestFirst,
     casesToFirstGold: goldIndexOldestFirst < 0 ? null : openings.length - goldIndexOldestFirst,
     rarity,
+    caseRarities,
     rarest: openings
       .map((opening, index) => ({ opening, index, rank: rarityRank(opening) }))
       .sort((a, b) => a.rank - b.rank || a.index - b.index) // ties keep newest first

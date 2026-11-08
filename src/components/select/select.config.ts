@@ -14,6 +14,8 @@ export const SELECT = {
     previous: "ArrowUp",
     commit: "Enter",
     close: "Escape",
+    /** Closes the list and lets focus move on as usual. */
+    leave: "Tab",
     home: "Home",
     end: "End",
   },

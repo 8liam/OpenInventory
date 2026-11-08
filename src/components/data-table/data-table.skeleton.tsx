@@ -1,26 +1,38 @@
 import { Skeleton } from "~/components/skeleton/skeleton.component";
 import { cn } from "~/utils/cn";
 import { DATA_TABLE } from "./data-table.config";
+import { useFittedColumns } from "./data-table.hooks";
 import type { DataTableSkeletonProps } from "./data-table.types";
 
-/** DataTable's frame: real headers and grid, placeholder rows, clipped to the available height. */
+/**
+ * DataTable's frame: real headers and grid, placeholder rows, clipped to the available height.
+ * It is decorative (hidden from assistive tech); the surrounding LoadingRegion announces loading.
+ */
 export function DataTableSkeleton({
-  columns,
-  rowHeight = DATA_TABLE.rowHeight,
+  columns: allColumns,
+  compact,
+  rowHeight: fullRowHeight = DATA_TABLE.rowHeight,
   rows,
-  selectable,
+  selectable = false,
 }: DataTableSkeletonProps) {
-  const gridTemplate = [
-    selectable ? DATA_TABLE.selectionColumnWidth : undefined,
-    ...columns.map((c) => c.width),
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const {
+    ref: rowsRef,
+    compact: isCompact,
+    columns,
+    gridTemplate,
+    gutter,
+  } = useFittedColumns(allColumns, compact?.columns, selectable);
+  const rowHeight = isCompact && compact ? compact.rowHeight : fullRowHeight;
+  const gridStyle = { gridTemplateColumns: gridTemplate, columnGap: DATA_TABLE.columnGap };
   return (
-    <div className="flex min-h-0 flex-1 flex-col rounded-lg border bg-card">
+    <div aria-hidden className={DATA_TABLE.frameClass}>
       <div
-        className="grid shrink-0 border-b px-4 text-xs text-muted-foreground"
-        style={{ gridTemplateColumns: gridTemplate }}
+        className={DATA_TABLE.headerClass}
+        style={{
+          ...gridStyle,
+          paddingLeft: DATA_TABLE.edgePadding,
+          paddingRight: DATA_TABLE.edgePadding + gutter,
+        }}
       >
         {selectable && (
           <div className="flex h-9 items-center">
@@ -36,12 +48,12 @@ export function DataTableSkeleton({
           </div>
         ))}
       </div>
-      <div className="min-h-0 flex-1 overflow-hidden" role="rowgroup">
+      <div ref={rowsRef} className={DATA_TABLE.skeletonScrollClass}>
         {Array.from({ length: rows }, (_, row) => (
           <div
             key={row}
             className="grid items-center border-b px-4"
-            style={{ height: rowHeight, gridTemplateColumns: gridTemplate }}
+            style={{ height: rowHeight, ...gridStyle }}
           >
             {selectable && <Skeleton className="size-4 rounded-sm" />}
             {columns.map((column) => (

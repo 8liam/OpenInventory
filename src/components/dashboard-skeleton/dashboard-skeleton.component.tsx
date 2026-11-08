@@ -10,7 +10,7 @@ import { COPY } from "~/lib/copy/copy.config";
 export function DashboardSkeleton() {
   const copy = COPY.dashboard;
   return (
-    <LoadingRegion className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-4 [&>*]:shrink-0">
+    <LoadingRegion className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden pb-4 [&>*]:shrink-0">
       <PortfolioHeroSkeleton />
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
         <Panel title={copy.holdingsTitle} className="lg:col-span-3">

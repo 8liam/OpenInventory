@@ -21,7 +21,10 @@ const DEMOS: Record<string, () => ReactNode> = {
 export default function FeatureDemo({ id }: { id: string }) {
   const Demo = DEMOS[id];
   const boxRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const openRef = useRef<HTMLButtonElement>(null);
   const [scale, setScale] = useState(DEMO_MIN_SCALE);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     const el = boxRef.current;
@@ -33,6 +36,10 @@ export default function FeatureDemo({ id }: { id: string }) {
     return () => ro.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (expanded) dialogRef.current?.showModal();
+  }, [expanded]);
+
   if (!Demo) return null;
   return (
     <div className="fdemo" ref={boxRef} style={{ minHeight: DEMO_HEIGHT * scale }}>
@@ -42,6 +49,30 @@ export default function FeatureDemo({ id }: { id: string }) {
       >
         <Demo />
       </div>
+      <button ref={openRef} type="button" className="fdemo__open" onClick={() => setExpanded(true)}>
+        Explore full {id} demo
+      </button>
+      {expanded && (
+        <dialog
+          ref={dialogRef}
+          className="fdemo__dialog"
+          aria-label={`${id} demo`}
+          onClose={() => {
+            setExpanded(false);
+            openRef.current?.focus();
+          }}
+        >
+          <div className="fdemo__dialog-head">
+            <span>OpenInventory · {id} demo</span>
+            <button type="button" onClick={() => dialogRef.current?.close()}>
+              Close demo
+            </button>
+          </div>
+          <div className="fdemo__dialog-body" data-lenis-prevent>
+            <Demo />
+          </div>
+        </dialog>
+      )}
     </div>
   );
 }

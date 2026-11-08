@@ -111,6 +111,8 @@ export type MovePlan = {
   readonly unitChanges: readonly UnitChange[];
   readonly ruleReports: readonly RuleReport[];
   readonly problems: readonly PlanProblem[];
+  /** True when an error-level problem stops the plan from running. */
+  readonly blocked: boolean;
   /** True when there is something to move and no error-level problem. */
   readonly executable: boolean;
 };

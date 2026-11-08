@@ -57,7 +57,12 @@ export function ValueChart({ points, currency, tone }: ValueChartProps) {
   }
 
   const spanMs = (points[points.length - 1]?.takenAt ?? 0) - (points[0]?.takenAt ?? 0);
-  const formatTick = spanMs < VALUE_CHART.timeLabelSpanMs ? formatDateTime : formatDate;
+  const showTime = spanMs < VALUE_CHART.timeLabelSpanMs;
+  const formatTick = showTime ? formatDateTime : formatDate;
+  const tickSpacing = VALUE_CHART.xTickSpacing[showTime ? "time" : "date"];
+  const xTicks = geometry
+    ? Math.min(VALUE_CHART.maxXTicks, Math.max(1, Math.floor(geometry.plotW / tickSpacing)))
+    : VALUE_CHART.maxXTicks;
   const active = hover === undefined ? undefined : points[hover];
   const last = points[points.length - 1];
   const dotX = active && geometry ? geometry.x(active.takenAt) : undefined;
@@ -116,14 +121,14 @@ export function ValueChart({ points, currency, tone }: ValueChartProps) {
               </text>
             );
           })}
-          {Array.from({ length: VALUE_CHART.xTicks + 1 }, (_, i) => {
-            const t = geometry.t0 + ((geometry.t1 - geometry.t0) * i) / VALUE_CHART.xTicks;
+          {Array.from({ length: xTicks + 1 }, (_, i) => {
+            const t = geometry.t0 + ((geometry.t1 - geometry.t0) * i) / xTicks;
             return (
               <text
                 key={i}
                 x={geometry.x(t)}
                 y={height - 6}
-                textAnchor={i === 0 ? "start" : i === VALUE_CHART.xTicks ? "end" : "middle"}
+                textAnchor={i === 0 ? "start" : i === xTicks ? "end" : "middle"}
                 fontSize="12"
                 fill="var(--muted-foreground)"
               >

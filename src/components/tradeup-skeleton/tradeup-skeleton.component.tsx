@@ -26,7 +26,7 @@ function Row({ thumb, price }: { readonly thumb: number; readonly price: string 
 export function TradeUpSkeleton() {
   const copy = COPY.tradeup;
   return (
-    <LoadingRegion className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-2 [&>*]:shrink-0">
+    <LoadingRegion className="flex flex-col gap-4 [&>*]:shrink-0">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <MetricSkeleton label={copy.inputCost} />
         <MetricSkeleton label={copy.averageFloat} />

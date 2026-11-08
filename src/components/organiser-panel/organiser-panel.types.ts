@@ -9,6 +9,8 @@ export type OrganiserPanelProps = {
   readonly units: readonly StorageUnit[];
   /** The account the plan acts on; undefined in the all-accounts view, where nothing can run. */
   readonly accountId: string | undefined;
+  /** Names the account in the run confirmation; omitted when only one account is tracked. */
+  readonly accountName?: string;
   /** A transfer is already running, so nothing can start. */
   readonly busy: boolean;
 };

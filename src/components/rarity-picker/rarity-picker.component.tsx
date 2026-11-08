@@ -3,7 +3,12 @@ import { cn } from "~/utils/cn";
 import { RARITY_PICKER } from "./rarity-picker.config";
 import type { RarityPickerProps } from "./rarity-picker.types";
 
-/** A row of rarity-coloured circles acting as a radio group; the name shows on hover or focus. */
+const { classes } = RARITY_PICKER;
+
+/**
+ * A row of rarity-coloured circles acting as a radio group. The chosen rarity is also written out
+ * next to the circles, so colour is never the only cue (and touch screens, with no hover, see it).
+ */
 export function RarityPicker({ label, options, value, onChange }: RarityPickerProps) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const selected = Math.max(
@@ -27,9 +32,9 @@ export function RarityPicker({ label, options, value, onChange }: RarityPickerPr
   }
 
   return (
-    <div className="flex items-center gap-2.5 text-muted-foreground">
+    <div className={classes.root}>
       <span>{label}</span>
-      <div role="radiogroup" aria-label={label} className="flex items-center gap-2">
+      <div role="radiogroup" aria-label={label} className={classes.group}>
         {options.map((option, index) => {
           const active = index === selected;
           return (
@@ -46,21 +51,18 @@ export function RarityPicker({ label, options, value, onChange }: RarityPickerPr
               onClick={() => onChange(option.id)}
               onKeyDown={(event) => onKeyDown(event, index)}
               style={{ backgroundColor: option.color, color: option.color }}
-              className={cn(
-                "group relative size-[22px] rounded-full opacity-55 transition duration-150 hover:scale-110 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-ring",
-                active && "opacity-100 ring-2 ring-current ring-offset-2 ring-offset-background",
-              )}
+              className={cn(classes.option, active && classes.optionActive)}
             >
-              <span
-                role="tooltip"
-                className="pointer-events-none absolute bottom-[130%] left-1/2 -translate-x-1/2 whitespace-nowrap z-10 rounded-md border bg-card px-2 py-1 text-[11px] text-foreground shadow-md opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
-              >
+              <span role="tooltip" className={classes.tooltip}>
                 {option.label}
               </span>
             </button>
           );
         })}
       </div>
+      <span aria-hidden className={classes.current}>
+        {options[selected]?.label}
+      </span>
     </div>
   );
 }

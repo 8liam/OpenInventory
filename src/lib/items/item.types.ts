@@ -1,3 +1,5 @@
+import type { TRADE_UP_FINDER } from "../storage/storage.config.ts";
+
 export type StickerView = {
   readonly name: string;
   readonly imageUrl: string | null;
@@ -126,9 +128,11 @@ export type TradeUpOddsResponse =
       readonly currency: string;
     };
 
+export type TradeUpStatTrakFilter = (typeof TRADE_UP_FINDER.statTrakFilters)[number];
+
 export type TradeUpFinderOptions = {
   readonly rarityId: string;
-  readonly statTrak: "all" | "normal" | "stattrak";
+  readonly statTrak: TradeUpStatTrakFilter;
   readonly includeStorage: boolean;
 };
 

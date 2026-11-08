@@ -1,6 +1,10 @@
 import type { AccountLabel } from "../../src/lib/accounts/accounts.types.ts";
 import { AUTH_STATUS } from "../../src/lib/storage/storage.config.ts";
-import type { AccountState, AppSnapshot } from "../../src/lib/storage/storage.types.ts";
+import type {
+  AccountState,
+  AppSnapshot,
+  LoginResult,
+} from "../../src/lib/storage/storage.types.ts";
 import type { Database } from "../db/db.types.ts";
 import type { SavedSession } from "../steam/session-file.ts";
 import type { SessionStore } from "../steam/session-store.ts";
@@ -34,6 +38,7 @@ export function createAccountManager({
   const listeners = new Set<(snapshot: AppSnapshot) => void>();
   let revision = 0;
   let emitScheduled = false;
+  let lastLogin: LoginResult | null = null;
 
   const login = createQrLogin((session) => void adopt(session));
   login.subscribe(() => emit());
@@ -66,6 +71,11 @@ export function createAccountManager({
   /** A QR login finished: store the token, register the account and connect it (or reconnect with the new token). */
   async function adopt(session: SavedSession): Promise<void> {
     const existing = gateways.get(session.steamId);
+    lastLogin = {
+      sequence: (lastLogin?.sequence ?? 0) + 1,
+      steamId: session.steamId,
+      added: existing === undefined,
+    };
     existing?.disconnect();
     unsubscribers.get(session.steamId)?.();
     sessions.forAccount(session.steamId).save(session);
@@ -101,7 +111,7 @@ export function createAccountManager({
         snapshot,
       });
     }
-    return { accounts, login: login.getState(), revision };
+    return { accounts, login: login.getState(), lastLogin, revision };
   }
 
   return {

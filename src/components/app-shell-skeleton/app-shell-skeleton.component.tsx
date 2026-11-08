@@ -32,7 +32,7 @@ export function AppShellSkeleton() {
         </div>
       </aside>
       <header className="flex shrink-0 items-center justify-between gap-3 border-b px-4 py-2.5 md:hidden">
-        <Logo />
+        <Logo compactBelow360 />
         <Skeleton className="h-lh w-24" />
       </header>
       <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-hidden p-4 md:gap-5 md:p-6">
@@ -45,10 +45,10 @@ export function AppShellSkeleton() {
         {NAV_ITEMS.map(({ key }) => (
           <span
             key={key}
-            className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] text-muted-foreground"
+            className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] text-muted-foreground max-[360px]:tracking-tight"
           >
             <Skeleton className="size-[18px]" />
-            {COPY.navShort[key]}
+            {COPY.nav[key]}
           </span>
         ))}
       </nav>

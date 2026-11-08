@@ -19,8 +19,9 @@ export function PortfolioHero({ dashboard, currency }: PortfolioHeroProps) {
     { label: copy.items, value: formatInteger(totals.itemCount) },
   ];
   return (
-    <section className="overflow-hidden rounded-xl border bg-card">
-      <div className="flex flex-col gap-6 p-5 md:flex-row md:items-end md:justify-between md:p-6">
+    <section className="@container overflow-hidden rounded-xl border bg-card">
+      {/* Sized by the card, not the viewport: the sidebar narrows it at tablet widths. */}
+      <div className="flex flex-col gap-6 p-5 @2xl:flex-row @2xl:items-end @2xl:justify-between md:p-6">
         <div>
           <p className="text-xs text-muted-foreground">{copy.totalValue}</p>
           <p className="tabular mt-1 text-[40px] font-semibold leading-none tracking-tight md:text-5xl">
@@ -30,7 +31,7 @@ export function PortfolioHero({ dashboard, currency }: PortfolioHeroProps) {
             <ChangeLine change={dashboard.change} currency={currency} />
           </div>
         </div>
-        <dl className="flex gap-6 md:gap-8">
+        <dl className="flex flex-wrap gap-x-6 gap-y-3 @2xl:gap-x-8">
           {stats.map((stat) => (
             <div key={stat.label} className="min-w-0">
               <dt className="text-xs text-muted-foreground">{stat.label}</dt>

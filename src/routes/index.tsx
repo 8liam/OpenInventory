@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { LoadError } from "~/components/load-error/load-error.component";
 import { RefreshCw } from "lucide-react";
-import { useState } from "react";
 import { Button } from "~/components/button/button.component";
 import { HoldingsTable } from "~/components/holdings-table/holdings-table.component";
 import { BreakdownPanel } from "~/components/breakdown-panel/breakdown-panel.component";
@@ -10,9 +10,13 @@ import { UpdatedHeader } from "~/components/updated-header/updated-header.compon
 import { Panel } from "~/components/panel/panel.component";
 import { PortfolioHero } from "~/components/portfolio-hero/portfolio-hero.component";
 import { COPY } from "~/lib/copy/copy.config";
+import { PAGE_LAYOUT } from "~/lib/layout/page-layout.config";
+import { DASHBOARD_PAGE } from "~/lib/items/dashboard-page.config";
 import type { Dashboard } from "~/lib/items/dashboard.types";
-import { useAccountScope, useScopedPath } from "~/lib/accounts/account-scope.hooks";
-import { postJson, useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
+import { useScopedPath, useSingleAccountLabel } from "~/lib/accounts/account-scope.hooks";
+import { useRefreshAccounts } from "~/lib/accounts/refresh-accounts.hooks";
+import { useRestoreFocusOnRecovery } from "~/lib/storage/recovered-focus.hooks";
+import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { usePriceQuery, useSettings } from "~/lib/settings/settings.store";
 
@@ -23,63 +27,72 @@ function DashboardPage() {
   const currency = useSettings((s) => s.currency);
   const marketplace = useSettings((s) => s.marketplace);
   const priceQuery = usePriceQuery();
-  const { scoped } = useAccountScope();
   const data = useRemoteData<Dashboard>(
     useScopedPath(`${STORAGE_API.dashboard}?${priceQuery}`),
     snapshot.revision,
   );
-  const [refreshing, setRefreshing] = useState(false);
+  const accountLabel = useSingleAccountLabel();
+  const refresh = useRefreshAccounts();
   const copy = COPY.dashboard;
 
-  async function refresh() {
-    setRefreshing(true);
-    try {
-      await Promise.all(
-        scoped.map((account) =>
-          postJson(`${STORAGE_API.refresh}?${priceQuery}`, { accountId: account.steamId }),
-        ),
-      );
-    } finally {
-      setRefreshing(false);
-    }
-  }
-
+  useRestoreFocusOnRecovery(data.status);
   const dashboard = data.status === "ready" ? data.data : undefined;
   const source = COPY.settings.marketplaces[marketplace];
   return (
     <>
-      <UpdatedHeader title={copy.title} priceUpdatedAt={dashboard?.priceUpdatedAt} source={source}>
-        {snapshot.loadingUnits && (
-          <span className="text-xs text-muted-foreground">{copy.unitsLoading}…</span>
-        )}
-        <Button small disabled={refreshing || snapshot.loadingUnits} onClick={() => void refresh()}>
-          <RefreshCw size={12} className={refreshing ? "motion-safe:animate-spin" : undefined} />
-          {refreshing ? COPY.common.refreshing : COPY.common.refresh}
+      <UpdatedHeader
+        title={copy.title}
+        priceUpdatedAt={dashboard?.priceUpdatedAt}
+        source={source}
+        account={accountLabel}
+      >
+        {snapshot.loadingUnits && <span className={PAGE_LAYOUT.note}>{copy.unitsLoading}…</span>}
+        <Button
+          small
+          aria-label={COPY.refresh.ariaFor(refresh.scopeLabel)}
+          title={COPY.refresh.ariaFor(refresh.scopeLabel)}
+          disabled={refresh.busy || snapshot.loadingUnits || !refresh.canRefresh}
+          onClick={() => void refresh.refresh()}
+        >
+          <RefreshCw
+            size={DASHBOARD_PAGE.refreshIconSize}
+            className={refresh.busy ? PAGE_LAYOUT.spinning : undefined}
+            aria-hidden
+          />
+          {refresh.busy ? COPY.common.refreshing : COPY.common.refresh}
         </Button>
       </UpdatedHeader>
-
-      {data.status === "loading" && <DashboardSkeleton />}
-      {data.status === "error" && (
-        <p role="alert" className="text-destructive">
-          {COPY.common.errorPrefix} {data.message}
+      {refresh.error && (
+        <p role="alert" className={PAGE_LAYOUT.errorNote}>
+          {refresh.error}
         </p>
       )}
 
+      {data.status === "loading" && <DashboardSkeleton />}
+      {data.status === "error" && (
+        <LoadError message={data.message} onRetry={data.retry} retrying={data.retrying} />
+      )}
+
       {dashboard && (
-        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-4 [&>*]:shrink-0">
+        <div
+          role="region"
+          aria-label={copy.title}
+          tabIndex={0}
+          className={PAGE_LAYOUT.scrollRegion}
+        >
           {dashboard.totals.unitsLoaded < dashboard.totals.unitsTotal && (
-            <p className="text-xs text-warning">{copy.unitsPartial}</p>
+            <p className={DASHBOARD_PAGE.warningClass}>{copy.unitsPartial}</p>
           )}
           <PortfolioHero dashboard={dashboard} currency={currency} />
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
-            <Panel title={copy.holdingsTitle} className="lg:col-span-3">
+          <div className={PAGE_LAYOUT.fiveColumns}>
+            <Panel title={copy.holdingsTitle} className={PAGE_LAYOUT.spanThree}>
               <HoldingsTable holdings={dashboard.topHoldings} currency={currency} />
             </Panel>
             <BreakdownPanel
               dashboard={dashboard}
               currency={currency}
-              className="self-start lg:col-span-2"
+              className={DASHBOARD_PAGE.breakdownClass}
             />
           </div>
 

@@ -7,6 +7,7 @@ import { splitItemName } from "~/components/item-label/item-label.utils";
 import { COPY } from "~/lib/copy/copy.config";
 import { cn } from "~/utils/cn";
 import { formatFloat, formatMoney } from "~/utils/format";
+import { AccountName } from "~/components/account-name/account-name.component";
 import { ITEM_GRID_CARD } from "./item-grid-card.config";
 import type { ItemGridCardProps } from "./item-grid-card.types";
 
@@ -26,7 +27,7 @@ export function ItemGridCard({
   onKeyDown,
 }: ItemGridCardProps) {
   const [weapon, skin] = splitItemName(item.name);
-  const { stickerSize, maxStickers, thumbClass, selectRowLabel } = ITEM_GRID_CARD;
+  const { stickerSize, maxStickers, thumbClass, selectRowLabel, classes } = ITEM_GRID_CARD;
   const status =
     item.terminal !== null
       ? item.terminal.isActive
@@ -45,21 +46,19 @@ export function ItemGridCard({
       onKeyDown={onKeyDown}
       onClick={selectable ? onToggle : undefined}
       className={cn(
-        "group relative flex h-full min-w-0 flex-col rounded-lg border bg-card p-3 text-left transition-colors focus-visible:outline-offset-2",
-        selectable && "cursor-pointer hover:bg-muted",
-        checked && "border-primary/60 bg-muted",
+        classes.card,
+        selectable && classes.cardSelectable,
+        checked && classes.cardChecked,
       )}
     >
-      <div className="relative">
+      <div className={classes.media}>
         <ItemThumb imageUrl={item.imageUrl} rarityColor={item.rarityColor} className={thumbClass} />
-        <ItemTierBadge item={item} className="absolute right-1.5 top-1.5 shadow-sm" />
+        <ItemTierBadge item={item} className={classes.tierBadge} />
         {selectable && (
           <label
             className={cn(
-              "absolute left-1.5 top-1.5 flex rounded bg-background/80 p-1 transition-opacity [@media(hover:none)]:opacity-100",
-              checked || checkboxVisible
-                ? "opacity-100"
-                : "opacity-0 focus-within:opacity-100 group-hover:opacity-100",
+              ITEM_GRID_CARD.checkboxClass,
+              checked || checkboxVisible ? classes.checkboxShown : classes.checkboxHidden,
             )}
           >
             <input
@@ -69,37 +68,37 @@ export function ItemGridCard({
               onClick={(event) => event.stopPropagation()}
               tabIndex={-1}
               aria-label={selectRowLabel}
-              className="size-4 accent-primary"
+              className={classes.checkbox}
             />
           </label>
         )}
       </div>
-      <div className="mt-2.5 min-w-0">
-        {weapon && (
-          <p className="mb-0.5 truncate text-[11px] uppercase leading-none tracking-wide text-muted-foreground">
-            {weapon}
-          </p>
-        )}
-        <p className="truncate leading-tight" title={item.name}>
+      <div className={classes.text}>
+        {weapon && <p className={classes.weapon}>{weapon}</p>}
+        <p className={classes.skin} title={item.name}>
           {skin}
-          {item.customName && <span className="text-muted-foreground"> “{item.customName}”</span>}
+          {item.customName && <span className={classes.muted}> “{item.customName}”</span>}
         </p>
       </div>
-      <div className="mt-1.5 flex items-baseline justify-between gap-2">
-        <p className="tabular text-sm font-medium">
+      <div className={classes.figures}>
+        <p className={classes.price}>
           {item.price === null ? COPY.common.empty : formatMoney(item.price, currency)}
         </p>
-        {status !== null && (
-          <p className="tabular shrink-0 text-xs text-muted-foreground">{status}</p>
-        )}
+        {status !== null && <p className={classes.status}>{status}</p>}
       </div>
-      <ItemHighlights item={item} />
+      <ItemHighlights item={item} visible={ITEM_GRID_CARD.visibleHighlights} />
       {showLocation && (
-        <p className="mt-0.5 truncate text-xs text-muted-foreground">
-          {accountName ? `${accountName} · ${item.locationName}` : item.locationName}
+        <p className={ITEM_GRID_CARD.locationClass}>
+          {accountName && (
+            <>
+              <AccountName name={accountName} className={classes.account} />
+              <span aria-hidden>{ITEM_GRID_CARD.locationSeparator}</span>
+            </>
+          )}
+          <span className={classes.location}>{item.locationName}</span>
         </p>
       )}
-      <div className="mt-auto flex h-6 items-end gap-0.5 overflow-hidden">
+      <div className={classes.attachments}>
         {item.stickers
           .filter((sticker) => sticker.imageUrl !== null)
           .slice(0, maxStickers)
@@ -116,7 +115,7 @@ export function ItemGridCard({
             />
           ))}
         {item.charms.length > 0 && (
-          <span className="ml-1 text-[11px] text-muted-foreground">
+          <span className={classes.charms}>
             {item.charms.map((charm) => charm.name).join(", ")}
           </span>
         )}

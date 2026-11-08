@@ -26,13 +26,50 @@ export const STORAGE_API = {
   terminalNextOffer: "/api/terminals/next-offer",
 } as const;
 
+/** Wire values of the finder's StatTrak filter (`statTrak=` on the finder request). */
+export const TRADE_UP_STATTRAK_FILTER = {
+  all: "all",
+  normal: "normal",
+  statTrak: "stattrak",
+} as const;
+
 export const TRADE_UP_FINDER = {
+  statTrakFilters: [
+    TRADE_UP_STATTRAK_FILTER.all,
+    TRADE_UP_STATTRAK_FILTER.normal,
+    TRADE_UP_STATTRAK_FILTER.statTrak,
+  ],
+  defaultStatTrakFilter: TRADE_UP_STATTRAK_FILTER.all,
   candidateLimit: 40,
   resultLimit: 20,
   maxContracts: 500,
 } as const;
 
+export const REMOTE_STATUS = { loading: "loading", error: "error", ready: "ready" } as const;
+
+/** The first-load state of the server's event stream. */
+export const SNAPSHOT_CONNECTION = {
+  connecting: "connecting",
+  open: "open",
+  /** The stream failed before any snapshot arrived (server down, proxy error). */
+  disconnected: "disconnected",
+  /** The server answered with a snapshot this page can't read (version mismatch). */
+  incompatible: "incompatible",
+  /** The stream dropped after data arrived; the last snapshot stays on screen while it reconnects. */
+  reconnecting: "reconnecting",
+} as const;
+
+/** Re-opening a closed event stream (a proxy 502 closes an EventSource for good). */
+export const STREAM_RECONNECT = {
+  /** Wait before each attempt; the last delay repeats until the server answers. */
+  delaysMs: [1_000, 3_000, 10_000, 30_000],
+} as const;
+
 export const REMOTE_DATA = {
+  /** Query parameter naming the account a request is about; data never carries across it. */
+  scopeParam: "account",
+  /** Debug label of the key each `useRemoteData` reports stale loads under. */
+  staleKeyDescription: "remote-data",
   /** Wait this long after a revision-only change before refetching, so bursts of pushes collapse into one request. */
   revisionDebounceMs: 600,
   /** Most responses kept for instant re-display; the oldest is evicted first. */

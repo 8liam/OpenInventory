@@ -1,4 +1,6 @@
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
+import { cn } from "~/utils/cn";
+import { ITEM_LABEL } from "./item-label.config";
 import type { ItemLabelProps } from "./item-label.types";
 import { splitItemName } from "./item-label.utils";
 
@@ -9,22 +11,32 @@ export function ItemLabel({
   rarityColor,
   size,
   customName,
+  nameFit = "responsive",
+  compactOnNarrow = false,
   children,
 }: ItemLabelProps) {
   const [weapon, skin] = splitItemName(name);
   return (
     <div className="flex min-w-0 items-center gap-3">
-      <ItemThumb imageUrl={imageUrl} rarityColor={rarityColor} size={size} />
-      <div className="min-w-0">
+      <ItemThumb
+        imageUrl={imageUrl}
+        rarityColor={rarityColor}
+        size={size}
+        className={compactOnNarrow ? "max-sm:hidden" : undefined}
+      />
+      {/* Fills the row, so the highlight line's container query sees the real space available. */}
+      <div className="min-w-0 flex-1">
         {weapon && (
-          <p className="mb-0.5 truncate text-[11px] uppercase leading-none tracking-wide text-muted-foreground">
+          <p
+            className={cn(
+              "mb-0.5 text-[11px] uppercase leading-none tracking-wide text-muted-foreground",
+              nameFit === "wrap" ? "break-words whitespace-normal" : "truncate",
+            )}
+          >
             {weapon}
           </p>
         )}
-        <p
-          className="break-words leading-tight max-md:line-clamp-2 max-md:whitespace-normal md:truncate"
-          title={name}
-        >
+        <p className={ITEM_LABEL.nameClass[nameFit]} title={name}>
           {skin}
           {customName && <span className="text-muted-foreground"> “{customName}”</span>}
         </p>

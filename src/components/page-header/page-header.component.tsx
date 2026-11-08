@@ -1,13 +1,27 @@
+import { UserRound } from "lucide-react";
+import { PAGE_HEADER } from "./page-header.config";
 import type { PageHeaderProps } from "./page-header.types";
 
-export function PageHeader({ title, description, children }: PageHeaderProps) {
+const { classes } = PAGE_HEADER;
+
+export function PageHeader({ title, description, account, children }: PageHeaderProps) {
   return (
-    <header className="flex shrink-0 flex-wrap items-end justify-between gap-3">
-      <div>
-        <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
-        {description && <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>}
+    <header className={classes.root}>
+      <div className={classes.titleBlock}>
+        <div className={classes.titleRow}>
+          <h1 id={PAGE_HEADER.headingId} tabIndex={-1} className={PAGE_HEADER.headingClass}>
+            {title}
+          </h1>
+          {account && (
+            <span className={classes.chip}>
+              <UserRound size={PAGE_HEADER.iconSize} className={classes.chipIcon} aria-hidden />
+              <span className={classes.chipText}>{PAGE_HEADER.accountChip(account)}</span>
+            </span>
+          )}
+        </div>
+        {description && <p className={classes.description}>{description}</p>}
       </div>
-      {children && <div className="flex flex-wrap items-center gap-2">{children}</div>}
+      {children && <div className={classes.actions}>{children}</div>}
     </header>
   );
 }

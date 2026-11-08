@@ -1,10 +1,12 @@
 import type { PatternTierMatch } from "../items/patterns/pattern-tiers.types.ts";
+import { formatInteger } from "../../utils/format.ts";
+import { formatCount } from "../../utils/plural.ts";
+import { OPENING_NOUN, PULL_NOUN } from "./copy-nouns.config.ts";
 
 export const COPY = {
   brand: { name: "OpenInventory", tagline: "Self-hosted CS2 inventory and storage unit tracker" },
   common: {
     loading: "Loading…",
-    errorPrefix: "Something went wrong:",
     empty: "—",
     refresh: "Refresh",
     refreshing: "Refreshing…",
@@ -15,20 +17,12 @@ export const COPY = {
     body: "Scan the code with the Steam mobile app. OpenInventory opens a CS2 session to read your inventory and storage units. It never lists or trades anything, and only moves items, renames storage units or activates a Terminal when you ask it to.",
     button: "Show QR code",
     waiting: "Waiting for approval in the Steam app…",
+    qrLabel: "Steam sign-in QR code. Scan it with the Steam mobile app.",
     footnote:
       "If CS2 is running on another device, OpenInventory waits until it closes. Launching CS2 later asks Steam to end OpenInventory's session.",
   },
   nav: {
     dashboard: "Dashboard",
-    items: "Items",
-    storage: "Storage units",
-    cases: "Cases",
-    terminals: "Terminals",
-    tradeup: "Trade-up",
-    settings: "Settings",
-  },
-  navShort: {
-    dashboard: "Home",
     items: "Items",
     storage: "Storage",
     cases: "Cases",
@@ -66,12 +60,14 @@ export const COPY = {
     activeHeading: "Active",
     sealedHeading: "Sealed",
     expiresIn: "Expires in",
+    expiresSoon: "less than 1 hour",
     expired: "Expired",
     inStorage: "In a storage unit. Move it to your inventory to activate it.",
     pageTitle: "Terminals",
     pageDescription:
       "Activate Terminals and browse their offers. OpenInventory can't buy from them.",
     confirmTitle: (name: string) => `Activate ${name}?`,
+    confirmTitleFor: (name: string, account: string) => `Activate ${name} on ${account}?`,
     confirmWarning: "This is permanent and can't be undone.",
     confirmEffects: [
       "The sealed Terminal is used up and becomes an active one with an expiry timer.",
@@ -86,14 +82,33 @@ export const COPY = {
   highlight: { play: "Play highlight", close: "Close", unsupported: "This video can't be played." },
   account: { signOut: "Sign out", fallbackName: "Steam account" },
   accounts: {
-    fallbackName: (steamId: string) => `Steam account …${steamId.slice(-4)}`,
+    /** The name shown until Steam reports one; short enough that its SteamID tail survives a narrow trigger. */
+    fallbackName: (suffix: string) => `Account ${suffix}`,
+    idSuffix: (steamId: string) => `…${steamId.slice(-4)}`,
+    nameWithId: (name: string, suffix: string) => `${name} (${suffix})`,
+    allSummary: (count: number, attention: number) =>
+      attention === 0
+        ? `${count} accounts · All connected`
+        : `${count} accounts · ${attention} ${attention === 1 ? "needs" : "need"} attention`,
+    optionHint: (label: string | undefined, status: string) =>
+      label ? `${label} · ${status}` : status,
     switcherLabel: "Account",
     all: "All accounts",
     add: "Add account",
     addTitle: "Add a Steam account",
     addBody:
       "Scan the code with the Steam mobile app on the account you want to add. Each account keeps its own login and its own connection.",
-    close: "Close",
+    reauthTitle: (name: string) => `Sign in to ${name} again`,
+    reauthBody: (name: string) =>
+      `Scan the code with the Steam mobile app signed in to ${name}. Its saved login is replaced; its label and history stay.`,
+    outcome: {
+      added: (name: string) => `Added ${name}.`,
+      reconnected: (name: string) => `Signed in to ${name} again.`,
+      otherAccount: (name: string, target: string) =>
+        `Signed in as ${name}, not ${target}. Sign in again from ${target}'s Steam app to reconnect it.`,
+      switchTo: (name: string) => `View ${name}`,
+      dismiss: "Dismiss",
+    },
     tryAgain: "Show a new QR code",
     unlabelled: "No label",
     labels: { main: "Main", trade: "Trade", alt: "Alt" } as const,
@@ -102,6 +117,8 @@ export const COPY = {
       "Every account signs in on its own and connects to CS2 only when you use it. Labels are for filtering.",
     labelAria: (name: string) => `Label for ${name}`,
     remove: "Remove",
+    removeAria: (name: string) => `Remove ${name}`,
+    labelSaving: "Saving…",
     removeTitle: (name: string) => `Remove ${name}?`,
     removeWarning: "This signs the account out of OpenInventory.",
     removeEffects: [
@@ -127,15 +144,34 @@ export const COPY = {
     connecting: "Connecting to Steam…",
     signInAgain: "Sign in again",
     chooseOneTitle: "Choose an account",
-    chooseOneBody:
-      "This page works on one account at a time, so moves, renames and Terminal actions always go to the account you pick.",
-    partialNotice: (count: number) =>
-      `${count} ${count === 1 ? "account isn't" : "accounts aren't"} connected yet and ${count === 1 ? "is" : "are"} left out.`,
+    /** Why the page needs one account, by route; read-only pages say so instead of warning about moves. */
+    chooseOneBody: {
+      "/storage":
+        "Storage units belong to one account, so moves and renames always go to the account you pick.",
+      "/terminals":
+        "Terminal offers and activations belong to one account. Pick the one whose Terminals you want to see.",
+      "/tradeup":
+        "The calculator reads one account's skins at a time. It's read-only: nothing is traded or moved.",
+      "/cases":
+        "Case openings are recorded per account. Pick the one whose history you want to see.",
+    } as Readonly<Record<string, string>>,
+    chooseOneFallback: "This page shows one account at a time.",
+    partialNotice: (names: readonly string[]) =>
+      `${names.join(", ")} ${names.length === 1 ? "isn't" : "aren't"} connected, so ${names.length === 1 ? "its" : "their"} items are left out of this view.`,
+    partialSettings: "Open settings",
     column: "Account",
     filterAll: "All accounts",
     filterLabel: (label: string) => `Label: ${label}`,
     mixedAccounts: "Select items from one account at a time to move them.",
     bannerFor: (name: string, text: string) => `${name}: ${text}`,
+  },
+  refresh: {
+    allAccounts: "all accounts",
+    failed: (failures: readonly string[]) => `Refresh failed. ${failures.join(" ")}`,
+    skipped: (count: number) =>
+      `${count} ${count === 1 ? "account isn't" : "accounts aren't"} connected and will be skipped.`,
+    scope: (label: string) => `Covers: ${label}`,
+    ariaFor: (label: string) => `Refresh ${label}`,
   },
   itemColumns: { item: "Item", location: "Location", type: "Type", float: "Float", price: "Price" },
   dashboard: {
@@ -163,14 +199,17 @@ export const COPY = {
     description:
       "Read from your Steam inventory history, so it only covers openings Steam still shows.",
     sync: "Sync history",
+    syncFailed: "Couldn't start the history sync. Try again.",
     syncing: "Syncing",
+    syncStarted: "Syncing history…",
     syncProgress: "pages read",
     eventsFound: "new events",
     lastSync: "Last synced",
     firstSyncHint:
       "Pull your inventory history from Steam to see your opening stats. The first sync reads one page every few seconds, so a long history takes a while.",
-    partial: "Initial sync still in progress; totals will grow as older pages load.",
+    partial: "History is incomplete — sync to load older pages.",
     empty: "No case openings found in your history yet.",
+    emptyOther: "No events found for this category in your history yet.",
     kinds: {
       case: {
         pill: "Cases",
@@ -200,16 +239,32 @@ export const COPY = {
     },
     stats: {
       gold: "Gold",
-      sinceGold: "Since last gold",
       toFirstGold: "Cases to first gold",
       statTrak: "StatTrak",
       first: "First",
       latest: "Latest",
     },
     rarityTitle: "What you pulled",
+    unknownRarity: "Unknown rarity",
+    streaksTitle: "Cases since last pull",
+    oddsTitle: "Your drops vs case odds",
+    oddsDescription:
+      "Your observed rates against published weapon-case odds; percentages are approximate. Source:",
+    oddsSource: "Perfect World odds disclosure (2017)",
+    observed: "Your rate",
+    expected: "Odds",
+    noClassified: "No recognized case rarities in this history yet, so rates can't be compared.",
+    noRecordedPull: "No confirmed pull",
+    upperBound: (count: string) => `Up to ${count}`,
+    uncertainStreak: "Unknown rarity in streak",
+    pullShare: (count: number, total: number) =>
+      `${formatInteger(count)} / ${formatCount(total, PULL_NOUN)}`,
+    smallSample:
+      "Small histories can differ sharply from the published odds. Past pulls do not change the odds of the next case.",
+    unclassified: (count: number) =>
+      `${formatCount(count, OPENING_NOUN)} with an unknown rarity excluded from the rate comparison.`,
     rarestTitle: "Rarest pulls",
     topItemsTitle: "Most pulled",
-    monthlyTitle: "Cases per month",
     timesSuffix: "×",
   },
   items: {
@@ -219,17 +274,36 @@ export const COPY = {
     allTypes: "All types",
     highlightsOnly: "Highlights only",
     highlights: "Highlights",
+    moreHighlights: (count: number) => `+${count}`,
+    accountFilterLabel: "Filter by account",
+    anyAccount: "Any account",
+    clearFilters: "Clear filters",
+    noMatches: "No items match these filters",
+    noHighlightMatches: "No highlights match these filters",
+    noMatchesBody: "Try a different search, or clear the filters to see everything.",
+    noItems: "No items in this account yet.",
     tierDescription: (match: PatternTierMatch) =>
       `Tier ${match.tier} of ${match.tierCount} for ${match.weapon} ${match.finish} (${match.group})`,
+    /** The tier without the skin's name, for places already headed by it. */
+    tierRank: (match: PatternTierMatch) =>
+      `Tier ${match.tier} of ${match.tierCount} (${match.group})`,
     tiersHelp: {
-      trigger: "About tiers",
-      title: "Pattern tiers",
+      trigger: "About highlights and tiers",
+      title: "Highlights and tiers",
       intro:
-        "Skins with a sought-after seed or phase carry a tier badge. T1 is the most valuable tier for that weapon and finish; higher numbers are worth less.",
+        "A highlight is something that can make one copy of a skin worth more than another. Each one shows as a chip under the item name:",
+      signals: [
+        { label: "Float", text: "the float sits in the lowest or highest 3% of the skin's range." },
+        {
+          label: "Pattern",
+          text: "the seed or phase is on a community tier list. It also gets a tier badge, T1 being the most valuable for that weapon and finish.",
+        },
+        { label: "Sticker craft", text: "a rare sticker or charm is applied." },
+      ],
       points: [
         "The same seed can sit in a different tier on a different weapon.",
-        "Tiers come from community tier lists and fade percentages. They ignore float, stickers and price.",
-        "Highlights first lists T1 first, then by price. Highlights only hides everything else.",
+        "Tiers ignore float, stickers and price.",
+        "Sorting by Highlights lists T1 first, then other highlights, then by price. Highlights only hides everything else.",
       ],
     },
   },
@@ -240,10 +314,11 @@ export const COPY = {
     organise: "Organise…",
     closeOrganiser: "Back to units",
     loadingUnits: "Loading units…",
+    reloadFailed: "Couldn't reload storage units",
     noUnits: "No storage units found on this account.",
     selectUnit: "Select a unit to see what's inside.",
     unitEmpty: "This unit is empty.",
-    items: "items",
+    items: { one: "item", other: "items" },
     value: "Value",
   },
   tradeup: {
@@ -256,19 +331,13 @@ export const COPY = {
     expectedValue: "Expected value",
     expectedReturn: "Expected return",
     chanceToProfit: "Chance to profit",
-    finderTitle: "Find best EV contracts",
-    statTrakFilter: "StatTrak",
-    allItems: "Include all",
-    normalOnly: "Normal only",
-    statTrakOnly: "StatTrak only",
-    includeStorage: "Include storage unit items",
-    searching: "Searching holdings…",
-    noFinderResults: "No complete contracts found for these filters.",
     outcomes: "Possible outcomes",
     autoFill: "Pick cheapest",
     clear: "Clear",
     remove: "Click to remove",
     noCandidates: "You have no tradable skins of this rarity.",
+    /** Headline over the server's reason when the calculator has no skins to offer. */
+    calculatorEmpty: "Nothing to calculate yet",
     pickPrompt: "Pick skins above to see what they can turn into.",
     selectMore: (count: number) =>
       `Select ${count} more skin${count === 1 ? "" : "s"} to complete the trade-up; odds shown are for the current picks.`,

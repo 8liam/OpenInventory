@@ -6,13 +6,13 @@ export function LogoMark({ className }: LogoProps) {
   return <img src={LOGO.src} alt="" className={cn("size-6", className)} />;
 }
 
-export function Logo({ className }: LogoProps) {
+export function Logo({ className, compactBelow360 = false }: LogoProps) {
   return (
     <span
       className={cn("flex items-center gap-2 text-[15px] font-semibold tracking-tight", className)}
     >
       <LogoMark />
-      {LOGO.name}
+      <span className={compactBelow360 ? "max-[360px]:sr-only" : undefined}>{LOGO.name}</span>
     </span>
   );
 }

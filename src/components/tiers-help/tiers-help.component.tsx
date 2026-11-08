@@ -1,67 +1,94 @@
 import { HelpCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { Button } from "~/components/button/button.component";
 import { COPY } from "~/lib/copy/copy.config";
-import { cn } from "~/utils/cn";
 import { TIERS_HELP } from "./tiers-help.config";
+import type { TiersHelpPlacement } from "./tiers-help.types";
 
-/** A help button that opens a short popover explaining the pattern tier badges. */
+/** Right-aligns the panel under its trigger, kept inside the viewport on narrow screens. */
+function placementFor(trigger: HTMLElement): TiersHelpPlacement {
+  const rect = trigger.getBoundingClientRect();
+  const { width: preferred, viewportMargin: margin, gap } = TIERS_HELP;
+  const width = Math.min(preferred, window.innerWidth - margin * 2);
+  const left = Math.min(Math.max(margin, rect.right - width), window.innerWidth - width - margin);
+  return { left, top: rect.bottom + gap, width };
+}
+
+/**
+ * A disclosure explaining highlights and pattern tiers. It is plain content (no focus trap),
+ * so Tab moves on naturally; Escape or a click outside closes it and returns focus to the button.
+ */
 export function TiersHelp() {
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
-  const [open, setOpen] = useState(false);
+  const [placement, setPlacement] = useState<TiersHelpPlacement>();
+  const panelId = useId();
+  const headingId = useId();
   const { tiersHelp } = COPY.items;
+  const open = placement !== undefined;
 
   useEffect(() => {
     if (!open) return;
+    const close = () => setPlacement(undefined);
     const onPointerDown = (event: PointerEvent) => {
-      if (!root.current?.contains(event.target as Node)) setOpen(false);
+      if (!(event.target instanceof Node && root.current?.contains(event.target))) close();
     };
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== TIERS_HELP.closeKey) return;
-      setOpen(false);
+      close();
       trigger.current?.focus();
     };
     document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
+    window.addEventListener("resize", close);
     return () => {
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("resize", close);
     };
   }, [open]);
 
   return (
-    <div ref={root} className="relative">
-      <button
+    <div ref={root} className={TIERS_HELP.rootClass}>
+      <Button
         ref={trigger}
-        type="button"
         aria-label={tiersHelp.trigger}
         title={tiersHelp.trigger}
         aria-expanded={open}
-        aria-controls={TIERS_HELP.popoverId}
-        onClick={() => setOpen((on) => !on)}
-        className={cn(
-          "flex h-8 items-center rounded-md bg-muted px-2 text-muted-foreground transition-colors hover:text-foreground",
-          open && "bg-card text-foreground shadow-sm",
-        )}
+        aria-controls={panelId}
+        className={TIERS_HELP.triggerClass}
+        onClick={() =>
+          setPlacement((current) =>
+            current || !trigger.current ? undefined : placementFor(trigger.current),
+          )
+        }
       >
         <HelpCircle size={TIERS_HELP.iconSize} aria-hidden />
-      </button>
-      {open && (
-        <div
-          id={TIERS_HELP.popoverId}
-          role="dialog"
-          aria-label={tiersHelp.title}
-          className="absolute right-0 top-full z-50 mt-1.5 w-72 rounded-md border bg-card p-3 text-xs text-foreground shadow-lg"
-        >
-          <p className="text-sm font-medium">{tiersHelp.title}</p>
-          <p className="mt-1 text-muted-foreground">{tiersHelp.intro}</p>
-          <ul className="mt-2 list-disc space-y-1 pl-4 text-muted-foreground">
-            {tiersHelp.points.map((point) => (
-              <li key={point}>{point}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      </Button>
+      <section
+        id={panelId}
+        aria-labelledby={headingId}
+        hidden={!open}
+        style={placement}
+        className={TIERS_HELP.panelClass}
+      >
+        <h2 id={headingId} className={TIERS_HELP.titleClass}>
+          {tiersHelp.title}
+        </h2>
+        <p className={TIERS_HELP.introClass}>{tiersHelp.intro}</p>
+        <ul className={TIERS_HELP.signalsClass}>
+          {tiersHelp.signals.map((signal) => (
+            <li key={signal.label}>
+              <span className={TIERS_HELP.signalLabelClass}>{signal.label}:</span> {signal.text}
+            </li>
+          ))}
+        </ul>
+        <ul className={TIERS_HELP.pointsClass}>
+          {tiersHelp.points.map((point) => (
+            <li key={point}>{point}</li>
+          ))}
+        </ul>
+      </section>
     </div>
   );
 }

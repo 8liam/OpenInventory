@@ -12,13 +12,16 @@ import { cn } from "~/utils/cn";
 import { SELECT } from "./select.config";
 import type { SelectOption, SelectPlacement, SelectProps } from "./select.types";
 
-function placementFor(trigger: HTMLElement): SelectPlacement {
+function placementFor(trigger: HTMLElement, minWidth: number): SelectPlacement {
   const rect = trigger.getBoundingClientRect();
   const below = window.innerHeight - rect.bottom - SELECT.viewportMargin - SELECT.gap;
   const above = rect.top - SELECT.viewportMargin - SELECT.gap;
   const openUp = below < SELECT.maxListHeight && above > below;
   const maxHeight = Math.min(SELECT.maxListHeight, openUp ? above : below);
-  const width = Math.max(rect.width, SELECT.minListWidth);
+  const width = Math.min(
+    Math.max(rect.width, minWidth),
+    window.innerWidth - SELECT.viewportMargin * 2,
+  );
   const left = Math.min(rect.left, window.innerWidth - width - SELECT.viewportMargin);
   return openUp
     ? { left, width, bottom: window.innerHeight - rect.top + SELECT.gap, maxHeight }
@@ -26,7 +29,16 @@ function placementFor(trigger: HTMLElement): SelectPlacement {
 }
 
 /** The app's one dropdown: a styled trigger and list, with search once the list is long. */
-export function Select({ value, options, onChange, ariaLabel, disabled, className }: SelectProps) {
+export function Select({
+  value,
+  options,
+  onChange,
+  ariaLabel,
+  disabled,
+  className,
+  listMinWidth = SELECT.minListWidth,
+  describedBy,
+}: SelectProps) {
   const id = useId();
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -42,13 +54,21 @@ export function Select({ value, options, onChange, ariaLabel, disabled, classNam
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return needle
-      ? options.filter((option) => option.label.toLowerCase().includes(needle))
+      ? options.filter((option) =>
+          [
+            option.label,
+            option.triggerLabel,
+            option.detail,
+            option.hint,
+            option.triggerDetail,
+          ].some((text) => text?.toLowerCase().includes(needle)),
+        )
       : options;
   }, [options, query]);
 
   function show() {
     if (disabled || !trigger.current) return;
-    setPlacement(placementFor(trigger.current));
+    setPlacement(placementFor(trigger.current, listMinWidth));
     setQuery("");
     setHighlight(
       Math.max(
@@ -73,7 +93,7 @@ export function Select({ value, options, onChange, ariaLabel, disabled, classNam
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (event: PointerEvent) => {
-      if (!root.current?.contains(event.target as Node)) hide(false);
+      if (!(event.target instanceof Node && root.current?.contains(event.target))) hide(false);
     };
     const onResize = () => hide(false);
     // Opening scrolls the highlighted row into view, which fires scroll events inside the list;
@@ -102,6 +122,11 @@ export function Select({ value, options, onChange, ariaLabel, disabled, classNam
   }, [open, highlight, id]);
 
   function onListKeyDown(event: KeyboardEvent) {
+    // Tab keeps its default move; the list just closes so it never floats over the next control.
+    if (event.key === SELECT.keys.leave) {
+      hide(false);
+      return;
+    }
     const last = visible.length - 1;
     if (event.key === SELECT.keys.next) setHighlight((index) => Math.min(last, index + 1));
     else if (event.key === SELECT.keys.previous) setHighlight((index) => Math.max(0, index - 1));
@@ -121,12 +146,21 @@ export function Select({ value, options, onChange, ariaLabel, disabled, classNam
   };
 
   return (
-    <div ref={root} className={cn("relative", className)}>
+    <div
+      ref={root}
+      className={cn("relative", className)}
+      onBlur={(event) => {
+        // Focus moved to something outside (a click elsewhere, or assistive tech jumping away).
+        const next = event.relatedTarget;
+        if (open && next instanceof Node && !root.current?.contains(next)) hide(false);
+      }}
+    >
       <button
         ref={trigger}
         type="button"
         role="combobox"
         aria-label={ariaLabel}
+        aria-describedby={describedBy}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={`${id}-list`}
@@ -138,9 +172,17 @@ export function Select({ value, options, onChange, ariaLabel, disabled, classNam
             show();
           }
         }}
-        className="flex h-8 w-full items-center justify-between gap-3 rounded-md border border-input bg-card pl-3 pr-2.5 text-left text-foreground outline-none transition-colors hover:bg-muted focus-visible:border-primary disabled:pointer-events-none disabled:opacity-50 max-sm:h-9"
+        className="flex h-8 w-full items-center justify-between gap-2 rounded-md border border-input bg-card pl-3 pr-2 text-left text-foreground outline-none transition-colors hover:bg-muted focus-visible:border-primary disabled:pointer-events-none disabled:opacity-50 max-sm:h-9"
       >
-        <span className="truncate">{selected?.label ?? ""}</span>
+        <span className="flex min-w-0 items-center gap-1.5">
+          {selected?.leading}
+          <span className="truncate">{selected?.triggerLabel ?? selected?.label ?? ""}</span>
+          {selected?.triggerDetail && (
+            <span className="shrink-0 text-[11px] text-muted-foreground tabular">
+              {selected.triggerDetail}
+            </span>
+          )}
+        </span>
         <ChevronsUpDown
           size={SELECT.iconSize}
           className="shrink-0 text-muted-foreground"
@@ -150,8 +192,10 @@ export function Select({ value, options, onChange, ariaLabel, disabled, classNam
       {open && placement && (
         <div
           style={popoverStyle}
+          // Focusable, so a click on the search row's padding keeps focus inside instead of closing.
+          tabIndex={-1}
           onKeyDown={onListKeyDown}
-          className="fixed z-50 flex flex-col overflow-hidden rounded-md border bg-card text-foreground shadow-lg"
+          className="fixed z-50 flex flex-col overflow-hidden rounded-md border bg-card text-foreground shadow-lg outline-none"
         >
           {searchable && (
             <div className="flex h-9 shrink-0 items-center gap-2 border-b px-2.5">
@@ -205,7 +249,15 @@ export function Select({ value, options, onChange, ariaLabel, disabled, classNam
                   className={cn("shrink-0", option.id !== value && "invisible")}
                   aria-hidden
                 />
-                <span className="min-w-0 flex-1 truncate">{option.label}</span>
+                {option.leading}
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate">{option.label}</span>
+                  {option.hint && (
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {option.hint}
+                    </span>
+                  )}
+                </span>
                 {option.detail && (
                   <span className="shrink-0 text-xs text-muted-foreground tabular">
                     {option.detail}

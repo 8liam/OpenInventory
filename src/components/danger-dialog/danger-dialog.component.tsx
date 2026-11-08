@@ -1,5 +1,5 @@
 import { TriangleAlert } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Button } from "~/components/button/button.component";
 import { DANGER_DIALOG } from "./danger-dialog.config";
 import type { DangerDialogProps } from "./danger-dialog.types";
@@ -18,8 +18,11 @@ export function DangerDialog({
   onClose,
 }: DangerDialogProps) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
+  const warningId = useId();
   const [acknowledged, setAcknowledged] = useState(false);
   const [working, setWorking] = useState(false);
+  const workingRef = useRef(false);
   const [error, setError] = useState<string>();
 
   useEffect(() => {
@@ -36,6 +39,8 @@ export function DangerDialog({
   }
 
   async function confirm() {
+    if (workingRef.current) return;
+    workingRef.current = true;
     setWorking(true);
     setError(undefined);
     try {
@@ -44,6 +49,7 @@ export function DangerDialog({
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : String(failure));
     } finally {
+      workingRef.current = false;
       setWorking(false);
     }
   }
@@ -52,15 +58,21 @@ export function DangerDialog({
     <dialog
       ref={dialog}
       className={DANGER_DIALOG.dialogClass}
+      aria-labelledby={titleId}
+      aria-describedby={warningId}
       onClose={reset}
       onCancel={(event) => working && event.preventDefault()}
     >
       <div className="flex flex-col gap-3 p-5">
         <div className="flex items-center gap-2 text-destructive">
           <TriangleAlert size={DANGER_DIALOG.iconSize} aria-hidden />
-          <h2 className="font-semibold">{title}</h2>
+          <h2 id={titleId} className="font-semibold">
+            {title}
+          </h2>
         </div>
-        <p className="font-medium">{warning}</p>
+        <p id={warningId} className="font-medium">
+          {warning}
+        </p>
         <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
           {effects.map((effect) => (
             <li key={effect}>{effect}</li>
@@ -84,9 +96,18 @@ export function DangerDialog({
           <Button disabled={working} onClick={() => dialog.current?.close()}>
             {cancelLabel}
           </Button>
-          <Button variant="destructive" disabled={!acknowledged || working} onClick={confirm}>
+          <Button
+            variant="destructive"
+            disabled={!acknowledged}
+            aria-disabled={working}
+            className={working ? "cursor-wait opacity-50" : undefined}
+            onClick={confirm}
+          >
             {working ? workingLabel : confirmLabel}
           </Button>
+          <span role="status" className="sr-only">
+            {working ? workingLabel : ""}
+          </span>
         </div>
       </div>
     </dialog>

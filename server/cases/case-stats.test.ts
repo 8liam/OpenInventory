@@ -56,10 +56,40 @@ test("measures the gold drought in both directions", () => {
   assert.equal(stats.casesToFirstGold, 3); // knife was the 3rd opening ever
 });
 
+test("tracks the exact tier of each case pull, including never-pulled tiers", () => {
+  const stats = buildCaseStats(events, "case");
+  assert.deepEqual(
+    stats.caseRarities.map((rarity) => [
+      rarity.key,
+      rarity.count,
+      rarity.sinceLast,
+      rarity.hasDrop,
+      rarity.uncertain,
+    ]),
+    [
+      ["gold", 1, 1, true, false],
+      ["covert", 1, 0, true, false],
+      ["classified", 1, 2, true, false],
+      ["restricted", 0, 4, false, false],
+      ["milSpec", 1, 3, true, false],
+    ],
+  );
+});
+
+test("marks streaks with unidentified drops as upper bounds", () => {
+  const unknown = opening(5, "Unknown skin", "b0c3d9", Date.UTC(2026, 3, 5));
+  const stats = buildCaseStats([unknown, ...events], "case");
+  assert.equal(stats.caseRarities.find((rarity) => rarity.key === "covert")?.sinceLast, 1);
+  assert.equal(stats.caseRarities.find((rarity) => rarity.key === "covert")?.uncertain, true);
+  assert.equal(stats.caseRarities.find((rarity) => rarity.key === "restricted")?.sinceLast, 5);
+  assert.equal(stats.caseRarities.find((rarity) => rarity.key === "restricted")?.uncertain, true);
+});
+
 test("handles an account with no openings", () => {
   const stats = buildCaseStats([], "case");
   assert.equal(stats.casesSinceGold, null);
   assert.equal(stats.casesToFirstGold, null);
+  assert.ok(stats.caseRarities.every((rarity) => rarity.sinceLast === 0 && !rarity.hasDrop));
   assert.deepEqual(stats.perMonth, []);
 });
 
@@ -102,6 +132,7 @@ test("breaks the same history down by kind", () => {
   assert.equal(capsules.kindCounts.capsule, 1);
   assert.equal(capsules.topCases[0]?.name, "Test Capsule");
   assert.equal(capsules.casesSinceGold, null);
+  assert.deepEqual(capsules.caseRarities, []);
   assert.equal(buildCaseStats(all, "case").total, 4);
 });
 

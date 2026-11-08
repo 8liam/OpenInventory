@@ -8,6 +8,15 @@ export type RaritySlice = {
   readonly count: number;
 };
 
+export type CaseRarityStat = RaritySlice & {
+  readonly key: "milSpec" | "restricted" | "classified" | "covert" | "gold";
+  /** Openings after the latest drop of this exact tier, or all openings if never pulled. */
+  readonly sinceLast: number;
+  readonly hasDrop: boolean;
+  /** An opening of unknown rarity after this tier's last confirmed pull makes the streak an upper bound. */
+  readonly uncertain: boolean;
+};
+
 export type PulledItem = {
   readonly name: string;
   readonly imageUrl: string | null;
@@ -40,6 +49,8 @@ export type CaseStats = {
   /** How many cases it took to hit the first gold, counting that one; null if none yet. */
   readonly casesToFirstGold: number | null;
   readonly rarity: readonly RaritySlice[];
+  /** Every case rarity, including tiers with no recorded pull. Empty for other event kinds. */
+  readonly caseRarities: readonly CaseRarityStat[];
   /** The rarest pulls of this kind, rarest first (newest first among equals). */
   readonly rarest: readonly CaseOpening[];
   readonly topItems: readonly PulledItem[];

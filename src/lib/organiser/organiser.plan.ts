@@ -238,6 +238,7 @@ export function computePlan(input: PlanInput): MovePlan {
     unitChanges,
     ruleReports,
     problems,
+    blocked,
     executable: itemsToMove > 0 && !blocked,
   };
 }

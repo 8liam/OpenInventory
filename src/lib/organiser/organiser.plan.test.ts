@@ -321,6 +321,17 @@ describe("computePlan", () => {
     const plan = computePlan({ items: [item("1", "inventory")], units: [unit("a", 0)], rules: [] });
     assert.deepEqual(plan.steps, []);
     assert.ok(!plan.executable);
+    assert.ok(!plan.blocked);
+  });
+
+  it("marks a plan blocked only for error-level problems", () => {
+    const missing = computePlan({
+      items: [item("1", "inventory")],
+      units: [unit("a", 0)],
+      rules: [rule("lost", "gone", category("Container"))],
+    });
+    assert.ok(missing.blocked);
+    assert.ok(!missing.executable);
   });
 });
 

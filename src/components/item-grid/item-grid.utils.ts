@@ -29,8 +29,10 @@ export function sortItems(items: readonly ItemView[], sort: ItemGridSortId): rea
       return sorted.sort((a, b) => compareNullsLast(a.wear, b.wear, -1));
     case "highlights-desc":
       return sortByHighlights(sorted);
-    case "name":
+    case "name-asc":
       return sorted.sort((a, b) => a.name.localeCompare(b.name));
+    case "name-desc":
+      return sorted.sort((a, b) => b.name.localeCompare(a.name));
   }
 }
 

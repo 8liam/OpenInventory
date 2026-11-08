@@ -1,29 +1,22 @@
 import { COPY } from "~/lib/copy/copy.config";
 import { AUTH_STATUS } from "~/lib/storage/storage.config";
-import type { AuthState } from "~/lib/storage/storage.types";
+import type { AuthStatus } from "~/lib/storage/storage.types";
 
 /** Short state of an account's connection, for lists and the switcher. */
-export function authStatusText(auth: AuthState): string {
-  const status = COPY.accounts.status;
-  switch (auth.status) {
+export function authStatusText(status: AuthStatus): string {
+  const text = COPY.accounts.status;
+  switch (status) {
     case AUTH_STATUS.ready:
-      return status.ready;
+      return text.ready;
     case AUTH_STATUS.idle:
-      return status.idle;
+      return text.idle;
     case AUTH_STATUS.connecting:
-      return status.connecting;
+      return text.connecting;
     case AUTH_STATUS.error:
-      return status.error;
+      return text.error;
     case AUTH_STATUS.qrPending:
-      return status.qrPending;
+      return text.qrPending;
     case AUTH_STATUS.signedOut:
-      return status.signedOut;
+      return text.signedOut;
   }
-}
-
-/** Tailwind background for the status dot beside an account. */
-export function authDotClass(auth: AuthState): string {
-  if (auth.status === AUTH_STATUS.ready) return "bg-success";
-  if (auth.status === AUTH_STATUS.error) return "bg-destructive";
-  return "bg-warning";
 }

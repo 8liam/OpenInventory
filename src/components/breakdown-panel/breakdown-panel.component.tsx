@@ -8,13 +8,19 @@ import { colorSlices } from "./breakdown-panel.utils";
 import type { BreakdownKey, BreakdownPanelProps } from "./breakdown-panel.types";
 
 /** One panel, one question at a time: where the value sits by type, rarity, wear or location. */
-export function BreakdownPanel({ dashboard, currency, className }: BreakdownPanelProps) {
+export function BreakdownPanel({
+  dashboard,
+  currency,
+  className,
+  headingLevel = 2,
+}: BreakdownPanelProps) {
   const [active, setActive] = useState<BreakdownKey>(BREAKDOWN_PANEL.defaultTab);
   const slices = colorSlices(dashboard[active], COPY.dashboard.otherLabel);
+  const Heading = `h${headingLevel}` as const;
   return (
     <section className={cn("rounded-xl border bg-card p-4", className)}>
       <header className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-[13px] font-medium">{COPY.dashboard.breakdownTitle}</h2>
+        <Heading className="text-[13px] font-medium">{COPY.dashboard.breakdownTitle}</Heading>
         <div role="tablist" className="flex rounded-md bg-muted p-0.5">
           {BREAKDOWN_PANEL.tabs.map((tab) => (
             <button

@@ -14,11 +14,13 @@ import { AccountSwitcher } from "~/components/account-switcher/account-switcher.
 import { AddAccountDialog } from "~/components/add-account-dialog/add-account-dialog.component";
 import { AuthGate } from "~/components/auth-gate/auth-gate.component";
 import { InventoryPrefetch } from "~/components/inventory-prefetch/inventory-prefetch.component";
+import { LoginOutcome } from "~/components/login-outcome/login-outcome.component";
 import { Logo } from "~/components/logo/logo.component";
+import { StaleBanner } from "~/components/stale-banner/stale-banner.component";
 import { SyncError } from "~/components/sync-error/sync-error.component";
 import { TransferStatus } from "~/components/transfer-status/transfer-status.component";
 import { COPY } from "~/lib/copy/copy.config";
-import { NAV_ITEMS } from "./app-shell.config";
+import { APP_SHELL, NAV_ITEMS } from "./app-shell.config";
 
 const ICONS: Record<
   (typeof NAV_ITEMS)[number]["icon"],
@@ -43,6 +45,16 @@ export function AppShell() {
         aria-hidden
         className="fixed inset-x-0 top-0 z-50 hidden h-6 [-webkit-app-region:drag] desktop-mac:block"
       />
+      <a
+        href={`#${APP_SHELL.mainId}`}
+        className={APP_SHELL.skipLinkClass}
+        onClick={(event) => {
+          event.preventDefault();
+          document.getElementById(APP_SHELL.mainId)?.focus();
+        }}
+      >
+        {APP_SHELL.skipLink}
+      </a>
       <div className="flex h-dvh flex-col md:flex-row">
         <aside className="hidden w-56 shrink-0 flex-col border-r md:flex">
           <div className="px-4 py-4 desktop-mac:pt-12">
@@ -69,17 +81,22 @@ export function AppShell() {
         </aside>
 
         <header className="flex shrink-0 items-center justify-between gap-3 border-b px-4 py-2.5 md:hidden">
-          <Logo />
+          <Logo compactBelow360 />
           <AccountSwitcher className="min-w-0 flex-1" />
         </header>
 
-        <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-hidden p-4 md:gap-5 md:p-6">
-          <SyncError />
+        {/* Pages scroll their own content; main scrolls only what can't shrink further (a short window). */}
+        <div className={APP_SHELL.contentClass}>
+          <main id={APP_SHELL.mainId} tabIndex={-1} className={APP_SHELL.mainClass}>
+            <LoginOutcome />
+            <StaleBanner />
+            <SyncError />
+            <AccountGate pathname={pathname}>
+              <Outlet />
+            </AccountGate>
+          </main>
           <TransferStatus />
-          <AccountGate pathname={pathname}>
-            <Outlet />
-          </AccountGate>
-        </main>
+        </div>
 
         <nav
           className="flex shrink-0 border-t pb-[env(safe-area-inset-bottom)] md:hidden"
@@ -93,11 +110,11 @@ export function AppShell() {
                 to={to}
                 preload="intent"
                 activeOptions={{ exact: to === "/" }}
-                className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] text-muted-foreground"
+                className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] text-muted-foreground max-[360px]:tracking-tight"
                 activeProps={{ className: "text-foreground" }}
               >
                 <Icon size={18} strokeWidth={1.75} />
-                {COPY.navShort[key]}
+                {COPY.nav[key]}
               </Link>
             );
           })}
