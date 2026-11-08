@@ -6,7 +6,13 @@ import { RELATIVE_TIME } from "~/utils/format.config";
 import type { UpdatedHeaderProps } from "./updated-header.types";
 
 /** Page header whose "updated N minutes ago" text ticks without re-rendering the page. */
-export function UpdatedHeader({ title, priceUpdatedAt, source, children }: UpdatedHeaderProps) {
+export function UpdatedHeader({
+  title,
+  priceUpdatedAt,
+  source,
+  account,
+  children,
+}: UpdatedHeaderProps) {
   const [now, setNow] = useState(() => Date.now());
   const copy = COPY.dashboard;
 
@@ -18,6 +24,7 @@ export function UpdatedHeader({ title, priceUpdatedAt, source, children }: Updat
   return (
     <PageHeader
       title={title}
+      account={account}
       description={
         priceUpdatedAt
           ? copy.pricesUpdated(formatRelativeTime(priceUpdatedAt, now), source)

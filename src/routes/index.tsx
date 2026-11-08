@@ -12,7 +12,7 @@ import { PortfolioHero } from "~/components/portfolio-hero/portfolio-hero.compon
 import { COPY } from "~/lib/copy/copy.config";
 import { DASHBOARD_PAGE } from "~/lib/items/dashboard-page.config";
 import type { Dashboard } from "~/lib/items/dashboard.types";
-import { useScopedPath } from "~/lib/accounts/account-scope.hooks";
+import { useScopedPath, useSingleAccountLabel } from "~/lib/accounts/account-scope.hooks";
 import { useRefreshAccounts } from "~/lib/accounts/refresh-accounts.hooks";
 import { useRestoreFocusOnRecovery } from "~/lib/storage/recovered-focus.hooks";
 import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client";
@@ -30,6 +30,7 @@ function DashboardPage() {
     useScopedPath(`${STORAGE_API.dashboard}?${priceQuery}`),
     snapshot.revision,
   );
+  const accountLabel = useSingleAccountLabel();
   const refresh = useRefreshAccounts();
   const copy = COPY.dashboard;
 
@@ -38,7 +39,12 @@ function DashboardPage() {
   const source = COPY.settings.marketplaces[marketplace];
   return (
     <>
-      <UpdatedHeader title={copy.title} priceUpdatedAt={dashboard?.priceUpdatedAt} source={source}>
+      <UpdatedHeader
+        title={copy.title}
+        priceUpdatedAt={dashboard?.priceUpdatedAt}
+        source={source}
+        account={accountLabel}
+      >
         {snapshot.loadingUnits && (
           <span className="text-xs text-muted-foreground">{copy.unitsLoading}…</span>
         )}
@@ -64,7 +70,9 @@ function DashboardPage() {
       )}
 
       {data.status === "loading" && <DashboardSkeleton />}
-      {data.status === "error" && <LoadError message={data.message} onRetry={data.retry} />}
+      {data.status === "error" && (
+        <LoadError message={data.message} onRetry={data.retry} retrying={data.retrying} />
+      )}
 
       {dashboard && (
         <div

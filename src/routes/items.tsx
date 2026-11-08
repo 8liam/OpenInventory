@@ -19,7 +19,11 @@ import {
   accountNameWithId,
   accountText,
 } from "~/lib/accounts/account-names";
-import { useAccountScope, useScopedPath } from "~/lib/accounts/account-scope.hooks";
+import {
+  useAccountScope,
+  useScopedPath,
+  useSingleAccountLabel,
+} from "~/lib/accounts/account-scope.hooks";
 import { ACCOUNT_LABELS } from "~/lib/accounts/accounts.config";
 import { TiersHelp } from "~/components/tiers-help/tiers-help.component";
 import { COPY } from "~/lib/copy/copy.config";
@@ -57,6 +61,7 @@ function ItemsPage() {
   const { mode: view, setMode: setView } = useItemViewMode();
   const priceQuery = usePriceQuery();
   const { accounts, scoped, isAll } = useAccountScope();
+  const accountLabel = useSingleAccountLabel();
   const data = useRemoteData<InventoryResponse>(
     useScopedPath(`${STORAGE_API.items}?${priceQuery}`),
     snapshot.revision,
@@ -211,7 +216,11 @@ function ItemsPage() {
 
   return (
     <>
-      <PageHeader title={COPY.items.title} description={COPY.items.description}>
+      <PageHeader
+        title={COPY.items.title}
+        description={COPY.items.description}
+        account={accountLabel}
+      >
         <div className={ITEMS_PAGE.controlsClass}>
           {rows && data.status === "ready" && (
             <ExportItems items={rows} currency={data.data.currency} />
@@ -273,7 +282,9 @@ function ItemsPage() {
           <ItemTableSkeleton selectable showAccount={isAll} />
         </LoadingRegion>
       )}
-      {data.status === "error" && <LoadError message={data.message} onRetry={data.retry} />}
+      {data.status === "error" && (
+        <LoadError message={data.message} onRetry={data.retry} retrying={data.retrying} />
+      )}
       <Reveal open={selectedItems.length > 0}>
         {selectedItems.length > 0 && (
           <TransferBar
