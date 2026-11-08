@@ -23,7 +23,7 @@ export function CaseRarityInsights({ stats }: { readonly stats: CaseStats }) {
           {rarities.map((rarity) => (
             <div
               key={rarity.key}
-              className="min-w-0 xl:flex xl:items-center xl:justify-between xl:border-b xl:py-3 xl:last:border-0"
+              className="min-w-0 xl:grid xl:grid-cols-[minmax(0,1fr)_auto] xl:items-baseline xl:gap-x-3 xl:border-b xl:py-3 xl:last:border-0"
             >
               <dt className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span
@@ -33,13 +33,13 @@ export function CaseRarityInsights({ stats }: { readonly stats: CaseStats }) {
                 />
                 {rarity.label}
               </dt>
-              <dd className="tabular mt-1 text-xl font-semibold leading-tight xl:mt-0">
+              <dd className="tabular mt-1 text-xl font-semibold leading-tight xl:col-start-2 xl:row-start-1 xl:mt-0">
                 {rarity.uncertain
                   ? copy.upperBound(formatInteger(rarity.sinceLast))
                   : formatInteger(rarity.sinceLast)}
               </dd>
               {(!rarity.hasDrop || rarity.uncertain) && (
-                <dd className="text-xs text-muted-foreground">
+                <dd className="text-xs text-muted-foreground xl:col-start-1 xl:row-start-2">
                   {rarity.uncertain ? copy.uncertainStreak : copy.noRecordedPull}
                 </dd>
               )}
@@ -104,7 +104,7 @@ export function CaseRarityInsights({ stats }: { readonly stats: CaseStats }) {
                       </div>
                     </div>
                     <span className="tabular w-14 text-right text-muted-foreground">
-                      {expected.toFixed(2)}%
+                      {expected.toFixed(3)}%
                     </span>
                   </div>
                 </div>

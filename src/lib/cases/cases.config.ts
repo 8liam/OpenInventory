@@ -7,13 +7,13 @@ export const CASES_PAGE = {
 export const OPENING_KINDS = ["case", "souvenir", "capsule", "tradeUp", "drop"] as const;
 export const DEFAULT_OPENING_KIND = "case" satisfies (typeof OPENING_KINDS)[number];
 
-/** Approximate weapon-case rates supplied for this feature; the linked disclosure has 3-digit precision. */
+/** Published weapon-case odds in percent, at the linked disclosure's precision. */
 export const CASE_DROP_ODDS = {
-  milSpec: 79.92,
-  restricted: 15.98,
-  classified: 3.2,
-  covert: 0.64,
-  gold: 0.26,
+  milSpec: 79.923,
+  restricted: 15.985,
+  classified: 3.197,
+  covert: 0.639,
+  gold: 0.256,
 } as const;
 export const CASE_DROP_ODDS_SOURCE = "https://www.csgo.com.cn/news/gamebroad/20170911/206155.shtml";
 

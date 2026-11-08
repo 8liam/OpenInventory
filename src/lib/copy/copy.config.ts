@@ -205,6 +205,7 @@ export const COPY = {
     description:
       "Read from your Steam inventory history, so it only covers openings Steam still shows.",
     sync: "Sync history",
+    syncFailed: "Couldn't start the history sync. Try again.",
     syncing: "Syncing",
     syncProgress: "pages read",
     eventsFound: "new events",
