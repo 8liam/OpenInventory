@@ -22,7 +22,7 @@ export function ItemLabel({
         imageUrl={imageUrl}
         rarityColor={rarityColor}
         size={size}
-        className={compactOnNarrow ? "max-[375px]:hidden" : undefined}
+        className={compactOnNarrow ? "max-sm:hidden" : undefined}
       />
       {/* Fills the row, so the highlight line's container query sees the real space available. */}
       <div className="min-w-0 flex-1">

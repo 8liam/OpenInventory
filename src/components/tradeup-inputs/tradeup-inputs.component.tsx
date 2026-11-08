@@ -91,12 +91,14 @@ export function TradeUpInputs({
                   <div className="min-w-0">
                     <ItemCell item={item} />
                   </div>
-                  <div className="col-start-2 row-start-2 flex min-w-0 gap-2 text-xs text-muted-foreground lg:contents">
-                    <span className="tabular truncate lg:text-right">
+                  <div className="col-start-2 row-start-2 flex min-w-0 flex-wrap gap-x-2 text-xs text-muted-foreground lg:contents">
+                    <span className="tabular shrink-0 lg:text-right">
                       <span className="lg:hidden">{COPY.itemColumns.float}: </span>
                       {item.wear === null ? COPY.common.empty : formatFloat(item.wear)}
                     </span>
-                    <span className="truncate lg:text-right">{item.locationName}</span>
+                    <span className="min-w-0 break-words lg:truncate lg:text-right">
+                      {item.locationName}
+                    </span>
                   </div>
                   <span className="tabular col-start-3 row-span-2 shrink-0 text-right lg:col-auto lg:row-span-1">
                     {item.price === null ? COPY.common.empty : formatMoney(item.price, currency)}
