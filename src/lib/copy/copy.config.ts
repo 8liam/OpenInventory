@@ -24,15 +24,6 @@ export const COPY = {
   nav: {
     dashboard: "Dashboard",
     items: "Items",
-    storage: "Storage units",
-    cases: "Cases",
-    terminals: "Terminals",
-    tradeup: "Trade-up",
-    settings: "Settings",
-  },
-  navShort: {
-    dashboard: "Home",
-    items: "Items",
     storage: "Storage",
     cases: "Cases",
     terminals: "Terminals",
@@ -216,7 +207,7 @@ export const COPY = {
     lastSync: "Last synced",
     firstSyncHint:
       "Pull your inventory history from Steam to see your opening stats. The first sync reads one page every few seconds, so a long history takes a while.",
-    partial: "Initial sync still in progress; totals will grow as older pages load.",
+    partial: "History is incomplete — sync to load older pages.",
     empty: "No case openings found in your history yet.",
     emptyOther: "No events found for this category in your history yet.",
     kinds: {

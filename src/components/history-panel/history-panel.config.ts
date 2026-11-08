@@ -7,7 +7,7 @@ export const HISTORY_PANEL = {
     { key: "1m", label: "1M", windowMs: 30 * DAY_MS },
     { key: "3m", label: "3M", windowMs: 90 * DAY_MS },
     { key: "ytd", label: "YTD", windowMs: "ytd" },
-    { key: "all", label: "Total", windowMs: null },
+    { key: "all", label: "All time", windowMs: null },
   ],
   defaultRange: "all",
   series: [

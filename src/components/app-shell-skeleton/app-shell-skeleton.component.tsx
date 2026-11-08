@@ -48,7 +48,7 @@ export function AppShellSkeleton() {
             className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] text-muted-foreground max-[360px]:tracking-tight"
           >
             <Skeleton className="size-[18px]" />
-            {COPY.navShort[key]}
+            {COPY.nav[key]}
           </span>
         ))}
       </nav>
