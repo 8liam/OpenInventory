@@ -38,6 +38,7 @@ export function Select({
   className,
   listMinWidth = SELECT.minListWidth,
   describedBy,
+  iconTrigger: IconTrigger,
 }: SelectProps) {
   const id = useId();
   const root = useRef<HTMLDivElement>(null);
@@ -172,22 +173,29 @@ export function Select({
             show();
           }
         }}
-        className="flex h-8 w-full items-center justify-between gap-2 rounded-md border border-input bg-card pl-3 pr-2 text-left text-foreground outline-none transition-colors hover:bg-muted focus-visible:border-primary disabled:pointer-events-none disabled:opacity-50 max-sm:h-9"
+        title={IconTrigger ? ariaLabel : undefined}
+        className={IconTrigger ? SELECT.iconTriggerClass : SELECT.fieldTriggerClass}
       >
-        <span className="flex min-w-0 items-center gap-1.5">
-          {selected?.leading}
-          <span className="truncate">{selected?.triggerLabel ?? selected?.label ?? ""}</span>
-          {selected?.triggerDetail && (
-            <span className="shrink-0 text-[11px] text-muted-foreground tabular">
-              {selected.triggerDetail}
+        {IconTrigger ? (
+          <IconTrigger size={SELECT.triggerIconSize} aria-hidden />
+        ) : (
+          <>
+            <span className="flex min-w-0 items-center gap-1.5">
+              {selected?.leading}
+              <span className="truncate">{selected?.triggerLabel ?? selected?.label ?? ""}</span>
+              {selected?.triggerDetail && (
+                <span className="shrink-0 text-[11px] text-muted-foreground tabular">
+                  {selected.triggerDetail}
+                </span>
+              )}
             </span>
-          )}
-        </span>
-        <ChevronsUpDown
-          size={SELECT.iconSize}
-          className="shrink-0 text-muted-foreground"
-          aria-hidden
-        />
+            <ChevronsUpDown
+              size={SELECT.iconSize}
+              className="shrink-0 text-muted-foreground"
+              aria-hidden
+            />
+          </>
+        )}
       </button>
       {open && placement && (
         <div

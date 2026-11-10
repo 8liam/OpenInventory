@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 export type SelectOption = {
@@ -25,6 +26,8 @@ export type SelectProps = {
   readonly className?: string;
   /** The open list is at least this wide (px), so long names aren't cut short in a narrow trigger. */
   readonly listMinWidth?: number;
+  /** Swaps the bordered field for a small icon button that opens the same list. */
+  readonly iconTrigger?: LucideIcon;
   /** Id of extra text read after the trigger's name, e.g. the chosen account's connection status. */
   readonly describedBy?: string;
 };
