@@ -1,130 +1,56 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { RefreshCw } from "lucide-react";
 import { AccountsPanel } from "~/components/accounts-panel/accounts-panel.component";
-import { Button } from "~/components/button/button.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
-import { Panel } from "~/components/panel/panel.component";
-import { Select } from "~/components/select/select.component";
+import { SettingsAppearance } from "~/components/settings-appearance/settings-appearance.component";
+import { SettingsData } from "~/components/settings-data/settings-data.component";
+import { SettingsItems } from "~/components/settings-items/settings-items.component";
+import { SettingsNav } from "~/components/settings-nav/settings-nav.component";
+import { SettingsPricing } from "~/components/settings-pricing/settings-pricing.component";
 import { COPY } from "~/lib/copy/copy.config";
-import { useRefreshAccounts } from "~/lib/accounts/refresh-accounts.hooks";
-import { CURRENCIES, MARKETPLACES } from "~/lib/settings/settings.config";
-import { PALETTE_LIST } from "~/lib/theme/palettes.config";
-import { COLOR_SCHEMES, PALETTE_IDS } from "~/lib/theme/theme.config";
-import { useSettings } from "~/lib/settings/settings.store";
 import { SETTINGS_PAGE } from "~/lib/settings/settings-page.config";
+import { DEFAULT_SETTINGS_TAB, SETTINGS_TABS } from "~/lib/settings/settings-tabs.config";
+import { parseSettingsTab } from "~/lib/settings/settings-tabs";
+import type { SettingsTab } from "~/lib/settings/settings-tabs.types";
 
-export const Route = createFileRoute("/settings")({ component: SettingsPage });
+export const Route = createFileRoute("/settings")({
+  // `?tab=` picks the category so a section can be linked to; anything else shows the first.
+  validateSearch: (search: Record<string, unknown>): { tab?: SettingsTab } => {
+    const tab = parseSettingsTab(search.tab);
+    return tab ? { tab } : {};
+  },
+  component: SettingsPage,
+});
+
+const TAB_CONTENT = {
+  appearance: SettingsAppearance,
+  items: SettingsItems,
+  pricing: SettingsPricing,
+  accounts: AccountsPanel,
+  data: SettingsData,
+} satisfies Record<SettingsTab, () => React.JSX.Element>;
 
 function SettingsPage() {
-  const {
-    currency,
-    marketplace,
-    colorScheme,
-    palette,
-    setCurrency,
-    setMarketplace,
-    setColorScheme,
-    setPalette,
-  } = useSettings();
-  const refresh = useRefreshAccounts();
+  const { tab = DEFAULT_SETTINGS_TAB } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const copy = COPY.settings;
-  const { classes } = SETTINGS_PAGE;
-  const dataPanel = (
-    <Panel title={copy.dataTitle}>
-      <p className={classes.body}>{copy.dataBody}</p>
-      <div className={classes.refreshRow}>
-        <Button
-          disabled={refresh.busy || !refresh.canRefresh}
-          onClick={() => void refresh.refresh()}
-        >
-          <RefreshCw
-            size={SETTINGS_PAGE.refreshIconSize}
-            className={refresh.busy ? classes.spinning : undefined}
-            aria-hidden
-          />
-          {refresh.busy ? COPY.common.refreshing : copy.refreshData}
-        </Button>
-        <span className={classes.scope}>{COPY.refresh.scope(refresh.scopeLabel)}</span>
-      </div>
-      {refresh.skipped > 0 && (
-        <p className={classes.skipped}>{COPY.refresh.skipped(refresh.skipped)}</p>
-      )}
-      {refresh.error && (
-        <p role="alert" className={classes.error}>
-          {refresh.error}
-        </p>
-      )}
-    </Panel>
-  );
+  const Content = TAB_CONTENT[tab];
   return (
     <>
       <PageHeader title={copy.title} description={copy.description} />
       <div className={SETTINGS_PAGE.scrollClass}>
         <div className={SETTINGS_PAGE.layoutClass}>
-          <div className={SETTINGS_PAGE.columnClass}>
-            <AccountsPanel />
-            {dataPanel}
-          </div>
-          <div className={SETTINGS_PAGE.columnClass}>
-            <Panel title={copy.appearance}>
-              <div className={classes.field}>
-                {copy.colorScheme}
-                <Select
-                  value={colorScheme}
-                  ariaLabel={copy.colorScheme}
-                  className={SETTINGS_PAGE.selectWidth}
-                  options={COLOR_SCHEMES.map((c) => ({ id: c, label: copy.colorSchemes[c] }))}
-                  onChange={(id) => {
-                    const next = COLOR_SCHEMES.find((c) => c === id);
-                    if (next) setColorScheme(next);
-                  }}
-                />
-              </div>
-              <div className={classes.field}>
-                {copy.palette}
-                <Select
-                  value={palette}
-                  ariaLabel={copy.palette}
-                  className={SETTINGS_PAGE.selectWidth}
-                  options={PALETTE_LIST.map((p) => ({ id: p.id, label: p.name }))}
-                  onChange={(id) => {
-                    const next = PALETTE_IDS.find((p) => p === id);
-                    if (next) setPalette(next);
-                  }}
-                />
-              </div>
-            </Panel>
-            <Panel title={copy.currencyTitle}>
-              <div className={classes.field}>
-                {copy.currency}
-                <Select
-                  value={currency}
-                  ariaLabel={copy.currency}
-                  className={SETTINGS_PAGE.selectWidth}
-                  options={CURRENCIES.map((c) => ({ id: c, label: c }))}
-                  onChange={(id) => {
-                    const next = CURRENCIES.find((c) => c === id);
-                    if (next) setCurrency(next);
-                  }}
-                />
-              </div>
-            </Panel>
-            <Panel title={copy.marketplaceTitle}>
-              <div className={classes.field}>
-                {copy.marketplace}
-                <Select
-                  value={marketplace}
-                  ariaLabel={copy.marketplace}
-                  className={SETTINGS_PAGE.selectWidth}
-                  options={MARKETPLACES.map((m) => ({ id: m, label: copy.marketplaces[m] }))}
-                  onChange={(id) => {
-                    const next = MARKETPLACES.find((m) => m === id);
-                    if (next) setMarketplace(next);
-                  }}
-                />
-              </div>
-              <p className={classes.hint}>{copy.marketplaceHint}</p>
-            </Panel>
+          <SettingsNav
+            ariaLabel={copy.navLabel}
+            value={tab}
+            items={SETTINGS_TABS.map((id) => ({
+              id,
+              label: copy.tabs[id],
+              icon: SETTINGS_PAGE.tabIcons[id],
+            }))}
+            onChange={(id) => void navigate({ search: { tab: id }, replace: true })}
+          />
+          <div className={SETTINGS_PAGE.contentClass}>
+            <Content />
           </div>
         </div>
       </div>
