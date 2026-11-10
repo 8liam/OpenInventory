@@ -88,8 +88,9 @@ const VARY_HEADER = "accept-encoding";
 const CONTROL_CHARACTERS = /[\u0000-\u001f\u007f]/;
 /** Notes attach to real assets only, never to the "inventory" pseudo-location. */
 const NOTE_ITEM_ID_PATTERN = /^\d{1,20}$/;
-/** Control characters except tab and newline, which a note may hold. */
-const NOTE_CONTROL_CHARACTERS = /[\u0000-\u0008\u000b-\u001f\u007f]/;
+/** Control characters except tab, newline and carriage return, which a note may hold. */
+// eslint-disable-next-line no-control-regex -- rejecting control characters is the point
+const NOTE_CONTROL_CHARACTERS = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 const ITEM_ID_PATTERN = /^(\d{1,20}|inventory)$/;
 const TRACKED_SCOPES_KEY = "pref:price-scopes";
 
