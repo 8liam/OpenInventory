@@ -14,7 +14,7 @@ export default defineConfig({
   staged: {
     "*": "vp check --fix",
   },
-  fmt: {},
+  fmt: { ignorePatterns: ["data/index.generated.ts", "data/schema/**", "src/routeTree.gen.ts"] },
   lint: {
     plugins: ["react", "typescript", "oxc"],
     ignorePatterns: ["src/routeTree.gen.ts", "site/**"],
