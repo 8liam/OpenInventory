@@ -1,3 +1,4 @@
+import { Chip } from "~/components/chip/chip.component";
 import { itemHighlights } from "~/lib/items/highlights";
 import { COPY } from "~/lib/copy/copy.config";
 import { cn } from "~/utils/cn";
@@ -17,9 +18,9 @@ export function ItemHighlights({ item, children, visible }: ItemHighlightsProps)
     visible === undefined ? (chipVisibility[index] ?? "hidden") : index < visible ? "" : "hidden";
   const more = (from: number, className: string) =>
     reasons.length > from && (
-      <span
+      <Chip
         key={from}
-        className={cn(ITEM_HIGHLIGHTS.chipClass, "tabular shrink-0", className)}
+        className={cn("tabular shrink-0", className)}
         title={reasons
           .slice(from)
           .map((reason) => reason.label)
@@ -32,24 +33,20 @@ export function ItemHighlights({ item, children, visible }: ItemHighlightsProps)
             .map((reason) => reason.label)
             .join(", ")}
         </span>
-      </span>
+      </Chip>
     );
   return (
     <div className={ITEM_HIGHLIGHTS.lineClass}>
       {reasons.map((reason, index) => {
         const Icon = ITEM_HIGHLIGHTS.kindIcons[reason.kind];
         return (
-          <span
+          <Chip
             key={`${reason.kind}-${reason.label}`}
-            className={cn(ITEM_HIGHLIGHTS.chipClass, index > 0 && "shrink-0", chipClass(index))}
+            icon={Icon}
+            className={cn(index > 0 && "shrink-0", chipClass(index))}
           >
-            <Icon
-              size={ITEM_HIGHLIGHTS.iconSize}
-              className={ITEM_HIGHLIGHTS.chipIconClass}
-              aria-hidden
-            />
-            <span className="truncate">{reason.label}</span>
-          </span>
+            {reason.label}
+          </Chip>
         );
       })}
       {visible === undefined

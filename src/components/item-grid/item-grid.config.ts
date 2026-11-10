@@ -6,8 +6,8 @@ export const ITEM_GRID = {
   gap: 12,
   padding: 12,
   focusInset: 6,
-  /** Fixed so rows can be virtualised; includes the highlight chip line and location line. */
-  cardHeight: { withLocation: 272, withoutLocation: 254 },
+  /** Fixed so rows can be virtualised; fits the tallest card: two-line name, wear, chip line, two lines of icons, a two-line note and the location line. */
+  cardHeight: { withLocation: 372, withoutLocation: 350 },
   overscan: 3,
   selectAllLabel: "Select all items",
   selectAllText: "Select all",

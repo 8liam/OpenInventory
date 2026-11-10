@@ -78,18 +78,6 @@ export function ItemTable({
         cell: (r) => <span className="text-muted-foreground">{r.category}</span>,
       },
       {
-        id: "note",
-        header: COPY.itemColumns.note,
-        ...sizes.note,
-        sortValue: (r) => r.note,
-        cell: (r) =>
-          r.note === null ? null : (
-            <span className="block truncate text-muted-foreground" title={r.note}>
-              {r.note}
-            </span>
-          ),
-      },
-      {
         id: "float",
         header: COPY.itemColumns.float,
         ...sizes.float,
@@ -123,7 +111,6 @@ export function ItemTable({
                   showLocation ? r.locationName : null,
                   r.wear === null ? null : formatFloat(r.wear),
                   r.pattern === null ? null : `${ITEM_CELL.patternLabel} #${r.pattern}`,
-                  r.note,
                 ],
                 ITEM_TABLE.detailSeparator,
               )}

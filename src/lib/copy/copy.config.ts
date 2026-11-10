@@ -174,7 +174,6 @@ export const COPY = {
     item: "Item",
     location: "Location",
     type: "Type",
-    note: "Note",
     float: "Float",
     price: "Price",
   },

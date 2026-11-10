@@ -1,5 +1,6 @@
 import { Play } from "lucide-react";
 import { useRef, useState } from "react";
+import { Chip } from "~/components/chip/chip.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { HIGHLIGHT_PLAYER } from "./highlight-player.config";
 import type { HighlightPlayerProps } from "./highlight-player.types";
@@ -16,15 +17,14 @@ export function HighlightPlayer({ videoUrl, title }: HighlightPlayerProps) {
 
   return (
     <>
-      <button
-        type="button"
+      <Chip
+        icon={Play}
         onClick={show}
-        aria-label={`${COPY.highlight.play}: ${title}`}
+        ariaLabel={`${COPY.highlight.play}: ${title}`}
         className={HIGHLIGHT_PLAYER.badgeClass}
       >
-        <Play size={HIGHLIGHT_PLAYER.iconSize} aria-hidden />
         {COPY.highlight.play}
-      </button>
+      </Chip>
       <dialog
         ref={dialog}
         className={HIGHLIGHT_PLAYER.dialogClass}

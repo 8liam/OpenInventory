@@ -1,5 +1,5 @@
 import type { KeyboardEvent } from "react";
-import type { ItemView } from "~/lib/items/item.types";
+import type { ItemView } from "../../lib/items/item.types.ts";
 
 export type ItemGridCardProps = {
   readonly item: ItemView;
@@ -17,4 +17,10 @@ export type ItemGridCardProps = {
   readonly onToggle: () => void;
   readonly onFocus: () => void;
   readonly onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
+};
+
+export type WearSplit = {
+  readonly skin: string;
+  /** The wear name taken off the end of the skin, or null when the name carried none. */
+  readonly wear: string | null;
 };
