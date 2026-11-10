@@ -53,6 +53,8 @@ export const ITEM_TAGS = {
   knife: "CSGO_Type_Knife",
   statTrak: "StatTrak™",
   souvenirName: "Souvenir",
+  /** Collection packages (e.g. Anubis) hold non-souvenir skins of mixed rarity; they are not cases. */
+  collectionPackageName: "Collection Package",
   starName: "★",
   /** Weapon categories a case can drop (everything under CSGO_Type_ except tools and cases). */
   weaponPrefix: "CSGO_Type_",

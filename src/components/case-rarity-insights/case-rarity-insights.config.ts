@@ -1,7 +1,4 @@
 import type { CaseRarityStat } from "~/lib/cases/cases.types";
-import { PULL_NOUN } from "~/lib/copy/copy-nouns.config";
-import { formatInteger } from "~/utils/format";
-import { formatCount } from "~/utils/plural";
 
 export const CASE_RARITY_INSIGHTS = {
   /** Tiers in the order they are listed, rarest last. */
@@ -12,15 +9,6 @@ export const CASE_RARITY_INSIGHTS = {
     "covert",
     "gold",
   ] as const satisfies readonly CaseRarityStat["key"][],
-  /** Classified pulls below this count are a small sample, so rates can swing far from the odds. */
-  smallSampleThreshold: 500,
-  /** Decimals for the published odds, which the disclosure gives to this precision. */
-  percentDecimals: 3,
-  /** Decimals for your rate below the small-sample threshold, where more digits would be false precision. */
-  smallSampleObservedDecimals: 0,
-  /** Full width of a track, in percent, and the width of the odds marker, in pixels. */
-  fullTrackPercent: 100,
-  markerWidthPx: 2,
   classes: {
     grid: "grid grid-cols-1 gap-4 xl:grid-cols-5",
     streaksPanel: "xl:col-span-2 xl:self-start",
@@ -37,34 +25,10 @@ export const CASE_RARITY_INSIGHTS = {
       "cursor-pointer rounded-sm font-medium text-foreground outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring",
     explainerBody: "mt-2 space-y-2",
     oddsPanel: "xl:col-span-3",
-    note: "mb-4 text-xs leading-relaxed text-muted-foreground",
-    link: "font-medium text-foreground underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
     empty: "text-sm text-muted-foreground",
-    rows: "space-y-5",
-    rowHead: "mb-1.5 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5 text-xs",
-    rowLabel: "font-medium",
-    rowCount: "tabular text-muted-foreground",
-    track: "relative h-2.5 rounded-full bg-muted-foreground/25",
-    fillClip: "absolute inset-0 overflow-hidden rounded-full",
-    fill: "h-full rounded-full",
-    marker: "absolute -top-1 -bottom-1 rounded-full bg-foreground",
-    values: "mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs",
-    value: "inline-flex items-center gap-1.5",
-    valueName: "text-muted-foreground",
-    valueNumber: "tabular font-medium",
-    legendFill: "h-2 w-2 shrink-0 rounded-full",
-    legendMarker: "h-3 w-0.5 shrink-0 rounded-full bg-foreground",
     unclassified: "mt-4 text-xs text-muted-foreground",
   },
   copy: {
-    /** One accessible name per tier, so a screen reader hears the pair together. */
-    group: (tier: string, yourRate: string, odds: string, pulls: number, total: number) =>
-      `${tier}: your rate ${yourRate}, published odds ${odds} (${formatInteger(pulls)} of ${formatCount(total, PULL_NOUN)})`,
-    percent: (value: string) => `${value}%`,
-    scaleNote:
-      "Each tier has its own scale, so compare a bar with its marker, not one tier with another.",
-    emptyBarNote:
-      "A tier you have not pulled yet shows an empty bar, with its odds marker at the end.",
     upperBoundSummary: "Why “Up to” and “Unknown rarity”?",
     upperBoundBody: [
       "Steam did not record the rarity of some openings in your history. If one of those came after your last confirmed pull of a tier, it might have been that tier.",

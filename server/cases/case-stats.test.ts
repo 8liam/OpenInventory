@@ -158,3 +158,11 @@ test("counts a knife as gold even without the ★ prefix or the usual colour", (
   assert.equal(stats.gold, 1);
   assert.equal(stats.rarest[0]?.isGold, true);
 });
+
+test("collection packages are not counted as case openings", () => {
+  const anubis: HistoryEvent = {
+    ...opening(9, "M249 | Submerged", "b0c3d9", Date.UTC(2026, 3, 5)),
+    lost: [{ ...container, name: "Anubis Collection Package" }],
+  };
+  assert.equal(buildCaseStats([anubis, ...events], "case").total, 4);
+});

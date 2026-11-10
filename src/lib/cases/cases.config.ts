@@ -30,7 +30,17 @@ export const CASE_DROP_ODDS = {
   covert: 0.639,
   gold: 0.256,
 } as const;
-export const CASE_DROP_ODDS_SOURCE = "https://www.csgo.com.cn/news/gamebroad/20170911/206155.shtml";
+
+/** Where a tier's count sits against the odds: inside the normal range, or unusually low/high. */
+export const LUCK_STATUSES = ["low", "normal", "high"] as const;
+
+/** Chart axis for the odds comparison, in standard deviations from the expected count. */
+export const LUCK_AXIS = {
+  /** Ordinary luck stays within this distance of the expected count. */
+  normalRange: 2,
+  /** The axis runs this far either side of the expected count; points beyond are clamped. */
+  halfWidth: 3,
+} as const;
 
 /** Kinds whose items can be StatTrak; the counter is noise everywhere else. */
 export const STATTRAK_KINDS: readonly (typeof OPENING_KINDS)[number][] = ["case", "souvenir"];
