@@ -6,6 +6,7 @@ import { Link } from "@tanstack/react-router";
 import { TerminalActivate } from "~/components/terminal-activate/terminal-activate.component";
 import { INVENTORY_LOCATION_ID } from "~/lib/items/item.types";
 import { ItemLabel } from "~/components/item-label/item-label.component";
+import { ItemNoteChip } from "~/components/item-note-chip/item-note-chip.component";
 import { ItemHighlights } from "~/components/item-highlights/item-highlights.component";
 import { AccountName } from "~/components/account-name/account-name.component";
 import { HighlightDisclosure } from "~/components/highlight-disclosure/highlight-disclosure.component";
@@ -22,6 +23,7 @@ export function ItemCell({ item, account, detail, compact = false, nameFit }: It
   const hasAttachments = stickers.length > 0 || item.charms.length > 0;
   const { tier, reasons } = itemHighlights(item);
   const hasHighlights = tier !== null || reasons.length > 0;
+  const noteChip = item.note === null ? null : <ItemNoteChip note={item.note} />;
   const attachments = hasAttachments && (
     <span className="flex shrink-0 items-center gap-0.5">
       {stickers.map((sticker, index) => (
@@ -106,14 +108,18 @@ export function ItemCell({ item, account, detail, compact = false, nameFit }: It
       {item.videoUrl !== null && <HighlightPlayer videoUrl={item.videoUrl} title={item.name} />}
       {/* Reasons and attachments share one line, so the row keeps its fixed height. */}
       {compact ? (
-        (hasAttachments || hasHighlights) && (
+        (hasAttachments || hasHighlights || noteChip !== null) && (
           <div className={ITEM_CELL.compactLineClass}>
             <HighlightDisclosure item={item} showCount />
+            {noteChip}
             {attachments}
           </div>
         )
       ) : (
-        <ItemHighlights item={item}>{attachments}</ItemHighlights>
+        <ItemHighlights item={item}>
+          {noteChip}
+          {attachments}
+        </ItemHighlights>
       )}
     </ItemLabel>
   );

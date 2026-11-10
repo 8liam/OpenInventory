@@ -41,7 +41,7 @@ export function ItemGridCard({
   const hiddenStickers = stickers.length - maxStickers;
   const hasAttachments = stickers.length > 0 || item.charms.length > 0;
   const charmVideos = item.charms.filter((charm) => charm.videoUrl !== null);
-  const hasChips = charmVideos.length > 0 || item.videoUrl !== null || item.note !== null;
+  const hasChips = charmVideos.length > 0 || item.videoUrl !== null;
   const hasFooter = hasAttachments || hasChips || showLocation;
   const status =
     item.terminal !== null
@@ -109,7 +109,9 @@ export function ItemGridCard({
           </p>
         )}
       </div>
-      <ItemHighlights item={item} visible={ITEM_GRID_CARD.visibleHighlights} />
+      <ItemHighlights item={item} visible={ITEM_GRID_CARD.visibleHighlights}>
+        {item.note !== null && <ItemNoteChip note={item.note} />}
+      </ItemHighlights>
       {hasFooter && (
         <div className={classes.footer}>
           {hasAttachments && (
@@ -185,7 +187,6 @@ export function ItemGridCard({
                   <HighlightPlayer videoUrl={item.videoUrl} title={item.name} />
                 </span>
               )}
-              {item.note !== null && <ItemNoteChip note={item.note} />}
             </ChipRow>
           )}
           {showLocation && (
