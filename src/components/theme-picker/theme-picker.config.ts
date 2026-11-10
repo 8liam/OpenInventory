@@ -1,23 +1,18 @@
-import { Moon, Sun } from "lucide-react";
-import type { ResolvedScheme, ThemeToken } from "~/lib/theme/theme.types";
-
 export const THEME_PICKER = {
-  orbIconSize: 12,
-  schemeIcons: { light: Sun, dark: Moon } as const satisfies Record<ResolvedScheme, typeof Sun>,
-  /** Gradient highlights painted over the variant's background, as [position, token, stop %]. */
-  orbLayers: [
-    ["72% 78%", "primary", 62],
-    ["26% 24%", "accent", 54],
-  ] as const satisfies readonly (readonly [string, ThemeToken, number])[],
+  /** Tilt of an idle grenade and of the chosen one, in degrees. */
+  angle: { idle: 12, chosen: 8 },
   classes: {
-    grid: "grid grid-cols-2 gap-3 @3xl:grid-cols-3",
-    card: "flex flex-col gap-4 rounded-lg border bg-card p-4 text-left transition-colors hover:bg-muted",
-    selected: "border-primary/50",
-    orbs: "flex items-center justify-center gap-5 py-1",
-    orb: "relative size-[52px] shrink-0 rounded-full border",
-    orbSelected: "ring-2 ring-primary ring-offset-[3px] ring-offset-card",
-    badge:
-      "absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full border bg-background text-foreground",
-    name: "truncate text-[13px] font-medium",
+    shelf:
+      "grid grid-cols-2 overflow-hidden rounded-lg border bg-card @xl:grid-cols-3 @3xl:grid-cols-5",
+    cell: "group relative flex flex-col items-center text-center outline-none focus-visible:bg-muted",
+    stage: "relative flex h-[116px] w-full items-end justify-center pt-4",
+    burst:
+      "pointer-events-none absolute left-1/2 top-1/2 size-[132px] -translate-x-1/2 -translate-y-[58%] opacity-0 transition-opacity duration-300",
+    burstOn: "opacity-100",
+    nade: "relative z-10 h-[100px] w-auto transition-transform duration-200 group-hover:-translate-y-1",
+    nadeOn: "-translate-y-2 -rotate-3 group-hover:-translate-y-2",
+    plank: "h-1 w-full bg-foreground/10",
+    name: "w-full truncate px-2 py-2 text-xs font-medium text-muted-foreground",
+    nameOn: "text-foreground",
   },
 } as const;
