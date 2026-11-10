@@ -1,7 +1,7 @@
 import { RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/button/button.component";
-import { accountNameWithId } from "~/lib/accounts/account-names";
+import { accountName } from "~/lib/accounts/account-names";
 import { COPY } from "~/lib/copy/copy.config";
 import { postJson, useAppSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
@@ -33,7 +33,7 @@ function SyncErrorBanner({ account, named }: SyncErrorBannerProps) {
       role="alert"
     >
       <p className="min-w-0 text-destructive">
-        {named ? COPY.accounts.bannerFor(accountNameWithId(account), syncError) : syncError}
+        {named ? COPY.accounts.bannerFor(accountName(account), syncError) : syncError}
       </p>
       <Button small disabled={busy} onClick={() => void retry()}>
         <RefreshCw

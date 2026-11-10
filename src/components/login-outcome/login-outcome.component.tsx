@@ -1,6 +1,6 @@
 import { CircleCheck, TriangleAlert } from "lucide-react";
 import { Button } from "~/components/button/button.component";
-import { accountNameWithId } from "~/lib/accounts/account-names";
+import { accountName } from "~/lib/accounts/account-names";
 import { useAccountScope } from "~/lib/accounts/account-scope.hooks";
 import { useAccountSelection } from "~/lib/accounts/account-scope.store";
 import { useAddAccountDialog } from "~/lib/accounts/add-account-dialog.store";
@@ -17,13 +17,13 @@ export function LoginOutcome() {
 
   const account = accounts.find((a) => a.steamId === outcome?.steamId);
   const target = accounts.find((a) => a.steamId === outcome?.target);
-  const name = account ? accountNameWithId(account) : "";
+  const name = account ? accountName(account) : "";
   const wrongAccount = account !== undefined && target !== undefined && target !== account;
   const message =
     !outcome || !account
       ? ""
       : wrongAccount
-        ? copy.otherAccount(name, accountNameWithId(target))
+        ? copy.otherAccount(name, accountName(target))
         : outcome.added
           ? copy.added(name)
           : copy.reconnected(name);

@@ -9,9 +9,3 @@ export type Account = {
   /** Epoch ms the account was first added. */
   readonly addedAt: number;
 };
-
-/** How an account is named on screen; `suffix` (its SteamID tail) is null when `name` already ends in it. */
-export type AccountDisplayName = {
-  readonly name: string;
-  readonly suffix: string | null;
-};

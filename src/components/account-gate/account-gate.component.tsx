@@ -7,7 +7,7 @@ import { AccountStatusDot } from "~/components/account-status-dot/account-status
 import { Button } from "~/components/button/button.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { PAGE_HEADER } from "~/components/page-header/page-header.config";
-import { accountDisplayName, accountNameWithId } from "~/lib/accounts/account-names";
+import { accountName } from "~/lib/accounts/account-names";
 import { useAccountScope } from "~/lib/accounts/account-scope.hooks";
 import { useAccountSelection } from "~/lib/accounts/account-scope.store";
 import { ALL_ACCOUNTS_ROUTES, UNGATED_ROUTES } from "~/lib/accounts/accounts.config";
@@ -78,7 +78,6 @@ export function AccountGate({ pathname, children }: AccountGateProps) {
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {accounts.map((account) => {
-              const { name, suffix } = accountDisplayName(account);
               return (
                 <Button
                   key={account.steamId}
@@ -92,8 +91,7 @@ export function AccountGate({ pathname, children }: AccountGateProps) {
                   }}
                 >
                   <AccountStatusDot status={account.snapshot.auth.status} />
-                  <span className="min-w-0 truncate">{name}</span>
-                  {suffix && <span className="shrink-0">({suffix})</span>}
+                  <span className="min-w-0 truncate">{accountName(account)}</span>
                 </Button>
               );
             })}
@@ -121,7 +119,7 @@ export function AccountGate({ pathname, children }: AccountGateProps) {
   // One broken account can be fixed right here; otherwise every row in settings has its own actions.
   const [fixable] =
     waiting.length === 1 && waiting[0]?.snapshot.auth.status === AUTH_STATUS.error ? waiting : [];
-  const notice = waiting.length > 0 ? copy.partialNotice(waiting.map(accountNameWithId)) : "";
+  const notice = waiting.length > 0 ? copy.partialNotice(waiting.map(accountName)) : "";
   return (
     <>
       {/* Always mounted, so a newly dropped account is announced politely. */}

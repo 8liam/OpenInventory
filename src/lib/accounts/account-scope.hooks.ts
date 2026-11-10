@@ -3,7 +3,7 @@ import { useAppSnapshot } from "~/lib/storage/storage.client";
 import type { AccountState } from "~/lib/storage/storage.types";
 import { resolveScope, scopeAccountIds } from "./account-scope";
 import { useAccountSelection } from "./account-scope.store";
-import { accountNameWithId } from "./account-names";
+import { accountName } from "./account-names";
 import { ALL_ACCOUNTS } from "./accounts.config";
 
 /** The account(s) the UI is looking at, resolved against the live account list. */
@@ -52,5 +52,5 @@ export function useSingleAccount(): AccountState | undefined {
 export function useSingleAccountLabel(): string | undefined {
   const { accounts } = useAccountScope();
   const account = useSingleAccount();
-  return account && accounts.length > 1 ? accountNameWithId(account) : undefined;
+  return account && accounts.length > 1 ? accountName(account) : undefined;
 }

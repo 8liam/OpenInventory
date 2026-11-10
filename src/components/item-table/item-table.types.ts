@@ -1,4 +1,3 @@
-import type { AccountDisplayName } from "~/lib/accounts/accounts.types";
 import type { ItemView } from "~/lib/items/item.types";
 
 export type ItemTableProps = {
@@ -6,7 +5,7 @@ export type ItemTableProps = {
   readonly currency: string;
   readonly showLocation?: boolean;
   /** Account names by SteamID. When given, rows show which account holds each item. */
-  readonly accountNames?: ReadonlyMap<string, AccountDisplayName>;
+  readonly accountNames?: ReadonlyMap<string, string>;
   /** Enables row selection; keys are `rowKey(item)`. */
   readonly selected?: ReadonlySet<string>;
   readonly onSelectionChange?: (next: ReadonlySet<string>) => void;

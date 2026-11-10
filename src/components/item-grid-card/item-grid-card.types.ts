@@ -1,5 +1,4 @@
 import type { KeyboardEvent } from "react";
-import type { AccountDisplayName } from "~/lib/accounts/accounts.types";
 import type { ItemView } from "~/lib/items/item.types";
 
 export type ItemGridCardProps = {
@@ -7,7 +6,7 @@ export type ItemGridCardProps = {
   readonly currency: string;
   readonly showLocation: boolean;
   /** The holding account, shown ahead of the location in the all-accounts view. */
-  readonly accountName?: AccountDisplayName;
+  readonly accountName?: string;
   readonly index: number;
   /** Selection is on; the card toggles when activated. */
   readonly selectable: boolean;

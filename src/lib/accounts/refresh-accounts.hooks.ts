@@ -3,7 +3,7 @@ import { COPY } from "~/lib/copy/copy.config";
 import { usePriceQuery } from "~/lib/settings/settings.store";
 import { postJson } from "~/lib/storage/storage.client";
 import { AUTH_STATUS, STORAGE_API } from "~/lib/storage/storage.config";
-import { accountNameWithId } from "./account-names";
+import { accountName } from "./account-names";
 import { useAccountScope } from "./account-scope.hooks";
 import type { RefreshAccounts } from "./refresh-accounts.types";
 
@@ -15,7 +15,7 @@ export function useRefreshAccounts(): RefreshAccounts {
   const [error, setError] = useState<string>();
   const ready = scoped.filter((account) => account.snapshot.auth.status === AUTH_STATUS.ready);
   const [only] = scoped;
-  const scopeLabel = isAll || !only ? COPY.refresh.allAccounts : accountNameWithId(only);
+  const scopeLabel = isAll || !only ? COPY.refresh.allAccounts : accountName(only);
 
   async function refresh() {
     setBusy(true);
@@ -29,7 +29,7 @@ export function useRefreshAccounts(): RefreshAccounts {
       const account = ready[index];
       if (result.status === "fulfilled" || !account) return [];
       const reason = result.reason instanceof Error ? result.reason.message : String(result.reason);
-      return [COPY.accounts.bannerFor(accountNameWithId(account), reason)];
+      return [COPY.accounts.bannerFor(accountName(account), reason)];
     });
     setError(failures.length > 0 ? COPY.refresh.failed(failures) : undefined);
     setBusy(false);
