@@ -1,5 +1,7 @@
 import { formatFloat } from "../../utils/format.ts";
 import { NOTABLE_ATTACHMENTS } from "./attachments/attachments.ts";
+import { DEFAULT_FLOAT_THRESHOLD, FLOAT_THRESHOLD_FRACTIONS } from "../settings/settings.config.ts";
+import type { FloatThresholdId } from "../settings/settings.types.ts";
 import { HIGHLIGHTS } from "./highlights.config.ts";
 import type { ItemView } from "./item.types.ts";
 import type { HighlightReason, ItemHighlights } from "./highlights.types.ts";
@@ -14,10 +16,22 @@ function hasCraftAttachment(item: ItemView): boolean {
   });
 }
 
+let floatTailFraction: number = FLOAT_THRESHOLD_FRACTIONS[DEFAULT_FLOAT_THRESHOLD];
+let cache = new WeakMap<ItemView, ItemHighlights>();
+
+/** Sets how near a skin's min/max float counts as notable ("off" disables it) and drops memoised results. */
+export function setFloatThreshold(threshold: FloatThresholdId): void {
+  const fraction = FLOAT_THRESHOLD_FRACTIONS[threshold];
+  if (fraction === floatTailFraction) return;
+  floatTailFraction = fraction;
+  cache = new WeakMap();
+}
+
 function floatSignal(item: ItemView): boolean {
   const { wear, minWear, maxWear } = item;
+  if (floatTailFraction === 0) return false;
   if (wear === null || minWear == null || maxWear == null || maxWear <= minWear) return false;
-  const tail = (maxWear - minWear) * HIGHLIGHTS.floatTailFraction;
+  const tail = (maxWear - minWear) * floatTailFraction;
   return wear <= minWear + tail || wear >= maxWear - tail;
 }
 
@@ -38,8 +52,6 @@ function computeHighlights(item: ItemView): ItemHighlights {
   if (hasCraftAttachment(item)) reasons.push({ kind: "craft", label: HIGHLIGHTS.craftLabel });
   return { reasons, tier };
 }
-
-const cache = new WeakMap<ItemView, ItemHighlights>();
 
 /** Why an item is notable, and its pattern tier if it has one. Memoised per item object. */
 export function itemHighlights(item: ItemView): ItemHighlights {

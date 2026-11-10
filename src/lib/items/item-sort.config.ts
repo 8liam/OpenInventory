@@ -43,4 +43,16 @@ export const ITEM_SORTS = [
   { id: "name-desc", label: "Name: Z to A", triggerLabel: "Z–A", field: "item", direction: "desc" },
 ] as const;
 
+/** Kept beside the table so the settings schema can validate a stored sort; a test keeps them in step. */
+export const ITEM_SORT_IDS = [
+  "price-desc",
+  "price-asc",
+  "float-asc",
+  "float-desc",
+  "highlights-desc",
+  "name-asc",
+  "name-desc",
+] as const;
+export const DEFAULT_ITEM_SORT = "price-desc";
+
 export const ITEM_SORT_LABEL = "Sort items";

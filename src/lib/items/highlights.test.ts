@@ -1,8 +1,13 @@
 /* oxlint-disable typescript/no-floating-promises -- node:test registers suites synchronously */
 import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import { afterEach, describe, it } from "node:test";
 import type { ItemView } from "./item.types.ts";
-import { highlightRank, highlightSortValue, itemHighlights } from "./highlights.ts";
+import {
+  highlightRank,
+  highlightSortValue,
+  itemHighlights,
+  setFloatThreshold,
+} from "./highlights.ts";
 
 function item(overrides: Partial<ItemView> = {}): ItemView {
   return {
@@ -125,5 +130,33 @@ describe("highlightSortValue", () => {
     const richT3 = highlightSortValue(item({ wear: 0.5, paintSeed: 11, price: 50_000 }));
     assert.ok(richT1 > cheapT1);
     assert.ok(cheapT1 > richT3);
+  });
+});
+
+describe("setFloatThreshold", () => {
+  afterEach(() => setFloatThreshold("3"));
+  const floatReason = (wear: number) =>
+    itemHighlights(item({ wear, paintSeed: null })).reasons.some((r) => r.kind === "float");
+
+  it("widens or narrows the notable range", () => {
+    assert.equal(floatReason(0.05), false);
+    setFloatThreshold("10");
+    assert.equal(floatReason(0.05), true);
+    setFloatThreshold("1");
+    assert.equal(floatReason(0.02), false);
+    assert.equal(floatReason(0.005), true);
+  });
+
+  it("off removes only the float highlight", () => {
+    setFloatThreshold("off");
+    const result = itemHighlights(item({ wear: 0.002, paintSeed: 661 }));
+    assert.deepEqual(labels(result), ["Blue gem #661"]);
+  });
+
+  it("recomputes an item whose highlights were already memoised", () => {
+    const same = item({ wear: 0.002, paintSeed: null });
+    assert.equal(itemHighlights(same).reasons.length, 1);
+    setFloatThreshold("off");
+    assert.equal(itemHighlights(same).reasons.length, 0);
   });
 });

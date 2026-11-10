@@ -1,5 +1,15 @@
-import { DEFAULT_COLOR_SCHEME, DEFAULT_PALETTE_ID } from "../theme/theme.config.ts";
-import { DEFAULT_CURRENCY, DEFAULT_MARKETPLACE, LEGACY_THEME_KEY } from "./settings.config.ts";
+import { DEFAULT_ITEM_SORT } from "../items/item-sort.config.ts";
+import {
+  DEFAULT_ACCENT_ID,
+  DEFAULT_COLOR_SCHEME,
+  DEFAULT_PALETTE_ID,
+} from "../theme/theme.config.ts";
+import {
+  DEFAULT_CURRENCY,
+  DEFAULT_FLOAT_THRESHOLD,
+  DEFAULT_MARKETPLACE,
+  LEGACY_THEME_KEY,
+} from "./settings.config.ts";
 import { settingsSchema, type Settings } from "./settings.types.ts";
 
 export const FALLBACK_SETTINGS: Settings = {
@@ -7,6 +17,9 @@ export const FALLBACK_SETTINGS: Settings = {
   marketplace: DEFAULT_MARKETPLACE,
   colorScheme: DEFAULT_COLOR_SCHEME,
   palette: DEFAULT_PALETTE_ID,
+  accent: DEFAULT_ACCENT_ID,
+  defaultSort: DEFAULT_ITEM_SORT,
+  floatThreshold: DEFAULT_FLOAT_THRESHOLD,
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {

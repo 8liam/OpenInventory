@@ -1,5 +1,4 @@
 export const HIGHLIGHTS = {
-  floatTailFraction: 0.03,
   floatLabelPrefix: "Float",
   craftLabel: "Sticker craft",
   seedMarker: "#",

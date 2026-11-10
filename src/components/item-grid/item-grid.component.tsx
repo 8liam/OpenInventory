@@ -13,6 +13,7 @@ import { ItemGridCard } from "~/components/item-grid-card/item-grid-card.compone
 import { Select } from "~/components/select/select.component";
 import { itemRowKey } from "~/lib/items/item-key";
 import { formatCount } from "~/utils/plural";
+import { useSettings } from "~/lib/settings/settings.store";
 import { cn } from "~/utils/cn";
 import { ITEM_GRID } from "./item-grid.config";
 import type { ItemGridProps, ItemGridSortId } from "./item-grid.types";
@@ -27,7 +28,8 @@ export function ItemGrid({
   selected,
   onSelectionChange,
 }: ItemGridProps) {
-  const [sort, setSort] = useState<ItemGridSortId>(ITEM_GRID.defaultSort);
+  const defaultSort = useSettings((state) => state.defaultSort);
+  const [sort, setSort] = useState<ItemGridSortId>(defaultSort);
   const ordered = useMemo(() => sortItems(items, sort), [items, sort]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const selectAllRef = useRef<HTMLInputElement>(null);
