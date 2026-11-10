@@ -248,14 +248,10 @@ export const COPY = {
     unknownRarity: "Unknown rarity",
     streaksTitle: "Cases since last pull",
     oddsTitle: "Your drops vs case odds",
-    observed: "Your rate",
-    expected: "Odds",
     noClassified: "No recognized case rarities in this history yet, so rates can't be compared.",
     noRecordedPull: "No confirmed pull",
     upperBound: (count: string) => `Up to ${count}`,
     uncertainStreak: "Unknown rarity in streak",
-    pullShare: (count: number, total: number) =>
-      `${formatInteger(count)} / ${formatCount(total, PULL_NOUN)}`,
     unclassified: (count: number) =>
       `${formatCount(count, OPENING_NOUN)} with an unknown rarity excluded from the rate comparison.`,
     rarestTitle: "Rarest pulls",
