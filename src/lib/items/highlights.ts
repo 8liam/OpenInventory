@@ -1,4 +1,5 @@
 import { formatFloat } from "../../utils/format.ts";
+import { NOTABLE_ATTACHMENTS } from "./attachments/attachments.ts";
 import { HIGHLIGHTS } from "./highlights.config.ts";
 import type { ItemView } from "./item.types.ts";
 import type { HighlightReason, ItemHighlights } from "./highlights.types.ts";
@@ -6,11 +7,11 @@ import { resolvePatternTier } from "./patterns/pattern-tiers.ts";
 import type { PatternTierMatch } from "./patterns/pattern-tiers.types.ts";
 
 function hasCraftAttachment(item: ItemView): boolean {
-  return [...item.stickers, ...item.charms].some(({ name }) =>
-    HIGHLIGHTS.craftAttachmentNames.some((craft) =>
-      name.toLocaleLowerCase().includes(craft.toLocaleLowerCase()),
-    ),
-  );
+  return NOTABLE_ATTACHMENTS.some(({ name, kind }) => {
+    const wanted = name.toLocaleLowerCase();
+    const owned = kind === "sticker" ? item.stickers : item.charms;
+    return owned.some((attachment) => attachment.name.toLocaleLowerCase().includes(wanted));
+  });
 }
 
 function floatSignal(item: ItemView): boolean {
