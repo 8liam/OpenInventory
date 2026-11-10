@@ -7,14 +7,25 @@ import { Panel } from "~/components/panel/panel.component";
 import { Select } from "~/components/select/select.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { useRefreshAccounts } from "~/lib/accounts/refresh-accounts.hooks";
-import { CURRENCIES, MARKETPLACES, THEMES } from "~/lib/settings/settings.config";
+import { CURRENCIES, MARKETPLACES } from "~/lib/settings/settings.config";
+import { PALETTE_LIST } from "~/lib/theme/palettes.config";
+import { COLOR_SCHEMES, PALETTE_IDS } from "~/lib/theme/theme.config";
 import { useSettings } from "~/lib/settings/settings.store";
 import { SETTINGS_PAGE } from "~/lib/settings/settings-page.config";
 
 export const Route = createFileRoute("/settings")({ component: SettingsPage });
 
 function SettingsPage() {
-  const { currency, marketplace, theme, setCurrency, setMarketplace, setTheme } = useSettings();
+  const {
+    currency,
+    marketplace,
+    colorScheme,
+    palette,
+    setCurrency,
+    setMarketplace,
+    setColorScheme,
+    setPalette,
+  } = useSettings();
   const refresh = useRefreshAccounts();
   const copy = COPY.settings;
   const { classes } = SETTINGS_PAGE;
@@ -57,15 +68,28 @@ function SettingsPage() {
           <div className={SETTINGS_PAGE.columnClass}>
             <Panel title={copy.appearance}>
               <div className={classes.field}>
-                {copy.theme}
+                {copy.colorScheme}
                 <Select
-                  value={theme}
-                  ariaLabel={copy.theme}
+                  value={colorScheme}
+                  ariaLabel={copy.colorScheme}
                   className={SETTINGS_PAGE.selectWidth}
-                  options={THEMES.map((t) => ({ id: t, label: copy.themes[t] }))}
+                  options={COLOR_SCHEMES.map((c) => ({ id: c, label: copy.colorSchemes[c] }))}
                   onChange={(id) => {
-                    const next = THEMES.find((t) => t === id);
-                    if (next) setTheme(next);
+                    const next = COLOR_SCHEMES.find((c) => c === id);
+                    if (next) setColorScheme(next);
+                  }}
+                />
+              </div>
+              <div className={classes.field}>
+                {copy.palette}
+                <Select
+                  value={palette}
+                  ariaLabel={copy.palette}
+                  className={SETTINGS_PAGE.selectWidth}
+                  options={PALETTE_LIST.map((p) => ({ id: p.id, label: p.name }))}
+                  onChange={(id) => {
+                    const next = PALETTE_IDS.find((p) => p === id);
+                    if (next) setPalette(next);
                   }}
                 />
               </div>
