@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { ArrowLeftRight, Plus } from "lucide-react";
 import { useId, useMemo } from "react";
 import { AccountStatusDot } from "~/components/account-status-dot/account-status-dot.component";
 import { Select } from "~/components/select/select.component";
@@ -41,17 +41,25 @@ export function AccountSwitcher({ className }: AccountSwitcherProps) {
     };
     return [
       ...(accounts.length > 1 ? [all] : []),
-      ...accounts.map((account) => {
-        return {
-          id: account.steamId,
-          label: accountName(account),
-          hint: copy.optionHint(
-            account.label ? copy.labels[account.label] : undefined,
-            authStatusText(account.snapshot.auth.status),
-          ),
-          leading: <AccountStatusDot status={account.snapshot.auth.status} decorative />,
-        };
-      }),
+      ...accounts.map((account) => ({
+        id: account.steamId,
+        label: accountName(account),
+        hint: copy.optionHint(
+          account.label ? copy.labels[account.label] : undefined,
+          authStatusText(account.snapshot.auth.status),
+        ),
+        leading: <AccountStatusDot status={account.snapshot.auth.status} decorative />,
+      })),
+      // With one account the switch button is just an add button, so the entry only shows beside others.
+      ...(accounts.length > 1
+        ? [
+            {
+              id: ACCOUNT_SWITCHER.addOptionId,
+              label: copy.add,
+              leading: <Plus size={ACCOUNT_SWITCHER.addIconSize} aria-hidden />,
+            },
+          ]
+        : []),
     ];
   }, [accounts, copy]);
   if (scope === undefined) return null;
@@ -59,29 +67,43 @@ export function AccountSwitcher({ className }: AccountSwitcherProps) {
   const current = options.find((option) => option.id === scope);
   const description = current ? [current.label, current.hint] : [];
 
+  const addButton = (
+    <button
+      type="button"
+      title={copy.add}
+      aria-label={copy.add}
+      onClick={openAdd}
+      className={ACCOUNT_SWITCHER.addButtonClass}
+    >
+      <Plus size={ACCOUNT_SWITCHER.addIconSize} aria-hidden />
+    </button>
+  );
+
   return (
-    <div className={cn("flex items-center gap-1.5", className)}>
-      <Select
-        value={scope}
-        ariaLabel={copy.switcherLabel}
-        className={ACCOUNT_SWITCHER.selectWidth}
-        listMinWidth={ACCOUNT_SWITCHER.listMinWidth}
-        describedBy={statusId}
-        options={options}
-        onChange={select}
-      />
+    <div className={cn("min-w-0", className)}>
+      <div className="flex items-center justify-between gap-2">
+        <div className={ACCOUNT_SWITCHER.nameClass}>
+          {current?.leading}
+          <span className="truncate">{current?.label}</span>
+        </div>
+        {accounts.length > 1 ? (
+          <Select
+            value={scope}
+            ariaLabel={copy.switcherLabel}
+            iconTrigger={ArrowLeftRight}
+            listMinWidth={ACCOUNT_SWITCHER.listMinWidth}
+            describedBy={statusId}
+            options={options}
+            onChange={(id) => (id === ACCOUNT_SWITCHER.addOptionId ? openAdd() : select(id))}
+          />
+        ) : (
+          addButton
+        )}
+      </div>
+      {current?.hint && <p className={ACCOUNT_SWITCHER.hintClass}>{current.hint}</p>}
       <span id={statusId} className="sr-only">
         {description.filter(Boolean).join(", ")}
       </span>
-      <button
-        type="button"
-        title={copy.add}
-        aria-label={copy.add}
-        onClick={openAdd}
-        className={ACCOUNT_SWITCHER.addButtonClass}
-      >
-        <Plus size={ACCOUNT_SWITCHER.addIconSize} aria-hidden />
-      </button>
     </div>
   );
 }
