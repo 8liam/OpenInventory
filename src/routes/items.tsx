@@ -13,12 +13,7 @@ import { Button } from "~/components/button/button.component";
 import { FilteredEmpty } from "~/components/filtered-empty/filtered-empty.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { Select } from "~/components/select/select.component";
-import {
-  accountDisplayName,
-  accountIdSuffix,
-  accountNameWithId,
-  accountText,
-} from "~/lib/accounts/account-names";
+import { accountName, accountText } from "~/lib/accounts/account-names";
 import {
   useAccountScope,
   useScopedPath,
@@ -95,7 +90,7 @@ function ItemsPage() {
     [accountByKey],
   );
   const accountNames = useMemo(
-    () => (isAll ? new Map(accounts.map((a) => [a.steamId, accountDisplayName(a)])) : undefined),
+    () => (isAll ? new Map(accounts.map((a) => [a.steamId, accountName(a)])) : undefined),
     [accounts, isAll],
   );
   const accountOptions = useMemo(() => {
@@ -107,13 +102,7 @@ function ItemsPage() {
         label: COPY.accounts.filterLabel(COPY.accounts.labels[label]),
       })),
       ...scoped.map((a) => {
-        const { name, suffix } = accountDisplayName(a);
-        return {
-          id: a.steamId,
-          label: name,
-          detail: suffix ?? undefined,
-          triggerDetail: suffix ?? undefined,
-        };
+        return { id: a.steamId, label: accountName(a) };
       }),
     ];
   }, [scoped]);
@@ -148,15 +137,13 @@ function ItemsPage() {
         detail: formatInteger(inAccount?.length ?? 0),
       },
       ...[...counts].map(([id, { item, count }]) => {
-        // With every account in view, each location names its owner: the full name and SteamID tail
-        // in the list, and the tail (which never truncates) beside the location in the trigger.
+        // With every account in view, each location names its owner in the list.
         const owner = accountByKey.get(item.accountId);
         return {
           id,
           label: item.locationName,
           detail: formatInteger(count),
-          hint: isAll && owner ? accountNameWithId(owner) : undefined,
-          triggerDetail: isAll ? accountIdSuffix(item.accountId) : undefined,
+          hint: isAll && owner ? accountName(owner) : undefined,
         };
       }),
     ];
@@ -212,7 +199,7 @@ function ItemsPage() {
   );
   const selectedAccount = accountByKey.get(selectedItems[0]?.accountId ?? "");
   const transferUnits = selectedAccount?.snapshot.units ?? [];
-  const selectedAccountName = selectedAccount ? accountNameWithId(selectedAccount) : undefined;
+  const selectedAccountName = selectedAccount ? accountName(selectedAccount) : undefined;
 
   return (
     <>

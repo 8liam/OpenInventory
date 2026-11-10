@@ -3,7 +3,7 @@ import { useId, useMemo } from "react";
 import { AccountStatusDot } from "~/components/account-status-dot/account-status-dot.component";
 import { Select } from "~/components/select/select.component";
 import type { SelectOption } from "~/components/select/select.types";
-import { accountDisplayName } from "~/lib/accounts/account-names";
+import { accountName } from "~/lib/accounts/account-names";
 import { useAccountScope } from "~/lib/accounts/account-scope.hooks";
 import { useAccountSelection } from "~/lib/accounts/account-scope.store";
 import { authStatusText } from "~/lib/accounts/account-status";
@@ -42,10 +42,9 @@ export function AccountSwitcher({ className }: AccountSwitcherProps) {
     return [
       ...(accounts.length > 1 ? [all] : []),
       ...accounts.map((account) => {
-        const { name } = accountDisplayName(account);
         return {
           id: account.steamId,
-          label: name,
+          label: accountName(account),
           hint: copy.optionHint(
             account.label ? copy.labels[account.label] : undefined,
             authStatusText(account.snapshot.auth.status),

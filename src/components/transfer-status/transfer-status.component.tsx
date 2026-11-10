@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "~/components/button/button.component";
-import { accountNameWithId } from "~/lib/accounts/account-names";
+import { accountName } from "~/lib/accounts/account-names";
 import { postJson, useAppSnapshot } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
 import { TRANSFER_STATUS } from "./transfer-status.config";
@@ -12,7 +12,7 @@ import type { TransferBannerProps } from "./transfer-status.types";
 function TransferBanner({ account, named }: TransferBannerProps) {
   const { transfer } = account.snapshot;
   const accountId = { accountId: account.steamId };
-  const owner = named ? <p className={classes.owner}>{accountNameWithId(account)}</p> : null;
+  const owner = named ? <p className={classes.owner}>{accountName(account)}</p> : null;
   const [cancelling, setCancelling] = useState(false);
   if (transfer.status === "idle") return null;
 

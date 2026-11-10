@@ -58,7 +58,7 @@ export function ItemTable({
             id: "account",
             header: COPY.accounts.column,
             ...sizes.account,
-            sortValue: (r) => accountNames.get(r.accountId)?.name ?? null,
+            sortValue: (r) => accountNames.get(r.accountId) ?? null,
             cell: (r) => {
               const owner = accountNames.get(r.accountId);
               return owner && <AccountName name={owner} className="text-muted-foreground" />;

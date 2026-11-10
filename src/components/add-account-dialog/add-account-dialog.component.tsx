@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef } from "react";
 import { Button } from "~/components/button/button.component";
 import { LoginCard } from "~/components/login-card/login-card.component";
-import { accountNameWithId } from "~/lib/accounts/account-names";
+import { accountName } from "~/lib/accounts/account-names";
 import { useAddAccountDialog } from "~/lib/accounts/add-account-dialog.store";
 import { COPY } from "~/lib/copy/copy.config";
 import { postJson, useAppSnapshot } from "~/lib/storage/storage.client";
@@ -60,7 +60,7 @@ export function AddAccountDialog() {
       void postJson(STORAGE_API.accountLoginCancel, {}).catch(() => undefined);
   }
 
-  const name = targetAccount ? accountNameWithId(targetAccount) : undefined;
+  const name = targetAccount ? accountName(targetAccount) : undefined;
   return (
     <dialog
       ref={dialog}

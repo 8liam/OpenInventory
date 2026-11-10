@@ -5,7 +5,7 @@ import { Button } from "~/components/button/button.component";
 import { DangerDialog } from "~/components/danger-dialog/danger-dialog.component";
 import { Select } from "~/components/select/select.component";
 import { AccountName } from "~/components/account-name/account-name.component";
-import { accountDisplayName, accountNameWithId } from "~/lib/accounts/account-names";
+import { accountName } from "~/lib/accounts/account-names";
 import { authStatusText } from "~/lib/accounts/account-status";
 import { ACCOUNT_LABELS } from "~/lib/accounts/accounts.config";
 import type { AccountLabel } from "~/lib/accounts/accounts.types";
@@ -49,7 +49,7 @@ export function AccountRow({ account, onRemoved }: AccountRowProps) {
       <div className={ACCOUNT_ROW.headClass}>
         <div className={ACCOUNT_ROW.identityClass}>
           <AccountStatusDot status={auth.status} decorative />
-          <AccountName name={accountDisplayName(account)} />
+          <AccountName name={accountName(account)} />
           <span className={ACCOUNT_ROW.statusClass}>{authStatusText(auth.status)}</span>
         </div>
         <div className={ACCOUNT_ROW.controlsClass} aria-busy={saving}>
@@ -58,7 +58,7 @@ export function AccountRow({ account, onRemoved }: AccountRowProps) {
           </span>
           <Select
             value={account.label ?? ACCOUNT_ROW.noLabelId}
-            ariaLabel={copy.labelAria(accountNameWithId(account))}
+            ariaLabel={copy.labelAria(accountName(account))}
             className={ACCOUNT_ROW.labelSelectWidth}
             options={[
               { id: ACCOUNT_ROW.noLabelId, label: copy.unlabelled },
@@ -69,7 +69,7 @@ export function AccountRow({ account, onRemoved }: AccountRowProps) {
           <Button
             small
             variant="destructiveOutline"
-            aria-label={copy.removeAria(accountNameWithId(account))}
+            aria-label={copy.removeAria(accountName(account))}
             onClick={() => setRemoving(true)}
           >
             {copy.remove}
@@ -89,7 +89,7 @@ export function AccountRow({ account, onRemoved }: AccountRowProps) {
       )}
       <DangerDialog
         open={removing}
-        title={copy.removeTitle(accountNameWithId(account))}
+        title={copy.removeTitle(accountName(account))}
         warning={copy.removeWarning}
         effects={copy.removeEffects}
         acknowledgement={copy.removeCheckbox}
