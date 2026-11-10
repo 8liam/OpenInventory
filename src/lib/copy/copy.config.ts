@@ -1,7 +1,6 @@
 import type { PatternTierMatch } from "../items/patterns/pattern-tiers.types.ts";
-import { formatInteger } from "../../utils/format.ts";
 import { formatCount } from "../../utils/plural.ts";
-import { OPENING_NOUN, PULL_NOUN } from "./copy-nouns.config.ts";
+import { OPENING_NOUN } from "./copy-nouns.config.ts";
 
 export const COPY = {
   brand: { name: "OpenInventory", tagline: "Self-hosted CS2 inventory and storage unit tracker" },
