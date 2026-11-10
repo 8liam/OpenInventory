@@ -1,0 +1,45 @@
+{
+  "$schema": "../../schema/pattern-file.schema.json",
+  "weapon": "Nomad Knife",
+  "finish": "Crimson Web",
+  "retrieved": "2026-11-07",
+  "sources": [
+    "https://github.com/GODrums/cs-tierlist (generated/<file>.json at commit 3156179139e4fe5e2f55784432771a48e9ecfa7d)"
+  ],
+  "notes": [
+    "Crimson Web and Emerald Web tiers. Single, double and triple web are separate groups with their own tiers.",
+    "Tiers: T1 is the most valuable. Tiers are kept while a group's cumulative seed count stays within 100 (T1 always kept); lower published tiers are omitted as not notable.",
+    "Seed tiers are data from the Steam community guides credited in the repository README; the repository is MIT licensed."
+  ],
+  "groups": [
+    {
+      "label": "Double Web",
+      "source": "https://steamcommunity.com/sharedfiles/filedetails/?id=2976420129 via generated/crimson_web_nomad.json",
+      "tiers": [
+        {
+          "seeds": [178, 209, 286, 613, 831]
+        },
+        {
+          "seeds": [91, 235, 245, 257, 360, 461, 565, 852, 969]
+        },
+        {
+          "seeds": [12, 70, 155, 358, 482, 635, 700, 770, 838]
+        }
+      ]
+    },
+    {
+      "label": "Single Web",
+      "source": "https://steamcommunity.com/sharedfiles/filedetails/?id=2976420129 via generated/crimson_web_nomad.json",
+      "tiers": [
+        {
+          "seeds": [
+            16, 27, 29, 30, 44, 59, 98, 118, 128, 134, 143, 159, 161, 200, 201, 211, 214, 227, 237,
+            273, 274, 276, 282, 337, 342, 353, 377, 379, 389, 404, 406, 413, 431, 440, 443, 451,
+            454, 471, 491, 494, 499, 503, 538, 579, 586, 604, 611, 619, 629, 642, 648, 655, 691,
+            717, 741, 747, 755, 776, 816, 825, 828, 832, 918, 922, 937, 954, 963, 981, 993, 994
+          ]
+        }
+      ]
+    }
+  ]
+}

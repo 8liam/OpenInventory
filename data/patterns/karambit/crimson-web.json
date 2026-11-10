@@ -1,0 +1,38 @@
+{
+  "$schema": "../../schema/pattern-file.schema.json",
+  "weapon": "Karambit",
+  "finish": "Crimson Web",
+  "retrieved": "2026-11-07",
+  "sources": [
+    "https://github.com/GODrums/cs-tierlist (generated/<file>.json at commit 3156179139e4fe5e2f55784432771a48e9ecfa7d)"
+  ],
+  "notes": [
+    "Crimson Web and Emerald Web tiers. Single, double and triple web are separate groups with their own tiers.",
+    "Tiers: T1 is the most valuable. Tiers are kept while a group's cumulative seed count stays within 100 (T1 always kept); lower published tiers are omitted as not notable.",
+    "Seed tiers are data from the Steam community guides credited in the repository README; the repository is MIT licensed."
+  ],
+  "groups": [
+    {
+      "label": "Double Web",
+      "source": "https://steamcommunity.com/sharedfiles/filedetails/?id=2980565820 via generated/crimson_web_karambit.json",
+      "tiers": [
+        {
+          "seeds": [76, 103, 171, 441, 608, 640, 676, 722, 725, 726, 930, 960]
+        }
+      ]
+    },
+    {
+      "label": "Single Web",
+      "source": "https://steamcommunity.com/sharedfiles/filedetails/?id=2980565820 via generated/crimson_web_karambit.json",
+      "tiers": [
+        {
+          "seeds": [
+            10, 21, 59, 60, 86, 92, 112, 148, 162, 172, 189, 235, 251, 257, 309, 310, 324, 334, 335,
+            340, 377, 382, 390, 391, 411, 417, 453, 460, 461, 515, 526, 532, 571, 591, 629, 689,
+            692, 779, 786, 796, 803, 813, 842, 846, 904, 911, 958, 964, 977, 983
+          ]
+        }
+      ]
+    }
+  ]
+}

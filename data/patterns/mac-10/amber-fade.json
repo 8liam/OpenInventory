@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schema/pattern-file.schema.json",
+  "weapon": "MAC-10",
+  "finish": "Amber Fade",
+  "retrieved": "2026-11-07",
+  "sources": [
+    "https://github.com/chescos/csgo-fade-percentage-calculator (generated/{fade,amber-fade,acid-fade}-percentages.json at commit fd02dd14bb1d8d9ea39c15f5472a0745867369b2, MIT)"
+  ],
+  "notes": [
+    "Fade percentage tiers per weapon. Fade percentage differs by weapon model for the same seed.",
+    "Tier cutoffs are OpenInventory's own design over the sourced percentages (not a published tier list): T1 = 100%, T2 >= 99.5%, T3 >= 99%.",
+    "Seeds below the lowest cutoff are not listed."
+  ],
+  "groups": [
+    {
+      "label": "Fade",
+      "tiers": [
+        {
+          "label": "100% Fade",
+          "seeds": [763]
+        },
+        {
+          "label": "99.5%+ Fade",
+          "seeds": [
+            41, 87, 93, 205, 326, 341, 348, 403, 468, 520, 521, 527, 575, 583, 601, 636, 651, 668,
+            714, 742, 807, 892, 897, 910, 911, 961
+          ]
+        },
+        {
+          "label": "99%+ Fade",
+          "seeds": [
+            34, 105, 107, 147, 201, 256, 380, 396, 399, 422, 428, 449, 494, 517, 550, 571, 576, 577,
+            648, 664, 745, 747, 793, 800, 824, 825, 834, 848, 872, 925, 936, 943, 944, 975, 981
+          ]
+        }
+      ]
+    }
+  ]
+}

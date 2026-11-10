@@ -1,0 +1,220 @@
+{
+  "$schema": "../../schema/pattern-file.schema.json",
+  "weapon": "XM1014",
+  "finish": "XOXO",
+  "retrieved": "2026-11-07",
+  "sources": [
+    "https://csgoskins.gg/blog/<guide> (URL above each table; guides published 2023-2024)"
+  ],
+  "notes": [
+    "Other seed-sensitive finishes with a published per-pattern tier list.",
+    "Tiers: T1 is the most valuable. Tiers are kept while a group's cumulative seed count stays within 100 (T1 always kept); lower published tiers are omitted as not notable.",
+    "Each pattern type is its own group with its own tier numbering (a seed is listed under one type only)."
+  ],
+  "groups": [
+    {
+      "label": "Skull",
+      "source": "https://csgoskins.gg/blog/xm1014-xoxo-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [178, 579, 766]
+        },
+        {
+          "seeds": [135, 225, 547, 818, 864]
+        },
+        {
+          "seeds": [7, 307, 526, 546, 573]
+        }
+      ]
+    },
+    {
+      "label": "Mohawk",
+      "source": "https://csgoskins.gg/blog/xm1014-xoxo-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [289, 475, 519, 737]
+        },
+        {
+          "seeds": [311, 617]
+        },
+        {
+          "seeds": [784, 935]
+        }
+      ]
+    },
+    {
+      "label": "XXX",
+      "source": "https://csgoskins.gg/blog/xm1014-xoxo-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [31, 394, 511, 684, 814]
+        },
+        {
+          "seeds": [532, 702, 713, 791]
+        },
+        {
+          "seeds": [471, 497, 736, 798]
+        }
+      ]
+    },
+    {
+      "label": "Cyan glyph",
+      "source": "https://csgoskins.gg/blog/xm1014-xoxo-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [242, 398, 623, 755, 970]
+        },
+        {
+          "seeds": [244, 267, 476]
+        },
+        {
+          "seeds": [166, 171, 567, 806, 942]
+        }
+      ]
+    },
+    {
+      "label": "Pink mesh",
+      "source": "https://csgoskins.gg/blog/xm1014-xoxo-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [16, 51, 218, 372, 443]
+        },
+        {
+          "seeds": [220, 255, 282, 569, 977]
+        },
+        {
+          "seeds": [81, 280, 313, 711, 730]
+        }
+      ]
+    },
+    {
+      "label": "Black smiley",
+      "source": "https://csgoskins.gg/blog/xm1014-xoxo-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [110, 498, 549, 637]
+        },
+        {
+          "seeds": [467, 541, 645, 773]
+        },
+        {
+          "seeds": [42, 234, 316, 395, 422]
+        }
+      ]
+    },
+    {
+      "label": "Pink smiley",
+      "source": "https://csgoskins.gg/blog/xm1014-xoxo-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [65, 326, 643]
+        },
+        {
+          "seeds": [659, 833]
+        },
+        {
+          "seeds": [323]
+        }
+      ]
+    },
+    {
+      "label": "Burn it down",
+      "source": "https://csgoskins.gg/blog/xm1014-xoxo-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [320, 369]
+        },
+        {
+          "seeds": [345, 357, 822]
+        }
+      ]
+    },
+    {
+      "label": "Live your life",
+      "source": "https://csgoskins.gg/blog/xm1014-xoxo-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [94, 301, 347, 764, 992]
+        },
+        {
+          "seeds": [19, 83, 492]
+        },
+        {
+          "seeds": [107, 111, 575, 740, 841]
+        }
+      ]
+    },
+    {
+      "label": "Yeah right",
+      "source": "https://csgoskins.gg/blog/xm1014-xoxo-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [652, 775, 919]
+        },
+        {
+          "seeds": [235, 328]
+        },
+        {
+          "seeds": [99, 250]
+        }
+      ]
+    },
+    {
+      "label": "Black sign",
+      "source": "https://csgoskins.gg/blog/xm1014-xoxo-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [204, 330, 733]
+        },
+        {
+          "seeds": [4, 593]
+        },
+        {
+          "seeds": [636, 726]
+        }
+      ]
+    },
+    {
+      "label": "Orange sign",
+      "source": "https://csgoskins.gg/blog/xm1014-xoxo-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [522, 626]
+        },
+        {
+          "seeds": [512, 654]
+        }
+      ]
+    },
+    {
+      "label": "Pink & blue",
+      "source": "https://csgoskins.gg/blog/xm1014-xoxo-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [66, 274, 393, 606, 671]
+        },
+        {
+          "seeds": [68, 112, 142, 237]
+        },
+        {
+          "seeds": [415, 494, 975]
+        }
+      ]
+    },
+    {
+      "label": "Pink & yellow",
+      "source": "https://csgoskins.gg/blog/xm1014-xoxo-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [1, 618, 873, 915]
+        },
+        {
+          "seeds": [34, 61, 401, 763, 781]
+        },
+        {
+          "seeds": [160, 306, 801, 820, 885]
+        }
+      ]
+    }
+  ]
+}

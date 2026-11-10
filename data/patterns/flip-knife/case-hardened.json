@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schema/pattern-file.schema.json",
+  "weapon": "Flip Knife",
+  "finish": "Case Hardened",
+  "retrieved": "2026-11-07",
+  "sources": [
+    "https://csgoskins.gg/blog/<weapon>-case-hardened-blue-gem-seed-patterns (one article per weapon, URL above each table; articles published 2023-2024)"
+  ],
+  "notes": [
+    "Case Hardened blue gem tiers per weapon (same seed ranks differently per weapon).",
+    "Tiers: T1 is the most valuable. Tiers are kept while a group's cumulative seed count stays within 100 (T1 always kept); lower published tiers are omitted as not notable.",
+    "The source's T4 (blue-tinted) tier is omitted for every weapon by that rule."
+  ],
+  "groups": [
+    {
+      "label": "Blue gem",
+      "source": "https://csgoskins.gg/blog/flip-knife-case-hardened-blue-gem-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [151, 321, 555, 592, 661, 670]
+        },
+        {
+          "seeds": [103, 168, 179, 363, 387, 750, 760, 823, 828, 844, 868, 955, 969]
+        },
+        {
+          "seeds": [
+            4, 13, 28, 112, 137, 169, 189, 209, 228, 278, 325, 429, 430, 456, 479, 526, 532, 577,
+            628, 681, 689, 690, 695, 715, 733, 768, 770, 791, 872, 878, 879, 887, 905, 922, 961, 996
+          ]
+        }
+      ]
+    }
+  ]
+}

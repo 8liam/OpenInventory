@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schema/pattern-file.schema.json",
+  "weapon": "M9 Bayonet",
+  "finish": "Case Hardened",
+  "retrieved": "2026-11-07",
+  "sources": [
+    "https://csgoskins.gg/blog/<weapon>-case-hardened-blue-gem-seed-patterns (one article per weapon, URL above each table; articles published 2023-2024)"
+  ],
+  "notes": [
+    "Case Hardened blue gem tiers per weapon (same seed ranks differently per weapon).",
+    "Tiers: T1 is the most valuable. Tiers are kept while a group's cumulative seed count stays within 100 (T1 always kept); lower published tiers are omitted as not notable.",
+    "The source's T4 (blue-tinted) tier is omitted for every weapon by that rule."
+  ],
+  "groups": [
+    {
+      "label": "Blue gem",
+      "source": "https://csgoskins.gg/blog/m9-bayonet-case-hardened-blue-gem-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [417, 601]
+        },
+        {
+          "seeds": [58, 349, 403, 406, 503, 523]
+        },
+        {
+          "seeds": [
+            59, 107, 113, 150, 202, 224, 239, 281, 345, 346, 430, 449, 585, 610, 698, 715, 750, 837,
+            897, 915, 959
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "$schema": "../../schema/pattern-file.schema.json",
+  "weapon": "Galil AR",
+  "finish": "Phoenix Blacklight",
+  "retrieved": "2026-11-07",
+  "sources": [
+    "https://github.com/GODrums/cs-tierlist (generated/<file>.json at commit 3156179139e4fe5e2f55784432771a48e9ecfa7d)"
+  ],
+  "notes": [
+    "Seed tier lists from Steam community guides for single finishes and phases.",
+    "Tiers: T1 is the most valuable. Tiers are kept while a group's cumulative seed count stays within 100 (T1 always kept); lower published tiers are omitted as not notable.",
+    "Seed tiers are data from the Steam community guides credited in the repository README; the repository is MIT licensed.",
+    "Groups with paintIndexes only apply to those paint kits (Doppler and Gamma Doppler phases)."
+  ],
+  "groups": [
+    {
+      "label": "2 Heads",
+      "source": "https://steamcommunity.com/sharedfiles/filedetails/?id=2352059734 via generated/phoenix_galil.json",
+      "tiers": [
+        {
+          "seeds": []
+        },
+        {
+          "seeds": []
+        },
+        {
+          "seeds": []
+        },
+        {
+          "seeds": [819]
+        }
+      ]
+    },
+    {
+      "label": "Body",
+      "source": "https://steamcommunity.com/sharedfiles/filedetails/?id=2352059734 via generated/phoenix_galil.json",
+      "tiers": [
+        {
+          "seeds": [289, 419, 432, 619, 729, 755, 963, 978]
+        },
+        {
+          "seeds": [58, 69, 224, 270, 406, 469, 622, 865]
+        }
+      ]
+    },
+    {
+      "label": "Grip",
+      "source": "https://steamcommunity.com/sharedfiles/filedetails/?id=2352059734 via generated/phoenix_galil.json",
+      "tiers": [
+        {
+          "seeds": [169, 303, 475, 573, 643, 893]
+        },
+        {
+          "seeds": [73, 322, 358, 749, 798, 886]
+        }
+      ]
+    },
+    {
+      "label": "Text on Body",
+      "source": "https://steamcommunity.com/sharedfiles/filedetails/?id=2352059734 via generated/phoenix_galil.json",
+      "tiers": [
+        {
+          "seeds": []
+        },
+        {
+          "seeds": []
+        },
+        {
+          "seeds": [211, 979]
+        }
+      ]
+    },
+    {
+      "label": "Text on Grip",
+      "source": "https://steamcommunity.com/sharedfiles/filedetails/?id=2352059734 via generated/phoenix_galil.json",
+      "tiers": [
+        {
+          "seeds": []
+        },
+        {
+          "seeds": []
+        },
+        {
+          "seeds": [324, 915]
+        }
+      ]
+    }
+  ]
+}

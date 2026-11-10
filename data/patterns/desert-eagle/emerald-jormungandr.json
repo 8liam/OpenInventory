@@ -1,0 +1,121 @@
+{
+  "$schema": "../../schema/pattern-file.schema.json",
+  "weapon": "Desert Eagle",
+  "finish": "Emerald Jörmungandr",
+  "retrieved": "2026-11-07",
+  "sources": [
+    "https://csgoskins.gg/blog/<guide> (URL above each table; guides published 2023-2024)"
+  ],
+  "notes": [
+    "Other seed-sensitive finishes with a published per-pattern tier list.",
+    "Tiers: T1 is the most valuable. Tiers are kept while a group's cumulative seed count stays within 100 (T1 always kept); lower published tiers are omitted as not notable.",
+    "Each pattern type is its own group with its own tier numbering (a seed is listed under one type only)."
+  ],
+  "groups": [
+    {
+      "label": "Tip snake",
+      "source": "https://csgoskins.gg/blog/deagle-emerald-jormungandr-guide-all-serpent-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [221, 222, 301, 712, 725, 808, 847, 966]
+        },
+        {
+          "seeds": [200, 452, 609, 713, 814, 947, 967, 970]
+        },
+        {
+          "seeds": [46, 618, 653, 745, 988]
+        }
+      ]
+    },
+    {
+      "label": "Grip snake",
+      "source": "https://csgoskins.gg/blog/deagle-emerald-jormungandr-guide-all-serpent-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [239, 757]
+        },
+        {
+          "seeds": [189, 337, 457, 707, 852]
+        },
+        {
+          "seeds": [8, 54, 94, 341, 367, 408]
+        }
+      ]
+    },
+    {
+      "label": "Sticker snake",
+      "source": "https://csgoskins.gg/blog/deagle-emerald-jormungandr-guide-all-serpent-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [21, 23, 166, 259, 772, 774, 854]
+        },
+        {
+          "seeds": [323, 526, 541, 662, 784, 890, 935]
+        },
+        {
+          "seeds": [70, 140, 172, 231, 596, 738]
+        }
+      ]
+    },
+    {
+      "label": "2 snakes",
+      "source": "https://csgoskins.gg/blog/deagle-emerald-jormungandr-guide-all-serpent-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [351, 378, 691]
+        },
+        {
+          "seeds": [256, 564, 617, 723, 741]
+        },
+        {
+          "seeds": [393, 428, 631, 689]
+        }
+      ]
+    },
+    {
+      "label": "3 snakes",
+      "source": "https://csgoskins.gg/blog/deagle-emerald-jormungandr-guide-all-serpent-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [150, 377, 401, 793, 822]
+        },
+        {
+          "seeds": [235, 282, 315, 380]
+        },
+        {
+          "seeds": [400, 580, 812]
+        }
+      ]
+    },
+    {
+      "label": "Back snake",
+      "source": "https://csgoskins.gg/blog/deagle-emerald-jormungandr-guide-all-serpent-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [127, 251, 381, 525, 838, 887]
+        },
+        {
+          "seeds": [91, 125, 549, 717]
+        },
+        {
+          "seeds": [35, 273, 292, 513, 799]
+        }
+      ]
+    },
+    {
+      "label": "Hammer snake",
+      "source": "https://csgoskins.gg/blog/deagle-emerald-jormungandr-guide-all-serpent-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [58, 467, 626]
+        },
+        {
+          "seeds": [348, 390, 954]
+        },
+        {
+          "seeds": [26, 291, 952, 957]
+        }
+      ]
+    }
+  ]
+}
