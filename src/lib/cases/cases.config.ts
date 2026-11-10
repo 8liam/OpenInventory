@@ -30,7 +30,6 @@ export const CASE_DROP_ODDS = {
   covert: 0.639,
   gold: 0.256,
 } as const;
-export const CASE_DROP_ODDS_SOURCE = "https://www.csgo.com.cn/news/gamebroad/20170911/206155.shtml";
 
 /** Kinds whose items can be StatTrak; the counter is noise everywhere else. */
 export const STATTRAK_KINDS: readonly (typeof OPENING_KINDS)[number][] = ["case", "souvenir"];

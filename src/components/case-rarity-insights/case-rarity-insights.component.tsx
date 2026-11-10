@@ -1,5 +1,5 @@
 import { Panel } from "~/components/panel/panel.component";
-import { CASE_DROP_ODDS, CASE_DROP_ODDS_SOURCE } from "~/lib/cases/cases.config";
+import { CASE_DROP_ODDS } from "~/lib/cases/cases.config";
 import { COPY } from "~/lib/copy/copy.config";
 import { formatInteger } from "~/utils/format";
 import { CASE_RARITY_INSIGHTS } from "./case-rarity-insights.config";
@@ -65,23 +65,6 @@ export function CaseRarityInsights({ stats }: CaseRarityInsightsProps) {
         )}
       </Panel>
       <Panel title={copy.oddsTitle} className={classes.oddsPanel}>
-        <p className={classes.note}>
-          {copy.oddsDescription}{" "}
-          <a
-            href={CASE_DROP_ODDS_SOURCE}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={classes.link}
-          >
-            {copy.oddsSource}
-          </a>
-          . {insightCopy.scaleNote}
-        </p>
-        {smallSample && (
-          <p className={classes.note}>
-            {copy.smallSample} {insightCopy.emptyBarNote}
-          </p>
-        )}
         {classified === 0 && <p className={classes.empty}>{copy.noClassified}</p>}
         {classified > 0 && (
           <div className={classes.rows}>

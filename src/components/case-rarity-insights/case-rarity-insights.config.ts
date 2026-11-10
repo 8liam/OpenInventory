@@ -37,8 +37,6 @@ export const CASE_RARITY_INSIGHTS = {
       "cursor-pointer rounded-sm font-medium text-foreground outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring",
     explainerBody: "mt-2 space-y-2",
     oddsPanel: "xl:col-span-3",
-    note: "mb-4 text-xs leading-relaxed text-muted-foreground",
-    link: "font-medium text-foreground underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
     empty: "text-sm text-muted-foreground",
     rows: "space-y-5",
     rowHead: "mb-1.5 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5 text-xs",
@@ -61,10 +59,6 @@ export const CASE_RARITY_INSIGHTS = {
     group: (tier: string, yourRate: string, odds: string, pulls: number, total: number) =>
       `${tier}: your rate ${yourRate}, published odds ${odds} (${formatInteger(pulls)} of ${formatCount(total, PULL_NOUN)})`,
     percent: (value: string) => `${value}%`,
-    scaleNote:
-      "Each tier has its own scale, so compare a bar with its marker, not one tier with another.",
-    emptyBarNote:
-      "A tier you have not pulled yet shows an empty bar, with its odds marker at the end.",
     upperBoundSummary: "Why “Up to” and “Unknown rarity”?",
     upperBoundBody: [
       "Steam did not record the rarity of some openings in your history. If one of those came after your last confirmed pull of a tier, it might have been that tier.",

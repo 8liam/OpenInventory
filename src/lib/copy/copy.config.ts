@@ -248,9 +248,6 @@ export const COPY = {
     unknownRarity: "Unknown rarity",
     streaksTitle: "Cases since last pull",
     oddsTitle: "Your drops vs case odds",
-    oddsDescription:
-      "Your observed rates against published weapon-case odds; percentages are approximate. Source:",
-    oddsSource: "Perfect World odds disclosure (2017)",
     observed: "Your rate",
     expected: "Odds",
     noClassified: "No recognized case rarities in this history yet, so rates can't be compared.",
@@ -259,8 +256,6 @@ export const COPY = {
     uncertainStreak: "Unknown rarity in streak",
     pullShare: (count: number, total: number) =>
       `${formatInteger(count)} / ${formatCount(total, PULL_NOUN)}`,
-    smallSample:
-      "Small histories can differ sharply from the published odds. Past pulls do not change the odds of the next case.",
     unclassified: (count: number) =>
       `${formatCount(count, OPENING_NOUN)} with an unknown rarity excluded from the rate comparison.`,
     rarestTitle: "Rarest pulls",
