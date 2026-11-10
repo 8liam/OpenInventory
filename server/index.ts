@@ -560,9 +560,12 @@ const server = createServer(async (req, res) => {
       const { currency } = scope;
       const rarity = url.searchParams.get("rarity") ?? "";
       const book = await loadPrices(scope);
-      const candidates: TradeUpCandidate[] = collectItems(gateway, catalog, book, db.loadItemNotes(gateway.getSteamId())).flatMap((c) =>
-        c.skin ? [{ view: c.view, skin: c.skin }] : [],
-      );
+      const candidates: TradeUpCandidate[] = collectItems(
+        gateway,
+        catalog,
+        book,
+        db.loadItemNotes(gateway.getSteamId()),
+      ).flatMap((c) => (c.skin ? [{ view: c.view, skin: c.skin }] : []));
       if (path === STORAGE_API.tradeUpFinder) {
         const requested = url.searchParams.get("statTrak") ?? TRADE_UP_FINDER.defaultStatTrakFilter;
         const statTrak = TRADE_UP_FINDER.statTrakFilters.find((filter) => filter === requested);

@@ -362,7 +362,9 @@ export function openDatabase(dataDir: string): Database {
       deleteAccount.run(steamId);
     },
     loadItemNotes: (steamId) =>
-      new Map((listNotes.all(steamId) as Row[]).map((row) => [String(row.item_id), String(row.note)])),
+      new Map(
+        (listNotes.all(steamId) as Row[]).map((row) => [String(row.item_id), String(row.note)]),
+      ),
     setItemNote(steamId, itemId, note) {
       if (note === null) deleteNote.run(steamId, itemId);
       else putNote.run(steamId, itemId, note, Date.now());

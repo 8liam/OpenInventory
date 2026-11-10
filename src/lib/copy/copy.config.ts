@@ -170,7 +170,14 @@ export const COPY = {
     scope: (label: string) => `Covers: ${label}`,
     ariaFor: (label: string) => `Refresh ${label}`,
   },
-  itemColumns: { item: "Item", location: "Location", type: "Type", note: "Note", float: "Float", price: "Price" },
+  itemColumns: {
+    item: "Item",
+    location: "Location",
+    type: "Type",
+    note: "Note",
+    float: "Float",
+    price: "Price",
+  },
   dashboard: {
     title: "Dashboard",
     pricesFrom: (source: string) => `Prices from ${source}`,
