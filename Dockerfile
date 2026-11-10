@@ -17,6 +17,8 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 COPY index.html tsconfig*.json vite.config.ts ./
 COPY public ./public
 COPY src ./src
+# The app imports the community data files (patterns, attachments) at build time.
+COPY data ./data
 RUN pnpm exec vp build
 
 FROM node:24-slim AS runtime
@@ -32,6 +34,8 @@ COPY package.json ./
 COPY server ./server
 # The server shares config and type constants with the web app.
 COPY src/lib ./src/lib
+# ...and the server reads the same pattern and attachment data.
+COPY data ./data
 RUN mkdir -p /data && chown node:node /data
 USER node
 VOLUME /data
