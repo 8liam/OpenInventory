@@ -67,6 +67,7 @@ export function ItemTableSkeleton({
         ]
       : []),
     { id: "type", header: COPY.itemColumns.type, ...sizes.type, cell: textBar("w-16") },
+    { id: "note", header: COPY.itemColumns.note, ...sizes.note, cell: textBar("w-24") },
     {
       id: "float",
       header: COPY.itemColumns.float,
