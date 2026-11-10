@@ -42,14 +42,10 @@ export function AccountSwitcher({ className }: AccountSwitcherProps) {
     return [
       ...(accounts.length > 1 ? [all] : []),
       ...accounts.map((account) => {
-        // The SteamID tail never truncates, so same-named accounts stay distinct (an unnamed
-        // account's fallback name already ends in it).
-        const { name, suffix } = accountDisplayName(account);
+        const { name } = accountDisplayName(account);
         return {
           id: account.steamId,
           label: name,
-          detail: suffix ?? undefined,
-          triggerDetail: suffix ?? undefined,
           hint: copy.optionHint(
             account.label ? copy.labels[account.label] : undefined,
             authStatusText(account.snapshot.auth.status),
@@ -60,9 +56,9 @@ export function AccountSwitcher({ className }: AccountSwitcherProps) {
     ];
   }, [accounts, copy]);
   if (scope === undefined) return null;
-  // The trigger's dot is colour only; its option's name, SteamID tail and status line are read instead.
+  // The trigger's dot is colour only; its option's name and status line are read instead.
   const current = options.find((option) => option.id === scope);
-  const description = current ? [current.label, current.detail, current.hint] : [];
+  const description = current ? [current.label, current.hint] : [];
 
   return (
     <div className={cn("flex items-center gap-1.5", className)}>
