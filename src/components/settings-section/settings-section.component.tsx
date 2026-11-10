@@ -3,7 +3,13 @@ import { SETTINGS_SECTION } from "./settings-section.config";
 import type { SettingsSectionProps } from "./settings-section.types";
 
 /** A titled card of settings rows separated by hairlines. */
-export function SettingsSection({ title, description, action, children }: SettingsSectionProps) {
+export function SettingsSection({
+  title,
+  description,
+  action,
+  children,
+  plain = false,
+}: SettingsSectionProps) {
   const titleId = useId();
   return (
     <section aria-labelledby={titleId} className={SETTINGS_SECTION.rootClass}>
@@ -16,7 +22,7 @@ export function SettingsSection({ title, description, action, children }: Settin
         </div>
         {action}
       </header>
-      <div className={SETTINGS_SECTION.cardClass}>{children}</div>
+      {plain ? children : <div className={SETTINGS_SECTION.cardClass}>{children}</div>}
     </section>
   );
 }

@@ -1,22 +1,34 @@
-import { Check } from "lucide-react";
+import type { CSSProperties } from "react";
 import { PALETTE_LIST } from "~/lib/theme/palettes.config";
+import { RESOLVED_SCHEMES } from "~/lib/theme/theme.config";
+import type { ThemeVariant } from "~/lib/theme/theme.types";
 import { cn } from "~/utils/cn";
 import { useRadioGroup } from "~/utils/use-radio-group";
 import { THEME_PICKER } from "./theme-picker.config";
 import type { ThemePickerProps } from "./theme-picker.types";
 
-/** The palettes as preview cards: name plus its background, card, accent and primary colours. */
-export function ThemePicker({ value, onChange, scheme, ariaLabel }: ThemePickerProps) {
+const { classes } = THEME_PICKER;
+
+/** The variant's background with soft pools of its primary and accent colours, like a glass ball. */
+function orbBackground(variant: ThemeVariant): CSSProperties {
+  const layers = THEME_PICKER.orbLayers.map(
+    ([position, token, stop]) =>
+      `radial-gradient(circle at ${position}, ${variant[token]} 0%, transparent ${stop}%)`,
+  );
+  return { background: `${layers.join(", ")}, ${variant.background}`, borderColor: variant.border };
+}
+
+/** The palettes as cards, each with a light and a dark orb; the chosen one gets accent rings. */
+export function ThemePicker({ value, onChange, ariaLabel }: ThemePickerProps) {
   const group = useRadioGroup(
     PALETTE_LIST.map((palette) => palette.id),
     value,
     onChange,
   );
   return (
-    <div role="radiogroup" aria-label={ariaLabel} className={THEME_PICKER.gridClass}>
+    <div role="radiogroup" aria-label={ariaLabel} className={classes.grid}>
       {PALETTE_LIST.map((palette, index) => {
         const selected = palette.id === value;
-        const variant = palette[scheme];
         return (
           <button
             key={palette.id}
@@ -27,25 +39,27 @@ export function ThemePicker({ value, onChange, scheme, ariaLabel }: ThemePickerP
             tabIndex={group.tabIndexFor(index)}
             onClick={() => onChange(palette.id)}
             onKeyDown={(event) => group.onKeyDown(event, index)}
-            className={cn(THEME_PICKER.cardClass, selected && THEME_PICKER.selectedClass)}
+            className={cn(classes.card, selected && classes.selected)}
           >
-            <span className={THEME_PICKER.nameClass}>{palette.name}</span>
-            <span className={THEME_PICKER.swatchRowClass} aria-hidden>
-              {THEME_PICKER.swatches.map((token) => (
-                <span
-                  key={token}
-                  className={THEME_PICKER.swatchClass}
-                  style={{ backgroundColor: variant[token] }}
-                />
-              ))}
+            <span className={classes.orbs} aria-hidden>
+              {RESOLVED_SCHEMES.map((scheme) => {
+                const Icon = THEME_PICKER.schemeIcons[scheme];
+                return (
+                  <span
+                    key={scheme}
+                    className={cn(classes.orb, selected && classes.orbSelected)}
+                    style={orbBackground(palette[scheme])}
+                  >
+                    {selected && (
+                      <span className={classes.badge}>
+                        <Icon size={THEME_PICKER.orbIconSize} />
+                      </span>
+                    )}
+                  </span>
+                );
+              })}
             </span>
-            {selected && (
-              <Check
-                size={THEME_PICKER.checkIconSize}
-                className={THEME_PICKER.checkClass}
-                aria-hidden
-              />
-            )}
+            <span className={classes.name}>{palette.name}</span>
           </button>
         );
       })}

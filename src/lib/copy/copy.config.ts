@@ -358,12 +358,9 @@ export const COPY = {
       data: "Data",
     },
     appearance: {
-      title: "Appearance",
       colorScheme: "Colour scheme",
-      colorSchemeHint: "Follow your system or pick light or dark.",
       colorSchemes: { system: "System", light: "Light", dark: "Dark" },
       palette: "Theme",
-      paletteHint: "Applies instantly. Previews show the current colour scheme.",
       accent: "Accent colour",
       accentHint: "Overrides the theme's primary colour.",
       accentDefault: "Theme default",
