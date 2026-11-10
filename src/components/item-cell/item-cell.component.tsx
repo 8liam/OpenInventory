@@ -23,6 +23,8 @@ export function ItemCell({ item, account, detail, compact = false, nameFit }: It
   const hasAttachments = stickers.length > 0 || item.charms.length > 0;
   const { tier, reasons } = itemHighlights(item);
   const hasHighlights = tier !== null || reasons.length > 0;
+  const videoChip =
+    item.videoUrl === null ? null : <HighlightPlayer videoUrl={item.videoUrl} title={item.name} />;
   const noteChip = item.note === null ? null : <ItemNoteChip note={item.note} />;
   const attachments = hasAttachments && (
     <span className="flex shrink-0 items-center gap-0.5">
@@ -105,18 +107,19 @@ export function ItemCell({ item, account, detail, compact = false, nameFit }: It
           {COPY.terminal.viewOffer}
         </Link>
       )}
-      {item.videoUrl !== null && <HighlightPlayer videoUrl={item.videoUrl} title={item.name} />}
       {/* Reasons and attachments share one line, so the row keeps its fixed height. */}
       {compact ? (
-        (hasAttachments || hasHighlights || noteChip !== null) && (
+        (hasAttachments || hasHighlights || noteChip !== null || videoChip !== null) && (
           <div className={ITEM_CELL.compactLineClass}>
             <HighlightDisclosure item={item} showCount />
+            {videoChip}
             {noteChip}
             {attachments}
           </div>
         )
       ) : (
         <ItemHighlights item={item}>
+          {videoChip}
           {noteChip}
           {attachments}
         </ItemHighlights>
