@@ -22,7 +22,10 @@ export function isGold(item: HistoryItem): boolean {
 export function classifyEvent(event: HistoryEvent): EventKind {
   const [reward] = event.gained;
   if (event.description.includes(EVENT_TEXT.unlocked)) {
-    const opened = event.lost.some((item) => item.type === ITEM_TAGS.weaponCase);
+    const opened = event.lost.some(
+      (item) =>
+        item.type === ITEM_TAGS.weaponCase && !item.name.includes(ITEM_TAGS.collectionPackageName),
+    );
     if (reward && isWeapon(reward) && opened) {
       return reward.name.includes(ITEM_TAGS.souvenirName) ? "souvenir" : "case";
     }
