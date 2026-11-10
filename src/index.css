@@ -9,7 +9,7 @@
 
 /*
  * Design tokens. Values follow T3 Code's neutral palette: near-black canvas,
- * 6% white hairlines, one indigo primary. Light theme mirrors it on zinc.
+ * 6% white hairlines, one green primary. Light theme mirrors it on zinc.
  */
 :root,
 [data-theme="light"] {
@@ -25,7 +25,7 @@
   --accent-foreground: #0a0a0a;
   /* The accent as text or an icon on the background; the bright green is unreadable on white. */
   --accent-strong: #3f8f17;
-  --primary: oklch(48.8% 0.217 264);
+  --primary: #357a12;
   --primary-foreground: #ffffff;
   --success: #047857;
   --destructive: #b91c1c;
@@ -48,8 +48,8 @@
   --accent: #a0ff69;
   --accent-foreground: #0a0a0a;
   --accent-strong: #a0ff69;
-  --primary: oklch(57.1% 0.21 264);
-  --primary-foreground: #ffffff;
+  --primary: #a0ff69;
+  --primary-foreground: #0a0a0a;
   --success: #10b981;
   --destructive: #f87171;
   --destructive-solid: #dc2626;
