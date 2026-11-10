@@ -1,16 +1,16 @@
 export const ITEM_GRID_CARD = {
   /** Thumbnail fills the card width at a fixed height so every card (and virtual row) is the same size. */
-  thumbClass: "h-28 w-full",
-  stickerSize: 16,
+  thumbClass: "h-24 w-full",
+  attachmentSize: 20,
   maxStickers: 5,
+  patternLabel: "Pattern",
   selectRowLabel: "Select item",
   /** A 24px hit area on desktop; 36px on phones and touch screens. */
   checkboxClass:
     "absolute left-1.5 top-1.5 flex rounded bg-background/80 p-1 transition-opacity max-sm:p-2.5 [@media(hover:none)]:opacity-100 [@media(pointer:coarse)]:p-2.5",
   /** Cards are narrow at every width, so one reason chip shows and the rest fold into `+N`. */
   visibleHighlights: 1,
-  /** Account and location share one line; each truncates, but the account's SteamID tail stays. */
-  locationClass: "mt-0.5 flex min-w-0 items-baseline gap-1 text-xs text-muted-foreground",
+  noteIconSize: 12,
   locationSeparator: "·",
   classes: {
     card: "group relative flex h-full min-w-0 flex-col rounded-lg border bg-card p-3 text-left transition-colors focus-visible:outline-offset-2",
@@ -24,14 +24,26 @@ export const ITEM_GRID_CARD = {
     text: "mt-2.5 min-w-0",
     weapon:
       "mb-0.5 truncate text-[11px] uppercase leading-none tracking-wide text-muted-foreground",
-    skin: "truncate leading-tight",
-    muted: "text-muted-foreground",
+    skin: "line-clamp-2 break-words text-sm font-medium leading-tight",
+    muted: "font-normal text-muted-foreground",
+    wear: "mt-0.5 truncate text-[11px] leading-4 text-muted-foreground",
     figures: "mt-1.5 flex items-baseline justify-between gap-2",
-    price: "tabular text-sm font-medium",
+    price: "tabular text-base font-semibold leading-tight",
     status: "tabular shrink-0 text-xs text-muted-foreground",
+    /** Pinned to the bottom so attachments, note and location line up across a row of cards. */
+    footer: "mt-auto flex min-w-0 flex-col gap-1.5 pt-2",
+    /** Wraps, but two icon lines is the most the fixed card height has room for. */
+    attachments: "flex max-h-11 flex-wrap items-center gap-1 overflow-hidden",
+    attachmentImage: "size-5 object-contain",
+    charm: "inline-flex shrink-0 items-center gap-0.5 text-[11px] text-muted-foreground",
+    charmName: "max-w-full truncate rounded bg-foreground/[0.07] px-1.5 py-px text-[11px] leading-4",
+    more: "tabular text-[11px] text-muted-foreground",
+    note: "flex min-w-0 items-start gap-1 text-[11px] leading-4 text-muted-foreground",
+    noteIcon: "mt-0.5 shrink-0",
+    noteText: "line-clamp-2 min-w-0 break-words",
+    /** Account and location share one line; each truncates, but the account's SteamID tail stays. */
+    location: "flex min-w-0 items-baseline gap-1 text-xs text-muted-foreground",
     account: "shrink",
-    location: "truncate",
-    attachments: "mt-auto flex h-6 items-end gap-0.5 overflow-hidden",
-    charms: "ml-1 text-[11px] text-muted-foreground",
+    locationName: "truncate",
   },
 } as const;

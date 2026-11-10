@@ -1,4 +1,6 @@
+import { NotebookPen } from "lucide-react";
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
+import { HighlightPlayer } from "~/components/highlight-player/highlight-player.component";
 import { Tooltip } from "~/components/tooltip/tooltip.component";
 import {
   ItemHighlights,
@@ -11,8 +13,9 @@ import { formatFloat, formatMoney } from "~/utils/format";
 import { AccountName } from "~/components/account-name/account-name.component";
 import { ITEM_GRID_CARD } from "./item-grid-card.config";
 import type { ItemGridCardProps } from "./item-grid-card.types";
+import { splitWear } from "./item-grid-card.utils";
 
-/** One item as a card: the same identity as a table row (thumbnail, weapon over skin), stacked. */
+/** One item as a card: image, then name, price and highlights, with attachments, note and location pinned below. */
 export function ItemGridCard({
   item,
   currency,
@@ -27,8 +30,16 @@ export function ItemGridCard({
   onFocus,
   onKeyDown,
 }: ItemGridCardProps) {
-  const [weapon, skin] = splitItemName(item.name);
-  const { stickerSize, maxStickers, thumbClass, selectRowLabel, classes } = ITEM_GRID_CARD;
+  const [weapon, fullSkin] = splitItemName(item.name);
+  const { skin, wear } = splitWear(fullSkin, item.wearName);
+  const { attachmentSize, maxStickers, patternLabel, thumbClass, selectRowLabel, classes } =
+    ITEM_GRID_CARD;
+  // A sticker without an image would render as a broken-image glyph; its name is in the item data.
+  const stickers = item.stickers.filter((sticker) => sticker.imageUrl !== null);
+  const hiddenStickers = stickers.length - maxStickers;
+  const hasAttachments =
+    stickers.length > 0 || item.charms.length > 0 || item.videoUrl !== null;
+  const hasFooter = hasAttachments || item.note !== null || showLocation;
   const status =
     item.terminal !== null
       ? item.terminal.isActive
@@ -80,51 +91,111 @@ export function ItemGridCard({
           {skin}
           {item.customName && <span className={classes.muted}> “{item.customName}”</span>}
         </p>
+        {wear && <p className={classes.wear}>{wear}</p>}
       </div>
       <div className={classes.figures}>
         <p className={classes.price}>
           {item.price === null ? COPY.common.empty : formatMoney(item.price, currency)}
         </p>
-        {status !== null && <p className={classes.status}>{status}</p>}
-      </div>
-      <ItemHighlights item={item} visible={ITEM_GRID_CARD.visibleHighlights} />
-      {showLocation && (
-        <p className={ITEM_GRID_CARD.locationClass}>
-          {accountName && (
-            <>
-              <AccountName name={accountName} className={classes.account} />
-              <span aria-hidden>{ITEM_GRID_CARD.locationSeparator}</span>
-            </>
-          )}
-          <span className={classes.location}>{item.locationName}</span>
-        </p>
-      )}
-      <div className={classes.attachments}>
-        {item.stickers
-          .filter((sticker) => sticker.imageUrl !== null)
-          .slice(0, maxStickers)
-          .map((sticker, stickerIndex) => (
-            <Tooltip
-              key={`${sticker.name}-${stickerIndex}`}
-              name={sticker.name}
-              imageUrl={sticker.imageUrl}
-            >
-              <img
-                src={sticker.imageUrl ?? undefined}
-                alt={sticker.name}
-                loading="lazy"
-                decoding="async"
-                width={stickerSize}
-                height={stickerSize}
-              />
-            </Tooltip>
-          ))}
-        {item.charms.length > 0 && (
-          <span className={classes.charms}>
-            {item.charms.map((charm) => charm.name).join(", ")}
-          </span>
+        {status !== null && (
+          <p className={classes.status} title={item.terminal === null ? COPY.itemColumns.float : undefined}>
+            {status}
+          </p>
         )}
       </div>
+      <ItemHighlights item={item} visible={ITEM_GRID_CARD.visibleHighlights} />
+      {hasFooter && (
+        <div className={classes.footer}>
+          {hasAttachments && (
+            <div className={classes.attachments}>
+              {stickers.slice(0, maxStickers).map((sticker, stickerIndex) => (
+                <Tooltip
+                  key={`${sticker.name}-${stickerIndex}`}
+                  name={sticker.name}
+                  imageUrl={sticker.imageUrl}
+                >
+                  <img
+                    src={sticker.imageUrl ?? undefined}
+                    alt={sticker.name}
+                    loading="lazy"
+                    decoding="async"
+                    width={attachmentSize}
+                    height={attachmentSize}
+                    className={classes.attachmentImage}
+                  />
+                </Tooltip>
+              ))}
+              {hiddenStickers > 0 && (
+                <span
+                  className={classes.more}
+                  title={stickers
+                    .slice(maxStickers)
+                    .map((sticker) => sticker.name)
+                    .join(", ")}
+                >
+                  {COPY.items.moreHighlights(hiddenStickers)}
+                </span>
+              )}
+              {item.charms.map((charm, charmIndex) => (
+                <span key={`${charm.name}-${charmIndex}`} className={classes.charm}>
+                  <Tooltip
+                    name={charm.name}
+                    imageUrl={charm.imageUrl}
+                    detail={charm.pattern === null ? undefined : `${patternLabel} #${charm.pattern}`}
+                  >
+                    {charm.imageUrl === null ? (
+                      <span className={classes.charmName}>{charm.name}</span>
+                    ) : (
+                      <img
+                        src={charm.imageUrl}
+                        alt={charm.name}
+                        loading="lazy"
+                        decoding="async"
+                        width={attachmentSize}
+                        height={attachmentSize}
+                        className={classes.attachmentImage}
+                      />
+                    )}
+                  </Tooltip>
+                  {charm.pattern !== null && <span className="tabular">#{charm.pattern}</span>}
+                  {charm.videoUrl !== null && (
+                    <span onClick={(event) => event.stopPropagation()}>
+                      <HighlightPlayer videoUrl={charm.videoUrl} title={charm.name} />
+                    </span>
+                  )}
+                </span>
+              ))}
+              {item.videoUrl !== null && (
+                <span onClick={(event) => event.stopPropagation()}>
+                  <HighlightPlayer videoUrl={item.videoUrl} title={item.name} />
+                </span>
+              )}
+            </div>
+          )}
+          {item.note !== null && (
+            <p className={classes.note} title={item.note}>
+              <NotebookPen
+                size={ITEM_GRID_CARD.noteIconSize}
+                className={classes.noteIcon}
+                aria-hidden
+              />
+              <span className="sr-only">{COPY.itemColumns.note}: </span>
+              <span className={classes.noteText}>{item.note}</span>
+            </p>
+          )}
+          {showLocation && (
+            <p className={classes.location}>
+              {accountName && (
+                <>
+                  <AccountName name={accountName} className={classes.account} />
+                  <span aria-hidden>{ITEM_GRID_CARD.locationSeparator}</span>
+                </>
+              )}
+              <span className={classes.locationName}>{item.locationName}</span>
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
