@@ -1,22 +1,24 @@
+import { Banknote, Database, Palette, Package, Users, type LucideIcon } from "lucide-react";
+import type { SettingsTab } from "./settings-tabs.types.ts";
+
 export const SETTINGS_PAGE = {
-  /** The panels scroll under the page header, like every other page's content. */
+  /** The page scrolls under the header like every other page's content; the container drives the rail/tab layout. */
   scrollClass: "@container min-h-0 flex-1 overflow-y-auto pb-4",
-  /**
-   * One full-width column while narrow; accounts and data beside the preferences once the content
-   * is wide. No width cap, so the page ends where every other page's content does.
-   */
-  layoutClass: "grid grid-cols-1 items-start gap-3 @3xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]",
-  columnClass: "flex min-w-0 flex-col gap-3",
-  selectWidth: "w-40",
+  /** Tab row above the content while narrow; rail beside it once the container is wide. */
+  layoutClass: "grid grid-cols-1 items-start gap-4 @2xl:grid-cols-[11rem_minmax(0,1fr)] @2xl:gap-6",
+  contentClass: "flex min-w-0 flex-col gap-5",
+  selectWidth: "w-44 max-sm:w-full",
   refreshIconSize: 14,
-  classes: {
-    body: "mb-3 text-muted-foreground",
-    refreshRow: "flex flex-wrap items-center gap-x-3 gap-y-1",
-    spinning: "motion-safe:animate-spin",
-    scope: "text-xs text-muted-foreground",
-    skipped: "mt-2 text-xs text-muted-foreground",
-    error: "mt-2 text-xs text-destructive",
-    field: "flex items-center justify-between gap-4",
-    hint: "mt-3 text-muted-foreground",
-  },
+  spinningClass: "motion-safe:animate-spin",
+  scopeClass: "mt-1 text-xs text-muted-foreground",
+  skippedClass: "mt-1 text-xs text-muted-foreground",
+  errorClass: "mt-1 text-xs text-destructive",
+  accountsListClass: "divide-y px-4 py-3",
+  tabIcons: {
+    appearance: Palette,
+    items: Package,
+    pricing: Banknote,
+    accounts: Users,
+    data: Database,
+  } satisfies Record<SettingsTab, LucideIcon>,
 } as const;

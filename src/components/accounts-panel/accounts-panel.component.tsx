@@ -2,9 +2,10 @@ import { Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { AccountRow } from "~/components/account-row/account-row.component";
 import { Button } from "~/components/button/button.component";
-import { Panel } from "~/components/panel/panel.component";
+import { SettingsSection } from "~/components/settings-section/settings-section.component";
 import { useAddAccountDialog } from "~/lib/accounts/add-account-dialog.store";
 import { COPY } from "~/lib/copy/copy.config";
+import { SETTINGS_PAGE } from "~/lib/settings/settings-page.config";
 import { useAppSnapshot } from "~/lib/storage/storage.client";
 import { restoreLostFocus } from "~/utils/restore-focus";
 import { ACCOUNTS_PANEL } from "./accounts-panel.config";
@@ -30,8 +31,9 @@ export function AccountsPanel() {
   }, [removedRowGone]);
 
   return (
-    <Panel
+    <SettingsSection
       title={copy.settingsTitle}
+      description={copy.settingsBody}
       action={
         <Button small ref={addButton} onClick={openAdd}>
           <Plus size={ACCOUNTS_PANEL.addIconSize} aria-hidden />
@@ -39,8 +41,7 @@ export function AccountsPanel() {
         </Button>
       }
     >
-      <p className="mb-3 text-muted-foreground">{copy.settingsBody}</p>
-      <ul className="divide-y">
+      <ul className={SETTINGS_PAGE.accountsListClass}>
         {accounts.map((account) => (
           <AccountRow
             key={account.steamId}
@@ -49,6 +50,6 @@ export function AccountsPanel() {
           />
         ))}
       </ul>
-    </Panel>
+    </SettingsSection>
   );
 }

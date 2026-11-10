@@ -3,8 +3,15 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { contrastRatio } from "../../utils/contrast.ts";
 import { PALETTE_LIST, PALETTES } from "./palettes.config.ts";
-import { MIN_CONTRAST, PALETTE_IDS, RESOLVED_SCHEMES, THEME_TOKENS } from "./theme.config.ts";
-import { getPalette, pickVariant, resolveColorScheme } from "./theme.ts";
+import {
+  ACCENT_COLORS,
+  ACCENT_IDS,
+  MIN_CONTRAST,
+  PALETTE_IDS,
+  RESOLVED_SCHEMES,
+  THEME_TOKENS,
+} from "./theme.config.ts";
+import { accentOverrides, getPalette, pickVariant, resolveColorScheme } from "./theme.ts";
 
 test("every palette id has a registry entry with a matching id and a name", () => {
   assert.equal(PALETTE_LIST.length, PALETTE_IDS.length);
@@ -48,4 +55,21 @@ test("pickVariant returns the matching variant", () => {
   const palette = getPalette("nord");
   assert.equal(pickVariant(palette, "light"), palette.light);
   assert.equal(pickVariant(palette, "dark"), palette.dark);
+});
+
+test("the default accent overrides nothing", () => {
+  assert.equal(accentOverrides("default"), null);
+});
+
+test("every accent brings a foreground that stays readable on it", () => {
+  for (const accent of ACCENT_IDS) {
+    const overrides = accentOverrides(accent);
+    if (accent === "default") continue;
+    assert.ok(overrides, accent);
+    assert.equal(overrides.primary, ACCENT_COLORS[accent]);
+    assert.ok(
+      contrastRatio(overrides.primary, overrides["primary-foreground"]) >= MIN_CONTRAST.onPrimary,
+      accent,
+    );
+  }
 });

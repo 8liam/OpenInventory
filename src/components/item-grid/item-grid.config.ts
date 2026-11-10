@@ -17,7 +17,6 @@ export const ITEM_GRID = {
   sortLabel: ITEM_SORT_LABEL,
   emptyLabel: "No items",
   count: { one: "item", other: "items" },
-  defaultSort: "price-desc",
   sorts: ITEM_SORTS,
   keys: {
     left: "ArrowLeft",

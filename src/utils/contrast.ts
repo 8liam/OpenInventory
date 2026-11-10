@@ -1,4 +1,11 @@
-import { CONTRAST_ERRORS, HEX_PATTERN, OKLAB, OKLCH_PATTERN, SRGB } from "./contrast.config.ts";
+import {
+  CONTRAST_ERRORS,
+  HEX_PATTERN,
+  OKLAB,
+  OKLCH_PATTERN,
+  READABLE_TEXT,
+  SRGB,
+} from "./contrast.config.ts";
 import type { Rgb } from "./contrast.types.ts";
 
 const HEX_SHORT_LENGTH = 3;
@@ -63,4 +70,12 @@ export function contrastRatio(first: string, second: string): number {
   const a = relativeLuminance(first);
   const b = relativeLuminance(second);
   return (Math.max(a, b) + SRGB.contrastOffset) / (Math.min(a, b) + SRGB.contrastOffset);
+}
+
+/** Black or white, whichever has the higher contrast on the given background. */
+export function readableTextOn(background: string): string {
+  return contrastRatio(background, READABLE_TEXT.dark) >=
+    contrastRatio(background, READABLE_TEXT.light)
+    ? READABLE_TEXT.dark
+    : READABLE_TEXT.light;
 }
