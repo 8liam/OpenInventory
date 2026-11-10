@@ -1,4 +1,3 @@
-import { AccentPicker } from "~/components/accent-picker/accent-picker.component";
 import { ColorSchemePicker } from "~/components/color-scheme-picker/color-scheme-picker.component";
 import { SettingsSection } from "~/components/settings-section/settings-section.component";
 import { ThemePicker } from "~/components/theme-picker/theme-picker.component";
@@ -11,7 +10,7 @@ import { SETTINGS_APPEARANCE } from "./settings-appearance.config";
 
 /** Settings > Appearance: colour scheme, theme palette and accent colour. */
 export function SettingsAppearance() {
-  const { colorScheme, palette, accent, setColorScheme, setPalette, setAccent } = useSettings();
+  const { colorScheme, palette, setColorScheme, setPalette } = useSettings();
   const systemPrefersDark = useMediaQuery(DARK_MEDIA_QUERY);
   const copy = COPY.settings.appearance;
   return (
@@ -31,14 +30,6 @@ export function SettingsAppearance() {
           ariaLabel={copy.palette}
           scheme={resolveColorScheme(colorScheme, systemPrefersDark)}
           onChange={setPalette}
-        />
-      </SettingsSection>
-      <SettingsSection title={copy.accent} description={copy.accentHint} plain>
-        <AccentPicker
-          value={accent}
-          ariaLabel={copy.accent}
-          labels={copy.accents}
-          onChange={setAccent}
         />
       </SettingsSection>
     </div>

@@ -13,7 +13,6 @@ test("old { theme } settings migrate to colorScheme with the default palette", (
     marketplace: "steam",
     colorScheme: "dark",
     palette: "default",
-    accent: "default",
     defaultSort: "price-desc",
     floatThreshold: "3",
   });
@@ -25,7 +24,6 @@ test("new settings round-trip", () => {
     marketplace: "skinport",
     colorScheme: "light",
     palette: "nord",
-    accent: "violet",
     defaultSort: "float-asc",
     floatThreshold: "off",
   };
@@ -57,22 +55,19 @@ test("settings saved before the new fields existed get their defaults", () => {
   );
   assert.equal(settings.currency, "EUR");
   assert.equal(settings.palette, "nord");
-  assert.equal(settings.accent, "default");
   assert.equal(settings.defaultSort, "price-desc");
   assert.equal(settings.floatThreshold, "3");
 });
 
-test("invalid accent, sort and threshold fall back without dropping the rest", () => {
+test("invalid sort and threshold fall back without dropping the rest", () => {
   const settings = parseStoredSettings(
     JSON.stringify({
       currency: "GBP",
-      accent: "chartreuse",
       defaultSort: "random",
       floatThreshold: "50",
     }),
   );
   assert.equal(settings.currency, "GBP");
-  assert.equal(settings.accent, "default");
   assert.equal(settings.defaultSort, "price-desc");
   assert.equal(settings.floatThreshold, "3");
 });

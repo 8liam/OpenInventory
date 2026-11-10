@@ -12,14 +12,13 @@ function persist(settings: Settings): void {
 }
 
 function pickSettings(state: Settings): Settings {
-  const { currency, marketplace, colorScheme, palette, accent, defaultSort, floatThreshold } =
-    state;
-  return { currency, marketplace, colorScheme, palette, accent, defaultSort, floatThreshold };
+  const { currency, marketplace, colorScheme, palette, defaultSort, floatThreshold } = state;
+  return { currency, marketplace, colorScheme, palette, defaultSort, floatThreshold };
 }
 
 /** Pushes the settings that live outside React (theme tokens, highlight rules) into place. */
 function applyPreferences(settings: Settings): void {
-  applyTheme(settings.colorScheme, settings.palette, settings.accent);
+  applyTheme(settings.colorScheme, settings.palette);
   setFloatThreshold(settings.floatThreshold);
 }
 
@@ -38,7 +37,6 @@ export const useSettings = create<SettingsState>((set, get) => {
     setMarketplace: (marketplace) => save({ marketplace }),
     setColorScheme: (colorScheme) => save({ colorScheme }),
     setPalette: (palette) => save({ palette }),
-    setAccent: (accent) => save({ accent }),
     setDefaultSort: (defaultSort) => save({ defaultSort }),
     setFloatThreshold: (floatThreshold) => save({ floatThreshold }),
     resetAll: () => {
