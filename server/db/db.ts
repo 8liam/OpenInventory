@@ -78,6 +78,15 @@ const MIGRATIONS: readonly string[] = [
     label TEXT,
     added_at INTEGER NOT NULL
   )`,
+  // Free-text notes on items, keyed like the other per-account tables. Item ids are stable
+  // asset ids, so a note survives every re-sync.
+  `CREATE TABLE IF NOT EXISTS item_notes (
+    steam_id TEXT NOT NULL,
+    item_id TEXT NOT NULL,
+    note TEXT NOT NULL,
+    updated_at INTEGER NOT NULL,
+    PRIMARY KEY (steam_id, item_id)
+  )`,
 ];
 const USER_VERSION_SQL = "PRAGMA user_version";
 
@@ -224,6 +233,11 @@ export function openDatabase(dataDir: string): Database {
   );
   const updateLabel = db.prepare("UPDATE accounts SET label = ? WHERE steam_id = ?");
   const deleteAccount = db.prepare("DELETE FROM accounts WHERE steam_id = ?");
+  const listNotes = db.prepare("SELECT item_id, note FROM item_notes WHERE steam_id = ?");
+  const putNote = db.prepare(
+    "INSERT INTO item_notes (steam_id, item_id, note, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(steam_id, item_id) DO UPDATE SET note = excluded.note, updated_at = excluded.updated_at",
+  );
+  const deleteNote = db.prepare("DELETE FROM item_notes WHERE steam_id = ? AND item_id = ?");
   let historyVersion = 0;
   /** Runs `work` atomically: committed on return, rolled back if it throws. */
   const transaction = <T>(work: () => T): T => {
@@ -346,6 +360,14 @@ export function openDatabase(dataDir: string): Database {
     },
     removeAccount(steamId) {
       deleteAccount.run(steamId);
+    },
+    loadItemNotes: (steamId) =>
+      new Map(
+        (listNotes.all(steamId) as Row[]).map((row) => [String(row.item_id), String(row.note)]),
+      ),
+    setItemNote(steamId, itemId, note) {
+      if (note === null) deleteNote.run(steamId, itemId);
+      else putNote.run(steamId, itemId, note, Date.now());
     },
     close: () => db.close(),
   };

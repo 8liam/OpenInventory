@@ -248,3 +248,26 @@ test("accounts: add is idempotent, labels persist, removal keeps the account's h
   assert.equal(db.listAccounts().length, 1);
   assert.equal(db.listSnapshots(KEY).length, 1);
 });
+
+test("item notes are stored per account and item, replaced on save and removed on null", () => {
+  const { db } = freshDb();
+  assert.equal(db.loadItemNotes(STEAM_ID).size, 0);
+  db.setItemNote(STEAM_ID, "100", "first");
+  db.setItemNote(STEAM_ID, "100", "second");
+  db.setItemNote(OTHER_STEAM_ID, "100", "other account");
+  assert.deepEqual([...db.loadItemNotes(STEAM_ID)], [["100", "second"]]);
+  assert.deepEqual([...db.loadItemNotes(OTHER_STEAM_ID)], [["100", "other account"]]);
+  db.setItemNote(STEAM_ID, "100", null);
+  assert.equal(db.loadItemNotes(STEAM_ID).size, 0);
+  assert.equal(db.loadItemNotes(OTHER_STEAM_ID).size, 1);
+});
+
+test("item notes survive reopening the database", () => {
+  const dir = tempDir();
+  const first = openDatabase(dir);
+  first.setItemNote(STEAM_ID, "7", "keep me");
+  first.close();
+  const second = openDatabase(dir);
+  cleanups.push(() => second.close());
+  assert.equal(second.loadItemNotes(STEAM_ID).get("7"), "keep me");
+});

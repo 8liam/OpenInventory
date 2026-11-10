@@ -21,6 +21,7 @@ export const STORAGE_API = {
   transferCancel: "/api/transfer/cancel",
   transferDismiss: "/api/transfer/dismiss",
   renameUnit: "/api/units/rename",
+  itemNote: "/api/items/note",
   activateTerminal: "/api/terminals/activate",
   terminalOffer: "/api/terminals/offer",
   terminalNextOffer: "/api/terminals/next-offer",
@@ -110,6 +111,8 @@ export const STORAGE_LIMITS = {
   moveGapMs: 300,
   /** CS2 caps custom names (name tags, storage units) at this many characters. */
   unitNameMaxLength: 20,
+  /** Longest free-text note kept on one item. */
+  itemNoteMaxLength: 280,
   /** How long to wait for the GC to report the new name. */
   renameConfirmTimeoutMs: 10_000,
   /** How long to wait for the GC to confirm a Terminal activation. */

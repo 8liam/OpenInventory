@@ -19,9 +19,8 @@ export function HighlightPlayer({ videoUrl, title }: HighlightPlayerProps) {
       <button
         type="button"
         onClick={show}
-        title={COPY.highlight.play}
         aria-label={`${COPY.highlight.play}: ${title}`}
-        className="inline-flex items-center gap-1 rounded text-[11px] text-muted-foreground hover:text-foreground"
+        className={HIGHLIGHT_PLAYER.badgeClass}
       >
         <Play size={HIGHLIGHT_PLAYER.iconSize} aria-hidden />
         {COPY.highlight.play}

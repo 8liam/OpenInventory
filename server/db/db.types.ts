@@ -48,5 +48,9 @@ export type Database = {
   readonly setAccountLabel: (steamId: string, label: AccountLabel | null) => boolean;
   /** Stops tracking an account. Its history stays in the database and reattaches if it is added again. */
   readonly removeAccount: (steamId: string) => void;
+  /** Notes the user attached to this account's items, by item id. Notes outlive re-syncs. */
+  readonly loadItemNotes: (steamId: string) => ReadonlyMap<string, string>;
+  /** Stores the note, or removes it when `note` is null. */
+  readonly setItemNote: (steamId: string, itemId: string, note: string | null) => void;
   readonly close: () => void;
 };

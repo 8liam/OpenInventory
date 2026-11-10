@@ -17,3 +17,14 @@ test("confirmed transfer hops update the unit counts shown in storage cards", ()
     [99, 999],
   );
 });
+
+test("touch bumps the revision and notifies subscribers", async () => {
+  const store = createSnapshotStore();
+  const seen: number[] = [];
+  store.subscribe((snapshot) => seen.push(snapshot.revision));
+  const before = store.getSnapshot().revision;
+  store.touch();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(store.getSnapshot().revision, before + 1);
+  assert.deepEqual(seen, [before + 1]);
+});

@@ -73,6 +73,12 @@ export type RenameUnitRequest = AccountScoped & {
   readonly name: string;
 };
 
+export type SetItemNoteRequest = AccountScoped & {
+  readonly id: string;
+  /** Empty or whitespace-only clears the note. */
+  readonly note: string;
+};
+
 /** Light-weight state pushed over SSE; item lists are fetched on demand. */
 export type StorageSnapshot = {
   readonly auth: AuthState;

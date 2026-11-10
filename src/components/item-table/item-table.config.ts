@@ -16,7 +16,7 @@ export const ITEM_TABLE = {
   detailSeparator: " · ",
   /**
    * Grid tracks, shared by the table and its loading skeleton. Minimums keep prices and floats
-   * whole; when the table can't fit them all, Type hides first, then Location, then Account.
+   * whole; when the table can't fit them all, Note hides first, then Type, then Location, then Account.
    * When even item, float, highlights and price don't fit the table's own width, it switches
    * to the narrow (compact) tracks: item and price, with the rest under the name.
    */
@@ -25,6 +25,7 @@ export const ITEM_TABLE = {
     account: { width: "1.3fr", minWidth: 112, hidePriority: 3 },
     location: { width: "1.6fr", minWidth: 96, hidePriority: 2 },
     type: { width: "1.2fr", minWidth: 80, hidePriority: 1 },
+    note: { width: "1.4fr", minWidth: 120, hidePriority: 0 },
     float: { width: "0.9fr", minWidth: 64 },
     highlights: { width: "0.7fr", minWidth: 76 },
     price: { wide: { width: "0.9fr", minWidth: 96 }, narrow: { width: "92px" } },

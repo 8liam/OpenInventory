@@ -29,6 +29,7 @@ const item: ItemView = {
   locationName: "Overflow",
   collections: [],
   accountId: "1",
+  note: null,
 };
 
 test("finds an item by identity, market name, attachments and location", () => {
@@ -43,6 +44,12 @@ test("finds an item by identity, market name, attachments and location", () => {
   ])
     assert.equal(matchesItem(item, query), true, query);
   assert.equal(matchesItem(item, "missing"), false);
+});
+
+test("finds an item by its note, ignoring case", () => {
+  const noted = { ...item, note: "Trade for the Howl LATER" };
+  assert.equal(matchesItem(noted, "howl later"), true);
+  assert.equal(matchesItem(item, "howl"), false);
 });
 
 test("a row key from a dashboard link matches only that exact item", () => {

@@ -12,6 +12,7 @@ export function collectItems(
   gateway: StorageGateway,
   catalog: Catalog,
   book: PriceBook,
+  notes: ReadonlyMap<string, string>,
 ): CollectedItem[] {
   const accountId = gateway.getSteamId();
   const priceOf = (hash: string | null): number | null =>
@@ -28,6 +29,7 @@ export function collectItems(
         locationName,
         collections: skin?.collectionNames ?? [],
         accountId,
+        note: notes.get(view.id) ?? null,
       },
     };
   };
@@ -46,6 +48,9 @@ export function collectAllItems(
   gateways: readonly StorageGateway[],
   catalog: Catalog,
   book: PriceBook,
+  loadNotes: (steamId: string) => ReadonlyMap<string, string>,
 ): CollectedItem[] {
-  return gateways.flatMap((gateway) => collectItems(gateway, catalog, book));
+  return gateways.flatMap((gateway) =>
+    collectItems(gateway, catalog, book, loadNotes(gateway.getSteamId())),
+  );
 }

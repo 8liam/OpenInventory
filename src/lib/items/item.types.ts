@@ -82,6 +82,8 @@ export type ItemView = ItemBase & {
   readonly collections: readonly string[];
   /** SteamID of the account that holds the item. Location ids are only unique within an account. */
   readonly accountId: string;
+  /** The user's own free-text note on this item, or null when there is none. */
+  readonly note: string | null;
 };
 
 export const INVENTORY_LOCATION_ID = "inventory";

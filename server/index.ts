@@ -13,6 +13,7 @@ import type {
   ApiError,
   ActivateTerminalRequest,
   RenameUnitRequest,
+  SetItemNoteRequest,
   TransferRequest,
 } from "../src/lib/storage/storage.types.ts";
 import {
@@ -85,6 +86,11 @@ const HEALTH_PATH = "/healthz";
 const VARY_HEADER = "accept-encoding";
 // eslint-disable-next-line no-control-regex -- rejecting control characters is the point
 const CONTROL_CHARACTERS = /[\u0000-\u001f\u007f]/;
+/** Notes attach to real assets only, never to the "inventory" pseudo-location. */
+const NOTE_ITEM_ID_PATTERN = /^\d{1,20}$/;
+/** Control characters except tab, newline and carriage return, which a note may hold. */
+// eslint-disable-next-line no-control-regex -- rejecting control characters is the point
+const NOTE_CONTROL_CHARACTERS = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 const ITEM_ID_PATTERN = /^(\d{1,20}|inventory)$/;
 const TRACKED_SCOPES_KEY = "pref:price-scopes";
 
@@ -256,6 +262,20 @@ function parseRenameRequest(body: unknown): RenameUnitRequest {
   return { accountId, id, name: trimmed };
 }
 
+function parseItemNoteRequest(body: unknown): SetItemNoteRequest {
+  const accountId = parseAccountId(body);
+  const { id, note } = asRecord(body);
+  if (typeof id !== "string" || !NOTE_ITEM_ID_PATTERN.test(id) || typeof note !== "string")
+    throw new UserFacingError("Invalid note request", HTTP.badRequest);
+  const trimmed = note.trim();
+  if (trimmed.length > STORAGE_LIMITS.itemNoteMaxLength || NOTE_CONTROL_CHARACTERS.test(trimmed))
+    throw new UserFacingError(
+      `Notes are up to ${STORAGE_LIMITS.itemNoteMaxLength} characters`,
+      HTTP.badRequest,
+    );
+  return { accountId, id, note: trimmed };
+}
+
 function parseLabel(body: unknown): AccountLabel | null {
   const { label } = asRecord(body);
   if (label === null) return null;
@@ -377,7 +397,9 @@ async function writeSnapshot(
   const snapshot = gateway.getSnapshot();
   if (snapshot.loadingUnits || snapshot.units.some((u) => !u.loaded)) return; // partial storage data would record a false dip
   const book = await loadPrices(scope);
-  const items = collectItems(gateway, catalog, book).map((c) => c.view);
+  const items = collectItems(gateway, catalog, book, db.loadItemNotes(key.steamId)).map(
+    (c) => c.view,
+  );
   if (items.length === 0) return;
   const { inventoryValue, storageValue, totalValue } = summarizeValue(items);
   db.addSnapshot(key, {
@@ -481,7 +503,7 @@ const server = createServer(async (req, res) => {
       const { currency } = scope;
       const book = await loadPrices(scope);
       if (aborted(req, res)) return;
-      const items = collectAllItems(gateways, catalog, book).map((c) => c.view);
+      const items = collectAllItems(gateways, catalog, book, db.loadItemNotes).map((c) => c.view);
       return sendJson(res, HTTP.ok, { items, currency, priceUpdatedAt: book.fetchedAt });
     }
 
@@ -493,7 +515,7 @@ const server = createServer(async (req, res) => {
       rememberScope(scope);
       const book = await loadPrices(scope);
       if (aborted(req, res)) return;
-      const items = collectAllItems(gateways, catalog, book).map((c) => c.view);
+      const items = collectAllItems(gateways, catalog, book, db.loadItemNotes).map((c) => c.view);
       const units = gateways.flatMap((gateway) => gateway.getSnapshot().units);
       for (const gateway of gateways)
         void recordSnapshot(gateway, scope).catch((e: unknown) => console.warn("[snapshot]", e));
@@ -538,9 +560,12 @@ const server = createServer(async (req, res) => {
       const { currency } = scope;
       const rarity = url.searchParams.get("rarity") ?? "";
       const book = await loadPrices(scope);
-      const candidates: TradeUpCandidate[] = collectItems(gateway, catalog, book).flatMap((c) =>
-        c.skin ? [{ view: c.view, skin: c.skin }] : [],
-      );
+      const candidates: TradeUpCandidate[] = collectItems(
+        gateway,
+        catalog,
+        book,
+        db.loadItemNotes(gateway.getSteamId()),
+      ).flatMap((c) => (c.skin ? [{ view: c.view, skin: c.skin }] : []));
       if (path === STORAGE_API.tradeUpFinder) {
         const requested = url.searchParams.get("statTrak") ?? TRADE_UP_FINDER.defaultStatTrakFilter;
         const statTrak = TRADE_UP_FINDER.statTrakFilters.find((filter) => filter === requested);
@@ -614,6 +639,13 @@ const server = createServer(async (req, res) => {
       if (path === STORAGE_API.renameUnit) {
         const { accountId, id, name } = parseRenameRequest(body);
         await readyGateway(accountId).renameUnit(id, name);
+        return void res.writeHead(HTTP.noContent).end();
+      }
+      if (path === STORAGE_API.itemNote) {
+        const { accountId, id, note } = parseItemNoteRequest(body);
+        accounts.get(accountId);
+        db.setItemNote(accountId, id, note === "" ? null : note);
+        accounts.notifyChanged(accountId);
         return void res.writeHead(HTTP.noContent).end();
       }
       if (path === STORAGE_API.activateTerminal) {
