@@ -20,10 +20,7 @@ function fromLinear(channel: number): number {
 
 function parseHex(hex: string): Rgb {
   const digits = hex.slice(1);
-  const full =
-    digits.length === HEX_SHORT_LENGTH
-      ? [...digits].map((digit) => digit + digit).join("")
-      : digits;
+  const full = digits.length === HEX_SHORT_LENGTH ? digits.replace(/./g, "$&$&") : digits;
   const [red = 0, green = 0, blue = 0] = [0, 2, 4].map(
     (start) => Number.parseInt(full.slice(start, start + 2), HEX_RADIX) / SRGB.channelMax,
   );
@@ -37,8 +34,8 @@ function parseOklch(lightness: number, chroma: number, hue: number): Rgb {
   const [l, m, s] = OKLAB.lmsFromLab.map(
     ([aWeight, bWeight]) => (lightness + aWeight * a + bWeight * b) ** OKLAB.cubeExponent,
   );
-  const [red = 0, green = 0, blue = 0] = OKLAB.rgbFromLms.map(
-    ([lw, mw, sw]) => fromLinear((l ?? 0) * lw + (m ?? 0) * mw + (s ?? 0) * sw),
+  const [red = 0, green = 0, blue = 0] = OKLAB.rgbFromLms.map(([lw, mw, sw]) =>
+    fromLinear((l ?? 0) * lw + (m ?? 0) * mw + (s ?? 0) * sw),
   );
   return [red, green, blue];
 }
