@@ -1,3 +1,4 @@
+import { Tooltip } from "~/components/tooltip/tooltip.component";
 import { HighlightPlayer } from "~/components/highlight-player/highlight-player.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { formatDateTime } from "~/utils/format";
@@ -24,38 +25,39 @@ export function ItemCell({ item, account, detail, compact = false, nameFit }: It
   const attachments = hasAttachments && (
     <span className="flex shrink-0 items-center gap-0.5">
       {stickers.map((sticker, index) => (
-        <img
-          key={`${sticker.name}-${index}`}
-          src={sticker.imageUrl ?? undefined}
-          alt={sticker.name}
-          title={sticker.name}
-          loading="lazy"
-          decoding="async"
-          width={stickerSize}
-          height={stickerSize}
-        />
+        <Tooltip key={`${sticker.name}-${index}`} name={sticker.name} imageUrl={sticker.imageUrl}>
+          <img
+            src={sticker.imageUrl ?? undefined}
+            alt={sticker.name}
+            loading="lazy"
+            decoding="async"
+            width={stickerSize}
+            height={stickerSize}
+          />
+        </Tooltip>
       ))}
       {item.charms.map((charm, index) => (
         <span
           key={`${charm.name}-${index}`}
           className="ml-1 flex items-center gap-0.5 text-[11px] text-muted-foreground"
-          title={
-            charm.pattern === null
-              ? charm.name
-              : `${charm.name} — ${patternLabel} #${charm.pattern}`
-          }
         >
-          {charm.imageUrl !== null && (
-            <img
-              src={charm.imageUrl}
-              alt={charm.name}
-              loading="lazy"
-              decoding="async"
-              width={charmSize}
-              height={charmSize}
-            />
-          )}
-          {charm.pattern !== null && <span>#{charm.pattern}</span>}
+          <Tooltip
+            name={charm.name}
+            imageUrl={charm.imageUrl}
+            detail={charm.pattern === null ? undefined : `${patternLabel} #${charm.pattern}`}
+          >
+            {charm.imageUrl !== null && (
+              <img
+                src={charm.imageUrl}
+                alt={charm.name}
+                loading="lazy"
+                decoding="async"
+                width={charmSize}
+                height={charmSize}
+              />
+            )}
+            {charm.pattern !== null && <span>#{charm.pattern}</span>}
+          </Tooltip>
           {charm.videoUrl !== null && (
             <HighlightPlayer videoUrl={charm.videoUrl} title={charm.name} />
           )}

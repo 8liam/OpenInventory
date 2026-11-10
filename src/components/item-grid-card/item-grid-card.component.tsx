@@ -1,4 +1,5 @@
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
+import { Tooltip } from "~/components/tooltip/tooltip.component";
 import {
   ItemHighlights,
   ItemTierBadge,
@@ -103,16 +104,20 @@ export function ItemGridCard({
           .filter((sticker) => sticker.imageUrl !== null)
           .slice(0, maxStickers)
           .map((sticker, stickerIndex) => (
-            <img
+            <Tooltip
               key={`${sticker.name}-${stickerIndex}`}
-              src={sticker.imageUrl ?? undefined}
-              alt={sticker.name}
-              title={sticker.name}
-              loading="lazy"
-              decoding="async"
-              width={stickerSize}
-              height={stickerSize}
-            />
+              name={sticker.name}
+              imageUrl={sticker.imageUrl}
+            >
+              <img
+                src={sticker.imageUrl ?? undefined}
+                alt={sticker.name}
+                loading="lazy"
+                decoding="async"
+                width={stickerSize}
+                height={stickerSize}
+              />
+            </Tooltip>
           ))}
         {item.charms.length > 0 && (
           <span className={classes.charms}>
