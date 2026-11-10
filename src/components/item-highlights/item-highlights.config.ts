@@ -2,7 +2,6 @@ import { Fingerprint, Gem, Ruler, Sparkle, Sticker, type LucideIcon } from "luci
 import type { HighlightKind } from "~/lib/items/highlights.types";
 
 export const ITEM_HIGHLIGHTS = {
-  iconSize: 11,
   tierIconSize: 12,
   tierPrefix: "T",
   /**
@@ -18,10 +17,6 @@ export const ITEM_HIGHLIGHTS = {
     "hidden @min-[220px]:inline-flex @min-[320px]:hidden",
     "hidden @min-[320px]:inline-flex",
   ],
-  /** Only the first chip may shrink (its label ellipsises), so it still fits a narrow column. */
-  chipClass:
-    "inline-flex min-w-0 items-center gap-1 rounded bg-foreground/[0.07] px-1.5 py-px text-[11px] leading-4 text-foreground/80",
-  chipIconClass: "shrink-0",
   kindIcons: {
     float: Ruler,
     pattern: Fingerprint,

@@ -35,10 +35,8 @@ export const ITEM_GRID_CARD = {
     attachments: "flex max-h-11 flex-wrap items-center gap-1 overflow-hidden",
     attachmentImage: "size-5 object-contain",
     charm: "inline-flex shrink-0 items-center gap-0.5 text-[11px] text-muted-foreground",
-    charmName:
-      "max-w-full truncate rounded bg-foreground/[0.07] px-1.5 py-px text-[11px] leading-4",
-    more: "tabular text-[11px] text-muted-foreground",
-    note: "flex min-w-0",
+    /** The footer's own gap already spaces rows, so the row's default top margin is dropped. */
+    chips: "mt-0",
     /** Account and location share one line; each truncates, but the account's SteamID tail stays. */
     location: "flex min-w-0 items-baseline gap-1 text-xs text-muted-foreground",
     account: "shrink",

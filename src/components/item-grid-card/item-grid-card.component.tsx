@@ -1,3 +1,5 @@
+import { Chip } from "~/components/chip/chip.component";
+import { ChipRow } from "~/components/chip-row/chip-row.component";
 import { ItemNoteChip } from "~/components/item-note-chip/item-note-chip.component";
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
 import { HighlightPlayer } from "~/components/highlight-player/highlight-player.component";
@@ -37,8 +39,10 @@ export function ItemGridCard({
   // A sticker without an image would render as a broken-image glyph; its name is in the item data.
   const stickers = item.stickers.filter((sticker) => sticker.imageUrl !== null);
   const hiddenStickers = stickers.length - maxStickers;
-  const hasAttachments = stickers.length > 0 || item.charms.length > 0 || item.videoUrl !== null;
-  const hasFooter = hasAttachments || item.note !== null || showLocation;
+  const hasAttachments = stickers.length > 0 || item.charms.length > 0;
+  const charmVideos = item.charms.filter((charm) => charm.videoUrl !== null);
+  const hasChips = charmVideos.length > 0 || item.videoUrl !== null || item.note !== null;
+  const hasFooter = hasAttachments || hasChips || showLocation;
   const status =
     item.terminal !== null
       ? item.terminal.isActive
@@ -128,15 +132,15 @@ export function ItemGridCard({
                 </Tooltip>
               ))}
               {hiddenStickers > 0 && (
-                <span
-                  className={classes.more}
+                <Chip
+                  className="tabular"
                   title={stickers
                     .slice(maxStickers)
                     .map((sticker) => sticker.name)
                     .join(", ")}
                 >
                   {COPY.items.moreHighlights(hiddenStickers)}
-                </span>
+                </Chip>
               )}
               {item.charms.map((charm, charmIndex) => (
                 <span key={`${charm.name}-${charmIndex}`} className={classes.charm}>
@@ -148,7 +152,7 @@ export function ItemGridCard({
                     }
                   >
                     {charm.imageUrl === null ? (
-                      <span className={classes.charmName}>{charm.name}</span>
+                      <Chip>{charm.name}</Chip>
                     ) : (
                       <img
                         src={charm.imageUrl}
@@ -162,11 +166,18 @@ export function ItemGridCard({
                     )}
                   </Tooltip>
                   {charm.pattern !== null && <span className="tabular">#{charm.pattern}</span>}
-                  {charm.videoUrl !== null && (
-                    <span onClick={(event) => event.stopPropagation()}>
-                      <HighlightPlayer videoUrl={charm.videoUrl} title={charm.name} />
-                    </span>
-                  )}
+                </span>
+              ))}
+            </div>
+          )}
+          {hasChips && (
+            <ChipRow className={classes.chips}>
+              {charmVideos.map((charm, charmIndex) => (
+                <span
+                  key={`${charm.name}-${charmIndex}`}
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <HighlightPlayer videoUrl={charm.videoUrl ?? ""} title={charm.name} />
                 </span>
               ))}
               {item.videoUrl !== null && (
@@ -174,12 +185,8 @@ export function ItemGridCard({
                   <HighlightPlayer videoUrl={item.videoUrl} title={item.name} />
                 </span>
               )}
-            </div>
-          )}
-          {item.note !== null && (
-            <div className={classes.note}>
-              <ItemNoteChip note={item.note} />
-            </div>
+              {item.note !== null && <ItemNoteChip note={item.note} />}
+            </ChipRow>
           )}
           {showLocation && (
             <p className={classes.location}>
