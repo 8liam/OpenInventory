@@ -1,9 +1,7 @@
 import * as z from "zod/mini";
 import { DEFAULT_ITEM_SORT, ITEM_SORT_IDS } from "../items/item-sort.config.ts";
 import {
-  ACCENT_IDS,
   COLOR_SCHEMES,
-  DEFAULT_ACCENT_ID,
   DEFAULT_COLOR_SCHEME,
   DEFAULT_PALETTE_ID,
   PALETTE_IDS,
@@ -29,7 +27,6 @@ export const settingsSchema = z.object({
   marketplace: z._default(z.enum(MARKETPLACES), DEFAULT_MARKETPLACE),
   colorScheme: withDefault(COLOR_SCHEMES, DEFAULT_COLOR_SCHEME),
   palette: withDefault(PALETTE_IDS, DEFAULT_PALETTE_ID),
-  accent: withDefault(ACCENT_IDS, DEFAULT_ACCENT_ID),
   defaultSort: withDefault(ITEM_SORT_IDS, DEFAULT_ITEM_SORT),
   floatThreshold: withDefault(FLOAT_THRESHOLD_IDS, DEFAULT_FLOAT_THRESHOLD),
 });
@@ -42,7 +39,6 @@ export type SettingsState = Settings & {
   readonly setMarketplace: (marketplace: Settings["marketplace"]) => void;
   readonly setColorScheme: (colorScheme: Settings["colorScheme"]) => void;
   readonly setPalette: (palette: Settings["palette"]) => void;
-  readonly setAccent: (accent: Settings["accent"]) => void;
   readonly setDefaultSort: (sort: Settings["defaultSort"]) => void;
   readonly setFloatThreshold: (threshold: Settings["floatThreshold"]) => void;
   /** Puts every local preference back to its default, including the default view. */

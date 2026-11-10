@@ -3,7 +3,11 @@ import { LOGO } from "./logo.config";
 import type { LogoProps } from "./logo.types";
 
 export function LogoMark({ className }: LogoProps) {
-  return <img src={LOGO.src} alt="" className={cn("size-6", className)} />;
+  return (
+    <svg viewBox={LOGO.viewBox} aria-hidden className={cn("size-6", className)}>
+      <path d={LOGO.path} fill={LOGO.fill} />
+    </svg>
+  );
 }
 
 export function Logo({ className, compactBelow360 = false }: LogoProps) {

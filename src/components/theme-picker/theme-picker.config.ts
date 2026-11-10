@@ -1,15 +1,17 @@
-import type { ThemeToken } from "~/lib/theme/theme.types";
-
 export const THEME_PICKER = {
-  /** Tokens previewed on each card, in order. */
-  swatches: ["background", "card", "accent", "primary"] satisfies readonly ThemeToken[],
-  checkIconSize: 14,
-  gridClass: "grid grid-cols-2 gap-2 @2xl:grid-cols-3 @5xl:grid-cols-5",
-  cardClass:
-    "relative flex flex-col gap-2 rounded-md border bg-background p-2.5 text-left transition-colors hover:bg-muted",
-  selectedClass: "border-primary",
-  nameClass: "truncate pr-5 text-xs font-medium",
-  swatchRowClass: "flex",
-  swatchClass: "size-5 rounded-full border first:ml-0 -ml-1.5",
-  checkClass: "absolute right-2 top-2 text-primary",
+  /** Tilt of an idle grenade and of the chosen one, in degrees. */
+  angle: { idle: 12, chosen: 8 },
+  classes: {
+    grid: "grid grid-cols-2 gap-3 @xl:grid-cols-3 @3xl:grid-cols-5",
+    cell: "group relative flex flex-col items-center overflow-hidden rounded-lg border bg-card text-center transition-colors hover:bg-muted",
+    cellOn: "border-primary",
+    stage: "relative flex h-[124px] w-full items-center justify-center pt-3",
+    burst:
+      "pointer-events-none absolute left-1/2 top-1/2 size-[132px] -translate-x-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-300",
+    burstOn: "opacity-100",
+    nade: "relative z-10 h-[100px] w-auto transition-transform duration-200 group-hover:-translate-y-1",
+    nadeOn: "-translate-y-2 -rotate-3 group-hover:-translate-y-2",
+    name: "w-full truncate px-2 pb-3 text-xs font-medium text-muted-foreground",
+    nameOn: "text-foreground",
+  },
 } as const;

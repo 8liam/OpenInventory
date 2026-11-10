@@ -29,7 +29,6 @@ export const OKLAB = {
 } as const;
 
 /** Text colours offered when picking what reads best on an arbitrary background. */
-export const READABLE_TEXT = { dark: "#000000", light: "#ffffff" } as const;
 
 export const CONTRAST_ERRORS = {
   unsupported: "Unsupported colour",
