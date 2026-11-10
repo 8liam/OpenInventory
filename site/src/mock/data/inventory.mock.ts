@@ -148,6 +148,7 @@ function make(id: string, loc: string, seed: Seed, price: number, rand: () => nu
     locationName: locationName(loc),
     collections: [],
     accountId: MOCK_ACCOUNT_ID,
+    note: null,
   };
 }
 
