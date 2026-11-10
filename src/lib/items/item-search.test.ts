@@ -46,6 +46,12 @@ test("finds an item by identity, market name, attachments and location", () => {
   assert.equal(matchesItem(item, "missing"), false);
 });
 
+test("finds an item by its note, ignoring case", () => {
+  const noted = { ...item, note: "Trade for the Howl LATER" };
+  assert.equal(matchesItem(noted, "howl later"), true);
+  assert.equal(matchesItem(item, "howl"), false);
+});
+
 test("a row key from a dashboard link matches only that exact item", () => {
   const key = itemRowKey(item);
   assert.equal(matchesItem(item, key), true);
