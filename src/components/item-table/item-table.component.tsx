@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { ItemNoteChip } from "~/components/item-note-chip/item-note-chip.component";
 import { AccountName } from "~/components/account-name/account-name.component";
 import { DataTable } from "~/components/data-table/data-table.component";
 import type { DataTableColumn, DataTableCompact } from "~/components/data-table/data-table.types";
@@ -82,12 +83,7 @@ export function ItemTable({
         header: COPY.itemColumns.note,
         ...sizes.note,
         sortValue: (r) => r.note,
-        cell: (r) =>
-          r.note === null ? null : (
-            <span className="block truncate text-muted-foreground" title={r.note}>
-              {r.note}
-            </span>
-          ),
+        cell: (r) => (r.note === null ? null : <ItemNoteChip note={r.note} />),
       },
       {
         id: "float",

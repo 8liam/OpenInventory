@@ -1,4 +1,4 @@
-import { NotebookPen } from "lucide-react";
+import { ItemNoteChip } from "~/components/item-note-chip/item-note-chip.component";
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
 import { HighlightPlayer } from "~/components/highlight-player/highlight-player.component";
 import { Tooltip } from "~/components/tooltip/tooltip.component";
@@ -37,8 +37,7 @@ export function ItemGridCard({
   // A sticker without an image would render as a broken-image glyph; its name is in the item data.
   const stickers = item.stickers.filter((sticker) => sticker.imageUrl !== null);
   const hiddenStickers = stickers.length - maxStickers;
-  const hasAttachments =
-    stickers.length > 0 || item.charms.length > 0 || item.videoUrl !== null;
+  const hasAttachments = stickers.length > 0 || item.charms.length > 0 || item.videoUrl !== null;
   const hasFooter = hasAttachments || item.note !== null || showLocation;
   const status =
     item.terminal !== null
@@ -98,7 +97,10 @@ export function ItemGridCard({
           {item.price === null ? COPY.common.empty : formatMoney(item.price, currency)}
         </p>
         {status !== null && (
-          <p className={classes.status} title={item.terminal === null ? COPY.itemColumns.float : undefined}>
+          <p
+            className={classes.status}
+            title={item.terminal === null ? COPY.itemColumns.float : undefined}
+          >
             {status}
           </p>
         )}
@@ -141,7 +143,9 @@ export function ItemGridCard({
                   <Tooltip
                     name={charm.name}
                     imageUrl={charm.imageUrl}
-                    detail={charm.pattern === null ? undefined : `${patternLabel} #${charm.pattern}`}
+                    detail={
+                      charm.pattern === null ? undefined : `${patternLabel} #${charm.pattern}`
+                    }
                   >
                     {charm.imageUrl === null ? (
                       <span className={classes.charmName}>{charm.name}</span>
@@ -173,15 +177,9 @@ export function ItemGridCard({
             </div>
           )}
           {item.note !== null && (
-            <p className={classes.note} title={item.note}>
-              <NotebookPen
-                size={ITEM_GRID_CARD.noteIconSize}
-                className={classes.noteIcon}
-                aria-hidden
-              />
-              <span className="sr-only">{COPY.itemColumns.note}: </span>
-              <span className={classes.noteText}>{item.note}</span>
-            </p>
+            <div className={classes.note}>
+              <ItemNoteChip note={item.note} />
+            </div>
           )}
           {showLocation && (
             <p className={classes.location}>

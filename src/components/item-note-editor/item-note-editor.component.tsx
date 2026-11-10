@@ -1,5 +1,6 @@
 import { Check, NotebookPen, X } from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { ItemNoteChip } from "~/components/item-note-chip/item-note-chip.component";
 import { restoreLostFocus } from "~/utils/restore-focus";
 import { postJson } from "~/lib/storage/storage.client";
 import { STORAGE_API, STORAGE_LIMITS } from "~/lib/storage/storage.config";
@@ -33,18 +34,11 @@ export function ItemNoteEditor({ item }: ItemNoteEditorProps) {
     setError(undefined);
   }
 
-  async function save(event: FormEvent) {
-    event.preventDefault();
-    if (draft === undefined || saving) return;
-    if (draft.trim() === (item.note ?? "")) return stop();
+  async function submit(note: string) {
     setSaving(true);
     setError(undefined);
     try {
-      const request: SetItemNoteRequest = {
-        accountId: item.accountId,
-        id: item.id,
-        note: draft,
-      };
+      const request: SetItemNoteRequest = { accountId: item.accountId, id: item.id, note };
       await postJson(STORAGE_API.itemNote, request);
       stop();
     } catch (failure) {
@@ -52,6 +46,13 @@ export function ItemNoteEditor({ item }: ItemNoteEditorProps) {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function save(event: FormEvent) {
+    event.preventDefault();
+    if (draft === undefined || saving) return;
+    if (draft.trim() === (item.note ?? "")) return stop();
+    await submit(draft);
   }
 
   function onKeyDown(event: KeyboardEvent) {
@@ -71,8 +72,11 @@ export function ItemNoteEditor({ item }: ItemNoteEditorProps) {
           {item.note === null ? ITEM_NOTE_EDITOR.addLabel : ITEM_NOTE_EDITOR.editLabel}
         </button>
         {item.note !== null && (
-          <span className="min-w-0 truncate text-xs text-muted-foreground" title={item.note}>
-            {item.note}
+          <ItemNoteChip note={item.note} removing={saving} onRemove={() => void submit("")} />
+        )}
+        {error && (
+          <span role="alert" className="text-xs text-destructive">
+            {error}
           </span>
         )}
       </div>

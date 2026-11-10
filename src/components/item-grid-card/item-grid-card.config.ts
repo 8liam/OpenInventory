@@ -10,7 +10,6 @@ export const ITEM_GRID_CARD = {
     "absolute left-1.5 top-1.5 flex rounded bg-background/80 p-1 transition-opacity max-sm:p-2.5 [@media(hover:none)]:opacity-100 [@media(pointer:coarse)]:p-2.5",
   /** Cards are narrow at every width, so one reason chip shows and the rest fold into `+N`. */
   visibleHighlights: 1,
-  noteIconSize: 12,
   locationSeparator: "·",
   classes: {
     card: "group relative flex h-full min-w-0 flex-col rounded-lg border bg-card p-3 text-left transition-colors focus-visible:outline-offset-2",
@@ -36,11 +35,10 @@ export const ITEM_GRID_CARD = {
     attachments: "flex max-h-11 flex-wrap items-center gap-1 overflow-hidden",
     attachmentImage: "size-5 object-contain",
     charm: "inline-flex shrink-0 items-center gap-0.5 text-[11px] text-muted-foreground",
-    charmName: "max-w-full truncate rounded bg-foreground/[0.07] px-1.5 py-px text-[11px] leading-4",
+    charmName:
+      "max-w-full truncate rounded bg-foreground/[0.07] px-1.5 py-px text-[11px] leading-4",
     more: "tabular text-[11px] text-muted-foreground",
-    note: "flex min-w-0 items-start gap-1 text-[11px] leading-4 text-muted-foreground",
-    noteIcon: "mt-0.5 shrink-0",
-    noteText: "line-clamp-2 min-w-0 break-words",
+    note: "flex min-w-0",
     /** Account and location share one line; each truncates, but the account's SteamID tail stays. */
     location: "flex min-w-0 items-baseline gap-1 text-xs text-muted-foreground",
     account: "shrink",
