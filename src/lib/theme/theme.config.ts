@@ -38,6 +38,32 @@ export const PALETTE_IDS = [
 ] as const;
 export const DEFAULT_PALETTE_ID = "default";
 
+/** "default" leaves the palette's own primary colour alone. */
+export const ACCENT_IDS = [
+  "default",
+  "blue",
+  "violet",
+  "pink",
+  "red",
+  "orange",
+  "amber",
+  "green",
+  "teal",
+] as const;
+export const DEFAULT_ACCENT_ID = "default";
+
+/** Primary colour each accent swaps in, in both schemes. */
+export const ACCENT_COLORS = {
+  blue: "#3b82f6",
+  violet: "#8b5cf6",
+  pink: "#ec4899",
+  red: "#ef4444",
+  orange: "#f97316",
+  amber: "#eab308",
+  green: "#22c55e",
+  teal: "#14b8a6",
+} as const;
+
 export const DARK_MEDIA_QUERY = "(prefers-color-scheme: dark)";
 
 export const THEME_DOM = {
