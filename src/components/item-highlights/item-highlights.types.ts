@@ -7,6 +7,8 @@ export type ItemHighlightsProps = {
   readonly children?: ReactNode;
   /** Chips shown before `+N` at every width; by default it follows the viewport (narrow vs wide). */
   readonly visible?: number;
+  /** Shows every chip and wraps them onto further lines, instead of folding the rest into `+N`. */
+  readonly wrap?: boolean;
 };
 
 export type ItemTierBadgeProps = {
