@@ -12,7 +12,7 @@ export function SettingsRow({
 }: SettingsRowProps) {
   return (
     <div className={stacked ? SETTINGS_ROW.stackedClass : SETTINGS_ROW.rowClass}>
-      <div className={SETTINGS_ROW.textClass}>
+      <div className={stacked ? SETTINGS_ROW.stackedTextClass : SETTINGS_ROW.textClass}>
         <div id={labelId} className={SETTINGS_ROW.labelClass}>
           {label}
         </div>
