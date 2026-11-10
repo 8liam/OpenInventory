@@ -1,54 +1,97 @@
-import type { CSSProperties } from "react";
+import type { ThemeVariant } from "~/lib/theme/theme.types";
 import { SCHEME_PREVIEW } from "./scheme-preview.config";
 import type { MiniUiProps, SchemePreviewProps } from "./scheme-preview.types";
 
-const { classes } = SCHEME_PREVIEW;
+const { classes, fade } = SCHEME_PREVIEW;
+const NAV_ROWS = [false, true, false, false] as const;
+const CARDS = Array.from({ length: SCHEME_PREVIEW.cardCount }, (_, index) => index);
 
-function fade(color: string): string {
-  return `color-mix(in srgb, ${color} ${SCHEME_PREVIEW.fadePercent}%, transparent)`;
+function mix(color: string, percent: number): string {
+  return `color-mix(in srgb, ${color} ${percent}%, transparent)`;
 }
 
-/** A tiny app mock-up painted with one theme variant's own colours (not the live theme's). */
+function shapes(variant: ThemeVariant) {
+  return {
+    text: { backgroundColor: mix(variant.foreground, fade.text) },
+    muted: { backgroundColor: mix(variant["muted-foreground"], fade.muted) },
+    hairline: { borderColor: variant.border },
+    surface: { backgroundColor: variant.card, borderColor: variant.border },
+  };
+}
+
+/** A tiny Items page painted with one theme variant's own colours (not the live theme's). */
 function MiniUi({ variant }: MiniUiProps) {
-  const line: CSSProperties = { backgroundColor: fade(variant["muted-foreground"]) };
+  const s = shapes(variant);
   return (
     <div
       className={classes.ui}
       style={{ backgroundColor: variant.background, borderColor: variant.border }}
     >
-      <div
-        className={classes.sidebar}
-        style={{ backgroundColor: variant.card, borderColor: variant.border }}
-      >
-        <div
-          className={classes.pill}
-          style={{ borderColor: variant.border, backgroundColor: variant.background }}
-        />
-        <div className={classes.bar} style={line} />
-        <div className={classes.bar} style={{ backgroundColor: fade(variant.accent) }} />
-        <div className={classes.bar} style={line} />
+      <div className={classes.sidebar} style={s.hairline}>
+        <div className={classes.logo}>
+          <span
+            className={classes.logoMark}
+            style={{ backgroundColor: variant["accent-strong"] }}
+          />
+          <span className={classes.logoName} style={s.text} />
+        </div>
+        {NAV_ROWS.map((active, index) => (
+          <div
+            key={index}
+            className={classes.navItem}
+            style={active ? { backgroundColor: variant.accent } : undefined}
+          >
+            <span
+              className={classes.navIcon}
+              style={{
+                backgroundColor: active
+                  ? variant["accent-foreground"]
+                  : mix(variant["muted-foreground"], fade.navIcon),
+              }}
+            />
+            <span
+              className={classes.navLabel}
+              style={{
+                backgroundColor: active
+                  ? mix(variant["accent-foreground"], fade.navLabelActive)
+                  : mix(variant["muted-foreground"], fade.navLabel),
+              }}
+            />
+          </div>
+        ))}
+        <div className={classes.account} style={s.hairline}>
+          <span className={classes.accountDot} style={{ backgroundColor: variant.success }} />
+          <span className={classes.accountName} style={s.text} />
+        </div>
       </div>
       <div className={classes.main}>
-        <div className={classes.headerBar} style={line} />
-        <div className={classes.lineLong} style={line} />
-        <div className={classes.lineShort} style={line} />
-        <div
-          className={classes.popover}
-          style={{ backgroundColor: variant.card, borderColor: variant.border }}
-        >
-          {[variant.success, variant.primary, variant.warning].map((dot) => (
-            <div key={dot} className={classes.popoverRow}>
-              <span className={classes.dot} style={{ backgroundColor: dot }} />
-              <span className={classes.popoverLine} style={line} />
+        <div>
+          <div className={classes.title} style={s.text} />
+          <div className={classes.description} style={s.muted} />
+        </div>
+        <div className={classes.toolbar}>
+          <div className={classes.search} style={s.surface}>
+            <span className={classes.searchIcon} style={s.hairline} />
+            <span className={classes.searchLine} style={s.muted} />
+          </div>
+          <span className={classes.filter} style={s.surface} />
+          <span className={classes.filter} style={s.surface} />
+        </div>
+        <div className={classes.grid}>
+          {CARDS.map((card) => (
+            <div key={card} className={classes.card} style={s.surface}>
+              <div
+                className={classes.thumb}
+                style={{
+                  background: `linear-gradient(135deg, ${mix(variant.primary, fade.tint)}, ${mix(variant.primary, fade.tintEnd)})`,
+                }}
+              />
+              <span className={classes.weaponLine} style={s.muted} />
+              <span className={classes.nameLine} style={s.text} />
+              <span className={classes.priceLine} style={s.text} />
+              <span className={classes.chip} style={s.muted} />
             </div>
           ))}
-        </div>
-        <div
-          className={classes.input}
-          style={{ backgroundColor: variant.card, borderColor: variant.border }}
-        >
-          <span className={classes.inputLine} style={line} />
-          <span className={classes.inputDot} style={{ backgroundColor: variant.primary }} />
         </div>
       </div>
     </div>
