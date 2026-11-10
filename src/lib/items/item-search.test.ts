@@ -29,6 +29,7 @@ const item: ItemView = {
   locationName: "Overflow",
   collections: [],
   accountId: "1",
+  note: null,
 };
 
 test("finds an item by identity, market name, attachments and location", () => {

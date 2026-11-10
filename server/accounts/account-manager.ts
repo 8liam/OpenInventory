@@ -143,6 +143,8 @@ export function createAccountManager({
         throw new UserFacingError("Unknown account", STATUS.notFound);
       emit();
     },
+    /** Pushes a fresh snapshot revision, so open pages refetch data that changed outside Steam. */
+    notifyChanged: emit,
     /** Signs the account out and stops tracking it. Its value and case history stay in the database. */
     remove(steamId: string): void {
       const gateway = gatewayFor(steamId);

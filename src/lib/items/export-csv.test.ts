@@ -28,6 +28,7 @@ const item: ItemView = {
   locationName: "Main storage",
   collections: [],
   accountId: "1",
+  note: null,
 };
 
 test("exports filtered item fields with spreadsheet-safe escaping", () => {

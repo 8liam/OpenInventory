@@ -29,6 +29,7 @@ function item(id: string, name: string, price: number | null, wear: number | nul
     locationName: "Inventory",
     collections: [],
     accountId: "1",
+    note: null,
   };
 }
 
