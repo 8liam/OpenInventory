@@ -16,7 +16,7 @@ export function HoldingsTable({ holdings, currency }: HoldingsTableProps) {
               to="/items"
               search={{ q: holding.name }}
               title={HOLDINGS_TABLE.findItem}
-              className="block min-w-0 rounded-sm hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
+              className="block min-w-0 rounded-sm focus-visible:outline-2 focus-visible:outline-primary"
             >
               <ItemLabel
                 name={holding.name}
@@ -60,7 +60,7 @@ export function HoldingsTable({ holdings, currency }: HoldingsTableProps) {
                   to="/items"
                   search={{ q: holding.name }}
                   title={HOLDINGS_TABLE.findItem}
-                  className="block rounded-sm hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
+                  className="block rounded-sm focus-visible:outline-2 focus-visible:outline-primary"
                 >
                   <ItemLabel
                     name={holding.name}

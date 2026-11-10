@@ -109,7 +109,7 @@ export function ItemGridCard({
           </p>
         )}
       </div>
-      <ItemHighlights item={item} visible={ITEM_GRID_CARD.visibleHighlights}>
+      <ItemHighlights item={item} wrap>
         {item.note !== null && <ItemNoteChip note={item.note} />}
       </ItemHighlights>
       {hasFooter && (

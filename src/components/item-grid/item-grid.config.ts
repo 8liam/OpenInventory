@@ -6,8 +6,11 @@ export const ITEM_GRID = {
   gap: 12,
   padding: 12,
   focusInset: 6,
-  /** Fixed so rows can be virtualised; fits the tallest card: two-line name, wear, chip line, two lines of icons, a two-line note and the location line. */
-  cardHeight: { withLocation: 372, withoutLocation: 350 },
+  /**
+   * Only a first guess for rows not yet on screen; each row is measured and takes the height of
+   * its tallest card, so a card is only as tall as what it holds.
+   */
+  estimatedCardHeight: { withLocation: 270, withoutLocation: 250 },
   overscan: 3,
   selectAllLabel: "Select all items",
   selectAllText: "Select all",

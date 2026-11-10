@@ -9,14 +9,21 @@ import type { ItemHighlightsProps, ItemTierBadgeProps } from "./item-highlights.
  * Reason chips on one line under the item name, so a row never grows past its fixed height.
  * Chips that don't fit collapse into `+N`, which names the hidden reasons for screen readers.
  */
-export function ItemHighlights({ item, children, visible }: ItemHighlightsProps) {
+export function ItemHighlights({ item, children, visible, wrap = false }: ItemHighlightsProps) {
   const { reasons } = itemHighlights(item);
   if (reasons.length === 0 && !children) return null;
   const { chipVisibility, moreVisibility } = ITEM_HIGHLIGHTS;
   // A fixed count (e.g. a grid card) applies at every width; otherwise the line's width decides.
   const chipClass = (index: number) =>
-    visible === undefined ? (chipVisibility[index] ?? "hidden") : index < visible ? "" : "hidden";
+    wrap
+      ? ""
+      : visible === undefined
+        ? (chipVisibility[index] ?? "hidden")
+        : index < visible
+          ? ""
+          : "hidden";
   const more = (from: number, className: string) =>
+    !wrap &&
     reasons.length > from && (
       <Chip
         key={from}
@@ -36,14 +43,14 @@ export function ItemHighlights({ item, children, visible }: ItemHighlightsProps)
       </Chip>
     );
   return (
-    <div className={ITEM_HIGHLIGHTS.lineClass}>
+    <div className={wrap ? ITEM_HIGHLIGHTS.wrapLineClass : ITEM_HIGHLIGHTS.lineClass}>
       {reasons.map((reason, index) => {
         const Icon = ITEM_HIGHLIGHTS.kindIcons[reason.kind];
         return (
           <Chip
             key={`${reason.kind}-${reason.label}`}
             icon={Icon}
-            className={cn(index > 0 && "shrink-0", chipClass(index))}
+            className={cn(!wrap && index > 0 && "shrink-0", chipClass(index))}
           >
             {reason.label}
           </Chip>

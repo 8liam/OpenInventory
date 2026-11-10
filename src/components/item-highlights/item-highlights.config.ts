@@ -9,6 +9,8 @@ export const ITEM_HIGHLIGHTS = {
    * not the viewport: one chip always, a second from 220px, a third from 320px. The rest fold
    * into `+N`. Index i of `chipVisibility` styles chip i; chips past the end are always folded.
    */
+  /** A card has room to grow, so its chips wrap rather than fold. */
+  wrapLineClass: "mt-1 flex min-w-0 flex-wrap items-center gap-1",
   lineClass: "@container mt-1 flex min-w-0 flex-nowrap items-center gap-1 overflow-hidden",
   chipVisibility: ["", "hidden @min-[220px]:inline-flex", "hidden @min-[320px]:inline-flex"],
   /** `+N` for the chips folded at each width: index i is the badge shown while i + 1 chips fit. */

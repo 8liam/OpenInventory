@@ -215,7 +215,7 @@ export function Select({
                 aria-label={SELECT.searchPlaceholder}
                 aria-controls={`${id}-list`}
                 aria-activedescendant={visible.length > 0 ? `${id}-${highlight}` : undefined}
-                className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
+                className="no-focus-ring min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
               />
             </div>
           )}
@@ -227,7 +227,7 @@ export function Select({
             aria-label={ariaLabel}
             aria-activedescendant={visible.length > 0 ? `${id}-${highlight}` : undefined}
             style={{ maxHeight: placement.maxHeight }}
-            className="overflow-y-auto p-1 outline-none"
+            className="no-focus-ring overflow-y-auto p-1 outline-none"
           >
             {visible.map((option, index) => (
               <li

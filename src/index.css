@@ -112,9 +112,17 @@ input[type="checkbox"] {
   accent-color: var(--accent);
 }
 
+/* Keyboard focus is an accent border instead of the browser's outline. */
 :focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+/* For controls whose container already shows focus (e.g. a dropdown's own search box). */
+.no-focus-ring:focus-visible {
+  border-color: revert-layer;
+  box-shadow: none;
 }
 
 ::selection {

@@ -34,9 +34,9 @@ export function ItemGrid({
   const [width, setWidth] = useState(0);
   const columns = columnsFor(width, ITEM_GRID.minCardWidth, ITEM_GRID.gap, ITEM_GRID.padding);
   const rowCount = Math.ceil(ordered.length / columns);
-  const cardHeight = showLocation
-    ? ITEM_GRID.cardHeight.withLocation
-    : ITEM_GRID.cardHeight.withoutLocation;
+  const estimatedCardHeight = showLocation
+    ? ITEM_GRID.estimatedCardHeight.withLocation
+    : ITEM_GRID.estimatedCardHeight.withoutLocation;
   const selectable = selected !== undefined && onSelectionChange !== undefined;
 
   useLayoutEffect(() => {
@@ -52,7 +52,8 @@ export function ItemGrid({
   const virtualizer = useVirtualizer({
     count: rowCount,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => cardHeight + ITEM_GRID.gap,
+    estimateSize: () => estimatedCardHeight,
+    gap: ITEM_GRID.gap,
     overscan: ITEM_GRID.overscan,
     paddingStart: ITEM_GRID.padding,
     paddingEnd: ITEM_GRID.padding,
@@ -122,7 +123,7 @@ export function ItemGrid({
     const { keys } = ITEM_GRID;
     const pageRows = Math.max(
       1,
-      Math.floor((scrollRef.current?.clientHeight ?? 0) / (cardHeight + ITEM_GRID.gap)),
+      Math.floor((scrollRef.current?.clientHeight ?? 0) / (estimatedCardHeight + ITEM_GRID.gap)),
     );
     if (event.key === keys.right) moveFocus(index + 1);
     else if (event.key === keys.left) moveFocus(index - 1);
@@ -187,9 +188,10 @@ export function ItemGrid({
                 key={virtualRow.key}
                 role="row"
                 aria-rowindex={virtualRow.index + 1}
-                className="absolute inset-x-0 grid"
+                data-index={virtualRow.index}
+                ref={virtualizer.measureElement}
+                className="absolute inset-x-0 top-0 grid"
                 style={{
-                  height: cardHeight,
                   transform: `translateY(${virtualRow.start}px)`,
                   gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
                   gap: ITEM_GRID.gap,
