@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "~/components/button/button.component";
+import { ItemNoteEditor } from "~/components/item-note-editor/item-note-editor.component";
 import { Select } from "~/components/select/select.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { INVENTORY_LOCATION_ID } from "~/lib/items/item.types";
@@ -145,6 +146,9 @@ export function TransferBar({ selected, units, accountName, busy, onClear }: Tra
           </div>
         )}
       </div>
+      {selected.length === 1 && selected[0] && (
+        <ItemNoteEditor key={`${selected[0].accountId}:${selected[0].id}`} item={selected[0]} />
+      )}
       {blocker && <p className="text-xs text-muted-foreground">{blocker}</p>}
       {confirming && from !== undefined && (
         <div className="flex flex-col gap-2">
