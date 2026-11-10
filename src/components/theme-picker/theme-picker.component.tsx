@@ -8,7 +8,7 @@ import type { ThemePickerProps } from "./theme-picker.types";
 
 const { classes } = THEME_PICKER;
 
-/** The palettes as a shelf of flashbangs; the chosen one tilts up and goes off in its own colours. */
+/** The palettes as cards, each with a flashbang painted in its colours; the chosen one goes off. */
 export function ThemePicker({ value, onChange, scheme, ariaLabel }: ThemePickerProps) {
   const group = useRadioGroup(
     PALETTE_LIST.map((palette) => palette.id),
@@ -16,7 +16,7 @@ export function ThemePicker({ value, onChange, scheme, ariaLabel }: ThemePickerP
     onChange,
   );
   return (
-    <div role="radiogroup" aria-label={ariaLabel} className={classes.shelf}>
+    <div role="radiogroup" aria-label={ariaLabel} className={classes.grid}>
       {PALETTE_LIST.map((palette, index) => {
         const selected = palette.id === value;
         const variant = palette[scheme];
@@ -30,7 +30,7 @@ export function ThemePicker({ value, onChange, scheme, ariaLabel }: ThemePickerP
             tabIndex={group.tabIndexFor(index)}
             onClick={() => onChange(palette.id)}
             onKeyDown={(event) => group.onKeyDown(event, index)}
-            className={classes.cell}
+            className={cn(classes.cell, selected && classes.cellOn)}
           >
             <span className={classes.stage}>
               <FlashBurst
@@ -43,7 +43,6 @@ export function ThemePicker({ value, onChange, scheme, ariaLabel }: ThemePickerP
                 className={cn(classes.nade, selected && classes.nadeOn)}
               />
             </span>
-            <span className={classes.plank} aria-hidden />
             <span className={cn(classes.name, selected && classes.nameOn)}>{palette.name}</span>
           </button>
         );
