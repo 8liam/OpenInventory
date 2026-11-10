@@ -61,7 +61,6 @@ export const MARKETPLACES = [
 export const DEFAULT_MARKETPLACE = "buff163";
 /** History recorded before marketplaces existed was priced from this one. */
 export const LEGACY_HISTORY_MARKETPLACE = "skinport";
-export const THEMES = ["system", "light", "dark"] as const;
-export const DEFAULT_THEME = "system";
 export const SETTINGS_STORAGE_KEY = "openinventory:settings";
-export const DARK_MEDIA_QUERY = "(prefers-color-scheme: dark)";
+/** Pre-split settings stored the colour scheme under this key. */
+export const LEGACY_THEME_KEY = "theme";
