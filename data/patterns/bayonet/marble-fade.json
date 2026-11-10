@@ -1,0 +1,49 @@
+{
+  "$schema": "../../schema/pattern-file.schema.json",
+  "weapon": "Bayonet",
+  "finish": "Marble Fade",
+  "retrieved": "2026-11-07",
+  "sources": [
+    "https://csgoskins.gg/blog/<knife>-marble-fade-fire-and-ice-seed-patterns (URL above each table; articles published 2023-09)"
+  ],
+  "notes": [
+    "Marble Fade 'Fire & Ice' tiers (published for four knives only).",
+    "Tiers: T1 is the most valuable. Tiers are kept while a group's cumulative seed count stays within 100 (T1 always kept); lower published tiers are omitted as not notable.",
+    "'Fake Fire & Ice' tiers are omitted. The four published tables are identical seed-for-seed (checked 2026-11-07), encoded as published."
+  ],
+  "groups": [
+    {
+      "label": "Fire & Ice",
+      "source": "https://csgoskins.gg/blog/bayonet-marble-fade-fire-and-ice-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [412]
+        },
+        {
+          "seeds": [16, 146, 241, 359, 393, 541, 602, 649, 688, 701]
+        },
+        {
+          "seeds": [152, 281, 292, 344, 628, 673, 743, 777, 792, 994]
+        },
+        {
+          "seeds": [48, 126, 129, 332, 780, 787, 874, 908, 918, 923]
+        },
+        {
+          "seeds": [182, 204, 252, 457, 522, 578, 652, 660, 685, 705, 736, 832, 988]
+        },
+        {
+          "seeds": [112, 230, 340, 356, 444, 452, 471, 607, 621, 631, 761, 773, 873, 876, 982]
+        },
+        {
+          "seeds": [
+            8, 14, 32, 58, 108, 213, 233, 243, 274, 405, 454, 614, 653, 683, 728, 732, 770, 795,
+            803, 826, 867, 949
+          ]
+        },
+        {
+          "seeds": [5, 178, 188, 202, 337, 378, 406, 461, 539, 696, 702, 854, 966, 971]
+        }
+      ]
+    }
+  ]
+}

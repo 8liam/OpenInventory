@@ -1,0 +1,81 @@
+{
+  "$schema": "../../schema/pattern-file.schema.json",
+  "weapon": "Specialist Gloves",
+  "finish": "Crimson Web",
+  "retrieved": "2026-11-07",
+  "sources": [
+    "https://github.com/GODrums/cs-tierlist (generated/<file>.json at commit 3156179139e4fe5e2f55784432771a48e9ecfa7d)"
+  ],
+  "notes": [
+    "Crimson Web and Emerald Web tiers. Single, double and triple web are separate groups with their own tiers.",
+    "Tiers: T1 is the most valuable. Tiers are kept while a group's cumulative seed count stays within 100 (T1 always kept); lower published tiers are omitted as not notable.",
+    "Seed tiers are data from the Steam community guides credited in the repository README; the repository is MIT licensed."
+  ],
+  "groups": [
+    {
+      "label": "Double Web",
+      "source": "https://steamcommunity.com/sharedfiles/filedetails/?id=2818147579 via generated/crimson_web_gloves.json",
+      "tiers": [
+        {
+          "seeds": [89, 323, 330, 774]
+        },
+        {
+          "seeds": [208, 398, 559, 656, 722, 800, 866, 922, 936, 965]
+        },
+        {
+          "seeds": [344, 369, 420, 466, 573, 695, 735, 745, 813]
+        }
+      ]
+    },
+    {
+      "label": "Left Hand",
+      "source": "https://steamcommunity.com/sharedfiles/filedetails/?id=2818147579 via generated/crimson_web_gloves.json",
+      "tiers": [
+        {
+          "seeds": [
+            2, 128, 197, 198, 204, 233, 275, 504, 508, 561, 610, 718, 753, 829, 882, 940, 996
+          ]
+        },
+        {
+          "seeds": [37, 113, 133, 196, 263, 311, 532, 587, 615, 721, 732, 754, 788, 860, 979]
+        },
+        {
+          "seeds": [
+            21, 23, 109, 194, 310, 459, 479, 614, 655, 689, 734, 743, 837, 906, 912, 913, 927, 933,
+            972
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Right Hand",
+      "source": "https://steamcommunity.com/sharedfiles/filedetails/?id=2818147579 via generated/crimson_web_gloves.json",
+      "tiers": [
+        {
+          "seeds": [73, 107, 115, 123, 130, 216, 313, 356, 411, 454, 691, 820, 958]
+        },
+        {
+          "seeds": [138, 209, 250, 252, 279, 581, 651, 698, 730, 826, 907, 959]
+        },
+        {
+          "seeds": [
+            44, 90, 98, 145, 166, 189, 335, 409, 416, 447, 529, 575, 605, 699, 749, 904, 920, 945,
+            988
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Triple Web",
+      "source": "https://steamcommunity.com/sharedfiles/filedetails/?id=2818147579 via generated/crimson_web_gloves.json",
+      "tiers": [
+        {
+          "seeds": [202, 534, 563, 626, 789, 869, 914]
+        },
+        {
+          "seeds": [916, 980]
+        }
+      ]
+    }
+  ]
+}

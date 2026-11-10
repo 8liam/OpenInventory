@@ -1,0 +1,38 @@
+{
+  "$schema": "../../schema/pattern-file.schema.json",
+  "weapon": "Specialist Gloves",
+  "finish": "Crimson Kimono",
+  "retrieved": "2026-11-07",
+  "sources": [
+    "https://csgoskins.gg/blog/<guide> (URL above each table; guides published 2023-2024)"
+  ],
+  "notes": [
+    "Other seed-sensitive finishes with a published per-pattern tier list.",
+    "Tiers: T1 is the most valuable. Tiers are kept while a group's cumulative seed count stays within 100 (T1 always kept); lower published tiers are omitted as not notable.",
+    "Each pattern type is its own group with its own tier numbering (a seed is listed under one type only)."
+  ],
+  "groups": [
+    {
+      "label": "Max red",
+      "source": "https://csgoskins.gg/blog/crimson-kimono-gloves-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [458, 515, 559, 560, 684, 692, 699, 932]
+        },
+        {
+          "seeds": [
+            6, 79, 80, 115, 208, 215, 241, 290, 330, 385, 402, 491, 498, 698, 721, 753, 841, 842,
+            866, 958, 968
+          ]
+        },
+        {
+          "seeds": [
+            26, 37, 52, 81, 91, 92, 102, 129, 130, 147, 152, 155, 182, 183, 184, 205, 209, 224, 232,
+            233, 285, 305, 317, 329, 357, 394, 447, 467, 497, 516, 576, 587, 591, 592, 655, 656,
+            679, 731, 875, 881, 891, 892, 916, 930, 931, 952, 953, 954, 957, 973
+          ]
+        }
+      ]
+    }
+  ]
+}

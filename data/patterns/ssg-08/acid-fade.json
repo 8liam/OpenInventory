@@ -1,0 +1,33 @@
+{
+  "$schema": "../../schema/pattern-file.schema.json",
+  "weapon": "SSG 08",
+  "finish": "Acid Fade",
+  "retrieved": "2026-11-07",
+  "sources": [
+    "https://github.com/chescos/csgo-fade-percentage-calculator (generated/{fade,amber-fade,acid-fade}-percentages.json at commit fd02dd14bb1d8d9ea39c15f5472a0745867369b2, MIT)"
+  ],
+  "notes": [
+    "Fade percentage tiers per weapon. Fade percentage differs by weapon model for the same seed.",
+    "Tier cutoffs are OpenInventory's own design over the sourced percentages (not a published tier list): T1 = 100%, T2 >= 99.5%, T3 >= 99%.",
+    "Seeds below the lowest cutoff are not listed."
+  ],
+  "groups": [
+    {
+      "label": "Fade",
+      "tiers": [
+        {
+          "label": "100% Fade",
+          "seeds": [576]
+        },
+        {
+          "label": "99.5%+ Fade",
+          "seeds": [107, 449, 468, 550, 575, 897, 961]
+        },
+        {
+          "label": "99%+ Fade",
+          "seeds": [41, 80, 236, 278, 345, 648, 690, 807, 849]
+        }
+      ]
+    }
+  ]
+}

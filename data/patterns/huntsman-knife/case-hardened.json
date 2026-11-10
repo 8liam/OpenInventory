@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schema/pattern-file.schema.json",
+  "weapon": "Huntsman Knife",
+  "finish": "Case Hardened",
+  "retrieved": "2026-11-07",
+  "sources": [
+    "https://csgoskins.gg/blog/<weapon>-case-hardened-blue-gem-seed-patterns (one article per weapon, URL above each table; articles published 2023-2024)"
+  ],
+  "notes": [
+    "Case Hardened blue gem tiers per weapon (same seed ranks differently per weapon).",
+    "Tiers: T1 is the most valuable. Tiers are kept while a group's cumulative seed count stays within 100 (T1 always kept); lower published tiers are omitted as not notable.",
+    "The source's T4 (blue-tinted) tier is omitted for every weapon by that rule."
+  ],
+  "groups": [
+    {
+      "label": "Blue gem",
+      "source": "https://csgoskins.gg/blog/huntsman-knife-case-hardened-blue-gem-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [29, 618, 652, 721]
+        },
+        {
+          "seeds": [
+            112, 130, 248, 283, 306, 371, 494, 505, 575, 576, 638, 702, 770, 798, 838, 881, 891, 917
+          ]
+        },
+        {
+          "seeds": [
+            34, 56, 61, 72, 73, 108, 147, 153, 182, 255, 330, 428, 458, 488, 497, 510, 609, 629,
+            631, 703, 707, 741, 749, 839, 844, 858, 867, 868, 919, 927
+          ]
+        }
+      ]
+    }
+  ]
+}

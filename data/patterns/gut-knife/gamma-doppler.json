@@ -1,0 +1,31 @@
+{
+  "$schema": "../../schema/pattern-file.schema.json",
+  "weapon": "Gut Knife",
+  "finish": "Gamma Doppler",
+  "retrieved": "2026-11-07",
+  "sources": [
+    "https://github.com/ByMykel/CSGO-API (public/api/en/skins.json at commit c52da3543f4cb57958d1e5c1847e6b692c02af4c; paint_index and phase per skin)",
+    "https://steamdb.com/en/articles/cs2-doppler-phases-guide (tier order, June 2026 price snapshot, published 2026-07-02)"
+  ],
+  "notes": [
+    "Doppler and Gamma Doppler phases by paint kit id, per weapon.",
+    "Tiers: T1 gems (Ruby, Sapphire, Black Pearl, Emerald; kept tied because sources dispute their order), T2 Phase 2 (priciest numbered phase),",
+    "T3 Butterfly Knife Doppler Phase 4 (the article names it as the one numbered phase with its own premium). Phases 1 and 3 get no tier.",
+    "Butterfly Knife and Shadow Daggers use their own paint kit ids for Black Pearl (617), Phase 2 (618) and Sapphire (619)."
+  ],
+  "phases": {
+    "tierCount": 2,
+    "entries": [
+      {
+        "paintIndex": 568,
+        "label": "Emerald",
+        "tier": 1
+      },
+      {
+        "paintIndex": 570,
+        "label": "Phase 2",
+        "tier": 2
+      }
+    ]
+  }
+}

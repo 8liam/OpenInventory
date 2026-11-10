@@ -1,0 +1,16 @@
+{
+  "$schema": "./schema/attachments-file.schema.json",
+  "retrieved": "2026-11-10",
+  "notes": [
+    "Stickers and charms that make an item notable. An attachment matches when its name contains an entry's name, ignoring case; no value is attached.",
+    "Add `kind` as sticker or charm; an optional `note` explains why it is on the list."
+  ],
+  "entries": [
+    { "name": "Crown (Foil)", "kind": "sticker" },
+    { "name": "Titan (Holo) | Katowice 2014", "kind": "sticker" },
+    { "name": "Reason Gaming (Holo) | Katowice 2014", "kind": "sticker" },
+    { "name": "iBUYPOWER (Holo) | Katowice 2014", "kind": "sticker" },
+    { "name": "Howling Dawn", "kind": "sticker" },
+    { "name": "Dragon Lore", "kind": "sticker" }
+  ]
+}

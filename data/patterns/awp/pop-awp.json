@@ -1,0 +1,91 @@
+{
+  "$schema": "../../schema/pattern-file.schema.json",
+  "weapon": "AWP",
+  "finish": "POP AWP",
+  "retrieved": "2026-11-07",
+  "sources": [
+    "https://csgoskins.gg/blog/<guide> (URL above each table; guides published 2023-2024)"
+  ],
+  "notes": [
+    "Other seed-sensitive finishes with a published per-pattern tier list.",
+    "Tiers: T1 is the most valuable. Tiers are kept while a group's cumulative seed count stays within 100 (T1 always kept); lower published tiers are omitted as not notable.",
+    "Each pattern type is its own group with its own tier numbering (a seed is listed under one type only)."
+  ],
+  "groups": [
+    {
+      "label": "Max white",
+      "source": "https://csgoskins.gg/blog/pop-awp-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [87, 636, 651, 910, 911]
+        },
+        {
+          "seeds": [205, 834, 856, 914]
+        },
+        {
+          "seeds": [46, 422, 712, 824, 925]
+        }
+      ]
+    },
+    {
+      "label": "Checkerboard",
+      "source": "https://csgoskins.gg/blog/pop-awp-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [8, 412, 457, 493, 545, 761, 780, 873, 931]
+        },
+        {
+          "seeds": [150, 448, 593, 705, 736, 909, 930, 958]
+        },
+        {
+          "seeds": [216, 337, 452, 454, 590, 966, 988]
+        }
+      ]
+    },
+    {
+      "label": "Circle",
+      "source": "https://csgoskins.gg/blog/pop-awp-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [81, 261, 389, 517, 566, 993]
+        },
+        {
+          "seeds": [510, 829, 837, 862]
+        },
+        {
+          "seeds": [458, 533, 654, 878]
+        }
+      ]
+    },
+    {
+      "label": "Curved rainbow",
+      "source": "https://csgoskins.gg/blog/pop-awp-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [403, 473, 602, 805, 809]
+        },
+        {
+          "seeds": [252, 354, 614, 656, 941, 976]
+        },
+        {
+          "seeds": [332, 372, 393, 465, 631, 971]
+        }
+      ]
+    },
+    {
+      "label": "Vertical art",
+      "source": "https://csgoskins.gg/blog/pop-awp-guide-all-rare-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [93, 292, 326, 341, 348, 380, 520, 763]
+        },
+        {
+          "seeds": [147, 356, 428, 521, 714, 742, 793, 832, 874]
+        },
+        {
+          "seeds": [494, 653, 664, 975]
+        }
+      ]
+    }
+  ]
+}

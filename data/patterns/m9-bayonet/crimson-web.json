@@ -1,0 +1,59 @@
+{
+  "$schema": "../../schema/pattern-file.schema.json",
+  "weapon": "M9 Bayonet",
+  "finish": "Crimson Web",
+  "retrieved": "2026-11-07",
+  "sources": [
+    "https://github.com/GODrums/cs-tierlist (generated/<file>.json at commit 3156179139e4fe5e2f55784432771a48e9ecfa7d)"
+  ],
+  "notes": [
+    "Crimson Web and Emerald Web tiers. Single, double and triple web are separate groups with their own tiers.",
+    "Tiers: T1 is the most valuable. Tiers are kept while a group's cumulative seed count stays within 100 (T1 always kept); lower published tiers are omitted as not notable.",
+    "Seed tiers are data from the Steam community guides credited in the repository README; the repository is MIT licensed."
+  ],
+  "groups": [
+    {
+      "label": "Double Web",
+      "source": "https://steamcommunity.com/sharedfiles/filedetails/?id=2973876979 via generated/crimson_web_m9.json",
+      "tiers": [
+        {
+          "seeds": [
+            16, 146, 173, 180, 241, 268, 344, 381, 393, 420, 575, 602, 611, 697, 704, 778, 853, 858,
+            937, 972, 994
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Single Web",
+      "source": "https://steamcommunity.com/sharedfiles/filedetails/?id=2973876979 via generated/crimson_web_m9.json",
+      "tiers": [
+        {
+          "seeds": [
+            8, 53, 138, 150, 167, 188, 224, 256, 281, 325, 378, 396, 405, 453, 489, 518, 528, 531,
+            604, 614, 642, 658, 667, 687, 701, 709, 716, 717, 723, 745, 755, 773, 800, 808, 826,
+            832, 872, 879, 931, 938, 952, 953, 955, 958
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Triple Web",
+      "source": "https://steamcommunity.com/sharedfiles/filedetails/?id=2973876979 via generated/crimson_web_m9.json",
+      "tiers": [
+        {
+          "seeds": [13, 72, 133, 145, 297, 441, 459, 469, 718, 756, 857]
+        },
+        {
+          "seeds": [38, 181, 260, 349, 490, 525, 590, 725, 759, 785, 962]
+        },
+        {
+          "seeds": [
+            39, 51, 64, 77, 85, 90, 121, 153, 156, 229, 231, 329, 371, 488, 516, 533, 553, 609, 638,
+            665, 797, 861, 870
+          ]
+        }
+      ]
+    }
+  ]
+}

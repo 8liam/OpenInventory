@@ -1,0 +1,38 @@
+{
+  "$schema": "../../schema/pattern-file.schema.json",
+  "weapon": "Nomad Knife",
+  "finish": "Case Hardened",
+  "retrieved": "2026-11-07",
+  "sources": [
+    "https://csgoskins.gg/blog/<weapon>-case-hardened-blue-gem-seed-patterns (one article per weapon, URL above each table; articles published 2023-2024)"
+  ],
+  "notes": [
+    "Case Hardened blue gem tiers per weapon (same seed ranks differently per weapon).",
+    "Tiers: T1 is the most valuable. Tiers are kept while a group's cumulative seed count stays within 100 (T1 always kept); lower published tiers are omitted as not notable.",
+    "The source's T4 (blue-tinted) tier is omitted for every weapon by that rule."
+  ],
+  "groups": [
+    {
+      "label": "Blue gem",
+      "source": "https://csgoskins.gg/blog/nomad-knife-case-hardened-blue-gem-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [55, 169, 187, 316, 403, 447, 456, 577, 628, 681, 704, 850, 922]
+        },
+        {
+          "seeds": [
+            13, 14, 166, 180, 210, 262, 281, 336, 351, 383, 429, 442, 496, 529, 556, 583, 588, 634,
+            668, 698, 700, 797, 872, 880, 916
+          ]
+        },
+        {
+          "seeds": [
+            10, 58, 67, 91, 103, 151, 168, 170, 179, 202, 212, 227, 235, 239, 286, 294, 325, 345,
+            363, 372, 387, 393, 449, 516, 525, 533, 547, 558, 585, 624, 632, 640, 648, 719, 723,
+            750, 776, 818, 828, 853, 879, 887, 902, 915, 935, 954, 955
+          ]
+        }
+      ]
+    }
+  ]
+}

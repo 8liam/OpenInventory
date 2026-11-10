@@ -1,0 +1,38 @@
+{
+  "$schema": "../../schema/pattern-file.schema.json",
+  "weapon": "Talon Knife",
+  "finish": "Case Hardened",
+  "retrieved": "2026-11-07",
+  "sources": [
+    "https://csgoskins.gg/blog/<weapon>-case-hardened-blue-gem-seed-patterns (one article per weapon, URL above each table; articles published 2023-2024)"
+  ],
+  "notes": [
+    "Case Hardened blue gem tiers per weapon (same seed ranks differently per weapon).",
+    "Tiers: T1 is the most valuable. Tiers are kept while a group's cumulative seed count stays within 100 (T1 always kept); lower published tiers are omitted as not notable.",
+    "The source's T4 (blue-tinted) tier is omitted for every weapon by that rule."
+  ],
+  "groups": [
+    {
+      "label": "Blue gem",
+      "source": "https://csgoskins.gg/blog/talon-knife-case-hardened-blue-gem-seed-patterns",
+      "tiers": [
+        {
+          "seeds": [10, 55, 180, 222, 241, 316, 528, 602, 837, 899, 923]
+        },
+        {
+          "seeds": [
+            3, 14, 56, 80, 114, 116, 170, 176, 185, 199, 283, 299, 311, 345, 351, 357, 365, 379,
+            468, 501, 506, 570, 576, 583, 609, 657, 707, 805, 807, 819, 866
+          ]
+        },
+        {
+          "seeds": [
+            18, 19, 46, 58, 95, 111, 130, 137, 186, 203, 291, 328, 367, 374, 456, 473, 488, 491,
+            505, 516, 533, 599, 621, 658, 660, 669, 693, 749, 761, 798, 815, 830, 873, 883, 891,
+            941, 960, 976
+          ]
+        }
+      ]
+    }
+  ]
+}
