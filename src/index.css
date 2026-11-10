@@ -199,3 +199,35 @@ input[type="checkbox"] {
     animation: none;
   }
 }
+
+/* The flash of a going-off flashbang in the theme picker. */
+@media (prefers-reduced-motion: no-preference) {
+  .flash-core {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: flash-pulse 2.6s ease-in-out infinite;
+  }
+  .flash-rays {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: flash-spin 14s linear infinite;
+  }
+}
+
+@keyframes flash-pulse {
+  0%,
+  100% {
+    transform: scale(0.9);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+@keyframes flash-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
