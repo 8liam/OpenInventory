@@ -642,7 +642,7 @@ const server = createServer(async (req, res) => {
         const { accountId, id, note } = parseItemNoteRequest(body);
         accounts.get(accountId);
         db.setItemNote(accountId, id, note === "" ? null : note);
-        accounts.notifyChanged();
+        accounts.notifyChanged(accountId);
         return void res.writeHead(HTTP.noContent).end();
       }
       if (path === STORAGE_API.activateTerminal) {

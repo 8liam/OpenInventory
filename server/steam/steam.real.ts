@@ -897,6 +897,7 @@ export function createRealGateway(
     onReady: (listener) => void readyListeners.push(listener),
     getSteamId: () => steamId,
     getWebCookies,
+    notifyChanged: store.touch,
     ensureConnected,
     reconnect,
     disconnect() {

@@ -15,6 +15,8 @@ export type UnitContents = {
 export type StorageGateway = {
   readonly getSnapshot: () => StorageSnapshot;
   readonly subscribe: (listener: SnapshotListener) => () => void;
+  /** Bumps this account's snapshot revision, so pages refetch data that changed outside Steam (e.g. notes). */
+  readonly notifyChanged: () => void;
   /** Connects to Steam if this account hasn't been yet. Accounts connect lazily. */
   readonly ensureConnected: () => void;
   /** Retries the saved login after an error. */
