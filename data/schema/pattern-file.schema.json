@@ -61,11 +61,18 @@
                 "maximum": 9007199254740991
               }
             },
-            "required": ["paintIndex", "label", "tier"]
+            "required": [
+              "paintIndex",
+              "label",
+              "tier"
+            ]
           }
         }
       },
-      "required": ["tierCount", "entries"]
+      "required": [
+        "tierCount",
+        "entries"
+      ]
     },
     "groups": {
       "type": "array",
@@ -107,13 +114,23 @@
                   }
                 }
               },
-              "required": ["seeds"]
+              "required": [
+                "seeds"
+              ]
             }
           }
         },
-        "required": ["label", "tiers"]
+        "required": [
+          "label",
+          "tiers"
+        ]
       }
     }
   },
-  "required": ["weapon", "finish", "retrieved", "sources"]
+  "required": [
+    "weapon",
+    "finish",
+    "retrieved",
+    "sources"
+  ]
 }
