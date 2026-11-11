@@ -1,18 +1,26 @@
+import { TradeUpItemTile } from "~/components/tradeup-item-tile/tradeup-item-tile.component";
+import { TRADEUP_ITEM_TILE } from "~/components/tradeup-item-tile/tradeup-item-tile.config";
+import { cn } from "~/utils/cn";
+import { Button } from "~/components/button/button.component";
+import { ItemSearch } from "~/components/item-search/item-search.component";
+import { COPY } from "~/lib/copy/copy.config";
+import { Fragment, useState } from "react";
+import { TRADEUP_DESIGN as DESIGN } from "~/lib/tradeup/tradeup-page.config";
 import { EmptyState } from "~/components/empty-state/empty-state.component";
 import { LoadError } from "~/components/load-error/load-error.component";
 import { LoadingRegion } from "~/components/loading-region/loading-region.component";
 import { Skeleton } from "~/components/skeleton/skeleton.component";
-import { COPY } from "~/lib/copy/copy.config";
 import { REMOTE_STATUS } from "~/lib/storage/storage.config";
-import { cn } from "~/utils/cn";
-import { formatChance, formatFloat, formatMoney } from "~/utils/format";
+import { formatMoney, formatPercent } from "~/utils/format";
 import { TRADEUP_FINDER_RESULTS } from "./tradeup-finder-results.config";
 import type { TradeUpFinderResultsProps } from "./tradeup-finder-results.types";
 
 const range = (count: number) => Array.from({ length: count }, (_, index) => index);
 
 /** The best-EV contracts the finder found in this account, or its loading and empty states. */
-export function TradeUpFinderResults({ finder }: TradeUpFinderResultsProps) {
+export function TradeUpFinderResults({ finder, onOpen }: TradeUpFinderResultsProps) {
+  const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
+  const [query, setQuery] = useState("");
   const copy = TRADEUP_FINDER_RESULTS;
   const { classes } = copy;
   if (finder.status === REMOTE_STATUS.loading) {
@@ -38,59 +46,125 @@ export function TradeUpFinderResults({ finder }: TradeUpFinderResultsProps) {
   if (results.length === 0)
     return <EmptyState icon={copy.empty.icon} title={copy.empty.title} body={copy.empty.body} />;
 
+  const queryText = query.trim().toLowerCase();
+  const visible = results.filter((contract) =>
+    [...contract.inputs, ...(contract.odds.ok ? contract.odds.outcomes : [])].some((item) =>
+      item.name.toLowerCase().includes(queryText),
+    ),
+  );
   return (
-    // Focusable: a scroll area with no controls inside is otherwise out of reach by keyboard.
-    <ol aria-label={copy.listLabel} tabIndex={0} className={cn(classes.list, copy.listClass)}>
-      {results.map((contract, index) => (
-        <li key={contract.inputIds.join(":")} className={classes.card}>
-          <div className={classes.summary}>
-            <span className={classes.rank}>{copy.rank(index)}</span>
-            <dl className={classes.figures}>
-              {[
-                { label: copy.expectedValue, value: formatMoney(contract.expectedValue, currency) },
-                { label: copy.cost, value: formatMoney(contract.inputCost, currency) },
-                {
-                  label: copy.profit,
-                  value: formatMoney(contract.profit, currency),
-                  tone: contract.profit >= 0 ? classes.gain : classes.loss,
-                },
-                {
-                  label: copy.float,
-                  value: contract.odds.ok
-                    ? formatFloat(contract.odds.averageFloat)
-                    : COPY.common.empty,
-                },
-              ].map(({ label, value, tone }) => (
-                <div key={label} className={classes.figure}>
-                  <dt className={classes.figureLabel}>{label}</dt>
-                  <dd className={cn(classes.figureValue, tone)}>{value}</dd>
-                </div>
+    <div>
+      <ItemSearch value={query} onChange={setQuery} />
+      <div className="overflow-x-auto rounded-lg border bg-card">
+        <table className="w-full table-fixed text-left text-sm">
+          <thead className="border-b text-xs text-muted-foreground">
+            <tr>
+              {[DESIGN.contract, copy.expectedValue, copy.cost, DESIGN.roi].map((label) => (
+                <th key={label} className="h-9 px-2 sm:px-4 font-normal">
+                  {label}
+                </th>
               ))}
-            </dl>
-          </div>
-          <p className={classes.inputs}>
-            <span className={classes.inputsLabel}>{copy.inputs}:</span>{" "}
-            {contract.inputs.map((item) => item.name).join(copy.inputSeparator)}
-          </p>
-          {contract.odds.ok && (
-            <ul className={classes.outcomes} style={{ gridTemplateColumns: copy.outcomeColumns }}>
-              {contract.odds.outcomes.map((outcome) => (
-                <li key={`${outcome.name}:${outcome.float}`} className={classes.outcome}>
-                  <span className={classes.outcomeName} title={outcome.name}>
-                    {outcome.name}
-                  </span>
-                  <span className={classes.outcomeChance}>{formatChance(outcome.probability)}</span>
-                  <span className={classes.outcomePrice}>
-                    {outcome.price === null
-                      ? COPY.common.empty
-                      : formatMoney(outcome.price, currency)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </li>
-      ))}
-    </ol>
+            </tr>
+          </thead>
+          <tbody>
+            {visible.map((contract, index) => {
+              const key = contract.inputIds.join(":");
+              const open = expanded.has(key);
+              const inputs = new Map<
+                string,
+                { item: (typeof contract.inputs)[number]; count: number }
+              >();
+              for (const item of contract.inputs) {
+                const name = item.marketHashName ?? item.name;
+                const existing = inputs.get(name);
+                inputs.set(name, { item, count: (existing?.count ?? 0) + 1 });
+              }
+              const toggle = () =>
+                setExpanded((current) => {
+                  const next = new Set(current);
+                  if (open) next.delete(key);
+                  else next.add(key);
+                  return next;
+                });
+              return (
+                <Fragment key={key}>
+                  <tr className="h-10 cursor-pointer border-b hover:bg-muted" onClick={toggle}>
+                    <td className="px-2 sm:px-4">
+                      <button
+                        type="button"
+                        aria-expanded={open}
+                        aria-controls={`contract-${index}`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          toggle();
+                        }}
+                        className="py-2 text-left"
+                      >
+                        {DESIGN.contract} {copy.rank(index)}
+                      </button>
+                    </td>
+                    <td
+                      className={cn(
+                        "whitespace-nowrap px-2 sm:px-4 tabular",
+                        contract.profit >= 0 ? "text-success" : "text-destructive",
+                      )}
+                    >
+                      {formatMoney(contract.expectedValue, currency)}
+                    </td>
+                    <td className="whitespace-nowrap px-2 sm:px-4 tabular">
+                      {formatMoney(contract.inputCost, currency)}
+                    </td>
+                    <td className="px-2 sm:px-4 tabular">
+                      {contract.inputCost > 0
+                        ? formatPercent(contract.profit / contract.inputCost)
+                        : COPY.common.empty}
+                    </td>
+                  </tr>
+                  <tr id={`contract-${index}`} hidden={!open}>
+                    <td colSpan={TRADEUP_FINDER_RESULTS.columnCount} className="border-b p-4">
+                      <div className="space-y-4">
+                        <section>
+                          <h3 className="mb-2 text-xs text-muted-foreground">{DESIGN.inputs}</h3>
+                          <ul className={TRADEUP_ITEM_TILE.gridClass}>
+                            {Array.from(inputs, ([name, { item, count }]) => (
+                              <TradeUpItemTile
+                                key={name}
+                                {...item}
+                                currency={currency}
+                                count={count}
+                              />
+                            ))}
+                          </ul>
+                        </section>
+                        <section>
+                          <h3 className="mb-2 text-xs text-muted-foreground">{DESIGN.outcomes}</h3>
+                          <ul className={TRADEUP_ITEM_TILE.gridClass}>
+                            {contract.odds.ok &&
+                              contract.odds.outcomes.map((item) => (
+                                <TradeUpItemTile
+                                  key={`${item.name}-${item.wearName}`}
+                                  {...item}
+                                  currency={currency}
+                                  inputCost={contract.inputCost}
+                                />
+                              ))}
+                          </ul>
+                        </section>
+                      </div>
+                      <div className="mt-4">
+                        <Button small onClick={() => onOpen(contract)}>
+                          {DESIGN.open}
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+        {visible.length === 0 && <p className="p-4 text-muted-foreground">{DESIGN.noMatches}</p>}
+      </div>
+    </div>
   );
 }

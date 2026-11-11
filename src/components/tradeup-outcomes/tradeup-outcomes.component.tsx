@@ -1,47 +1,50 @@
 import { ItemLabel } from "~/components/item-label/item-label.component";
-import { Panel } from "~/components/panel/panel.component";
 import { COPY } from "~/lib/copy/copy.config";
-import { formatFloat, formatMoney, formatChance } from "~/utils/format";
+import { TRADEUP_DESIGN as D } from "~/lib/tradeup/tradeup-page.config";
+import { formatMoney, formatChance } from "~/utils/format";
 import { TRADEUP_OUTCOMES } from "./tradeup-outcomes.config";
 import type { TradeUpOutcomesProps } from "./tradeup-outcomes.types";
-
-/** What the trade-up can produce, with the chance of each. */
-export function TradeUpOutcomes({ outcomes, currency }: TradeUpOutcomesProps) {
-  const copy = COPY.tradeup;
+export function TradeUpOutcomes({ outcomes, currency, inputCost }: TradeUpOutcomesProps) {
   return (
-    <Panel title={copy.outcomes}>
-      <ul className="flex flex-col gap-2.5">
-        {outcomes.map((outcome) => (
-          <li key={`${outcome.name}-${outcome.wearName}`} className="flex flex-col gap-1.5">
-            <div className="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-              <ItemLabel
-                name={outcome.name}
-                imageUrl={outcome.imageUrl}
-                rarityColor={outcome.rarityColor}
-                size={TRADEUP_OUTCOMES.imageSize}
-                nameFit="wrap"
-              />
-              <span className="tabular flex justify-between gap-2 text-right sm:block sm:shrink-0">
-                <span className="block font-medium">{formatChance(outcome.probability)}</span>
-                <span className="block text-xs text-muted-foreground">
-                  {outcome.float !== null && `${formatFloat(outcome.float)} · `}
-                  {outcome.price === null
-                    ? COPY.common.empty
-                    : formatMoney(outcome.price, currency)}
-                </span>
-              </span>
-            </div>
-            <div className="h-1 rounded-full bg-muted">
-              <div
-                className="h-full rounded-full bg-foreground/60"
-                style={{
-                  width: `${Math.max(outcome.probability * 100, TRADEUP_OUTCOMES.minBarPercent)}%`,
-                }}
-              />
-            </div>
-          </li>
-        ))}
-      </ul>
-    </Panel>
+    <div className="overflow-x-auto rounded-lg border bg-card">
+      <table className="w-full text-left text-sm">
+        <thead className="border-b text-xs text-muted-foreground">
+          <tr>
+            {[D.outcomes, D.odds, D.price, D.profit].map((label) => (
+              <th key={label} className="h-9 px-4 font-normal">
+                {label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {outcomes.map((item) => (
+            <tr
+              key={`${item.name}-${item.wearName}`}
+              className="border-b last:border-0 hover:bg-muted"
+            >
+              <td className="px-4 py-1.5">
+                <ItemLabel
+                  name={item.name}
+                  imageUrl={item.imageUrl}
+                  rarityColor={item.rarityColor}
+                  size={TRADEUP_OUTCOMES.imageSize}
+                  nameFit="wrap"
+                />
+              </td>
+              <td className="px-4 tabular">{formatChance(item.probability)}</td>
+              <td className="whitespace-nowrap px-4 tabular">
+                {item.price === null ? COPY.common.empty : formatMoney(item.price, currency)}
+              </td>
+              <td className="whitespace-nowrap px-4 tabular">
+                {item.price === null
+                  ? COPY.common.empty
+                  : formatMoney(item.price - inputCost, currency)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
