@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { ItemSearch } from "~/components/item-search/item-search.component";
+import { TRADEUP_DESIGN } from "~/lib/tradeup/tradeup-page.config";
 import { Button } from "~/components/button/button.component";
 import { ItemCell } from "~/components/item-cell/item-cell.component";
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
@@ -21,6 +24,10 @@ export function TradeUpInputs({
   const copy = COPY.tradeup;
   const selected = candidates.filter((c) => selectedIds.has(c.id));
   const full = selected.length >= inputCount;
+  const [query, setQuery] = useState("");
+  const visible = candidates.filter((item) =>
+    item.name.toLowerCase().includes(query.trim().toLowerCase()),
+  );
   const lockedStatTrak = selected[0]?.isStatTrak;
   return (
     <Panel
@@ -36,13 +43,14 @@ export function TradeUpInputs({
         </div>
       }
     >
-      <ul className="mb-3 flex flex-wrap gap-2">
+      <ul className="mb-3 grid grid-cols-5 gap-2 sm:grid-cols-10">
         {Array.from({ length: inputCount }, (_, slot) => {
           const item = selected[slot];
           return (
             <li key={slot}>
               {item ? (
                 <button
+                  className="flex w-full min-w-0 flex-col items-center rounded-lg border p-2 text-xs"
                   type="button"
                   title={TRADEUP_INPUTS.slotLabel(item.name, item.rarityName, copy.remove)}
                   aria-label={TRADEUP_INPUTS.slotLabel(item.name, item.rarityName, copy.remove)}
@@ -53,22 +61,24 @@ export function TradeUpInputs({
                     rarityColor={item.rarityColor}
                     size={TRADEUP_INPUTS.slotSize}
                   />
+                  <span className="w-full truncate">{item.name}</span>
                 </button>
               ) : (
-                <span
-                  className="block rounded-md border border-dashed"
-                  style={{ width: TRADEUP_INPUTS.slotSize, height: TRADEUP_INPUTS.slotSize }}
-                />
+                <span className="block min-h-16 rounded-md border border-dashed" />
               )}
             </li>
           );
         })}
       </ul>
+      <ItemSearch value={query} onChange={setQuery} />
       {candidates.length === 0 ? (
         <p className="text-muted-foreground">{copy.noCandidates}</p>
       ) : (
         <ul className={cn("flex flex-col overflow-y-auto", TRADEUP_INPUTS.listMaxHeightClass)}>
-          {candidates.map((item) => {
+          {visible.length === 0 && (
+            <li className="py-4 text-muted-foreground">{TRADEUP_DESIGN.noMatches}</li>
+          )}
+          {visible.map((item) => {
             const isSelected = selectedIds.has(item.id);
             const disabled =
               !isSelected &&
@@ -77,7 +87,7 @@ export function TradeUpInputs({
               <li key={item.id}>
                 <label
                   className={cn(
-                    "grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 rounded-md px-2 py-1.5 hover:bg-muted/50 lg:grid-cols-[auto_minmax(0,1fr)_4rem_7rem_5rem] lg:gap-x-3",
+                    "grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 border-b px-2 py-1.5 hover:bg-muted lg:grid-cols-[auto_minmax(0,1fr)_4rem_7rem_5rem] lg:gap-x-3",
                     isSelected && "bg-muted/60",
                     disabled && "cursor-not-allowed opacity-40",
                   )}

@@ -1,14 +1,16 @@
+import { Pill } from "~/components/pill/pill.component";
 import { createFileRoute } from "@tanstack/react-router";
 import { PackageSearch } from "lucide-react";
 import { EmptyState } from "~/components/empty-state/empty-state.component";
 import { LoadError } from "~/components/load-error/load-error.component";
 import { useMemo, useState } from "react";
-import { Metric } from "~/components/metric/metric.component";
 import { PageHeader } from "~/components/page-header/page-header.component";
 import { RarityPicker } from "~/components/rarity-picker/rarity-picker.component";
 import { TradeUpFinderControls } from "~/components/tradeup-finder-controls/tradeup-finder-controls.component";
 import { TradeUpFinderResults } from "~/components/tradeup-finder-results/tradeup-finder-results.component";
 import { TradeUpInputs } from "~/components/tradeup-inputs/tradeup-inputs.component";
+import { TradeUpSummary } from "~/components/tradeup-summary/tradeup-summary.component";
+import { TRADEUP_DESIGN } from "~/lib/tradeup/tradeup-page.config";
 import { TradeUpOutcomes } from "~/components/tradeup-outcomes/tradeup-outcomes.component";
 import { TradeUpSkeleton } from "~/components/tradeup-skeleton/tradeup-skeleton.component";
 import { COPY } from "~/lib/copy/copy.config";
@@ -24,9 +26,13 @@ import { useRemoteData, useStorageSnapshot } from "~/lib/storage/storage.client"
 import { STORAGE_API, TRADE_UP, TRADE_UP_FINDER } from "~/lib/storage/storage.config";
 import { usePriceQuery } from "~/lib/settings/settings.store";
 import { TRADEUP_PAGE } from "~/lib/tradeup/tradeup-page.config";
-import { formatChance, formatFloat, formatMoney, formatPercent } from "~/utils/format";
 
-export const Route = createFileRoute("/tradeup")({ component: TradeUpPage });
+export const Route = createFileRoute("/tradeup")({
+  validateSearch: (search: Record<string, unknown>): { view: "tradeup" | "finder" } => ({
+    view: search.view === "finder" ? "finder" : "tradeup",
+  }),
+  component: TradeUpPage,
+});
 
 const INPUT_RARITIES = TRADE_UP.rarityOrder.slice(0, -1).concat(TRADE_UP.covertRarity);
 const SELECTION_SEPARATOR = ",";
@@ -37,6 +43,9 @@ const RARITY_OPTIONS = INPUT_RARITIES.map((id) => ({
 }));
 
 function TradeUpPage() {
+  const { view } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const switchView = (view: "tradeup" | "finder") => void navigate({ search: { view } });
   const snapshot = useStorageSnapshot();
   const priceQuery = usePriceQuery();
   const accountLabel = useSingleAccountLabel();
@@ -107,6 +116,13 @@ function TradeUpPage() {
           }}
         />
       </PageHeader>
+      <div role="group" aria-label={copy.title} className="mb-4 flex flex-wrap gap-1.5">
+        {TRADEUP_DESIGN.views.map((tab) => (
+          <Pill key={tab} active={view === tab} onClick={() => switchView(tab)}>
+            {TRADEUP_DESIGN[tab]}
+          </Pill>
+        ))}
+      </div>
       {/* One scroll region for the whole page, so the calculator never gets squeezed below the finder. */}
       <div
         role="region"
@@ -114,82 +130,79 @@ function TradeUpPage() {
         tabIndex={0}
         className={TRADEUP_PAGE.classes.scrollRegion}
       >
-        <TradeUpFinderControls
-          statTrak={finderStatTrak}
-          onStatTrakChange={setFinderStatTrak}
-          includeStorage={includeStorage}
-          onIncludeStorageChange={setIncludeStorage}
-        />
-        <TradeUpFinderResults finder={finder} />
-        {(candidates.status === "loading" || (current && !ready)) && <TradeUpSkeleton />}
-        {candidates.status === "error" && (
-          <LoadError
-            message={candidates.message}
-            onRetry={candidates.retry}
-            retrying={candidates.retrying}
+        <div hidden={view !== "finder"} className="space-y-4">
+          <TradeUpFinderControls
+            statTrak={finderStatTrak}
+            onStatTrakChange={setFinderStatTrak}
+            includeStorage={includeStorage}
+            onIncludeStorageChange={setIncludeStorage}
           />
-        )}
-        {candidates.status === "ready" && !candidates.data.ok && (
-          <EmptyState
-            icon={PackageSearch}
-            title={copy.calculatorEmpty}
-            body={candidates.data.reason}
+          <TradeUpFinderResults
+            finder={finder}
+            onOpen={(contract) => {
+              setSelection(contract.inputIds);
+              switchView("tradeup");
+            }}
           />
-        )}
-        {ready && (
-          <div className={TRADEUP_PAGE.classes.calculator}>
-            <TradeUpInputs
-              candidates={ready.candidates}
-              selectedIds={selectedIds}
-              inputCount={ready.inputCount}
-              currency={ready.currency}
-              onToggle={toggle}
-              onAutoFill={autoFill}
-              onClear={() => setSelection([])}
+        </div>
+        <div hidden={view !== "tradeup"} className="space-y-4">
+          {(candidates.status === "loading" || (current && !ready)) && <TradeUpSkeleton />}
+          {candidates.status === "error" && (
+            <LoadError
+              message={candidates.message}
+              onRetry={candidates.retry}
+              retrying={candidates.retrying}
             />
-            {orderedIds.length === 0 && (
-              <p className={TRADEUP_PAGE.classes.muted}>{copy.pickPrompt}</p>
-            )}
-            {odds.status === "error" && (
-              <LoadError message={odds.message} onRetry={odds.retry} retrying={odds.retrying} />
-            )}
-            {odds.status === "ready" && !odds.data.ok && orderedIds.length > 0 && (
-              <p className={TRADEUP_PAGE.classes.muted}>{odds.data.reason}</p>
-            )}
-            {result && orderedIds.length > 0 && (
-              <>
-                <div className={TRADEUP_PAGE.classes.metrics}>
-                  <Metric
-                    label={copy.inputCost}
-                    value={formatMoney(result.inputCost, result.currency)}
+          )}
+          {candidates.status === "ready" && !candidates.data.ok && (
+            <EmptyState
+              icon={PackageSearch}
+              title={copy.calculatorEmpty}
+              body={candidates.data.reason}
+            />
+          )}
+          {ready && (
+            <div className={TRADEUP_PAGE.classes.calculator}>
+              <TradeUpInputs
+                candidates={ready.candidates}
+                selectedIds={selectedIds}
+                inputCount={ready.inputCount}
+                currency={ready.currency}
+                onToggle={toggle}
+                onAutoFill={autoFill}
+                onClear={() => setSelection([])}
+              />
+              {orderedIds.length === 0 && (
+                <p className={TRADEUP_PAGE.classes.muted}>{copy.pickPrompt}</p>
+              )}
+              {odds.status === "error" && (
+                <LoadError message={odds.message} onRetry={odds.retry} retrying={odds.retrying} />
+              )}
+              {odds.status === "ready" && !odds.data.ok && orderedIds.length > 0 && (
+                <p className={TRADEUP_PAGE.classes.muted}>{odds.data.reason}</p>
+              )}
+              {result && orderedIds.length > 0 && (
+                <>
+                  <TradeUpSummary
+                    result={result}
+                    inputs={ready.candidates.filter((item) => selectedIds.has(item.id))}
                   />
-                  <Metric label={copy.averageFloat} value={formatFloat(result.averageFloat)} />
-                  <Metric
-                    label={copy.expectedValue}
-                    value={formatMoney(result.expectedValue, result.currency)}
+                  {result.selected < result.inputCount && (
+                    <p className={TRADEUP_PAGE.classes.note}>
+                      {copy.selectMore(result.inputCount - result.selected)}
+                    </p>
+                  )}
+                  <TradeUpOutcomes
+                    outcomes={result.outcomes}
+                    currency={result.currency}
+                    inputCost={result.inputCost}
                   />
-                  <Metric
-                    label={copy.expectedReturn}
-                    value={
-                      result.inputCost > 0
-                        ? formatPercent(result.expectedValue / result.inputCost - 1)
-                        : COPY.common.empty
-                    }
-                    tone={result.expectedValue >= result.inputCost ? "positive" : "negative"}
-                  />
-                  <Metric label={copy.chanceToProfit} value={formatChance(result.chanceToProfit)} />
-                </div>
-                {result.selected < result.inputCount && (
-                  <p className={TRADEUP_PAGE.classes.note}>
-                    {copy.selectMore(result.inputCount - result.selected)}
-                  </p>
-                )}
-                <TradeUpOutcomes outcomes={result.outcomes} currency={result.currency} />
-                <p className={TRADEUP_PAGE.classes.note}>{copy.formulaNote}</p>
-              </>
-            )}
-          </div>
-        )}
+                  <p className={TRADEUP_PAGE.classes.note}>{copy.formulaNote}</p>
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
