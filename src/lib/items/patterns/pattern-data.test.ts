@@ -3,12 +3,13 @@ import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { test } from "node:test";
+import { fileURLToPath } from "node:url";
 import { PATTERN_FILES } from "../../../../data/index.generated.ts";
 import { loadPatternFiles } from "./pattern-data.ts";
 import { patternFileSchema } from "./pattern-file.schema.ts";
 import { patternFilePath } from "./pattern-file.utils.ts";
 
-const PATTERNS_DIR = new URL("../../../../data/patterns/", import.meta.url).pathname;
+const PATTERNS_DIR = fileURLToPath(new URL("../../../../data/patterns/", import.meta.url));
 
 function jsonFiles(dir: string): string[] {
   return readdirSync(dir)
