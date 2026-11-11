@@ -8,6 +8,7 @@ import { PATTERN_FILES } from "../../../../data/index.generated.ts";
 import { loadPatternFiles } from "./pattern-data.ts";
 import { patternFileSchema } from "./pattern-file.schema.ts";
 import { patternFilePath } from "./pattern-file.utils.ts";
+import { toPosixPath } from "../../../utils/to-posix-path.ts";
 
 const PATTERNS_DIR = fileURLToPath(new URL("../../../../data/patterns/", import.meta.url));
 
@@ -23,7 +24,10 @@ function jsonFiles(dir: string): string[] {
 test("every data file is valid and lives at the path its weapon and finish give", () => {
   for (const path of jsonFiles(PATTERNS_DIR)) {
     const file = patternFileSchema.parse(JSON.parse(readFileSync(path, "utf8")));
-    assert.equal(relative(PATTERNS_DIR, path), patternFilePath(file.weapon, file.finish));
+    assert.equal(
+      toPosixPath(relative(PATTERNS_DIR, path)),
+      patternFilePath(file.weapon, file.finish),
+    );
   }
 });
 
