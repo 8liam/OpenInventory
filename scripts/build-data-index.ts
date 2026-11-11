@@ -4,11 +4,12 @@
  */
 import { readdirSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import { patternFileSchema } from "../src/lib/items/patterns/pattern-file.schema.ts";
 import { attachmentsFileSchema } from "../src/lib/items/attachments/attachments-file.schema.ts";
 
-const DATA_DIR = new URL("../data/", import.meta.url).pathname;
+const DATA_DIR = fileURLToPath(new URL("../data/", import.meta.url));
 const PATTERNS_DIR = join(DATA_DIR, "patterns");
 const SCHEMA_DIR = join(DATA_DIR, "schema");
 
