@@ -71,7 +71,11 @@ export default function TradeUpDemo() {
               {copy.selectMore(result.inputCount - result.selected)}
             </p>
           )}
-          <TradeUpOutcomes outcomes={result.outcomes} currency={result.currency} />
+          <TradeUpOutcomes
+            outcomes={result.outcomes}
+            currency={result.currency}
+            inputCost={result.inputCost}
+          />
           <p className="text-xs text-muted-foreground">{copy.formulaNote}</p>
         </>
       )}
