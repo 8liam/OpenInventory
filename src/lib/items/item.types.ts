@@ -13,6 +13,10 @@ export type CharmView = {
   readonly pattern: number | null;
   /** Highlight reel of a souvenir charm, when it has one. */
   readonly videoUrl: string | null;
+  /** Market listing name used to price the charm, when it has one. */
+  readonly marketHashName: string | null;
+  /** What the charm sells for on its own, in the chosen currency; null when unpriced. */
+  readonly price: number | null;
 };
 
 /** The state of a Terminal (the CS2 case system): sealed, or activated and counting down. */
