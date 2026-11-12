@@ -100,7 +100,7 @@ export function TradeUpInputs({
                     onChange={() => onToggle(item.id)}
                   />
                   <div className="min-w-0">
-                    <ItemCell item={item} />
+                    <ItemCell item={item} currency={currency} />
                   </div>
                   <div className="col-start-2 row-start-2 flex min-w-0 flex-wrap gap-x-2 text-xs text-muted-foreground lg:contents">
                     <span className="tabular shrink-0 lg:text-right">

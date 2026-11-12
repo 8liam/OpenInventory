@@ -282,6 +282,8 @@ export async function loadCatalog(db: CatalogCache): Promise<Catalog> {
             imageUrl: sizedImage(record.image),
             pattern,
             videoUrl: highlight === undefined ? null : (record.video ?? null),
+            marketHashName: record.market_hash_name ?? record.name,
+            price: null,
           },
         ]
       : [];

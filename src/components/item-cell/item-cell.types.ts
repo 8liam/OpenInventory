@@ -11,4 +11,6 @@ export type ItemCellProps = {
   readonly compact?: boolean;
   /** How the name fits; fixed-height table rows pass what their height allows. */
   readonly nameFit?: ItemLabelNameFit;
+  /** Currency for the value shown in a charm's tooltip; the value is left out without it. */
+  readonly currency?: string;
 };

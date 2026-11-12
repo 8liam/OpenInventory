@@ -19,7 +19,16 @@ const item: ItemView = {
   isStatTrak: false,
   isSouvenir: false,
   stickers: [{ name: "Crown Foil", imageUrl: null }],
-  charms: [{ name: "Little Monster", imageUrl: null, pattern: null, videoUrl: null }],
+  charms: [
+    {
+      name: "Little Monster",
+      imageUrl: null,
+      pattern: null,
+      videoUrl: null,
+      marketHashName: null,
+      price: null,
+    },
+  ],
   pattern: null,
   videoUrl: null,
   terminal: null,

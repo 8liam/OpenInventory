@@ -25,6 +25,7 @@ export function collectItems(
       view: {
         ...view,
         price: priceOf(view.marketHashName),
+        charms: view.charms.map((charm) => ({ ...charm, price: priceOf(charm.marketHashName) })),
         locationId,
         locationName,
         collections: skin?.collectionNames ?? [],

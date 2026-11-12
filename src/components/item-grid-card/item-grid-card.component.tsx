@@ -9,6 +9,7 @@ import {
   ItemTierBadge,
 } from "~/components/item-highlights/item-highlights.component";
 import { splitItemName } from "~/components/item-label/item-label.utils";
+import { charmTooltipDetail } from "~/lib/items/charm-tooltip";
 import { COPY } from "~/lib/copy/copy.config";
 import { cn } from "~/utils/cn";
 import { formatFloat, formatMoney } from "~/utils/format";
@@ -34,8 +35,7 @@ export function ItemGridCard({
 }: ItemGridCardProps) {
   const [weapon, fullSkin] = splitItemName(item.name);
   const { skin, wear } = splitWear(fullSkin, item.wearName);
-  const { attachmentSize, maxStickers, patternLabel, thumbClass, selectRowLabel, classes } =
-    ITEM_GRID_CARD;
+  const { attachmentSize, maxStickers, thumbClass, selectRowLabel, classes } = ITEM_GRID_CARD;
   // A sticker without an image would render as a broken-image glyph; its name is in the item data.
   const stickers = item.stickers.filter((sticker) => sticker.imageUrl !== null);
   const hiddenStickers = stickers.length - maxStickers;
@@ -149,9 +149,7 @@ export function ItemGridCard({
                   <Tooltip
                     name={charm.name}
                     imageUrl={charm.imageUrl}
-                    detail={
-                      charm.pattern === null ? undefined : `${patternLabel} #${charm.pattern}`
-                    }
+                    detail={charmTooltipDetail(charm, currency)}
                   >
                     {charm.imageUrl === null ? (
                       <Chip>{charm.name}</Chip>
