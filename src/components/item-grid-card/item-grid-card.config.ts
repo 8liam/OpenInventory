@@ -3,7 +3,6 @@ export const ITEM_GRID_CARD = {
   thumbClass: "h-24 w-full",
   attachmentSize: 20,
   maxStickers: 5,
-  patternLabel: "Pattern",
   selectRowLabel: "Select item",
   /** A 24px hit area on desktop; 36px on phones and touch screens. */
   checkboxClass:

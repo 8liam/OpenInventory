@@ -11,10 +11,18 @@ import { ItemHighlights } from "~/components/item-highlights/item-highlights.com
 import { AccountName } from "~/components/account-name/account-name.component";
 import { HighlightDisclosure } from "~/components/highlight-disclosure/highlight-disclosure.component";
 import { itemHighlights } from "~/lib/items/highlights";
+import { charmTooltipDetail } from "~/lib/items/charm-tooltip";
 import { ITEM_CELL } from "./item-cell.config";
 import type { ItemCellProps } from "./item-cell.types";
 
-export function ItemCell({ item, account, detail, compact = false, nameFit }: ItemCellProps) {
+export function ItemCell({
+  item,
+  account,
+  detail,
+  compact = false,
+  nameFit,
+  currency,
+}: ItemCellProps) {
   const { imageSize, stickerSize, charmSize, maxStickers, patternLabel } = ITEM_CELL;
   // A sticker without an image would render as a broken-image glyph; its name is in the item data.
   const stickers = item.stickers
@@ -48,7 +56,7 @@ export function ItemCell({ item, account, detail, compact = false, nameFit }: It
           <Tooltip
             name={charm.name}
             imageUrl={charm.imageUrl}
-            detail={charm.pattern === null ? undefined : `${patternLabel} #${charm.pattern}`}
+            detail={charmTooltipDetail(charm, currency)}
           >
             {charm.imageUrl !== null && (
               <img

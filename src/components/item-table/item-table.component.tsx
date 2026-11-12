@@ -67,7 +67,11 @@ export function ItemTable({
         ]
       : [];
     const full: readonly DataTableColumn<ItemView>[] = [
-      { ...name, ...sizes.item.wide, cell: (r) => <ItemCell item={r} nameFit="single" /> },
+      {
+        ...name,
+        ...sizes.item.wide,
+        cell: (r) => <ItemCell item={r} nameFit="single" currency={currency} />,
+      },
       ...account,
       ...location,
       {
@@ -106,6 +110,7 @@ export function ItemTable({
           cell: (r) => (
             <ItemCell
               item={r}
+              currency={currency}
               detail={joinDetail(
                 [
                   showLocation ? r.locationName : null,
