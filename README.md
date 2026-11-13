@@ -4,6 +4,12 @@
 
 <h1 align="center">OpenInventory</h1>
 
+<p align="center">Self-hosted CS2 inventory and storage unit tracker. Available for <b>macOS</b>, <b>Windows</b> and <b>Linux</b>.</p>
+
+<p align="center">
+  <a href="https://github.com/8liam/OpenInventory/releases/latest"><b>Download the latest release</b></a>
+</p>
+
 <table>
   <tr>
     <td align="center"><a href="docs/dashboard.png"><img src="docs/dashboard.png" alt="Dashboard" width="280" /></a><br /><sub>Dashboard</sub></td>
@@ -16,24 +22,33 @@
   </tr>
 </table>
 
-Self-hosted CS2 inventory and storage unit tracker. Sign in with the Steam mobile app (add as many accounts as you like) and OpenInventory shows what you own, where it is, and what it's worth, with history that builds up over time. Everything is cached in a local SQLite file on your own server. OpenInventory talks to Steam (with your login), fetches public item data and Skinport prices, and your browser loads item images from Steam's CDN.
+Sign in with the Steam mobile app (as many accounts as you like) and OpenInventory shows what you own, where it is and what it's worth, with history that builds up over time. Everything is cached in a local SQLite file on your own machine.
 
-- **Dashboard**: total value with 24h/7d/30d change, a value history chart you can switch between total, inventory and storage units over 1D to all time, a tabbed breakdown (type, rarity, wear, location) as a donut, top holdings, and your lowest floats, highest floats and largest stacks.
-- **Exports**: download item data and value history as CSV or JSON.
-- **Items**: every item across your inventory and all storage units, searchable and filterable, with images, floats, stickers, charms (with pattern ids) and prices.
-- **Storage units**: all units load automatically; contents are cached so restarts are instant. Capacity (1,000 items) is checked before a move starts.
-- **Cases**: case, souvenir, capsule, trade-up and drop stats read from your Steam inventory history: rarity split, rarest pulls, most opened, per-month volume, and your gold drought. History is synced in the background and stored locally.
-- **Trade-up finder**: compare read-only EV estimates for ranked contracts from your holdings, with collection odds and float-aware outcomes. OpenInventory can't perform trade-ups.
+## Features
 
-- **Terminals**: the Terminals page lists your sealed and active Terminals. Browsing an active Terminal's current offer (the item, what the Terminal charges and its market value) is read-only. Two actions are **destructive and irreversible**, and OpenInventory makes an exception to its read-only rule for them: **activating** a sealed Terminal (it is used up and its expiry timer starts, and an active Terminal can't be traded or moved) and asking for the **next offer** (you can't go back to the offer you were on). Each sits behind a confirmation dialog that spells out the effects and needs a tick box. OpenInventory never buys anything from a Terminal.
-- **Multiple accounts**: add accounts with a QR login each and switch between them in the sidebar, or pick **All accounts** on the Dashboard and Items for combined value, history and items (with an account column and filters by account or label). Searching Items in the combined view finds a skin across every account, showing which account and storage unit holds it and its float. Tag accounts as main, trade or alt in Settings. Each account has its own Game Coordinator connection, opened only when you use the account (the first account connects at start so value history keeps recording). Moves, renames and Terminal actions always act on one explicit account.
-- **Move items**: select items on the Items or Storage page and move them between your inventory and storage units (unit to unit goes through your inventory). Each move is confirmed by the Game Coordinator, with live progress, cancel, and a per-item error report. Nothing is ever listed or traded. Apart from moves, renaming storage units and activating Terminals (above), OpenInventory is read-only.
+- **Dashboard**: total value with 24h/7d/30d change, value history, breakdowns by type, rarity, wear and location, top holdings, lowest and highest floats.
+- **Items**: everything across your inventory and storage units, searchable and filterable, with floats, stickers, charms and prices.
+- **Storage units**: all units load automatically and are cached for instant restarts.
+- **Move items** between your inventory and storage units, confirmed by the Game Coordinator with live progress.
+- **Cases**: opening stats from your Steam inventory history: rarity split, rarest pulls, gold drought.
+- **Trade-up finder**: read-only EV estimates for ranked contracts. It can't perform trade-ups.
+- **Terminals**: browse offers, and activate or skip to the next offer behind a confirmation (both are irreversible). It never buys anything.
+- **Multiple accounts** with a combined "All accounts" view.
+- **Exports** of item data and value history as CSV or JSON.
 
-## Desktop app
+Apart from moving items, renaming storage units and the Terminal actions above, OpenInventory is read-only. It never lists or trades anything.
 
-Download the installer for your OS from the [latest release](https://github.com/8liam/OpenInventory/releases/latest): Windows (`.exe`), macOS (`.dmg`) or Linux (`.AppImage`). The app updates itself on Windows and Linux; on macOS it tells you when a new version is out and links to the download.
+## Download
 
-The builds aren't code-signed (no paid certificates), so the first launch shows a warning: on Windows choose **More info → Run anyway**; on macOS right-click the app and choose **Open** (or run `xattr -cr /Applications/OpenInventory.app`). Every release is built by [GitHub Actions](.github/workflows/release.yml) straight from `main`, so you can verify what you download.
+Get the installer for your OS from the [latest release](https://github.com/8liam/OpenInventory/releases/latest):
+
+| OS      | File        |
+| ------- | ----------- |
+| macOS   | `.dmg`      |
+| Windows | `.exe`      |
+| Linux   | `.AppImage` |
+
+The app updates itself on Windows and Linux; on macOS it tells you when a new version is out. Builds aren't code-signed, so the first launch warns you: on Windows choose **More info → Run anyway**; on macOS right-click the app and choose **Open** (or run `xattr -cr /Applications/OpenInventory.app`). Releases are built by [GitHub Actions](.github/workflows/release.yml) straight from `main`.
 
 ## Run with Docker
 
@@ -41,44 +56,22 @@ The builds aren't code-signed (no paid certificates), so the first launch shows 
 docker compose up -d
 ```
 
-Open <http://localhost:3000>, press **Show QR code**, and scan it in the Steam mobile app.
+Open <http://localhost:3000>, press **Show QR code**, and scan it in the Steam mobile app. Data lives in the `openinventory-data` volume.
 
-Set a password if the port is reachable by anyone but you (the browser will ask for any username plus this password):
+| Variable                      | Default                                         | Purpose                                                                                                                                              |
+| ----------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OPENINVENTORY_PASSWORD`      | unset                                           | Require HTTP basic auth (any username). Set it if anyone but you can reach the port.                                                                 |
+| `OPENINVENTORY_PORT`          | `3000` in Docker, `4174` otherwise              | Listen port.                                                                                                                                         |
+| `OPENINVENTORY_HOST`          | `0.0.0.0` in Docker, `127.0.0.1` otherwise      | Listen address.                                                                                                                                      |
+| `OPENINVENTORY_DATA_DIR`      | `/data` in Docker, `~/.openinventory` otherwise | SQLite database and Steam sessions.                                                                                                                  |
+| `OPENINVENTORY_WEB_DIR`       | set in Docker                                   | Built web app to serve. Unset in dev.                                                                                                                |
+| `OPENINVENTORY_ALLOWED_HOSTS` | unset                                           | Extra hostnames accepted when no password is set (`nas.lan,.home.example`; a leading dot matches subdomains). IPs, `localhost`, `*.local`, `*.ts.net` and single-label names always work. |
 
-```sh
-OPENINVENTORY_PASSWORD='something-long' docker compose up -d
-```
+## Good to know
 
-Without a password, OpenInventory only answers to IPs and local names (`localhost`, `nas`, `nas.local`, `*.ts.net`, ...). To open it by another name, such as a `.lan` name or a domain behind a reverse proxy, list it (no port needed):
-
-```sh
-OPENINVENTORY_ALLOWED_HOSTS='nas.lan,inventory.example.com' docker compose up -d
-```
-
-Data (SQLite database, value history and your Steam session) lives in the `openinventory-data` volume.
-
-> **Heads up:** OpenInventory connects to the CS2 Game Coordinator the way the game does, and Steam allows one game session per account. If CS2 is already running elsewhere, OpenInventory waits (it never forces the session) and connects when you close the game. If you launch CS2 while OpenInventory is connected, Steam asks whether to end OpenInventory's session; it reconnects once you're done.
-
-### Configuration
-
-| Variable                      | Default                                         | Purpose                                                                                                                                                                                                                                                                                      |
-| ----------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `OPENINVENTORY_PASSWORD`      | unset                                           | Require HTTP basic auth (any username). Unset means no auth.                                                                                                                                                                                                                                 |
-| `OPENINVENTORY_PORT`          | `3000` in Docker, `4174` otherwise              | Listen port.                                                                                                                                                                                                                                                                                 |
-| `OPENINVENTORY_HOST`          | `0.0.0.0` in Docker, `127.0.0.1` otherwise      | Listen address.                                                                                                                                                                                                                                                                              |
-| `OPENINVENTORY_DATA_DIR`      | `/data` in Docker, `~/.openinventory` otherwise | SQLite database and Steam session.                                                                                                                                                                                                                                                           |
-| `OPENINVENTORY_WEB_DIR`       | set in Docker                                   | Built web app to serve. Unset in dev.                                                                                                                                                                                                                                                        |
-| `OPENINVENTORY_ALLOWED_HOSTS` | unset                                           | Comma-separated hostnames accepted when no password is set (`nas.lan,.home.example`; a leading dot also matches subdomains). Needed only for names in public DNS or `.lan`; IPs, single-label names (`nas`), `localhost`, `*.local`, `*.home.arpa`, `*.internal` and `*.ts.net` always work. |
-
-## One session per account
-
-Steam allows a single client session per account, and OpenInventory signs in once per tracked account. If another OpenInventory (desktop app, Docker, another machine) or the Steam app is signed in to the same account, each takes the session from the other. OpenInventory stops and says so instead of retrying; close the other one, then press **Reconnect** on that account.
-
-## Security
-
-- Your Steam **refresh token** is stored per account in `sessions/<steamId>.json` inside the data directory (an older single `session.json` is moved there on first start) (mode `0600`). Anyone who can read it can act as your account until you remove that account in Settings, which deletes it. Protect the volume.
-- Without `OPENINVENTORY_PASSWORD`, anyone who can reach the port can see your inventory **and move your items**. Set a password, and put OpenInventory behind a VPN or a TLS reverse proxy if you expose it.
-- State-changing requests are same-origin only and require a JSON body, so another website can't drive your instance from your browser. Without a password the `Host` header must also be an IP, a single-label name, `localhost`, a `*.local`, `*.home.arpa`, `*.internal` or `*.ts.net` name, or listed in `OPENINVENTORY_ALLOWED_HOSTS`, which blocks DNS-rebinding attacks. Other names get a 403 that says which variable to set.
+- **One session per account.** Steam allows one game session per account. If CS2, the Steam app or another OpenInventory is signed in to the same account, they take the session from each other. OpenInventory never forces it: close the other one, then press **Reconnect**.
+- **Protect your data.** Your Steam refresh token is stored per account in `sessions/<steamId>.json` (mode `0600`) in the data directory, and anyone who can read it can act as your account until you remove it in Settings. Without a password, anyone who can reach the port can see your inventory **and move your items**, so set one and use a VPN or TLS reverse proxy if you expose it.
+- State-changing requests are same-origin only with a JSON body, and unauthenticated instances check the `Host` header against DNS rebinding.
 
 ## Develop
 
@@ -86,27 +79,22 @@ Requires Node 24+ and pnpm 12 ([Vite+](https://viteplus.dev) provides `vp`).
 
 ```sh
 pnpm install
-pnpm api          # API on 127.0.0.1:4174 (SQLite in ~/.openinventory)
+pnpm api          # API on 127.0.0.1:4174
 pnpm dev          # web on :5173, proxying /api
-pnpm build        # type-check + production build into dist/
+pnpm build        # type-check + production build
 vp check          # format, lint and type-check
 ```
 
-Stack: React 19, TanStack Router and Virtual, Tailwind 4, Zustand, Vite+. The server is plain Node with the built-in `node:sqlite`; Steam access uses `steam-session`, `steam-user` and `globaloffensive`.
+Stack: React 19, TanStack Router and Virtual, Tailwind 4, Zustand, Vite+, plain Node with `node:sqlite`, and `steam-session`, `steam-user`, `globaloffensive` for Steam. `src/` and `server/` hold the app; `site/` is the [landing page](https://openinventory.unsurf.sh) ([details](site/README.md)).
 
 ## Data sources
 
-- Item names, rarities and images: [ByMykel/CSGO-API](https://github.com/ByMykel/CSGO-API) (images are served from Steam's CDN).
-- Prices: [CSGOTrader](https://prices.csgotrader.app) marketplace feeds (Buff163 by default; Skinport, Steam, CSFloat, CS.MONEY, Youpin898 and LIS-SKINS selectable in Settings), converted with its exchange rates. Items with no listing count as zero.
-- Value history is recorded hourly while OpenInventory runs, for every currency you've viewed the dashboard in, starting from your first sign-in; there is no way to backfill it.
+- Item names, rarities and images: [ByMykel/CSGO-API](https://github.com/ByMykel/CSGO-API) (images from Steam's CDN).
+- Prices: [CSGOTrader](https://prices.csgotrader.app) marketplace feeds (Buff163 by default; Skinport, Steam, CSFloat, CS.MONEY, Youpin898 and LIS-SKINS selectable in Settings). Items with no listing count as zero.
+- Value history is recorded hourly while OpenInventory runs, starting from your first sign-in; it can't be backfilled.
 
 OpenInventory is not affiliated with or endorsed by Valve, Steam or Skinport.
 
 ## License
 
-[PolyForm Noncommercial 1.0.0](LICENSE): you can use, modify, fork and share OpenInventory for any noncommercial purpose, but not sell it or use it commercially. That makes it source-available rather than OSI-approved open source. For commercial use, open an issue to ask.
-
-## Repository layout
-
-- `src/`, `server/`: the app.
-- `site/`: the landing page (<https://openinventory.unsurf.sh>). It renders the real app UI on sample data; see [site/README.md](site/README.md).
+[PolyForm Noncommercial 1.0.0](LICENSE): use, modify, fork and share for any noncommercial purpose. Source-available, not OSI open source. For commercial use, open an issue.
