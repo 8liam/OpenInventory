@@ -30,7 +30,7 @@ export default function TradeUpDemo() {
     );
 
   return (
-    <div className="oi-app flex flex-col gap-3 p-4">
+    <div className="oi-app tradeup-demo flex flex-col gap-3 p-4">
       <PageHeader title={copy.title} description={copy.description}>
         <span className="text-muted-foreground">
           {copy.rarity}{" "}
@@ -39,7 +39,6 @@ export default function TradeUpDemo() {
       </PageHeader>
       <TradeUpInputs
         candidates={candidates.candidates.slice(0, CANDIDATE_CAP)}
-
         selectedIds={selectedIds}
         inputCount={candidates.inputCount}
         currency={candidates.currency}
@@ -52,7 +51,7 @@ export default function TradeUpDemo() {
       {selection.length === 0 && <p className="text-muted-foreground">{copy.pickPrompt}</p>}
       {result && (
         <>
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+          <div className="tradeup-demo__metrics grid grid-cols-2 gap-3 lg:grid-cols-5">
             <Metric label={copy.inputCost} value={formatMoney(result.inputCost, result.currency)} />
             <Metric label={copy.averageFloat} value={formatFloat(result.averageFloat)} />
             <Metric
