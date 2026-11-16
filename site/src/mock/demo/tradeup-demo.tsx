@@ -5,18 +5,24 @@ import { TradeUpInputs } from "~/components/tradeup-inputs/tradeup-inputs.compon
 import { TradeUpOutcomes } from "~/components/tradeup-outcomes/tradeup-outcomes.component";
 import { DEFAULT_SELECTION, tradeUpCandidates, tradeUpOdds } from "@demo/data/tradeup.mock";
 import { COPY } from "~/lib/copy/copy.config";
-import { DEMO_VISIBLE_WIDTH } from "../../components/features/feature-demo.config";
+import { cn } from "~/utils/cn";
 import { formatChance, formatFloat, formatMoney, formatPercent } from "~/utils/format";
+import {
+  DEMO_VISIBLE_WIDTH,
+  FEATURE_DEMO_VARIANT,
+} from "../../components/features/feature-demo.config";
+import type { FeatureDemoComponentProps } from "../../components/features/feature-demo.types";
+import { TradeUpInlineInputs } from "./tradeup-demo-inline";
+import { TRADEUP_DEMO } from "./tradeup-demo.config";
 
-/** The demo lists only the cheapest skins; the real app lists every one. */
-const CANDIDATE_CAP = 5;
-/** The results column is short; the real app lists every possible outcome. */
-const OUTCOME_CAP = 3;
-/** Renders the calculator slightly wider than the visible crop, then shrinks it, so the dense list and results table both fit side by side. */
-const FIT_SCALE = 0.86;
-
-/** The real Trade-up calculator body: pick inputs, see average float, expected value and every outcome. */
-export default function TradeUpDemo() {
+/**
+ * The real Trade-up calculator body: pick inputs, see average float, expected value and every outcome.
+ * The cropped panel gets a lean composition that stays legible when scaled; the dialog gets the full app.
+ */
+export default function TradeUpDemo({
+  variant = FEATURE_DEMO_VARIANT.dialog,
+}: FeatureDemoComponentProps) {
+  const inline = variant === FEATURE_DEMO_VARIANT.inline;
   const copy = COPY.tradeup;
   const candidates = useMemo(() => tradeUpCandidates(), []);
   const [selection, setSelection] = useState<readonly string[]>(DEFAULT_SELECTION);
@@ -34,14 +40,53 @@ export default function TradeUpDemo() {
           : [...cur, id],
     );
 
+  const autoFill = () =>
+    setSelection(candidates.candidates.slice(0, candidates.inputCount).map((c) => c.id));
+  const clear = () => setSelection([]);
+  const inputProps = {
+    selectedIds,
+    inputCount: candidates.inputCount,
+    currency: candidates.currency,
+    onToggle: toggle,
+    onAutoFill: autoFill,
+    onClear: clear,
+  };
+  const metrics = result && (
+    <div className={inline ? TRADEUP_DEMO.inlineMetricsClass : TRADEUP_DEMO.dialogMetricsClass}>
+      <Metric label={copy.inputCost} value={formatMoney(result.inputCost, result.currency)} />
+      <Metric label={copy.averageFloat} value={formatFloat(result.averageFloat)} />
+      <Metric
+        label={copy.expectedValue}
+        value={formatMoney(result.expectedValue, result.currency)}
+      />
+      <Metric
+        label={copy.expectedReturn}
+        value={formatPercent(result.expectedValue / result.inputCost - 1)}
+        tone={result.expectedValue >= result.inputCost ? "positive" : "negative"}
+      />
+      <Metric label={copy.chanceToProfit} value={formatChance(result.chanceToProfit)} />
+    </div>
+  );
+  const outcomes = result && (
+    <TradeUpOutcomes
+      outcomes={inline ? result.outcomes.slice(0, TRADEUP_DEMO.inlineOutcomeCap) : result.outcomes}
+      currency={result.currency}
+      inputCost={result.inputCost}
+    />
+  );
+  const selectMore = result && result.selected < result.inputCount && (
+    <p className="text-xs text-muted-foreground">
+      {copy.selectMore(result.inputCount - result.selected)}
+    </p>
+  );
+  const pickPrompt = selection.length === 0 && (
+    <p className="text-muted-foreground">{copy.pickPrompt}</p>
+  );
+
   return (
     <div
       className="oi-app flex flex-col gap-3 p-4"
-      style={{
-        width: DEMO_VISIBLE_WIDTH / FIT_SCALE,
-        transform: `scale(${FIT_SCALE})`,
-        transformOrigin: "0 0",
-      }}
+      style={inline ? { maxWidth: DEMO_VISIBLE_WIDTH } : undefined}
     >
       <PageHeader title={copy.title} description={copy.description}>
         <span className="text-muted-foreground">
@@ -49,53 +94,35 @@ export default function TradeUpDemo() {
           <span className="text-foreground">{copy.rarities.rarity_ancient_weapon}</span>
         </span>
       </PageHeader>
-      <div className="grid min-h-0 grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] items-start gap-3">
-        <TradeUpInputs
-          candidates={candidates.candidates.slice(0, CANDIDATE_CAP)}
-          selectedIds={selectedIds}
-          inputCount={candidates.inputCount}
-          currency={candidates.currency}
-          onToggle={toggle}
-          onAutoFill={() =>
-            setSelection(candidates.candidates.slice(0, candidates.inputCount).map((c) => c.id))
-          }
-          onClear={() => setSelection([])}
-        />
-        <div className="flex min-w-0 flex-col gap-3">
-          {selection.length === 0 && <p className="text-muted-foreground">{copy.pickPrompt}</p>}
-          {result && (
-            <>
-              <div className="grid grid-cols-6 gap-2 [&>*]:col-span-2 [&>:nth-child(n+4)]:col-span-3">
-                <Metric
-                  label={copy.inputCost}
-                  value={formatMoney(result.inputCost, result.currency)}
-                />
-                <Metric label={copy.averageFloat} value={formatFloat(result.averageFloat)} />
-                <Metric
-                  label={copy.expectedValue}
-                  value={formatMoney(result.expectedValue, result.currency)}
-                />
-                <Metric
-                  label={copy.expectedReturn}
-                  value={formatPercent(result.expectedValue / result.inputCost - 1)}
-                  tone={result.expectedValue >= result.inputCost ? "positive" : "negative"}
-                />
-                <Metric label={copy.chanceToProfit} value={formatChance(result.chanceToProfit)} />
-              </div>
-              {result.selected < result.inputCount && (
-                <p className="text-xs text-muted-foreground">
-                  {copy.selectMore(result.inputCount - result.selected)}
-                </p>
-              )}
-              <TradeUpOutcomes
-                outcomes={result.outcomes.slice(0, OUTCOME_CAP)}
-                currency={result.currency}
-                inputCost={result.inputCost}
-              />
-            </>
-          )}
+      {inline ? (
+        <>
+          {metrics}
+          <div className={TRADEUP_DEMO.inlineLayoutClass}>
+            <TradeUpInlineInputs
+              candidates={candidates.candidates.slice(0, TRADEUP_DEMO.inlineCandidateCap)}
+              {...inputProps}
+            />
+            <div className="flex min-w-0 flex-col gap-3">
+              {pickPrompt}
+              {selectMore}
+              {outcomes}
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className={TRADEUP_DEMO.dialogLayoutClass}>
+          <div className={cn("min-w-0", TRADEUP_DEMO.dialogListClass)}>
+            <TradeUpInputs candidates={candidates.candidates} {...inputProps} />
+          </div>
+          <div className="flex min-w-0 flex-col gap-3">
+            {pickPrompt}
+            {metrics}
+            {selectMore}
+            {outcomes}
+            {result && <p className="text-xs text-muted-foreground">{copy.formulaNote}</p>}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -6,6 +6,9 @@ export const DEMO_VISIBLE_WIDTH = 880;
 export const DEMO_HEIGHT = 560;
 export const DEMO_MIN_SCALE = 0.3;
 
+/** Where a demo is rendered: the cropped, scaled panel, or the full-size dialog. */
+export const FEATURE_DEMO_VARIANT = { inline: "inline", dialog: "dialog" } as const;
+
 export const FEATURE_DEMO_LABELS = {
   open: (id: string) => `Explore full ${id} demo`,
   dialog: (id: string) => `${id} demo`,

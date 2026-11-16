@@ -6,6 +6,7 @@ import {
   DEMO_VISIBLE_WIDTH,
   DEMO_WIDTH,
   FEATURE_DEMO_LABELS,
+  FEATURE_DEMO_VARIANT,
 } from "./feature-demo.config";
 
 /**
@@ -40,7 +41,7 @@ export default function FeatureDemo({ id, Demo }: FeatureDemoProps) {
         className="fdemo__inner"
         style={{ width: DEMO_WIDTH, height: DEMO_HEIGHT, transform: `scale(${scale})` }}
       >
-        <Demo />
+        <Demo variant={FEATURE_DEMO_VARIANT.inline} />
       </div>
       <button ref={openRef} type="button" className="fdemo__open" onClick={() => setExpanded(true)}>
         {FEATURE_DEMO_LABELS.open(id)}
@@ -62,7 +63,7 @@ export default function FeatureDemo({ id, Demo }: FeatureDemoProps) {
             </button>
           </div>
           <div className="fdemo__dialog-body" data-lenis-prevent>
-            <Demo />
+            <Demo variant={FEATURE_DEMO_VARIANT.dialog} />
           </div>
         </dialog>
       )}
