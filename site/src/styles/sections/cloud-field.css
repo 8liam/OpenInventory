@@ -85,7 +85,7 @@
    so the line's faded ends used to show as a dark slit cutting through the glow. */
 .glow-field__horizon::before,
 .glow-field__horizon::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   right: 0;
