@@ -4,7 +4,7 @@ import { UNIT_NAME } from "~/components/unit-name/unit-name.config";
 import { COPY } from "~/lib/copy/copy.config";
 import { MARKETPLACES } from "~/lib/settings/settings.config";
 import { STORAGE_LIMITS } from "~/lib/storage/storage.config";
-import type { BentoCard, BentoPlatform } from "./bento.types";
+import type { BentoAccount, BentoAccountRow, BentoCard, BentoPlatform } from "./bento.types";
 
 /**
  * Sample prices one item would show on each marketplace. Buff163 is the app's default and matches the
@@ -66,6 +66,12 @@ export const bento = {
       eyebrow: "Look with confidence",
       title: "Never lists, sells or trades.",
       body: "Read-only apart from item moves, storage-unit renames and Terminal actions.",
+    },
+    {
+      kind: "accounts",
+      eyebrow: "More than one Steam account",
+      title: "Every account, one ledger.",
+      body: "Add as many accounts as you own. Each signs in on its own, then view them together or switch to one. Filter by label, and items stay tagged with the account they sit in.",
     },
     {
       kind: "platforms",
@@ -162,6 +168,30 @@ export const bento = {
     move: TRANSFER_BAR.move,
     denied: ["List", "Sell", "Trade"],
     lockLabel: "Read-only",
+  },
+
+  /** The "All accounts" view, in the app's own words. Account names, labels and values are samples that add up to the dashboard total. */
+  accounts: {
+    allLabel: COPY.accounts.all,
+    column: COPY.accounts.column,
+    itemColumn: COPY.itemColumns.item,
+    priceColumn: COPY.itemColumns.price,
+    statusText: {
+      ready: COPY.accounts.status.ready,
+      error: COPY.accounts.status.error,
+    },
+    list: [
+      { name: "Main", label: COPY.accounts.labels.main, status: "ready", value: 2418.6 },
+      { name: "Swaps", label: COPY.accounts.labels.trade, status: "ready", value: 1201.45 },
+      { name: "Cases", label: COPY.accounts.labels.alt, status: "error", value: 425.14 },
+    ] as const satisfies readonly BentoAccount[],
+    rows: [
+      { itemName: "★ Butterfly Knife | Vanilla", account: 0 },
+      { itemName: "★ Karambit | Slaughter (Factory New)", account: 1 },
+      { itemName: "★ Sport Gloves | Nocts (Field-Tested)", account: 0 },
+    ] as const satisfies readonly BentoAccountRow[],
+    currencyCode: "USD",
+    sampleTag: "Sample accounts",
   },
 
   platforms: {

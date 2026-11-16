@@ -1,4 +1,11 @@
-export type BentoKind = "prices" | "local" | "signin" | "capacity" | "readonly" | "platforms";
+export type BentoKind =
+  | "prices"
+  | "local"
+  | "signin"
+  | "capacity"
+  | "readonly"
+  | "accounts"
+  | "platforms";
 
 export type BentoCard = {
   readonly kind: BentoKind;
@@ -60,3 +67,18 @@ export type BentoIconName =
   | "database"
   | "monitor"
   | "globe";
+
+/** One Steam account as the switcher lists it. Names, labels and values are sample stand-ins. */
+export type BentoAccount = {
+  readonly name: string;
+  readonly label: string;
+  readonly status: "ready" | "error";
+  readonly value: number;
+};
+
+/** One row of the combined items table, tagged with the account it belongs to. */
+export type BentoAccountRow = {
+  readonly itemName: string;
+  /** Index into the accounts list. */
+  readonly account: number;
+};

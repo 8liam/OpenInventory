@@ -1,0 +1,66 @@
+---
+import { formatMoney } from '~/utils/format';
+import { bento } from '../bento.config';
+import { sampleItem } from '../bento.data';
+
+const { accounts } = bento;
+const total = accounts.list.reduce((sum, account) => sum + account.value, 0);
+const attention = accounts.list.filter((account) => account.status === 'error').length;
+const rows = accounts.rows.map((row) => ({ ...sampleItem(row.itemName), account: accounts.list[row.account] }));
+const CARD_W = 150;
+const CARD_GAP = 12;
+const money = (value: number) => formatMoney(value, accounts.currencyCode);
+---
+<svg class="bacc bento__ui" viewBox="0 0 520 330" role="presentation" focusable="false">
+  <defs>
+    <clipPath id="bacc-thumb"><rect x="0" y="0" width="28" height="28" rx="6" /></clipPath>
+  </defs>
+
+  <!-- Switcher: "All accounts" with the app's summary line -->
+  <g class="bacc__switcher">
+    <rect class="bacc__pill" x="20" y="16" width="170" height="36" rx="18" />
+    <circle class="bacc__avatars" cx="40" cy="34" r="6" />
+    <circle class="bacc__avatars bacc__avatars--b" cx="48" cy="34" r="6" />
+    <circle class="bacc__avatars bacc__avatars--c" cx="56" cy="34" r="6" />
+    <text class="bacc__t bacc__t--strong" x="72" y="39">{accounts.allLabel}</text>
+    <path class="bacc__chev" d="m170 31 4 4 4-4" />
+  </g>
+  <text class="bacc__t bacc__t--muted" x="204" y="39">
+    {accounts.list.length} accounts · {attention} needs attention
+  </text>
+  <text class="bacc__t bacc__t--total" x="500" y="40" text-anchor="end">{money(total)}</text>
+
+  <!-- One card per account -->
+  {accounts.list.map((account, i) => (
+    <g class={`bacc__acct bacc__acct--${account.status}`} style={`--i:${i}`} transform={`translate(${20 + i * (CARD_W + CARD_GAP)} 70)`}>
+      <rect class="bacc__card" width={CARD_W} height="74" rx="12" />
+      <circle class="bacc__dot" cx="18" cy="21" r="4.5" />
+      <text class="bacc__t bacc__t--strong" x="30" y="25">{account.name}</text>
+      <rect class="bacc__label" x={CARD_W - 52} y="11" width="40" height="19" rx="9.5" />
+      <text class="bacc__t bacc__t--tiny" x={CARD_W - 32} y="24" text-anchor="middle">{account.label}</text>
+      <text class="bacc__t bacc__t--money" x="14" y="55">{money(account.value)}</text>
+      <text class="bacc__t bacc__t--tiny bacc__status" x="14" y="68">{accounts.statusText[account.status]}</text>
+    </g>
+  ))}
+
+  <!-- Combined table with the Account column -->
+  <g transform="translate(20 160)">
+    <rect class="bacc__card" width="480" height="150" rx="12" />
+    <text class="bacc__t bacc__t--head" x="16" y="24">{accounts.itemColumn}</text>
+    <text class="bacc__t bacc__t--head" x="296" y="24">{accounts.column}</text>
+    <text class="bacc__t bacc__t--head" x="464" y="24" text-anchor="end">{accounts.priceColumn}</text>
+    <path class="bacc__rule" d="M0 34h480" />
+    {rows.map((row, i) => (
+      <g class={`bacc__row bacc__row--${row.account.status}`} style={`--i:${i}`} transform={`translate(0 ${40 + i * 36})`}>
+        <image href={row.imageUrl} x="14" y="2" width="28" height="28" clip-path="url(#bacc-thumb)" />
+        <text class="bacc__t" x="52" y="21">{row.weapon && <tspan class="bacc__t--muted">{row.weapon.replace('★ ', '')} </tspan>}{row.skin.replace(/ \(.*\)$/, '')}</text>
+        <g class="bacc__tag">
+          <rect x="296" y="6" width="80" height="20" rx="10" />
+          <circle cx="309" cy="16" r="3.5" />
+          <text class="bacc__t bacc__t--tiny" x="319" y="19.5">{row.account.name}</text>
+        </g>
+        <text class="bacc__t bacc__t--mono" x="464" y="21" text-anchor="end">{money(row.price)}</text>
+      </g>
+    ))}
+  </g>
+</svg>

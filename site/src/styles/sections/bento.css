@@ -1883,3 +1883,172 @@
     box-shadow: none;
   }
 }
+
+/* ── Accounts: a hand-drawn SVG of the "All accounts" view ── */
+.bento__card--accounts {
+  --art-h: auto;
+}
+.bento__card--accounts .bento__art {
+  height: auto;
+  min-height: 19rem;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+.bacc {
+  width: 100%;
+  max-width: 34rem;
+  height: auto;
+  overflow: visible;
+  font-family: var(--font-sans, inherit);
+}
+.bacc__pill,
+.bacc__card {
+  fill: var(--ui-card);
+  stroke: var(--ui-border);
+}
+.bacc__pill {
+  stroke: var(--c-line-strong);
+}
+.bacc__avatars {
+  fill: var(--c-accent);
+  stroke: var(--ui-card);
+  stroke-width: 2;
+}
+.bacc__avatars--b {
+  fill: #5aa8ff;
+}
+.bacc__avatars--c {
+  fill: #f0b455;
+}
+.bacc__chev {
+  fill: none;
+  stroke: var(--ui-muted);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.bacc__t {
+  fill: var(--ui-fg);
+  font-size: 12.5px;
+  letter-spacing: -0.01em;
+}
+.bacc__t--strong {
+  font-weight: 600;
+}
+.bacc__t--muted,
+.bacc__t--tiny,
+.bacc__t--head {
+  fill: var(--ui-muted);
+}
+.bacc__t--tiny {
+  font-size: 10.5px;
+}
+.bacc__t--head {
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.bacc__t--total {
+  font-size: 15px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.bacc__t--money,
+.bacc__t--mono {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.bacc__t--money {
+  font-size: 16px;
+}
+.bacc__dot {
+  fill: var(--c-accent);
+}
+.bacc__label {
+  fill: rgb(var(--c-fg-rgb) / 0.06);
+}
+.bacc__acct--error .bacc__dot {
+  fill: #f0b455;
+}
+.bacc__acct--error .bacc__status {
+  fill: #f0b455;
+}
+.bacc__rule {
+  stroke: var(--ui-border);
+}
+.bacc__tag rect {
+  fill: rgb(var(--c-accent-rgb) / 0.1);
+}
+.bacc__tag circle {
+  fill: var(--c-accent);
+}
+.bacc__row--error .bacc__tag rect {
+  fill: rgb(240 180 85 / 0.12);
+}
+.bacc__row--error .bacc__tag circle {
+  fill: #f0b455;
+}
+
+@media (min-width: 700px) {
+  .bento__card--accounts {
+    grid-column: 1 / -1;
+    flex-direction: row-reverse;
+    align-items: stretch;
+  }
+  .bento__card--accounts .bento__art {
+    flex: 1.1 1 0;
+    min-height: 22rem;
+    margin: 0.625rem 0.625rem 0.625rem 0;
+  }
+  .bento__card--accounts .bento__copy {
+    flex: 1 1 0;
+    align-self: center;
+    padding: 2rem clamp(1.5rem, 4vw, 3.5rem);
+  }
+  .bento__card--accounts .bento__copy h3 {
+    font-size: var(--t-l);
+    line-height: 1.12;
+    letter-spacing: -0.04em;
+  }
+}
+
+/* Hover (or .is-play on touch): the cards light up one by one and each row's account tag follows. */
+@media (prefers-reduced-motion: no-preference) {
+  .bacc__card,
+  .bacc__tag rect {
+    transition:
+      stroke 0.3s,
+      fill 0.3s;
+  }
+  .bento__card--accounts:is(:hover, .is-play) .bacc__acct {
+    animation: bacc-glow 3.6s calc(var(--i) * 0.9s) var(--loop, infinite);
+  }
+  .bento__card--accounts:is(:hover, .is-play) .bacc__row {
+    animation: bacc-slide 0.6s calc(var(--i) * 0.12s) var(--ease-out) both;
+  }
+  .bento__card--accounts:is(:hover, .is-play) .bacc__acct--error .bacc__dot {
+    animation: bento-blink 1.1s steps(1) infinite;
+  }
+}
+@keyframes bacc-glow {
+  0%,
+  35%,
+  100% {
+    translate: 0 0;
+  }
+  10%,
+  25% {
+    translate: 0 -4px;
+  }
+}
+@keyframes bacc-slide {
+  from {
+    opacity: 0;
+    translate: -10px 0;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
