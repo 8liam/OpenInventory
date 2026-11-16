@@ -2,65 +2,57 @@
 import { formatMoney } from '~/utils/format';
 import { bento } from '../bento.config';
 import { sampleItem } from '../bento.data';
+import BentoThumb from '../bento-thumb/bento-thumb.astro';
+import BentoIcon from '../bento-icon/bento-icon.astro';
 
 const { accounts } = bento;
 const total = accounts.list.reduce((sum, account) => sum + account.value, 0);
-const attention = accounts.list.filter((account) => account.status === 'error').length;
+const waiting = accounts.list.filter((account) => account.status === 'error');
+const connectedTotal = accounts.list.filter((account) => account.status === 'ready').reduce((sum, account) => sum + account.value, 0);
+const selected = accounts.list[accounts.selectedAccount];
 const rows = accounts.rows.map((row) => ({ ...sampleItem(row.itemName), account: accounts.list[row.account] }));
-const CARD_W = 150;
-const CARD_GAP = 12;
 const money = (value: number) => formatMoney(value, accounts.currencyCode);
 ---
-<svg class="bacc bento__ui" viewBox="0 0 520 330" role="presentation" focusable="false">
-  <defs>
-    <clipPath id="bacc-thumb"><rect x="0" y="0" width="28" height="28" rx="6" /></clipPath>
-  </defs>
-
-  <!-- Switcher: "All accounts" with the app's summary line -->
-  <g class="bacc__switcher">
-    <rect class="bacc__pill" x="20" y="16" width="170" height="36" rx="18" />
-    <circle class="bacc__avatars" cx="40" cy="34" r="6" />
-    <circle class="bacc__avatars bacc__avatars--b" cx="48" cy="34" r="6" />
-    <circle class="bacc__avatars bacc__avatars--c" cx="56" cy="34" r="6" />
-    <text class="bacc__t bacc__t--strong" x="72" y="39">{accounts.allLabel}</text>
-    <path class="bacc__chev" d="m170 31 4 4 4-4" />
-  </g>
-  <text class="bacc__t bacc__t--muted" x="204" y="39">
-    {accounts.list.length} accounts · {attention} needs attention
-  </text>
-  <text class="bacc__t bacc__t--total" x="500" y="40" text-anchor="end">{money(total)}</text>
-
-  <!-- One card per account -->
-  {accounts.list.map((account, i) => (
-    <g class={`bacc__acct bacc__acct--${account.status}`} style={`--i:${i}`} transform={`translate(${20 + i * (CARD_W + CARD_GAP)} 70)`}>
-      <rect class="bacc__card" width={CARD_W} height="74" rx="12" />
-      <circle class="bacc__dot" cx="18" cy="21" r="4.5" />
-      <text class="bacc__t bacc__t--strong" x="30" y="25">{account.name}</text>
-      <rect class="bacc__label" x={CARD_W - 52} y="11" width="40" height="19" rx="9.5" />
-      <text class="bacc__t bacc__t--tiny" x={CARD_W - 32} y="24" text-anchor="middle">{account.label}</text>
-      <text class="bacc__t bacc__t--money" x="14" y="55">{money(account.value)}</text>
-      <text class="bacc__t bacc__t--tiny bacc__status" x="14" y="68">{accounts.statusText[account.status]}</text>
-    </g>
-  ))}
-
-  <!-- Combined table with the Account column -->
-  <g transform="translate(20 160)">
-    <rect class="bacc__card" width="480" height="150" rx="12" />
-    <text class="bacc__t bacc__t--head" x="16" y="24">{accounts.itemColumn}</text>
-    <text class="bacc__t bacc__t--head" x="296" y="24">{accounts.column}</text>
-    <text class="bacc__t bacc__t--head" x="464" y="24" text-anchor="end">{accounts.priceColumn}</text>
-    <path class="bacc__rule" d="M0 34h480" />
-    {rows.map((row, i) => (
-      <g class={`bacc__row bacc__row--${row.account.status}`} style={`--i:${i}`} transform={`translate(0 ${40 + i * 36})`}>
-        <image href={row.imageUrl} x="14" y="2" width="28" height="28" clip-path="url(#bacc-thumb)" />
-        <text class="bacc__t" x="52" y="21">{row.weapon && <tspan class="bacc__t--muted">{row.weapon.replace('★ ', '')} </tspan>}{row.skin.replace(/ \(.*\)$/, '')}</text>
-        <g class="bacc__tag">
-          <rect x="296" y="6" width="80" height="20" rx="10" />
-          <circle cx="309" cy="16" r="3.5" />
-          <text class="bacc__t bacc__t--tiny" x="319" y="19.5">{row.account.name}</text>
-        </g>
-        <text class="bacc__t bacc__t--mono" x="464" y="21" text-anchor="end">{money(row.price)}</text>
-      </g>
-    ))}
-  </g>
-</svg>
+<div class="bacc bento__stage bento__ui" style={`--account-cycle:${accounts.cycleSeconds}s`}>
+  <header class="bacc__header">
+    <div><span class="bacc__muted">{accounts.savedLabel}</span><p class="bacc__total">{money(total)}</p></div>
+    <span class="bacc__sample">{accounts.sampleTag}</span>
+  </header>
+  <p class="bacc__muted bacc__saved-hint">{accounts.savedHint}</p>
+  <div class="bacc__workspace">
+    <div class="bento__panel bacc__switcher">
+      <div class="bacc__switch-head">
+        <span class="bacc__swap"><span class="bacc__all">{accounts.allLabel}</span><span class="bacc__single">{selected.name}</span></span>
+        <svg class="bacc__arrows" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16m-4-4 4 4-4 4M20 17H4m4-4-4 4 4 4" /></svg>
+      </div>
+      <p class="bacc__summary">{accounts.summary(accounts.list.length, waiting.length)}</p>
+      <div class="bacc__option bacc__option--all"><span>{accounts.allLabel}</span><span class="bacc__all"><BentoIcon name="check" size={14} /></span></div>
+      {accounts.list.map((account, index) => (
+        <div class:list={['bacc__option', index === accounts.selectedAccount && 'bacc__option--selected']}>
+          <span class:list={['bacc__dot', `bacc__dot--${account.status}`]} />
+          <div class="bacc__identity"><strong>{account.name}</strong><small>{accounts.statusText[account.status]}</small></div>
+          <span class="bacc__label">{account.label}</span>
+        </div>
+      ))}
+    </div>
+    <div class="bacc__views">
+      {[false, true].map((single) => (
+        <div class:list={['bacc__view', single ? 'bacc__single' : 'bacc__all']}>
+          <div class="bacc__view-head"><div><span class="bacc__muted">{single ? accounts.selectedLabel : accounts.connectedLabel}</span><p class="bacc__value">{money(single ? selected.value : connectedTotal)}</p></div><span class="bacc__filter">{single ? accounts.filterLabel(selected.label) : accounts.filterAll}<BentoIcon name="chevrons-up-down" size={12} /></span></div>
+          <div class="bento__panel bacc__table">
+            <div class="bacc__table-head"><span>{accounts.itemColumn}</span><span>{accounts.column}</span><span>{accounts.priceColumn}</span></div>
+            {rows.filter((row) => !single || row.account === selected).map((row) => (
+              <div class="bacc__row">
+                <div class="bacc__item"><BentoThumb item={row} size={accounts.thumbSize} /><div><p class="bacc__muted">{row.weapon}</p><p>{row.skin}</p></div></div>
+                <span class="bacc__owner">{row.account.name}</span>
+                <span class="bacc__price">{money(row.price)}</span>
+              </div>
+            ))}
+          </div>
+          <p class="bacc__caption">{accounts.previewLabel}</p>
+          {!single && <div class="bacc__notice"><p>{accounts.partialNotice(waiting.map((account) => account.name))}</p><span>{accounts.reconnect}<span aria-hidden="true"> ↗</span></span></div>}
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
