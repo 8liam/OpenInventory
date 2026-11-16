@@ -5,6 +5,8 @@ export const GLOW_FIELD = {
   finePointerQuery: "(hover: hover) and (pointer: fine)",
   mouseXVar: "--mx",
   mouseYVar: "--my",
+  /** Panel scroll progress (0 at rest, 1 once the panel has scrolled by its own height). */
+  scrollVar: "--sp",
   /** Fraction of the way the pointer value eases toward its target each frame. */
   easing: 0.07,
   /** Stop easing once within this distance of the target. */
