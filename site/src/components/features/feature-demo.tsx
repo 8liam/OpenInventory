@@ -1,9 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import DashboardDemo from "@demo/demo/dashboard-demo";
-import ItemsDemo from "@demo/demo/items-demo";
-import StorageDemo from "@demo/demo/storage-demo";
-import CasesDemo from "@demo/demo/cases-demo";
-import TradeUpDemo from "@demo/demo/tradeup-demo";
+import type { FeatureDemoProps } from "./feature-demo.types";
+import { useEffect, useRef, useState } from "react";
 import {
   DEMO_HEIGHT,
   DEMO_MIN_SCALE,
@@ -12,20 +8,11 @@ import {
   FEATURE_DEMO_LABELS,
 } from "./feature-demo.config";
 
-const DEMOS: Record<string, () => ReactNode> = {
-  dashboard: DashboardDemo,
-  items: ItemsDemo,
-  storage: StorageDemo,
-  cases: CasesDemo,
-  tradeup: TradeUpDemo,
-};
-
 /**
  * One real OpenInventory page, live on the sample account, laid out at desktop size and scaled
  * down into a cropped panel so it reads like a screenshot but still responds to clicks.
  */
-export default function FeatureDemo({ id }: { id: string }) {
-  const Demo = DEMOS[id];
+export default function FeatureDemo({ id, Demo }: FeatureDemoProps) {
   const boxRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const openRef = useRef<HTMLButtonElement>(null);

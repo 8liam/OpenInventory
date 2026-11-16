@@ -197,10 +197,9 @@ const destination = `${to.name} (${UNIT_TARGETS.find((u) => u.id === to.id)?.cou
 <script>
   // Plays each illustration's story when it scrolls into view and again on hover or tap. Pure enhancement:
   // without JS, or with reduced motion, the CSS shows the finished frame and nothing moves.
-  import { howConfig } from './how.config';
+  import { howMotion as motion } from './how-motion.config';
   import type { HowPlayState } from './how.types';
 
-  const { motion } = howConfig;
   const timers = new WeakMap<HTMLElement, number>();
   const setState = (el: HTMLElement, state: HowPlayState): void => {
     el.dataset.how = state;

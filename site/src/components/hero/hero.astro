@@ -3,6 +3,11 @@ import { hero, lenses } from '../../data/site.config';
 import CloudField from '../cloud-field/cloud-field.astro';
 import { heroConfig } from './hero.config';
 import LensGallery from '../lens/lens-gallery';
+import DashboardDemo from '@demo/demo/dashboard-demo';
+import ItemsDemo from '@demo/demo/items-demo';
+import StorageDemo from '@demo/demo/storage-demo';
+import CasesDemo from '@demo/demo/cases-demo';
+import TradeUpDemo from '@demo/demo/tradeup-demo';
 import GithubLink from '../github-link/github-link.astro';
 import { fetchStars } from '../../lib/github-stars/github-stars';
 import { ICON_PATHS } from '../../lib/download/download.icons';
@@ -60,6 +65,12 @@ const platforms = iconNames.map((icon) => ({
   </div>
 
   <div class="hero__stage" id={lenses.id} data-reveal style="--d:0.44s">
-    <LensGallery lenses={lenses.items} client:load />
+    <LensGallery lenses={lenses.items} client:visible>
+      <DashboardDemo slot="dashboard" client:visible />
+      <ItemsDemo slot="items" client:visible />
+      <StorageDemo slot="storage" client:visible />
+      <CasesDemo slot="cases" client:visible />
+      <TradeUpDemo slot="tradeup" client:visible />
+    </LensGallery>
   </div>
 </section>

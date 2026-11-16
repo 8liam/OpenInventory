@@ -1,5 +1,16 @@
 import { githubStarsConfig } from "./github-stars.config";
-import { repoResponseSchema } from "./github-stars.types";
+import type { RepoResponse } from "./github-stars.types";
+
+function isRepoResponse(value: unknown): value is RepoResponse {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "stargazers_count" in value &&
+    typeof value.stargazers_count === "number" &&
+    Number.isSafeInteger(value.stargazers_count) &&
+    value.stargazers_count >= 0
+  );
+}
 
 let cache: { stars: number; at: number } | null = null;
 let retryAfter = 0;
@@ -25,7 +36,12 @@ export async function fetchStars(): Promise<number | null> {
       retryAfter = Date.now() + githubStarsConfig.retryBackoffMs;
       return cache?.stars ?? null;
     }
-    cache = { stars: repoResponseSchema.parse(await res.json()).stargazers_count, at: Date.now() };
+    const response: unknown = await res.json();
+    if (!isRepoResponse(response)) {
+      retryAfter = Date.now() + githubStarsConfig.retryBackoffMs;
+      return cache?.stars ?? null;
+    }
+    cache = { stars: response.stargazers_count, at: Date.now() };
     return cache.stars;
   } catch {
     retryAfter = Date.now() + githubStarsConfig.retryBackoffMs;

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { LayoutDashboard, Package, Archive, Briefcase, ArrowUpRight } from "lucide-react";
 import {
   LENS_ROTATION_MS,
@@ -9,13 +9,7 @@ import {
   LENS_REDUCED_MOTION_QUERY,
   LENS_NAV_KEYS,
 } from "./lens.config";
-import type { Lens, LensId } from "./lens.types";
-import DashboardDemo from "@demo/demo/dashboard-demo";
-import ItemsDemo from "@demo/demo/items-demo";
-import StorageDemo from "@demo/demo/storage-demo";
-import CasesDemo from "@demo/demo/cases-demo";
-import TradeUpDemo from "@demo/demo/tradeup-demo";
-
+import type { LensGalleryProps, LensId } from "./lens.types";
 export type { LensId } from "./lens.types";
 
 const ICONS = {
@@ -26,21 +20,13 @@ const ICONS = {
   tradeup: ArrowUpRight,
 };
 
-const DEMOS: Record<LensId, () => ReactNode> = {
-  dashboard: DashboardDemo,
-  items: ItemsDemo,
-  storage: StorageDemo,
-  cases: CasesDemo,
-  tradeup: TradeUpDemo,
-};
-
 /**
  * The hero's live product stage. One sample account, five views.
  * Without JS every view renders stacked so the content is complete. With JS it becomes a
  * segmented control that wipes between views. Auto-advances slowly until the visitor touches
  * it, then stops for good.
  */
-export default function LensGallery({ lenses }: { lenses: readonly Lens[] }) {
+export default function LensGallery({ lenses, ...demos }: LensGalleryProps) {
   const [active, setActive] = useState<LensId>(lenses[0]?.id ?? "dashboard");
   const [touched, setTouched] = useState(false);
   const [enhanced, setEnhanced] = useState(false);
@@ -113,6 +99,7 @@ export default function LensGallery({ lenses }: { lenses: readonly Lens[] }) {
 
   return (
     <div
+      suppressHydrationWarning
       className={`lens${enhanced ? " is-enhanced" : ""}`}
       ref={rootRef}
       onPointerDown={() => setTouched(true)}
@@ -183,7 +170,6 @@ export default function LensGallery({ lenses }: { lenses: readonly Lens[] }) {
       <div className="lens__device">
         <div className="lens__stage" ref={stageRef}>
           {lenses.map((l) => {
-            const Demo = DEMOS[l.id];
             const on = l.id === active;
             return (
               <div
@@ -193,9 +179,11 @@ export default function LensGallery({ lenses }: { lenses: readonly Lens[] }) {
                 aria-labelledby={enhanced ? `lens-tab-${l.id}` : undefined}
                 className={`lens__panel${on ? " is-on" : ""}`}
                 tabIndex={enhanced ? 0 : undefined}
+                // Base collapses inactive panels before hydration to keep layout stable.
+                suppressHydrationWarning
                 hidden={enhanced && !on}
               >
-                <Demo />
+                {demos[l.id]}
               </div>
             );
           })}
