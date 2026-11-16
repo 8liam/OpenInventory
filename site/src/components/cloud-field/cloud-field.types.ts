@@ -10,6 +10,8 @@ export type SkinTier = 1 | 2;
 export interface GlowSkin {
   /** Public path of a CS2 skin thumbnail. */
   src: string;
+  /** Small demo thumbnail plus a sharp 2x hero variant. */
+  srcSet: string;
   /** Horizontal centre as a percentage of the panel width. */
   x: number;
   /** Vertical centre as a percentage of the panel height. */

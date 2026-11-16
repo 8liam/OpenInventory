@@ -1,5 +1,6 @@
 ---
 import { bento } from './bento.config';
+import BentoAccounts from './bento-accounts/bento-accounts.astro';
 import BentoCapacity from './bento-capacity/bento-capacity.astro';
 import BentoLocal from './bento-local/bento-local.astro';
 import BentoPlatforms from './bento-platforms/bento-platforms.astro';
@@ -26,6 +27,7 @@ import BentoSignin from './bento-signin/bento-signin.astro';
             {card.kind === 'signin' && <BentoSignin />}
             {card.kind === 'capacity' && <BentoCapacity />}
             {card.kind === 'readonly' && <BentoReadonly />}
+            {card.kind === 'accounts' && <BentoAccounts />}
             {card.kind === 'platforms' && <BentoPlatforms />}
           </div>
           <div class="bento__copy">
