@@ -85,7 +85,7 @@ export default function TradeUpDemo({
 
   return (
     <div
-      className="oi-app flex flex-col gap-3 p-4"
+      className={cn("oi-app flex flex-col gap-3 p-4", !inline && TRADEUP_DEMO.dialogRootClass)}
       style={inline ? { maxWidth: DEMO_VISIBLE_WIDTH } : undefined}
     >
       <PageHeader title={copy.title} description={copy.description}>
