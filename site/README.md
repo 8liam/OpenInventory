@@ -24,3 +24,13 @@ The site is its own pnpm workspace (`pnpm-workspace.yaml`) and does not install 
 ## Deploy
 
 Vercel project settings: Root Directory `site`, and **Include source files outside of the Root Directory** on. `vercel.json` skips builds that touch neither `site/` nor the app's `src/`.
+
+### Static asset caching
+
+`/_astro/`, `/fonts/`, and `/demo/` have one-year immutable browser caching. Files in
+these directories must have content-hashed names: never replace bytes at an existing
+URL. Demo thumbnails are named by `scripts/fetch-item-images.mjs`; when replacing a
+font, use the first 12 hex characters of its SHA-256 and update both the font-face
+URL and matching preload. The glow skins resolve URLs from the demo manifest.
+HTML, robots, sitemaps, and unversioned root assets retain Vercel's revalidation
+policy so deployments can update them immediately.
