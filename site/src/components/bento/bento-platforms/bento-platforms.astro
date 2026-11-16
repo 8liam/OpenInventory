@@ -1,0 +1,23 @@
+---
+import { Picture } from 'astro:assets';
+import dashboard from '../../../assets/dashboard.png';
+import { bento } from '../bento.config';
+
+const { platforms } = bento;
+---
+<div class="bento__stage bento__desktop">
+  <div class="bento__frame bento__frame--web">
+    <div class="bento__chrome bento__chrome--web"><i /><i /><i /><span>{platforms.browserUrl}</span></div>
+    <Picture src={dashboard} alt={platforms.imageAlt} formats={['avif']} fallbackFormat="webp" widths={[...platforms.imageWidths]} sizes={platforms.imageSizes} layout="none" class="bento__shot" loading="lazy" decoding="async" />
+    <span class="bento__web-tag">{platforms.webLabel}</span>
+  </div>
+  <div class="bento__frame bento__frame--app">
+    <div class="bento__chrome"><i /><i /><i /><span>{platforms.desktopTitle}</span></div>
+    <Picture src={dashboard} alt={platforms.imageAlt} formats={['avif']} fallbackFormat="webp" widths={[...platforms.imageWidths]} sizes={platforms.imageSizes} layout="none" class="bento__shot" loading="lazy" decoding="async" />
+  </div>
+  <ul class="bento__os">
+    {platforms.items.map((platform, index) => (
+      <li style={`--i:${index}`}><b>{platform.name}</b><small>{platform.file}</small></li>
+    ))}
+  </ul>
+</div>

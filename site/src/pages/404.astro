@@ -5,20 +5,21 @@ import SiteFooter from '../components/site-footer/site-footer.astro';
 ---
 <Base title="Not found | OpenInventory" description="This page is not in the inventory." noindex>
   <SiteHeader slot="header" />
-  <section class="nf wrap">
+  <section class="nf">
+    <svg class="nf__mark" viewBox="0 0 500 500" aria-hidden="true" focusable="false"><path fill="currentColor" d="M317.597 112.459C317.597 126.266 328.79 137.459 342.597 137.459H351C364.807 137.459 376 148.652 376 162.459V338.502C376 352.309 364.807 363.502 351 363.502H342.597C328.79 363.502 317.597 374.695 317.597 388.502V462.88C317.597 476.687 306.404 487.88 292.597 487.88H207.403C193.596 487.88 182.403 476.687 182.403 462.88V388.502C182.403 374.695 171.21 363.502 157.403 363.502H149C135.193 363.502 124 352.309 124 338.502V162.459C124 148.652 135.193 137.459 149 137.459H157.403C171.21 137.459 182.403 126.266 182.403 112.459V37C182.403 23.1929 193.596 12 207.403 12H292.597C306.404 12 317.597 23.1929 317.597 37V112.459ZM191.056 327.687C191.056 341.494 202.249 352.687 216.056 352.687H283.944C297.751 352.687 308.944 341.494 308.944 327.687V172.193C308.944 158.386 297.751 147.193 283.944 147.193H216.056C202.249 147.193 191.056 158.386 191.056 172.193V327.687Z" /></svg>
     <div class="nf__main">
-      <p class="mono muted">Error 404</p>
-      <h1 class="nf__t">Item not found.</h1>
+      <p class="mono nf__eyebrow">Error 404</p>
+      <h1 class="nf__t h-xl">Item not found.</h1>
       <p class="nf__b muted">Nothing is stored at this address. It may have moved to another unit.</p>
       <a class="btn btn--solid" href="/">
         <span class="btn__label"><span data-text="Back home">Back home</span></span>
         <span class="btn__arrow" aria-hidden="true">→</span>
       </a>
     </div>
-    <div class="readout nf__card" aria-label="Contents of this address">
-      <p class="mono muted readout__label">This address, total value</p>
-      <p class="readout__value">$0.00</p>
-      <dl class="readout__parts">
+    <div class="nf__card" aria-label="Contents of this address">
+      <p class="mono muted">This address, total value</p>
+      <p class="nf__value">$0.00</p>
+      <dl class="nf__parts">
         <div><dt class="mono muted">Inventory</dt><dd>$0.00</dd></div>
         <div><dt class="mono muted">Storage units</dt><dd>$0.00</dd></div>
         <div><dt class="mono muted">Items</dt><dd>0</dd></div>
@@ -27,3 +28,59 @@ import SiteFooter from '../components/site-footer/site-footer.astro';
   </section>
   <SiteFooter slot="footer" />
 </Base>
+
+<style>
+  .nf {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    align-items: center;
+    gap: clamp(2rem, 5vw, 5rem);
+    min-height: 70svh;
+    max-width: var(--max);
+    margin: var(--gutter) auto;
+    width: calc(100% - var(--gutter) * 2);
+    padding: clamp(2rem, 6vw, 6rem) var(--gutter);
+    overflow: hidden;
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(ellipse 80% 55% at 50% 118%, rgb(var(--c-accent-rgb) / 0.32), transparent 70%),
+      radial-gradient(ellipse 50% 40% at 88% 8%, rgb(var(--c-accent-rgb) / 0.08), transparent 70%),
+      linear-gradient(180deg, var(--sky-top), var(--sky-low) 70%);
+  }
+  /* Real logo glyph, oversized and ghosted behind the copy. */
+  .nf__mark {
+    position: absolute;
+    z-index: -1;
+    left: -4%;
+    top: 50%;
+    width: clamp(18rem, 42vw, 34rem);
+    translate: 0 -50%;
+    color: var(--c-accent);
+    opacity: 0.05;
+    filter: drop-shadow(0 0 40px rgb(var(--c-accent-rgb) / 0.6));
+    pointer-events: none;
+  }
+  .nf__main { max-width: 34rem; }
+  .nf__eyebrow { color: var(--c-accent); }
+  .nf__t { margin-top: 1rem; }
+  .nf__b { margin-block: 1.5rem 2rem; max-width: 30rem; }
+  .nf__card {
+    min-width: 0;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius);
+    background: rgb(var(--c-surface-rgb) / 0.72);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: var(--shadow-float);
+  }
+  .nf__value { margin-block: 1.5rem 2rem; color: var(--c-accent); font-size: var(--t-xl); line-height: 1; letter-spacing: -0.04em; font-weight: 500; }
+  .nf__parts { display: grid; gap: 1rem; }
+  .nf__parts > div { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--c-line); }
+  .nf__parts dd { font-family: var(--f-mono); font-size: var(--t-s); }
+  @media (min-width: 768px) {
+    .nf { grid-template-columns: 1.2fr 1fr; padding-inline: clamp(2rem, 5vw, 5rem); }
+  }
+</style>

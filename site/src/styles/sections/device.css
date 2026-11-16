@@ -1,0 +1,186 @@
+/* ───────── Lens gallery: floating glass segmented control + laptop frame ───────── */
+.lens {
+  --screen-radius: 16px;
+  width: 100%;
+  max-width: 70rem;
+  min-width: 0;
+  margin-inline: auto;
+}
+
+/* ── Pill segmented control ── */
+.lens__bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  margin-bottom: clamp(1rem, 2.2vw, 1.75rem);
+}
+
+.lens .seg {
+  --seg-inset: 5px;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: repeat(var(--lens-count), minmax(0, 1fr));
+  width: min(100%, 38rem);
+  padding: var(--seg-inset);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-pill);
+  background: rgb(10 10 10 / 0.8);
+  box-shadow:
+    0 12px 36px -14px rgb(0 0 0 / 0.7),
+    inset 0 1px 0 rgb(255 255 255 / 0.06);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+}
+
+.seg__thumb {
+  position: absolute;
+  z-index: -1;
+  top: var(--seg-inset);
+  bottom: var(--seg-inset);
+  left: var(--seg-inset);
+  width: calc((100% - var(--seg-inset) * 2) / var(--lens-count));
+  transform: translateX(calc(var(--lens-index) * 100%));
+  border-radius: var(--radius-pill);
+  background: var(--c-accent-soft);
+  box-shadow:
+    0 0 0 1px rgb(var(--c-accent-rgb) / 0.32),
+    0 0 22px -4px rgb(var(--c-accent-rgb) / 0.35),
+    inset 0 1px 0 rgb(var(--c-accent-rgb) / 0.2);
+  transition: transform 320ms var(--ease-out);
+}
+
+.seg__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.5rem 0.35rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--f-body);
+  font-size: var(--t-s);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  color: rgb(var(--c-fg-rgb) / 0.82);
+  transition: color 180ms ease;
+}
+
+.seg__btn svg { flex-shrink: 0; transition: color 180ms ease; }
+.seg__btn:hover { color: var(--c-fg); }
+.seg__btn.is-on, .seg__btn.is-on svg { color: var(--c-accent); }
+.seg__btn:focus-visible { outline: 2px solid var(--c-accent); outline-offset: -2px; }
+
+/* Without JS every view is stacked, so the control would do nothing. */
+@media (scripting: none) {
+  .lens__bar { display: none; }
+}
+
+/* ── Plain window: the real app, hairline ring, lime-lit shadow. No fake hardware. ── */
+.lens__device {
+  position: relative;
+  isolation: isolate;
+  border-radius: 16px;
+  background: var(--c-app-bg);
+  box-shadow:
+    0 0 0 1px rgb(var(--c-ink) / 0.14),
+    inset 0 1px 0 rgb(var(--c-accent-rgb) / 0.4),
+    var(--shadow-float);
+}
+
+
+.lens__stage {
+  --lens-scale: 1;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: var(--screen-radius);
+  background: var(--c-app-bg);
+  color-scheme: dark;
+  container-type: inline-size;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
+.lens__panel {
+  position: relative;
+  height: calc(640px * var(--lens-scale));
+  overflow: hidden;
+  background: var(--c-app-bg);
+}
+
+.lens__panel > .oi-app {
+  width: calc(100% / var(--lens-scale));
+  min-height: 640px;
+  transform: scale(var(--lens-scale));
+  transform-origin: top left;
+}
+
+/* The embedded app is a picture you can click, not a scroll area: nested scrollers never trap the wheel. */
+.lens__panel :is([class*="overflow-auto"], [class*="overflow-y-auto"]) {
+  overflow: hidden !important;
+}
+
+/* Calm, quick page-turn. */
+.lens.is-enhanced .lens__panel.is-on {
+  animation: lens-turn 260ms var(--ease-out);
+}
+
+.lens__panel[hidden] { display: none; }
+.lens:not(.is-enhanced) .lens__panel + .lens__panel { border-top: 1px solid var(--c-line); }
+
+/* ── Caption row ── */
+.lens__caption {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.6rem;
+  max-width: 54ch;
+  min-height: 3em;
+  margin: 1.5rem auto 0;
+  color: var(--c-muted);
+  text-align: center;
+  font-size: var(--t-s);
+  line-height: 1.6;
+}
+
+.lens__caption-dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  align-self: flex-start;
+  margin-top: 0.6em;
+  background: var(--c-accent);
+  box-shadow: 0 0 0 3px var(--c-accent-soft), 0 0 12px rgb(var(--c-accent-rgb) / 0.6);
+}
+
+.lens__caption-text { text-wrap: balance; }
+
+@keyframes lens-turn {
+  from { opacity: 0.35; transform: translateY(6px); clip-path: inset(0 0 4% 0 round 0); }
+  to { opacity: 1; transform: translateY(0); clip-path: inset(0 0 0 0 round 0); }
+}
+
+/* ── Phones: drop the bezel, keep a rounded window ── */
+@media (max-width: 40rem) {
+  .lens { --screen-radius: 16px; }
+  .lens .seg { --seg-inset: 4px; width: 100%; }
+  .seg__btn { flex-direction: column; gap: 4px; font-size: 0.625rem; min-height: 50px; padding: 0.4rem 1px; letter-spacing: 0; }
+  .seg__btn svg { width: 15px; height: 15px; }
+  .lens__device {
+    padding: 0;
+    border-radius: var(--screen-radius);
+    background: var(--c-app-bg);
+    box-shadow: 0 0 0 1px rgb(var(--c-ink) / 0.14), inset 0 1px 0 rgb(var(--c-accent-rgb) / 0.4), var(--shadow-float);
+  }
+  .lens__stage { box-shadow: none; }
+  .lens__caption { margin-top: 1.25rem; font-size: var(--t-xs); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lens .seg__thumb, .lens .seg__btn, .seg__btn svg { transition: none; }
+  .lens.is-enhanced .lens__panel.is-on { animation: none; }
+}

@@ -1,0 +1,30 @@
+---
+import { bento } from '../bento.config';
+import BentoIcon from '../bento-icon/bento-icon.astro';
+
+const { signin } = bento;
+---
+<div class="bento__stage bento__ui bento__login">
+  <div class="bento__panel bento__login-card">
+    <h4 class="bento__login-title">{signin.title}</h4>
+    <p class="bento__login-body">{signin.body}</p>
+    <div class="bento__login-stage">
+      <div class="bento__login-a">
+        <span class="bento__btn bento__btn--primary bento__login-btn">{signin.button}<i class="bento__cursor"><BentoIcon name="pointer" size={16} /></i></span>
+      </div>
+      <div class="bento__login-b">
+        <span class="bento__qr-plate">
+          <svg viewBox="0 0 64 64" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M4 4h20v20H4zm4 4v12h12V8zM40 4h20v20H40zm4 4v12h12V8zM4 40h20v20H4zm4 4v12h12V44z"/>
+            <path d="M11 11h6v6h-6zm36 0h6v6h-6zM11 47h6v6h-6zM29 4h5v10h-5zm0 15h5v10h-5zM4 29h10v5H4zm15 0h5v5h-5zm10 5h5v10h-5zm10-5h10v5H39zm15 0h6v10h-6zM39 39h5v10h-5zm10 5h11v5H49zM29 49h5v11h-5zm10 5h10v6H39zm15 0h6v6h-6z"/>
+          </svg>
+          <i class="bento__beam" />
+        </span>
+        <p class="bento__waiting">{signin.waiting}</p>
+      </div>
+      <div class="bento__login-c">
+        <span class="bento__connected"><span class="bento__connected-badge"><BentoIcon name="check" size={13} /></span>{signin.connected}</span>
+      </div>
+    </div>
+  </div>
+</div>

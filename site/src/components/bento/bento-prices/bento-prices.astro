@@ -1,0 +1,58 @@
+---
+import { formatMoney } from '~/utils/format';
+import { bento } from '../bento.config';
+import { sampleItem } from '../bento.data';
+import BentoIcon from '../bento-icon/bento-icon.astro';
+import BentoThumb from '../bento-thumb/bento-thumb.astro';
+
+const { prices } = bento;
+const item = sampleItem(prices.itemName);
+const THUMB = 44;
+---
+<div class="bento__stage bento__ui bento__pricing" style={`--n:${prices.markets.length}`}>
+  <section class="bento__settings">
+    <h4 class="bento__settings-title">{prices.section}</h4>
+    <div class="bento__panel bento__rows">
+      <div class="bento__row">
+        <div class="bento__row-text">
+          <div class="bento__row-label">{prices.currency.label}</div>
+          <p class="bento__row-hint">{prices.currency.hint}</p>
+        </div>
+        <span class="bento__select"><span class="bento__select-value">{prices.currency.value}</span><BentoIcon name="chevrons-up-down" size={14} /></span>
+      </div>
+      <div class="bento__row">
+        <div class="bento__row-text">
+          <div class="bento__row-label">{prices.marketplace.label}</div>
+          <p class="bento__row-hint">{prices.marketplace.hint}</p>
+        </div>
+        <span class="bento__select bento__select--live">
+          <span class="bento__reel bento__select-value">
+            {prices.markets.map((market, index) => <span style={`--i:${index}`}>{market.label}</span>)}
+          </span>
+          <BentoIcon name="chevrons-up-down" size={14} />
+          <i class="bento__cursor"><BentoIcon name="pointer" size={16} /></i>
+        </span>
+      </div>
+    </div>
+  </section>
+  <div class="bento__quote-wrap">
+    <span class="bento__tag">{prices.sampleTag}</span>
+    <div class="bento__panel bento__quote">
+      <div class="bento__quote-item">
+        <BentoThumb item={item} size={THUMB} />
+        <div class="bento__quote-name">
+          {item.weapon && <p class="bento__weapon">{item.weapon}</p>}
+          <p class="bento__skin">{item.skin}</p>
+        </div>
+      </div>
+      <div class="bento__quote-foot">
+        <span class="bento__reel bento__quote-caption">
+          {prices.markets.map((market, index) => <span style={`--i:${index}`}>{prices.caption(market.label)}</span>)}
+        </span>
+        <span class="bento__reel bento__quote-price">
+          {prices.markets.map((market, index) => <span style={`--i:${index}`}>{formatMoney(market.price, prices.currencyCode)}</span>)}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

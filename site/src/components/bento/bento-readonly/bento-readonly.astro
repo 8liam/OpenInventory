@@ -1,0 +1,47 @@
+---
+import { formatMoney } from '~/utils/format';
+import { bento } from '../bento.config';
+import { sampleItem } from '../bento.data';
+import BentoIcon from '../bento-icon/bento-icon.astro';
+import BentoThumb from '../bento-thumb/bento-thumb.astro';
+
+const { readonly: ro, prices } = bento;
+const rows = ro.rowItems.map(sampleItem);
+const THUMB = 36;
+---
+<div class="bento__stage bento__ui bento__ro">
+  <div class="bento__panel bento__table">
+    <div class="bento__thead"><span>{ro.columns.item}</span><span>{ro.columns.price}</span></div>
+    {rows.map((item) => (
+      <div class="bento__trow">
+        <BentoThumb item={item} size={THUMB} />
+        <div class="bento__quote-name">
+          {item.weapon && <p class="bento__weapon">{item.weapon}</p>}
+          <p class="bento__skin">{item.skin}</p>
+        </div>
+        <span class="bento__tprice">{formatMoney(item.price, prices.currencyCode)}</span>
+      </div>
+    ))}
+  </div>
+  <div class="bento__ro-allowed">
+    <span class="bento__btn bento__btn--small">{ro.move}</span>
+    <span class="bento__unit-name">
+      <span class="bento__unit-label">{ro.unitName}</span>
+      <span class="bento__stop bento__pencil" style="--i:0">
+        <BentoIcon name="pencil" size={13} />
+        <i class="bento__cursor"><BentoIcon name="pointer" size={15} /></i>
+        <em class="bento__tip">{ro.renameLabel}</em>
+      </span>
+    </span>
+  </div>
+  <div class="bento__ro-denied">
+    {ro.denied.map((word, index) => (
+      <span class="bento__stop bento__nope" style={`--i:${index + 1}`}>
+        <BentoIcon name="lock" size={11} />
+        <s>{word}</s>
+        <i class="bento__cursor"><BentoIcon name="pointer" size={15} /></i>
+        <em class="bento__tip">{ro.lockLabel}</em>
+      </span>
+    ))}
+  </div>
+</div>

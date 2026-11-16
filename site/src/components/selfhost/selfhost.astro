@@ -1,0 +1,78 @@
+---
+import { selfhost } from "./selfhost.config";
+import { tokenizeCommand, tokenizeYamlLine } from "./selfhost.syntax";
+---
+<section class="selfhost" id={selfhost.id} aria-labelledby="selfhost-heading" data-selfhost>
+  <div class="wrap selfhost__grid">
+    <div class="selfhost__intro" data-reveal>
+      <p class="selfhost__eyebrow">{selfhost.eyebrow}</p>
+      <h2 class="selfhost__heading" id="selfhost-heading">{selfhost.heading}</h2>
+      <p class="selfhost__body">{selfhost.body}</p>
+      <ul class="selfhost__trust">
+        {selfhost.trust.map((point) => (
+          <li class="selfhost__point">
+            <span class="selfhost__check" aria-hidden="true">
+              <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3.5 8.5 3 3 6-7" /></svg>
+            </span>
+            <div>
+              <h3>{point.title}</h3>
+              <p>{point.body}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <a class="selfhost__source" href={selfhost.source.href} rel="noopener">{selfhost.source.label}<span aria-hidden="true">↗</span></a>
+    </div>
+
+    <div class="selfhost__terminal" data-reveal>
+      <div class="selfhost__chrome">
+        <span class="selfhost__lights" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="selfhost__title">{selfhost.terminalTitle}</span>
+      </div>
+      <div class="selfhost__tabs" data-selfhost-tabs aria-label={selfhost.tabsLabel}>
+        {selfhost.tabs.map((tab) => (
+          <button type="button" class="selfhost__tab" id={`selfhost-tab-${tab.id}`} data-selfhost-tab aria-controls={`selfhost-panel-${tab.id}`} aria-selected="false">{tab.label}</button>
+        ))}
+      </div>
+      {selfhost.tabs.map((tab, index) => (
+        <div class="selfhost__panel" id={`selfhost-panel-${tab.id}`} data-selfhost-panel data-active={index === 0 ? "" : undefined}>
+          <h3 class="selfhost__panel-title">{tab.label}</h3>
+          <p class="selfhost__note">{tab.note}</p>
+          {"preview" in tab && (
+            <pre class="selfhost__preview" tabindex="0" aria-label={`${tab.label} configuration`}><code>{tab.preview.lines.map((line, i) => (
+              <>{i > 0 && "\n"}{tab.preview.kind === "yaml"
+                ? tokenizeYamlLine(line).map((t) => <span class={`selfhost__tok selfhost__tok--${t.kind}`}>{t.text}</span>)
+                : line}</>
+            ))}</code></pre>
+          )}
+          {"command" in tab && (
+            <div class="selfhost__line">
+              <span class="selfhost__prompt" aria-hidden="true">$</span>
+              <code class="selfhost__command" data-selfhost-code>{tokenizeCommand(tab.command).map((t, i) => (
+                <>{i > 0 && " "}<span class={`selfhost__tok selfhost__tok--${t.kind}`}>{t.text}</span></>
+              ))}</code>
+              <button type="button" class="selfhost__copy" data-selfhost-copy data-command={tab.command} hidden>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5" /><path d="M16 8V5.5A2.5 2.5 0 0 0 13.5 3h-8A2.5 2.5 0 0 0 3 5.5v8A2.5 2.5 0 0 0 5.5 16H8" /></svg>
+                <span data-selfhost-copy-label>{selfhost.copy}</span><span class="sr-only">{selfhost.copySuffix}</span>
+              </button>
+              <span class="sr-only" role="status" aria-live="polite" aria-atomic="true" data-selfhost-status></span>
+            </div>
+          )}
+          {"output" in tab && (
+            <div class="selfhost__output">
+              <span class="selfhost__output-label">{selfhost.outputLabel}</span>
+              <p class="selfhost__log"><span class="selfhost__log-dot" aria-hidden="true"></span>{tab.output}</p>
+            </div>
+          )}
+          {"link" in tab && (
+            <a class="btn btn--soft selfhost__download" href={tab.link.href} rel="noopener">{tab.link.label}<span class="btn__arrow" aria-hidden="true">→</span></a>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+<script>
+  import { initSelfhost } from "./selfhost.client";
+  initSelfhost();
+</script>

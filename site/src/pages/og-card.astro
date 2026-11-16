@@ -6,22 +6,22 @@ import dashboard from '../assets/dashboard.png';
 <Base title="OG card" noindex>
   <section class="og">
     <div class="og__panel">
-      <div class="og__bg"></div>
-      <p class="og__brand"><img src="/logo.svg" alt="" width="34" height="34" />OpenInventory</p>
+      <div class="og__bg" aria-hidden="true"></div>
+      <p class="og__brand"><svg viewBox="0 0 500 500" aria-hidden="true" focusable="false"><path fill="currentColor" d="M317.597 112.459C317.597 126.266 328.79 137.459 342.597 137.459H351C364.807 137.459 376 148.652 376 162.459V338.502C376 352.309 364.807 363.502 351 363.502H342.597C328.79 363.502 317.597 374.695 317.597 388.502V462.88C317.597 476.687 306.404 487.88 292.597 487.88H207.403C193.596 487.88 182.403 476.687 182.403 462.88V388.502C182.403 374.695 171.21 363.502 157.403 363.502H149C135.193 363.502 124 352.309 124 338.502V162.459C124 148.652 135.193 137.459 149 137.459H157.403C171.21 137.459 182.403 126.266 182.403 112.459V37C182.403 23.1929 193.596 12 207.403 12H292.597C306.404 12 317.597 23.1929 317.597 37V112.459ZM191.056 327.687C191.056 341.494 202.249 352.687 216.056 352.687H283.944C297.751 352.687 308.944 341.494 308.944 327.687V172.193C308.944 158.386 297.751 147.193 283.944 147.193H216.056C202.249 147.193 191.056 158.386 191.056 172.193V327.687Z" /></svg>OpenInventory</p>
       <p class="og__t">Your inventory.<br />Open.</p>
       <p class="og__s">Self-hosted CS2 inventory<br />and storage unit tracker</p>
       <div class="og__img"><Image src={dashboard} alt="" width={1000} format="webp" loading="eager" /></div>
     </div>
   </section>
 </Base>
-<style is:global>
-  .og { position: relative; width: 1200px; height: 630px; overflow: hidden; padding: 20px; background: var(--c-bg); }
-  .og__panel { position: relative; width: 100%; height: 100%; overflow: hidden; border: 1px solid var(--c-line); border-radius: 36px; isolation: isolate; }
-  .og__bg { position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgb(11 14 18 / 0.9), rgb(11 14 18 / 0.35) 70%), linear-gradient(180deg, rgb(11 14 18 / 0.15), rgb(11 14 18 / 0.7)), url('/hero-warehouse.webp') center / cover no-repeat; }
-  .og__brand { position: absolute; left: 56px; top: 48px; display: flex; align-items: center; gap: 12px; font-size: 24px; font-weight: 600; letter-spacing: -0.01em; }
-  .og__t { position: absolute; left: 52px; top: 128px; font-size: 108px; line-height: 0.95; letter-spacing: -0.055em; font-weight: 600; }
-  .og__s { position: absolute; left: 56px; top: 372px; font-family: var(--f-mono); font-size: 19px; line-height: 1.45; text-transform: uppercase; letter-spacing: 0.05em; color: var(--c-accent); }
-  .og__img { position: absolute; left: 600px; top: 330px; width: 740px; border: 1px solid rgb(255 255 255 / 0.14); border-radius: 18px; overflow: hidden; box-shadow: 0 30px 80px rgb(0 0 0 / 0.75), 0 0 80px -20px rgb(222 155 53 / 0.35); }
-  .og__img img { width: 100%; display: block; }
-  .skip-link, .hdr { display: none; }
+<style>
+  .og { width: 1200px; max-width: 100%; container-type: inline-size; padding: min(1.667vw, 20px); background: var(--c-bg); }
+  .og__panel { position: relative; width: 100%; aspect-ratio: 1160 / 590; overflow: hidden; border: 1px solid var(--c-line); border-radius: var(--radius-lg); isolation: isolate; }
+  .og__bg { position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse 70% 60% at 62% 115%, rgb(var(--c-accent-rgb) / 0.4), transparent 70%), radial-gradient(ellipse 40% 40% at 90% 5%, rgb(var(--c-accent-rgb) / 0.1), transparent 70%), linear-gradient(180deg, var(--sky-top), var(--sky-low) 75%); }
+  .og__brand { position: absolute; left: 4.8%; top: 8%; display: flex; align-items: center; gap: 1cqw; color: var(--c-fg); font-size: 2cqw; font-weight: 600; letter-spacing: -0.025em; }
+  .og__brand svg { width: 2.85cqw; height: auto; color: var(--c-accent); filter: drop-shadow(0 0 1.2cqw rgb(var(--c-accent-rgb) / 0.55)); }
+  .og__t { position: absolute; left: 4.5%; top: 26%; font-size: 7.4cqw; line-height: 1.04; letter-spacing: -0.055em; font-weight: 600; }
+  .og__s { position: absolute; left: 4.8%; bottom: 13%; font-size: 1.8cqw; line-height: 1.5; color: var(--c-muted); }
+  .og__img { position: absolute; left: 58%; top: 32%; width: 66%; padding: 0.6%; border: 1px solid var(--c-line-strong); border-radius: var(--radius); background: var(--c-surface); box-shadow: var(--shadow-float); transform: rotate(-3deg); }
+  .og__img img { width: 100%; border-radius: calc(var(--radius) - 6px); }
 </style>

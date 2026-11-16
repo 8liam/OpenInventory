@@ -37,72 +37,63 @@
 }
 
 :root {
-  /* Palette, named by role. Emerald is the value line from the product's own chart. */
+  /* ── Dark system matching the app (src/index.css): #0a0a0a ground, 6-8% white hairlines, ONE lime primary from the logo. ── */
   --scheme: dark;
-  --c-bg: #0b0e12;
-  --c-surface: #111113;
-  --c-fg: #f3f2ee;
-  --c-muted: #c0c0bb;
-  --c-line: rgb(255 255 255 / 0.11);
-  --c-accent: #de9b35;
-  --c-accent-hi: #ffd48a;
-  --c-accent-ink: #1a1004;
-  /* RGB triplets so alpha tints can follow the theme. `ink` is the colour that reads on --c-bg. */
-  --c-ink: 255 255 255;
-  --c-bg-rgb: 11 14 18;
-  --c-surface-rgb: 17 17 19;
-  --c-fg-rgb: 243 242 238;
-  --c-hdr-rgb: 14 17 22;
-  --c-accent-rgb: 222 155 53;
+  --c-bg: #0a0a0a;
+  --c-surface: #111113;       /* cards */
+  --c-surface-2: #17171a;     /* inset wells */
+  --c-fg: #f5f5f5;
+  --c-muted: #a1a1a6;
+  --c-faint: #6f6f76;
+  --c-line: rgb(255 255 255 / 0.08);
+  --c-line-strong: rgb(255 255 255 / 0.16);
+  --c-accent: #a0ff69;        /* logo lime */
+  --c-accent-hi: #c6ff9f;
+  --c-accent-lo: #6fd63a;
+  --c-accent-ink: #0a0a0a;    /* text on lime */
+  --c-accent-soft: rgb(160 255 105 / 0.1);
+  --c-dark: #0a0a0a;
+  --c-dark-ink: #f5f5f5;
+  --c-success: #10b981;
+  --c-negative: #f87171;
+  /* Hero/CTA "glow field" stops (replaces the old sky) */
+  --sky-top: #0d1a08;
+  --sky-mid: #0f1f0a;
+  --sky-low: #0a0a0a;
   --c-shadow-rgb: 0 0 0;
-  --c-shadow-a: 0.7;
+
+  --c-ink: 255 255 255;
+  --c-bg-rgb: 10 10 10;
+  --c-surface-rgb: 17 17 19;
+  --c-fg-rgb: 245 245 245;
+  --c-accent-rgb: 160 255 105;
   --c-app-bg: #0a0a0a;
-  --c-stage-ring: rgb(0 0 0 / 0.6);
+  --c-stage-ring: rgb(255 255 255 / 0.1);
 
   --f-body: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
   --f-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, "SF Mono", Menlo, monospace;
 
-  --t-mega: clamp(2.9rem, 0.9rem + 8.4vw, 9.5rem);
-  --t-xl: clamp(2.4rem, 1.2rem + 4.6vw, 5.75rem);
-  --t-l: clamp(1.7rem, 1.2rem + 2vw, 3rem);
-  --t-m: clamp(1.2rem, 1.05rem + 0.6vw, 1.5rem);
-  --t-body: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
+  --t-mega: clamp(2.75rem, 1.2rem + 5.6vw, 5.75rem);
+  --t-xl: clamp(2.25rem, 1.3rem + 3.4vw, 4rem);
+  --t-l: clamp(1.75rem, 1.2rem + 1.8vw, 2.75rem);
+  --t-m: clamp(1.15rem, 1.05rem + 0.5vw, 1.4rem);
+  --t-body: clamp(1rem, 0.96rem + 0.18vw, 1.125rem);
   --t-s: 0.875rem;
   --t-xs: 0.75rem;
 
   --u: clamp(0.5rem, 0.35rem + 0.6vw, 1rem);
-  --gutter: clamp(1.25rem, 0.6rem + 2.6vw, 3rem);
-  --max: 92rem;
-  --radius: 14px;
+  --gutter: clamp(1rem, 0.5rem + 2vw, 2rem);
+  --max: 78rem;
+  --section-y: clamp(4.5rem, 3rem + 6vw, 9rem);
+  --radius: 20px;             /* cards */
+  --radius-lg: 32px;          /* sky panels */
+  --radius-pill: 999px;
+  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 12px 32px -12px rgb(0 0 0 / 0.6);
+  --shadow-float: 0 0 0 1px rgb(255 255 255 / 0.08), 0 40px 120px -30px rgb(160 255 105 / 0.22), 0 30px 80px -24px rgb(0 0 0 / 0.8);
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
 
   --z-content: 1;
   --z-header: 50;
-}
-
-/* Light mode (follows the system; dark is the default): warm paper to match the gold accent. Accent darkens so it holds 4.5:1 as text. */
-@media (prefers-color-scheme: light) {
-  :root {
-    --scheme: light;
-    --c-bg: #f6f4ef;
-    --c-surface: #ffffff;
-    --c-fg: #16181d;
-    --c-muted: #565a60;
-    --c-line: rgb(22 24 29 / 0.12);
-    --c-accent: #a65f00;
-    --c-accent-hi: #e0a24a;
-    --c-accent-ink: #ffffff;
-    --c-ink: 22 24 29;
-    --c-bg-rgb: 246 244 239;
-    --c-surface-rgb: 255 255 255;
-    --c-fg-rgb: 22 24 29;
-    --c-hdr-rgb: 250 249 245;
-    --c-accent-rgb: 166 95 0;
-    --c-shadow-rgb: 40 30 10;
-    --c-shadow-a: 0.28;
-    --c-app-bg: #ffffff;
-    --c-stage-ring: rgb(22 24 29 / 0.08);
-  }
 }

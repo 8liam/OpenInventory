@@ -1,0 +1,7 @@
+---
+import { BENTO_ICON_STROKE, BENTO_ICONS } from './bento-icon.config';
+import type { BentoIconProps } from './bento-icon.types';
+
+const { name, size = 14, class: className } = Astro.props as BentoIconProps;
+---
+<svg class={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width={BENTO_ICON_STROKE} stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={BENTO_ICONS[name]} />

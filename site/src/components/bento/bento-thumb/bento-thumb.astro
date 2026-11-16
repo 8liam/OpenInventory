@@ -1,0 +1,10 @@
+---
+import type { BentoThumbProps } from './bento-thumb.types';
+
+const { item, size, class: className, skeleton = false } = Astro.props as BentoThumbProps;
+const rarity = item.rarityColor ? `--rarity:${item.rarityColor};` : '';
+---
+<span class:list={['bento__thumb', className]} style={`${rarity}--size:${size}px`}>
+  <img src={item.imageUrl} alt="" width={size} height={size} loading="lazy" decoding="async" />
+  {skeleton && <span class="bento__skeleton" />}
+</span>

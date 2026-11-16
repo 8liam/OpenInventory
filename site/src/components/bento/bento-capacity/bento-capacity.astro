@@ -1,0 +1,74 @@
+---
+import { formatCount } from '~/utils/plural';
+import { formatMoney } from '~/utils/format';
+import { bento } from '../bento.config';
+import { sampleMove } from '../bento.data';
+import BentoIcon from '../bento-icon/bento-icon.astro';
+import BentoThumb from '../bento-thumb/bento-thumb.astro';
+
+const { capacity, prices } = bento;
+const { bar } = capacity;
+const move = sampleMove();
+const THUMB = 28;
+const money = (value: number) => formatMoney(value, prices.currencyCode);
+const count = (value: number) => formatCount(value, capacity.itemsWord);
+// What the destination select lists, exactly as transfer-bar.component.tsx formats an option.
+const destinationOption = `${move.to.name} (${move.to.itemCount}/${capacity.capacity})`;
+const sourceThumbs = move.from.preview.slice(0, 4);
+const destThumbs = move.to.preview.slice(0, 4);
+const movedSlot = sourceThumbs.findIndex((thumb) => thumb.name === move.item.name);
+---
+<div class="bento__stage bento__ui bento__move" style={`--slot-from:${movedSlot}`}>
+  <div class="bento__units">
+    <div class="bento__panel bento__unit bento__unit--from">
+      <div class="bento__unit-head">
+        <div class="bento__unit-id">
+          <div class="bento__unit-name"><span class="bento__unit-label">{move.from.name}</span><span class="bento__pencil"><BentoIcon name="pencil" size={13} /></span></div>
+          <p class="bento__unit-count bento__reel"><span>{count(move.from.itemCount)}</span><span>{count(move.fromAfter.itemCount)}</span></p>
+        </div>
+        <p class="bento__unit-value bento__reel"><span>{money(move.from.value)}</span><span>{money(move.fromAfter.value)}</span></p>
+      </div>
+      <div class="bento__unit-thumbs">
+        {sourceThumbs.map((item, slot) => <BentoThumb item={item} size={THUMB} class:list={[slot === movedSlot && 'bento__thumb--lift', slot > movedSlot && 'bento__thumb--close']} />)}
+        <BentoThumb item={move.backfill} size={THUMB} class="bento__thumb--backfill" />
+      </div>
+    </div>
+    <div class="bento__panel bento__unit bento__unit--to">
+      <div class="bento__unit-head">
+        <div class="bento__unit-id">
+          <div class="bento__unit-name"><span class="bento__unit-label">{move.to.name}</span><span class="bento__pencil"><BentoIcon name="pencil" size={13} /></span></div>
+          <p class="bento__unit-count bento__reel"><span>{count(move.to.itemCount)}</span><span>{count(move.toAfter.itemCount)}</span></p>
+        </div>
+        <p class="bento__unit-value bento__reel"><span>{money(move.to.value)}</span><span>{money(move.toAfter.value)}</span></p>
+      </div>
+      <div class="bento__unit-thumbs">
+        {destThumbs.map((item, slot) => <BentoThumb item={item} size={THUMB} class:list={['bento__thumb--make-room', slot === destThumbs.length - 1 && 'bento__thumb--drop']} />)}
+      </div>
+    </div>
+    <span class="bento__hop"><span class="bento__hop-arc"><BentoThumb item={move.item} size={THUMB} /></span></span>
+  </div>
+  <div class="bento__panel bento__bar">
+    <div class="bento__bar-s bento__bar-s1">
+      <div class="bento__bar-top"><span class="bento__bar-sel">{bar.selected}</span><span class="bento__bar-clear">{bar.clear}</span></div>
+      <div class="bento__bar-dest">
+        <span class="bento__select"><span class="bento__select-value">{destinationOption}</span><BentoIcon name="chevrons-up-down" size={14} /></span>
+        <span class="bento__btn bento__btn--small bento__btn--primary bento__press1">{bar.move}<i class="bento__cursor"><BentoIcon name="pointer" size={15} /></i></span>
+      </div>
+    </div>
+    <div class="bento__bar-s bento__bar-s2">
+      <p>{bar.confirm(1, move.from.name, move.to.name)}</p>
+      <div class="bento__bar-actions">
+        <span class="bento__btn bento__btn--small bento__btn--primary bento__press2">{bar.confirmButton}<i class="bento__cursor"><BentoIcon name="pointer" size={15} /></i></span>
+        <span class="bento__btn bento__btn--small">{bar.back}</span>
+      </div>
+    </div>
+    <div class="bento__bar-s bento__bar-s3">
+      <div class="bento__bar-line"><p>{bar.running(0, 1, move.from.name, move.to.name)}</p><span class="bento__btn bento__btn--small">{bar.cancel}</span></div>
+      <div class="bento__track"><div class="bento__track-fill" /></div>
+    </div>
+    <div class="bento__bar-s bento__bar-s4">
+      <div class="bento__bar-line"><p>{bar.finished(1, 1, move.to.name)}</p><span class="bento__btn bento__btn--small">{bar.dismiss}</span></div>
+      <div class="bento__track"><div class="bento__track-fill bento__track-fill--done" /></div>
+    </div>
+  </div>
+</div>

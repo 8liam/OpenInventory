@@ -1,22 +1,245 @@
 ---
+import { DASHBOARD_MOCK } from '@demo/data/dashboard.mock';
+import { INVENTORY_MOCK, UNIT_TARGETS } from '@demo/data/inventory.mock';
+import { formatMoney, formatSignedMoney } from '~/utils/format';
+import { formatCount } from '~/utils/plural';
+import { COPY } from '~/lib/copy/copy.config';
 import { how } from '../../data/site.config';
+import { howConfig } from './how.config';
+import type { HowThumb, HowUnit } from './how.types';
+import { buildChart, buildQrPath } from './how.utils';
+
+const { login, value, move, chart: chartConfig, motion } = howConfig;
+const money = (amount: number): string => formatMoney(amount, howConfig.currency);
+
+const qrPath = buildQrPath();
+const chart = buildChart(DASHBOARD_MOCK.history);
+const total = money(DASHBOARD_MOCK.totals.value);
+const change = formatSignedMoney(DASHBOARD_MOCK.change.day ?? 0, howConfig.currency);
+
+const unitOf = (id: string): HowUnit => {
+  const target = UNIT_TARGETS.find((u) => u.id === id);
+  if (!target) throw new Error(`how: unknown storage unit "${id}"`);
+  return { id, name: target.name, countLabel: formatCount(target.count, COPY.storage.items), valueLabel: money(target.value) };
+};
+/** The app's UnitCard preview: the unit's most valuable items that have art, priciest first. */
+const topThumbs = (unitId: string, take: number): HowThumb[] =>
+  INVENTORY_MOCK.filter((item) => item.locationId === unitId && item.imageUrl !== null)
+    .sort((a, b) => (b.price ?? 0) - (a.price ?? 0))
+    .slice(0, take)
+    .map((item) => ({ id: item.id, name: item.name, imageUrl: item.imageUrl ?? '', rarityColor: item.rarityColor }));
+
+const from = unitOf(move.fromId);
+const to = unitOf(move.toId);
+/** The priciest Trade stock item is the one that moves; it then tops Long-term holds, pushing the last one out of the preview. */
+const [mover, ...fromRest] = topThumbs(move.fromId, move.thumbsPerUnit + 1);
+const toThumbs = topThumbs(move.toId, move.thumbsPerUnit);
+const destination = `${to.name} (${UNIT_TARGETS.find((u) => u.id === to.id)?.count}/${move.unitCapacity})`;
 ---
 <section class="how" id={how.id} aria-labelledby="how-title">
-  <div class="wrap how__grid">
-    <div class="how__lead">
-      <h2 id="how-title" class="h-l" data-reveal>{how.heading}</h2>
-      <p class="how__body" data-reveal>{how.body}</p>
+  <div class="wrap">
+    <div class="how__lead" data-reveal>
+      <span class="how__eyebrow">{howConfig.eyebrow}</span>
+      <h2 id="how-title" class="how__heading">{how.heading}</h2>
+      <p class="how__body">{how.body}</p>
     </div>
-    <ol class="how__steps">
+    <ol class="how__steps" role="list">
       {how.steps.map((s, i) => (
-        <li class="step" data-reveal style={`--d:${i * 0.08}s`}>
-          <span class="step__n mono" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-          <div class="step__body">
-            <h3 class="h-m">{s.title}</h3>
-            <p class="muted">{s.body}</p>
-          </div>
+        <li class="how__step" data-reveal style={`--d:${i * howConfig.staggerSeconds}s`}>
+          <article class="how__card">
+            <span class="how__number" aria-hidden="true">{String(i + 1).padStart(howConfig.numberWidth, '0')}</span>
+            <h3 class="how__title">{s.title}</h3>
+            <p class="how__description">{s.body}</p>
+            <div
+              class={`how__illustration how__illustration--${i + 1}`}
+              aria-hidden="true"
+              data-how="rest"
+              data-how-ms={motion.durationsMs[i]}
+              style={`--how-dur:${(motion.durationsMs[i] ?? 0) / 1000}s`}
+            >
+              <div class="how__stage oi-app">
+                {i === 0 && (
+                  <div class="how__login">
+                    <p class="how__login-title">{login.title}</p>
+                    <p class="how__login-lead">{login.lead}</p>
+                    <div class="how__login-stage">
+                      <span class="how__btn how__login-btn">{login.button}</span>
+                      <div class="how__login-qr">
+                        <div class="how__qr-box">
+                          <svg viewBox={`0 0 ${howConfig.qr.size} ${howConfig.qr.size}`} shape-rendering="crispEdges" focusable="false">
+                            <path d={qrPath} />
+                          </svg>
+                        </div>
+                        <p class="how__login-waiting">{login.waiting}</p>
+                      </div>
+                      <div class="how__login-done">
+                        <svg class="how__done-badge" viewBox="0 0 48 48" focusable="false">
+                          <circle class="how__done-ring" cx="24" cy="24" r="22" />
+                          <path class="how__done-check" d="m15 25 6 6 12-13" pathLength="1" />
+                        </svg>
+                        <span class="how__status-pill">{login.connected}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {i === 1 && (
+                  <div class="how__dash">
+                    <div class="how__dash-top">
+                      <div class="how__dash-head">
+                        <span class="how__dash-label">{value.label}</span>
+                        <span class="how__saved">
+                          <span class="how__saved-dot"></span>
+                          <svg viewBox="0 0 24 24" focusable="false"><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M3 5v14a9 3 0 0 0 18 0V5" /><path d="M3 12a9 3 0 0 0 18 0" /></svg>
+                          {value.saved}
+                        </span>
+                      </div>
+                      <p class="how__dash-total">{total}</p>
+                      <span class="how__change">
+                        <svg viewBox="0 0 24 24" focusable="false"><path d="M7 7h10v10" /><path d="M7 17 17 7" /></svg>
+                        {change}<span>{value.changeWindow}</span>
+                      </span>
+                    </div>
+                    <div class="how__chart">
+                      <svg viewBox={`0 0 ${chartConfig.width} ${chartConfig.height}`} focusable="false">
+                        <defs>
+                          <linearGradient id="how-fill" x1="0" x2="0" y1="0" y2="1">
+                            <stop offset="0%" style="stop-color: var(--success); stop-opacity: 0.22" />
+                            <stop offset="100%" style="stop-color: var(--success); stop-opacity: 0" />
+                          </linearGradient>
+                          <pattern id="how-dots" width={chartConfig.dotSpacing} height={chartConfig.dotSpacing} patternUnits="userSpaceOnUse">
+                            <circle cx={chartConfig.dotSpacing / 2} cy={chartConfig.dotSpacing / 2} r={chartConfig.dotRadius} class="how__grid-dot" />
+                          </pattern>
+                        </defs>
+                        <rect class="how__grid" x="0" y="0" width={chartConfig.width} height={chartConfig.height} fill="url(#how-dots)" />
+                        <path class="how__area" d={chart.area} fill="url(#how-fill)" />
+                        <path class="how__line" d={chart.line} pathLength="1" />
+                        {chart.dots.map((d) => (
+                          <circle class="how__snap" cx={d.x} cy={d.y} r={chartConfig.pointRadius} style={`--p:${d.progress.toFixed(3)}`} />
+                        ))}
+                        <circle class="how__pulse" cx={chart.last.x} cy={chart.last.y} r={chartConfig.pointRadius + 1} />
+                        <circle class="how__last" cx={chart.last.x} cy={chart.last.y} r={chartConfig.pointRadius + 1} />
+                      </svg>
+                    </div>
+                  </div>
+                )}
+                {i === 2 && (
+                  <div class="how__move">
+                    <div class="how__units">
+                      <div class="how__unit how__unit--from">
+                        <div class="how__unit-head">
+                          <span class="how__unit-name">{from.name}</span>
+                          <svg viewBox="0 0 24 24" focusable="false"><path d="M21.17 6.81a1 1 0 0 0-3.99-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5z" /><path d="m15 5 4 4" /></svg>
+                        </div>
+                        <div class="how__unit-meta"><span>{from.countLabel}</span><span class="how__unit-value">{from.valueLabel}</span></div>
+                        <div class="how__thumbs">
+                          {fromRest.map((t, n) => (
+                            <span class={`how__slot how__slot--src${n === fromRest.length - 1 ? '-in' : ''}`} style={`--i:${n}`}>
+                              <span class="how__thumb" style={t.rarityColor ? `--tint:${t.rarityColor}` : undefined}><img src={t.imageUrl} alt="" width="40" height="40" loading="lazy" decoding="async" /></span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <span class="how__flow">
+                        <svg viewBox="0 0 24 24" focusable="false"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+                      </span>
+                      <div class="how__unit how__unit--to">
+                        <div class="how__unit-head">
+                          <span class="how__unit-name">{to.name}</span>
+                          <svg viewBox="0 0 24 24" focusable="false"><path d="M21.17 6.81a1 1 0 0 0-3.99-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5z" /><path d="m15 5 4 4" /></svg>
+                        </div>
+                        <div class="how__unit-meta"><span>{to.countLabel}</span><span class="how__unit-value">{to.valueLabel}</span></div>
+                        <div class="how__thumbs">
+                          {mover && (
+                            <span class="how__slot how__slot--mover" style="--i:0">
+                              <span class="how__thumb how__thumb--picked" style={mover.rarityColor ? `--tint:${mover.rarityColor}` : undefined}><img src={mover.imageUrl} alt="" width="40" height="40" loading="lazy" decoding="async" /></span>
+                            </span>
+                          )}
+                          {toThumbs.map((t, n) => (
+                            <span class={`how__slot how__slot--dst${n === toThumbs.length - 1 ? '-out' : ''}`} style={`--i:${n + 1}`}>
+                              <span class="how__thumb" style={t.rarityColor ? `--tint:${t.rarityColor}` : undefined}><img src={t.imageUrl} alt="" width="40" height="40" loading="lazy" decoding="async" /></span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="how__transfer">
+                      <div class="how__bar">
+                        <div class="how__bar-row">
+                          <span class="how__bar-selected">{move.selected}</span>
+                          <span class="how__bar-clear">{move.clear}</span>
+                        </div>
+                        <div class="how__bar-row">
+                          <span class="how__select">
+                            <span>{destination}</span>
+                            <svg viewBox="0 0 24 24" focusable="false"><path d="m6 9 6 6 6-6" /></svg>
+                          </span>
+                          <span class="how__btn how__bar-move">{move.move}</span>
+                        </div>
+                      </div>
+                      <div class="how__status">
+                        <p class="how__status-text">
+                          <span class="how__status-a">{move.moving(from.name, to.name)}</span>
+                          <span class="how__status-b">{move.moved(to.name)}</span>
+                        </p>
+                        <div class="how__track"><span class="how__track-fill"></span></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </article>
         </li>
       ))}
     </ol>
   </div>
 </section>
+<script>
+  // Plays each illustration's story when it scrolls into view and again on hover or tap. Pure enhancement:
+  // without JS, or with reduced motion, the CSS shows the finished frame and nothing moves.
+  import { howConfig } from './how.config';
+  import type { HowPlayState } from './how.types';
+
+  const { motion } = howConfig;
+  const timers = new WeakMap<HTMLElement, number>();
+  const setState = (el: HTMLElement, state: HowPlayState): void => {
+    el.dataset.how = state;
+  };
+
+  function play(el: HTMLElement, delayMs = 0): void {
+    if (el.dataset.how === 'play') return;
+    window.clearTimeout(timers.get(el));
+    setState(el, 'armed');
+    void el.offsetWidth;
+    const lengthMs = Number(el.dataset.howMs);
+    timers.set(
+      el,
+      window.setTimeout(() => {
+        setState(el, 'play');
+        timers.set(el, window.setTimeout(() => setState(el, 'rest'), lengthMs));
+      }, delayMs),
+    );
+  }
+
+  const still = window.matchMedia(motion.reducedMotionQuery).matches;
+  if (!still && 'IntersectionObserver' in window) {
+    const stages = Array.from(document.querySelectorAll<HTMLElement>(motion.selector));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting || !(entry.target instanceof HTMLElement)) return;
+          observer.unobserve(entry.target);
+          play(entry.target, stages.indexOf(entry.target) * motion.staggerMs);
+        });
+      },
+      { threshold: motion.visibleRatio },
+    );
+    stages.forEach((stage) => {
+      setState(stage, 'armed');
+      observer.observe(stage);
+      stage.closest<HTMLElement>(motion.cardSelector)?.addEventListener('pointerenter', () => {
+        if (stage.dataset.how === 'rest') play(stage);
+      });
+    });
+  }
+</script>
