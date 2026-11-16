@@ -233,7 +233,8 @@
     position: relative;
   }
 
-  .site-header.is-enhanced .site-header__menu {
+  /* Keyed off html.js (set in <head>), not .is-enhanced, so the links never paint before the script runs. */
+  html.js .site-header__menu {
     display: grid;
     place-items: center;
     flex: none;
@@ -247,7 +248,7 @@
       background-color 0.2s,
       border-color 0.2s;
   }
-  .site-header.is-enhanced .site-header__panel {
+  html.js .site-header:not(.is-open) .site-header__panel {
     display: none;
   }
   .site-header.is-open .site-header__panel {

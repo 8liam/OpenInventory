@@ -80,15 +80,34 @@
   top: auto;
   bottom: var(--gf-floor);
   height: 2px;
+}
+/* Bloom sits under the line as a real gradient. A box-shadow only paints outside the 2px box,
+   so the line's faded ends used to show as a dark slit cutting through the glow. */
+.glow-field__horizon::before,
+.glow-field__horizon::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+.glow-field__horizon::before {
+  top: -90px;
+  bottom: -50px;
+  background: radial-gradient(
+    ellipse 55% 50% at 50% 64%,
+    rgb(var(--gf-rgb) / 0.3),
+    rgb(var(--gf-rgb) / 0.1) 55%,
+    transparent 100%
+  );
+}
+.glow-field__horizon::after {
+  inset-block: 0;
   background: linear-gradient(
     90deg,
     transparent 4%,
     rgb(var(--gf-rgb) / 0.75) 50%,
     transparent 96%
   );
-  box-shadow:
-    0 0 40px 10px rgb(var(--gf-rgb) / 0.25),
-    0 -6px 90px 24px rgb(var(--gf-rgb) / 0.1);
 }
 
 /* ── Perspective dot/ledger grid fading toward the top ── */
@@ -114,6 +133,9 @@
     linear-gradient(90deg, rgb(var(--gf-rgb) / 0.1) 1px, transparent 1px) 0 0 / var(--cell)
       var(--cell);
   opacity: 0.95;
+  /* fade the far edge so the plane has no hard line crossing the copy */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 55%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 55%);
   animation: gf-grid 5.5s linear infinite;
 }
 
