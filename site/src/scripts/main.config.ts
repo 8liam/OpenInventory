@@ -14,6 +14,7 @@ export const MAIN_CLASSES = {
 } as const;
 
 export const MAIN_MEDIA = {
+  finePointer: "(hover: hover) and (pointer: fine)",
   reducedMotion: "(prefers-reduced-motion: reduce)",
   noReducedMotion: "(prefers-reduced-motion: no-preference)",
 } as const;

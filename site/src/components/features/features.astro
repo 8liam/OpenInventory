@@ -1,6 +1,10 @@
 ---
 import { story } from '../../data/site.config';
-import FeatureDemo from './feature-demo';
+import DashboardFeature from './dashboard-feature';
+import ItemsFeature from './items-feature';
+import StorageFeature from './storage-feature';
+import CasesFeature from './cases-feature';
+import TradeUpFeature from './tradeup-feature';
 import { featuresConfig } from './features.config';
 import type { FeatureFigureTone } from './features.types';
 
@@ -50,7 +54,11 @@ const toneOf = (value: number): FeatureFigureTone => (value < 0 ? 'negative' : '
             style={`--d: ${featuresConfig.copyRevealDelaySeconds}s`}
           >
             <div class="fchap__screen">
-              <FeatureDemo id={c.id} client:visible />
+              {c.id === 'dashboard' && <DashboardFeature client:visible />}
+{c.id === 'items' && <ItemsFeature client:visible />}
+{c.id === 'storage' && <StorageFeature client:visible />}
+{c.id === 'cases' && <CasesFeature client:visible />}
+{c.id === 'tradeup' && <TradeUpFeature client:visible />}
             </div>
             <p class="fchap__hint" id={`feature-hint-${c.id}`}>
               <span class="fchap__hint-dot" aria-hidden="true"></span>
