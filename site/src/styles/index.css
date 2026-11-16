@@ -62,6 +62,13 @@
   --skeleton-highlight: rgb(255 255 255 / 0.1);
 }
 
+/* The landing's global `button { border: 0 }` (layer site) resets border colour to currentColor and outranks the app reset below; restore the app's token. */
+@layer site {
+  .oi-app button {
+    border-color: var(--border);
+  }
+}
+
 @layer base {
   .oi-app {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
