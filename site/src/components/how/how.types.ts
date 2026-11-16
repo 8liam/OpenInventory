@@ -30,4 +30,4 @@ export type HowChart = {
 };
 
 /** Animation state of one illustration: `rest` is the finished frame, `armed` the first frame. */
-export type HowPlayState = 'rest' | 'armed' | 'play';
+export type HowPlayState = "rest" | "armed" | "play";

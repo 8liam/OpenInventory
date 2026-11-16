@@ -1,4 +1,11 @@
-export type SelfhostTokenKind = "command" | "subcommand" | "flag" | "arg" | "key" | "value" | "plain";
+export type SelfhostTokenKind =
+  | "command"
+  | "subcommand"
+  | "flag"
+  | "arg"
+  | "key"
+  | "value"
+  | "plain";
 
 export type SelfhostToken = {
   readonly kind: SelfhostTokenKind;

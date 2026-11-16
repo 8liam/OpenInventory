@@ -10,5 +10,5 @@ export const FEATURE_DEMO_LABELS = {
   open: (id: string) => `Explore full ${id} demo`,
   dialog: (id: string) => `${id} demo`,
   dialogTitle: (id: string) => `OpenInventory · ${id} demo`,
-  close: 'Close demo',
+  close: "Close demo",
 } as const;

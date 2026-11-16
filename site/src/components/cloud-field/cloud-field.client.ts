@@ -1,4 +1,4 @@
-import { GLOW_FIELD as CONFIG } from './cloud-field.config';
+import { GLOW_FIELD as CONFIG } from "./cloud-field.config";
 
 /**
  * Optional enhancement: eases the pointer position (-1..1) into --mx / --my on the field so the
@@ -20,7 +20,11 @@ function mount(root: HTMLElement): void {
     y += (targetY - y) * CONFIG.easing;
     root.style.setProperty(CONFIG.mouseXVar, x.toFixed(4));
     root.style.setProperty(CONFIG.mouseYVar, y.toFixed(4));
-    if (Math.abs(targetX - x) > CONFIG.settleEpsilon || Math.abs(targetY - y) > CONFIG.settleEpsilon) schedule();
+    if (
+      Math.abs(targetX - x) > CONFIG.settleEpsilon ||
+      Math.abs(targetY - y) > CONFIG.settleEpsilon
+    )
+      schedule();
   };
   const schedule = () => {
     if (!frame && visible) frame = requestAnimationFrame(paint);
@@ -38,8 +42,8 @@ function mount(root: HTMLElement): void {
     schedule();
   };
 
-  host.addEventListener('pointermove', onMove, { passive: true });
-  host.addEventListener('pointerleave', onLeave, { passive: true });
+  host.addEventListener("pointermove", onMove, { passive: true });
+  host.addEventListener("pointerleave", onLeave, { passive: true });
   new IntersectionObserver(([entry]) => {
     visible = entry?.isIntersecting ?? false;
     if (visible) schedule();
@@ -50,6 +54,6 @@ const motion = window.matchMedia(CONFIG.reducedMotionQuery);
 const pointer = window.matchMedia(CONFIG.finePointerQuery);
 if (!motion.matches && pointer.matches) {
   document.querySelectorAll<HTMLElement>(CONFIG.selector).forEach((root) => {
-    if (root.querySelector('.glow-field__skin')) mount(root);
+    if (root.querySelector(".glow-field__skin")) mount(root);
   });
 }

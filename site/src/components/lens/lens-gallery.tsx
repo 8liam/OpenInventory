@@ -18,7 +18,13 @@ import TradeUpDemo from "@demo/demo/tradeup-demo";
 
 export type { LensId } from "./lens.types";
 
-const ICONS = { dashboard: LayoutDashboard, items: Package, storage: Archive, cases: Briefcase, tradeup: ArrowUpRight };
+const ICONS = {
+  dashboard: LayoutDashboard,
+  items: Package,
+  storage: Archive,
+  cases: Briefcase,
+  tradeup: ArrowUpRight,
+};
 
 const DEMOS: Record<LensId, () => ReactNode> = {
   dashboard: DashboardDemo,
@@ -48,9 +54,11 @@ export default function LensGallery({ lenses }: { lenses: readonly Lens[] }) {
   useEffect(() => {
     const stage = stageRef.current;
     if (!stage) return;
-    const resize = () => stage.style.setProperty(
-      "--lens-scale", String(Math.min(1, stage.clientWidth / LENS_CANVAS_WIDTH)),
-    );
+    const resize = () =>
+      stage.style.setProperty(
+        "--lens-scale",
+        String(Math.min(1, stage.clientWidth / LENS_CANVAS_WIDTH)),
+      );
     resize();
     const observer = new ResizeObserver(resize);
     observer.observe(stage);
@@ -82,10 +90,10 @@ export default function LensGallery({ lenses }: { lenses: readonly Lens[] }) {
       clearInterval(id);
       if (mq.matches) return;
       id = setInterval(() => {
-      setActive((cur) => {
-        const i = lenses.findIndex((l) => l.id === cur);
-        return lenses[(i + 1) % lenses.length]?.id ?? cur;
-      });
+        setActive((cur) => {
+          const i = lenses.findIndex((l) => l.id === cur);
+          return lenses[(i + 1) % lenses.length]?.id ?? cur;
+        });
       }, LENS_ROTATION_MS);
     };
     sync();
@@ -117,8 +125,20 @@ export default function LensGallery({ lenses }: { lenses: readonly Lens[] }) {
       }}
     >
       <div className="lens__bar">
-        <div className="seg" role={enhanced ? "tablist" : undefined} aria-label={LENS_TABLIST_LABEL}
-          style={{ "--lens-index": Math.max(0, lenses.findIndex((l) => l.id === active)), "--lens-count": lenses.length } as CSSProperties}>
+        <div
+          className="seg"
+          role={enhanced ? "tablist" : undefined}
+          aria-label={LENS_TABLIST_LABEL}
+          style={
+            {
+              "--lens-index": Math.max(
+                0,
+                lenses.findIndex((l) => l.id === active),
+              ),
+              "--lens-count": lenses.length,
+            } as CSSProperties
+          }
+        >
           <span className="seg__thumb" aria-hidden="true" />
           {lenses.map((l) => {
             const on = l.id === active;
@@ -140,9 +160,11 @@ export default function LensGallery({ lenses }: { lenses: readonly Lens[] }) {
                   const i = lenses.findIndex((x) => x.id === l.id);
                   const step = e.key === LENS_NAV_KEYS.next ? 1 : -1;
                   const target =
-                    e.key === LENS_NAV_KEYS.first ? 0
-                    : e.key === LENS_NAV_KEYS.last ? lenses.length - 1
-                    : (i + step + lenses.length) % lenses.length;
+                    e.key === LENS_NAV_KEYS.first
+                      ? 0
+                      : e.key === LENS_NAV_KEYS.last
+                        ? lenses.length - 1
+                        : (i + step + lenses.length) % lenses.length;
                   const next = lenses[target];
                   if (next) {
                     choose(next.id);
@@ -160,23 +182,23 @@ export default function LensGallery({ lenses }: { lenses: readonly Lens[] }) {
 
       <div className="lens__device">
         <div className="lens__stage" ref={stageRef}>
-        {lenses.map((l) => {
-          const Demo = DEMOS[l.id];
-          const on = l.id === active;
-          return (
-            <div
-              key={l.id}
-              id={`lens-panel-${l.id}`}
-              role={enhanced ? "tabpanel" : undefined}
-              aria-labelledby={enhanced ? `lens-tab-${l.id}` : undefined}
-              className={`lens__panel${on ? " is-on" : ""}`}
-              tabIndex={enhanced ? 0 : undefined}
-              hidden={enhanced && !on}
-            >
-              <Demo />
-            </div>
-          );
-        })}
+          {lenses.map((l) => {
+            const Demo = DEMOS[l.id];
+            const on = l.id === active;
+            return (
+              <div
+                key={l.id}
+                id={`lens-panel-${l.id}`}
+                role={enhanced ? "tabpanel" : undefined}
+                aria-labelledby={enhanced ? `lens-tab-${l.id}` : undefined}
+                className={`lens__panel${on ? " is-on" : ""}`}
+                tabIndex={enhanced ? 0 : undefined}
+                hidden={enhanced && !on}
+              >
+                <Demo />
+              </div>
+            );
+          })}
         </div>
       </div>
       <p className="lens__caption" aria-live={touched ? "polite" : "off"}>

@@ -1,8 +1,8 @@
-import type { HistoryPoint } from '~/lib/items/dashboard.types';
-import { monotonePath } from '~/utils/smooth-path';
-import { seeded } from '@demo/data/mock.config';
-import { howConfig } from './how.config';
-import type { HowChart, HowChartDot } from './how.types';
+import type { HistoryPoint } from "~/lib/items/dashboard.types";
+import { monotonePath } from "~/utils/smooth-path";
+import { seeded } from "@demo/data/mock.config";
+import { howConfig } from "./how.config";
+import type { HowChart, HowChartDot } from "./how.types";
 
 type Cell = readonly [x: number, y: number];
 
@@ -28,7 +28,9 @@ export function buildQrPath(): string {
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const random = rand() < fill;
-      const owner = finders.find(([ox, oy]) => x >= ox - 1 && x <= ox + finder && y >= oy - 1 && y <= oy + finder);
+      const owner = finders.find(
+        ([ox, oy]) => x >= ox - 1 && x <= ox + finder && y >= oy - 1 && y <= oy + finder,
+      );
       if (owner) {
         const [ox, oy] = owner;
         const inside = x >= ox && x < ox + finder && y >= oy && y < oy + finder;
@@ -49,13 +51,16 @@ export function buildQrPath(): string {
       if (random) dark.push([x, y]);
     }
   }
-  return dark.map(([x, y]) => `M${x} ${y}h1v1h-1z`).join('');
+  return dark.map(([x, y]) => `M${x} ${y}h1v1h-1z`).join("");
 }
 
 /** The dashboard's value line over the last day of hourly snapshots, drawn with the app chart's own smoothing. */
 export function buildChart(history: readonly HistoryPoint[]): HowChart {
-  const { width, height, padTop, padBottom, padRight, padLeft, windowPoints, stride, dotEvery } = howConfig.chart;
-  const window = history.slice(-((windowPoints - 1) * stride + 1)).filter((_, i) => i % stride === 0);
+  const { width, height, padTop, padBottom, padRight, padLeft, windowPoints, stride, dotEvery } =
+    howConfig.chart;
+  const window = history
+    .slice(-((windowPoints - 1) * stride + 1))
+    .filter((_, i) => i % stride === 0);
   const values = window.map((p) => p.totalValue);
   const lo = Math.min(...values);
   const hi = Math.max(...values);

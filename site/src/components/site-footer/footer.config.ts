@@ -1,25 +1,34 @@
-import { footer, nav, site } from '../../data/site.config';
-import type { FooterColumn } from './footer.types';
+import { footer, nav, site } from "../../data/site.config";
+import type { FooterColumn } from "./footer.types";
 
 /** Exact path from public/logo.svg (viewBox 0 0 500 500); inlined so it can take the accent fill. */
 export const LOGO_PATH =
-  'M317.597 112.459C317.597 126.266 328.79 137.459 342.597 137.459H351C364.807 137.459 376 148.652 376 162.459V338.502C376 352.309 364.807 363.502 351 363.502H342.597C328.79 363.502 317.597 374.695 317.597 388.502V462.88C317.597 476.687 306.404 487.88 292.597 487.88H207.403C193.596 487.88 182.403 476.687 182.403 462.88V388.502C182.403 374.695 171.21 363.502 157.403 363.502H149C135.193 363.502 124 352.309 124 338.502V162.459C124 148.652 135.193 137.459 149 137.459H157.403C171.21 137.459 182.403 126.266 182.403 112.459V37C182.403 23.1929 193.596 12 207.403 12H292.597C306.404 12 317.597 23.1929 317.597 37V112.459ZM191.056 327.687C191.056 341.494 202.249 352.687 216.056 352.687H283.944C297.751 352.687 308.944 341.494 308.944 327.687V172.193C308.944 158.386 297.751 147.193 283.944 147.193H216.056C202.249 147.193 191.056 158.386 191.056 172.193V327.687Z';
-export const LOGO_VIEWBOX = '0 0 500 500';
+  "M317.597 112.459C317.597 126.266 328.79 137.459 342.597 137.459H351C364.807 137.459 376 148.652 376 162.459V338.502C376 352.309 364.807 363.502 351 363.502H342.597C328.79 363.502 317.597 374.695 317.597 388.502V462.88C317.597 476.687 306.404 487.88 292.597 487.88H207.403C193.596 487.88 182.403 476.687 182.403 462.88V388.502C182.403 374.695 171.21 363.502 157.403 363.502H149C135.193 363.502 124 352.309 124 338.502V162.459C124 148.652 135.193 137.459 149 137.459H157.403C171.21 137.459 182.403 126.266 182.403 112.459V37C182.403 23.1929 193.596 12 207.403 12H292.597C306.404 12 317.597 23.1929 317.597 37V112.459ZM191.056 327.687C191.056 341.494 202.249 352.687 216.056 352.687H283.944C297.751 352.687 308.944 341.494 308.944 327.687V172.193C308.944 158.386 297.751 147.193 283.944 147.193H216.056C202.249 147.193 191.056 158.386 191.056 172.193V327.687Z";
+export const LOGO_VIEWBOX = "0 0 500 500";
 
 export const footerConfig = {
-  tagline: 'Your inventory. Your history. Your server.',
+  tagline: "Your inventory. Your history. Your server.",
   homeLabel: `${site.name}, home`,
-  navigationLabel: 'Footer',
+  navigationLabel: "Footer",
   columns: [
-    { title: 'Product', links: nav },
-    { title: 'Project', links: [
-      { label: 'GitHub', href: site.repo },
-      { label: 'Releases', href: `${site.repo}/releases` },
-      { label: 'Issues', href: `${site.repo}/issues` },
-      { label: 'License', href: `${site.repo}/blob/HEAD/LICENSE` },
-    ] },
-    { title: 'Data', links: footer.links.filter(link => link.href !== site.repo).map(link => ({
-      ...link, label: link.label.replace(/^(Item data|Prices): /, ''),
-    })) },
+    { title: "Product", links: nav },
+    {
+      title: "Project",
+      links: [
+        { label: "GitHub", href: site.repo },
+        { label: "Releases", href: `${site.repo}/releases` },
+        { label: "Issues", href: `${site.repo}/issues` },
+        { label: "License", href: `${site.repo}/blob/HEAD/LICENSE` },
+      ],
+    },
+    {
+      title: "Data",
+      links: footer.links
+        .filter((link) => link.href !== site.repo)
+        .map((link) => ({
+          ...link,
+          label: link.label.replace(/^(Item data|Prices): /, ""),
+        })),
+    },
   ] satisfies FooterColumn[],
 };

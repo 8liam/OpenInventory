@@ -27,7 +27,10 @@ export const selfhost = {
   copied: "Copied",
   copySuffix: " command",
   copyError: "Could not copy. The command is selected, press Ctrl or Cmd C.",
-  source: { label: "Setup guide on GitHub", href: "https://github.com/8liam/OpenInventory#run-with-docker" },
+  source: {
+    label: "Setup guide on GitHub",
+    href: "https://github.com/8liam/OpenInventory#run-with-docker",
+  },
   tabs: [
     {
       id: "docker",
@@ -60,7 +63,10 @@ export const selfhost = {
       label: "Desktop app",
       note: "Prefer an app? Grab the installer for your OS, open it and sign in with the Steam mobile app.",
       preview: { kind: "plain", lines: ["macOS    .dmg", "Windows  .exe", "Linux    .AppImage"] },
-      link: { label: "Download the latest release", href: "https://github.com/8liam/OpenInventory/releases/latest" },
+      link: {
+        label: "Download the latest release",
+        href: "https://github.com/8liam/OpenInventory/releases/latest",
+      },
     },
   ],
 } as const satisfies SelfhostCopy;

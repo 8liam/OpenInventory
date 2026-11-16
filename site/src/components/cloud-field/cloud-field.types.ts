@@ -1,4 +1,4 @@
-export type CloudFieldVariant = 'hero' | 'band';
+export type CloudFieldVariant = "hero" | "band";
 
 export interface CloudFieldProps {
   variant?: CloudFieldVariant;

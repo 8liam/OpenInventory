@@ -13,12 +13,17 @@
 
 /* A soft dark veil keeps the copy readable over every glow position. */
 .cta::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse 65% 75% at center, rgb(var(--c-bg-rgb) / 0.88), rgb(var(--c-bg-rgb) / 0.55) 55%, rgb(var(--c-bg-rgb) / 0) 100%);
+  background: radial-gradient(
+    ellipse 65% 75% at center,
+    rgb(var(--c-bg-rgb) / 0.88),
+    rgb(var(--c-bg-rgb) / 0.55) 55%,
+    rgb(var(--c-bg-rgb) / 0) 100%
+  );
 }
 
 .cta__content {
@@ -55,18 +60,48 @@
 }
 
 /* Buttons: lime primary, hairline secondary. Scoped here so the shared .btn--solid (dark ink) never lands on a dark panel. */
-.cta__actions .btn { box-shadow: var(--shadow-card); }
-.cta__actions .btn--solid { background: var(--c-accent); border-color: var(--c-accent); color: var(--c-accent-ink); font-weight: 600; }
-.cta__actions .ghl { gap: 0.65rem; background: transparent; border-color: var(--c-line-strong); color: var(--c-fg); }
-.cta__actions .ghl__icon { color: var(--c-fg); }
-.cta__actions .ghl__stars { margin-left: 0.15rem; }
-@media (hover: hover) {
-  .cta__actions .btn--solid:hover { background: var(--c-accent-hi); border-color: var(--c-accent-hi); box-shadow: 0 12px 40px -10px rgb(var(--c-accent-rgb) / 0.55); }
-  .cta__actions .ghl:hover { background: rgb(var(--c-ink) / 0.06); border-color: rgb(var(--c-accent-rgb) / 0.5); }
+.cta__actions .btn {
+  box-shadow: var(--shadow-card);
 }
-.cta__actions .btn:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 3px; }
-.cta__actions [data-dl-icon][hidden] { display: none; }
-.cta__actions .btn__icon:not(:has(svg:not([hidden]))) { display: none; }
+.cta__actions .btn--solid {
+  background: var(--c-accent);
+  border-color: var(--c-accent);
+  color: var(--c-accent-ink);
+  font-weight: 600;
+}
+.cta__actions .ghl {
+  gap: 0.65rem;
+  background: transparent;
+  border-color: var(--c-line-strong);
+  color: var(--c-fg);
+}
+.cta__actions .ghl__icon {
+  color: var(--c-fg);
+}
+.cta__actions .ghl__stars {
+  margin-left: 0.15rem;
+}
+@media (hover: hover) {
+  .cta__actions .btn--solid:hover {
+    background: var(--c-accent-hi);
+    border-color: var(--c-accent-hi);
+    box-shadow: 0 12px 40px -10px rgb(var(--c-accent-rgb) / 0.55);
+  }
+  .cta__actions .ghl:hover {
+    background: rgb(var(--c-ink) / 0.06);
+    border-color: rgb(var(--c-accent-rgb) / 0.5);
+  }
+}
+.cta__actions .btn:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 3px;
+}
+.cta__actions [data-dl-icon][hidden] {
+  display: none;
+}
+.cta__actions .btn__icon:not(:has(svg:not([hidden]))) {
+  display: none;
+}
 
 .cta__availability,
 .cta__platforms,
@@ -85,16 +120,43 @@
   color: var(--c-muted);
 }
 
-.cta__platforms { flex-wrap: wrap; gap: 1rem; padding: 0; list-style: none; }
-.cta__platform { gap: 0.45rem; padding: 0.35rem 0.8rem; border: 1px solid var(--c-line); border-radius: var(--radius-pill); background: rgb(var(--c-ink) / 0.04); color: var(--c-fg); }
-.cta__platform svg { flex: none; color: var(--c-accent); }
+.cta__platforms {
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0;
+  list-style: none;
+}
+.cta__platform {
+  gap: 0.45rem;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-pill);
+  background: rgb(var(--c-ink) / 0.04);
+  color: var(--c-fg);
+}
+.cta__platform svg {
+  flex: none;
+  color: var(--c-accent);
+}
 
 @media (max-width: 35rem) {
-  .cta__actions { flex-direction: column; align-items: center; }
-  .cta__actions .btn { width: min(100%, 18rem); }
-  .cta__availability { flex-direction: column; gap: 0.75rem; }
+  .cta__actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  .cta__actions .btn {
+    width: min(100%, 18rem);
+  }
+  .cta__availability {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cta [data-reveal] { opacity: 1; translate: none; transition: none; }
+  .cta [data-reveal] {
+    opacity: 1;
+    translate: none;
+    transition: none;
+  }
 }

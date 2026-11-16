@@ -5,7 +5,15 @@ import { fetchStars, formatStars } from "../lib/github-stars/github-stars";
 import { initDownload } from "../lib/download/download.client";
 import { githubStarsConfig } from "../lib/github-stars/github-stars.config";
 import {
-  COUNT_UP, LENIS_OPTIONS, MAIN_CLASSES, MAIN_MEDIA, MAIN_SELECTORS, MAIN_STORAGE, MS_PER_SECOND, PARALLAX, REVEAL_START,
+  COUNT_UP,
+  LENIS_OPTIONS,
+  MAIN_CLASSES,
+  MAIN_MEDIA,
+  MAIN_SELECTORS,
+  MAIN_STORAGE,
+  MS_PER_SECOND,
+  PARALLAX,
+  REVEAL_START,
 } from "./main.config";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -15,24 +23,37 @@ gsap.registerPlugin(ScrollTrigger);
   const slots = document.querySelectorAll<HTMLElement>(`[${githubStarsConfig.attr}]`);
   if (!slots.length) return;
   let cached: string | null = null;
-  try { cached = sessionStorage.getItem(githubStarsConfig.storageKey); } catch { /* Storage is optional. */ }
+  try {
+    cached = sessionStorage.getItem(githubStarsConfig.storageKey);
+  } catch {
+    /* Storage is optional. */
+  }
   const stars = cached !== null ? Number(cached) : await fetchStars();
   if (stars === null || Number.isNaN(stars)) return;
-  try { sessionStorage.setItem(githubStarsConfig.storageKey, String(stars)); } catch { /* Storage is optional. */ }
+  try {
+    sessionStorage.setItem(githubStarsConfig.storageKey, String(stars));
+  } catch {
+    /* Storage is optional. */
+  }
   slots.forEach((el) => {
     const n = el.querySelector<HTMLElement>(MAIN_SELECTORS.starsNumber);
     if (n) n.textContent = formatStars(stars);
     el.hidden = false;
   });
-})().catch(() => { /* Keep the server-rendered count if the request fails. */ });
+})().catch(() => {
+  /* Keep the server-rendered count if the request fails. */
+});
 
 let seen = false;
 try {
   seen = sessionStorage.getItem(MAIN_STORAGE.seen) !== null;
   sessionStorage.setItem(MAIN_STORAGE.seen, MAIN_STORAGE.seenValue);
-} catch { /* Motion and downloads must also work with storage blocked. */ }
+} catch {
+  /* Motion and downloads must also work with storage blocked. */
+}
 
-const currencyFormat = () => new Intl.NumberFormat(COUNT_UP.locale, { style: "currency", currency: COUNT_UP.currency });
+const currencyFormat = () =>
+  new Intl.NumberFormat(COUNT_UP.locale, { style: "currency", currency: COUNT_UP.currency });
 
 // matchMedia reverts GSAP effects and runs cleanup when the preference changes.
 const motion = gsap.matchMedia();
@@ -65,13 +86,24 @@ motion.add(MAIN_MEDIA.noReducedMotion, () => {
   // Clamp travel so accidental values cannot pull artwork far out of its panel.
   document.querySelectorAll<HTMLElement>(MAIN_SELECTORS.parallax).forEach((el) => {
     const requested = Number(el.dataset.parallax);
-    const distance = el.dataset.parallax?.trim() && Number.isFinite(requested)
-      ? gsap.utils.clamp(-PARALLAX.maxDistance, PARALLAX.maxDistance, requested) : PARALLAX.defaultDistance;
-    gsap.fromTo(el, { y: -distance }, {
-      y: distance,
-      ease: "none",
-      scrollTrigger: { trigger: el.parentElement ?? el, start: PARALLAX.start, end: PARALLAX.end, scrub: PARALLAX.scrub },
-    });
+    const distance =
+      el.dataset.parallax?.trim() && Number.isFinite(requested)
+        ? gsap.utils.clamp(-PARALLAX.maxDistance, PARALLAX.maxDistance, requested)
+        : PARALLAX.defaultDistance;
+    gsap.fromTo(
+      el,
+      { y: -distance },
+      {
+        y: distance,
+        ease: "none",
+        scrollTrigger: {
+          trigger: el.parentElement ?? el,
+          start: PARALLAX.start,
+          end: PARALLAX.end,
+          scrub: PARALLAX.scrub,
+        },
+      },
+    );
   });
 
   // Island hydration and font loading can change trigger positions.

@@ -1,23 +1,149 @@
-  .foot { padding-top: clamp(3rem, 6vw, 6rem); background: var(--c-bg); color: var(--c-fg); overflow: clip; }
-  .foot__top { display: grid; gap: 3rem; }
-  .foot__brand { display: inline-flex; align-items: center; gap: .65rem; min-height: 44px; color: var(--c-fg); font-size: 1.25rem; font-weight: 600; letter-spacing: -.04em; text-decoration: none; }
-  .foot__logo { flex: none; width: 32px; height: 32px; color: var(--c-accent); }
-  .foot__tagline { margin: .75rem 0 1.5rem; color: var(--c-muted); font-size: var(--t-s); }
-  /* GitHub chip: icon, label and star count each get a real gap; the base .ghl rule has none outside the header. */
-  .foot__identity .ghl { display: inline-flex; align-items: center; gap: .65rem; min-height: 44px; padding: .65rem 1rem; border: 1px solid var(--c-line-strong); border-radius: var(--radius-pill); background: var(--c-surface); color: var(--c-fg); font-size: var(--t-s); font-weight: 500; text-decoration: none; transition: background-color .2s, border-color .2s; }
-  .foot__identity .ghl__icon { flex: none; color: var(--c-accent); }
-  .foot__identity .ghl__label { display: inline-block; }
-  .foot__identity .ghl__stars { margin-right: -.45rem; margin-left: .15rem; }
-  .foot__identity .ghl:hover { background: var(--c-surface-2); border-color: var(--c-accent); }
-  .foot__nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.75rem 1rem; }
-  .foot__heading { margin: 0 0 .65rem; font-size: var(--t-s); font-weight: 600; color: var(--c-fg); }
-  .foot__links { list-style: none; padding: 0; margin: 0; }
-  .foot__links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--c-muted); font-size: var(--t-s); text-decoration: none; transition: color .2s; }
-  .foot__links a:hover { color: var(--c-fg); text-decoration: underline; text-decoration-color: var(--c-line-strong); text-underline-offset: .3em; }
-  .foot a:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 4px; border-radius: 4px; }
-  /* Giant wordmark: lime fading to nothing toward the bottom, so it dissolves into the page ground. */
-  .foot__word { margin: clamp(2.5rem, 6vw, 6rem) 0 0; padding: 0 var(--gutter); text-align: center; white-space: nowrap; font-family: var(--f-body); font-size: clamp(1rem, 13.1vw, 19rem); font-weight: 600; line-height: 1.1; letter-spacing: -.065em; color: transparent; background: linear-gradient(180deg, var(--c-accent) 0%, rgb(var(--c-accent-rgb) / .35) 45%, rgb(var(--c-accent-rgb) / 0) 92%); background-clip: text; -webkit-background-clip: text; user-select: none; }
-  .foot__legal { margin: 0; padding: 1.5rem 0 2rem; border-top: 1px solid var(--c-line); color: var(--c-faint); font-size: var(--t-xs); line-height: 1.7; }
-  @media (min-width: 600px) { .foot__nav { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem; } }
-  @media (min-width: 1000px) { .foot__top { grid-template-columns: 1fr 1.5fr; gap: 4rem; } }
-  @media (prefers-reduced-motion: reduce) { .foot__links a, .foot__identity .ghl { transition: none; } }
+.foot {
+  padding-top: clamp(3rem, 6vw, 6rem);
+  background: var(--c-bg);
+  color: var(--c-fg);
+  overflow: clip;
+}
+.foot__top {
+  display: grid;
+  gap: 3rem;
+}
+.foot__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 44px;
+  color: var(--c-fg);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+.foot__logo {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  color: var(--c-accent);
+}
+.foot__tagline {
+  margin: 0.75rem 0 1.5rem;
+  color: var(--c-muted);
+  font-size: var(--t-s);
+}
+/* GitHub chip: icon, label and star count each get a real gap; the base .ghl rule has none outside the header. */
+.foot__identity .ghl {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 44px;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--c-surface);
+  color: var(--c-fg);
+  font-size: var(--t-s);
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+.foot__identity .ghl__icon {
+  flex: none;
+  color: var(--c-accent);
+}
+.foot__identity .ghl__label {
+  display: inline-block;
+}
+.foot__identity .ghl__stars {
+  margin-right: -0.45rem;
+  margin-left: 0.15rem;
+}
+.foot__identity .ghl:hover {
+  background: var(--c-surface-2);
+  border-color: var(--c-accent);
+}
+.foot__nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.75rem 1rem;
+}
+.foot__heading {
+  margin: 0 0 0.65rem;
+  font-size: var(--t-s);
+  font-weight: 600;
+  color: var(--c-fg);
+}
+.foot__links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.foot__links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--c-muted);
+  font-size: var(--t-s);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.foot__links a:hover {
+  color: var(--c-fg);
+  text-decoration: underline;
+  text-decoration-color: var(--c-line-strong);
+  text-underline-offset: 0.3em;
+}
+.foot a:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+/* Giant wordmark: lime fading to nothing toward the bottom, so it dissolves into the page ground. */
+.foot__word {
+  margin: clamp(2.5rem, 6vw, 6rem) 0 0;
+  padding: 0 var(--gutter);
+  text-align: center;
+  white-space: nowrap;
+  font-family: var(--f-body);
+  font-size: clamp(1rem, 13.1vw, 19rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.065em;
+  color: transparent;
+  background: linear-gradient(
+    180deg,
+    var(--c-accent) 0%,
+    rgb(var(--c-accent-rgb) / 0.35) 45%,
+    rgb(var(--c-accent-rgb) / 0) 92%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  user-select: none;
+}
+.foot__legal {
+  margin: 0;
+  padding: 1.5rem 0 2rem;
+  border-top: 1px solid var(--c-line);
+  color: var(--c-faint);
+  font-size: var(--t-xs);
+  line-height: 1.7;
+}
+@media (min-width: 600px) {
+  .foot__nav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem;
+  }
+}
+@media (min-width: 1000px) {
+  .foot__top {
+    grid-template-columns: 1fr 1.5fr;
+    gap: 4rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .foot__links a,
+  .foot__identity .ghl {
+    transition: none;
+  }
+}

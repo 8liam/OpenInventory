@@ -1,4 +1,4 @@
-import type { ICON_PATHS } from '../../lib/download/download.icons';
+import type { ICON_PATHS } from "../../lib/download/download.icons";
 
 export interface CtaConfig {
   readonly headline: string;
