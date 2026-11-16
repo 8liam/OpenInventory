@@ -243,7 +243,7 @@
   }
 }
 
-/* Load stagger: pure CSS so it also plays without JS. `backwards` fill keeps main.ts's
+/* Keep text visible on first paint; stagger only the upward motion. `backwards` fill keeps main.ts's
    scroll-armed pending state intact once the animation ends. */
 @media (prefers-reduced-motion: no-preference) {
   .hero [data-reveal] {
@@ -251,7 +251,6 @@
   }
   @keyframes hero-rise {
     from {
-      opacity: 0;
       translate: 0 24px;
     }
   }

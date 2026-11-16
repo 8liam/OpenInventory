@@ -1,5 +1,5 @@
 /* Imported into @layer site by styles/index.css. */
-/* "Glow field": near-black panel, lime aurora rising from the bottom, perspective ledger grid, drifting beams, grain.
+/* "Glow field": near-black panel, lime aurora rising from the bottom, perspective ledger grid, drifting beams.
    The parent supplies size and radius. The field never participates in layout. */
 .glow-field {
   --gf-rgb: var(--c-accent-rgb);
@@ -227,14 +227,6 @@
   background:
     radial-gradient(ellipse 52% 44% at 50% 36%, rgb(var(--c-bg-rgb) / 0.72), transparent 100%),
     linear-gradient(180deg, rgb(var(--c-bg-rgb) / 0.5), transparent 30%);
-}
-
-/* ── Film grain ── */
-.glow-field__grain {
-  opacity: 0.1;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.4 -0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 180px 180px;
 }
 
 /* ── Closing band: no skins, ground sits on the panel bottom, wider centred bloom ── */
