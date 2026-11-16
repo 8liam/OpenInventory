@@ -5,10 +5,15 @@ import { TradeUpInputs } from "~/components/tradeup-inputs/tradeup-inputs.compon
 import { TradeUpOutcomes } from "~/components/tradeup-outcomes/tradeup-outcomes.component";
 import { DEFAULT_SELECTION, tradeUpCandidates, tradeUpOdds } from "@demo/data/tradeup.mock";
 import { COPY } from "~/lib/copy/copy.config";
+import { DEMO_VISIBLE_WIDTH } from "../../components/features/feature-demo.config";
 import { formatChance, formatFloat, formatMoney, formatPercent } from "~/utils/format";
 
 /** The demo lists only the cheapest skins; the real app lists every one. */
-const CANDIDATE_CAP = 6;
+const CANDIDATE_CAP = 5;
+/** The results column is short; the real app lists every possible outcome. */
+const OUTCOME_CAP = 3;
+/** Renders the calculator slightly wider than the visible crop, then shrinks it, so the dense list and results table both fit side by side. */
+const FIT_SCALE = 0.86;
 
 /** The real Trade-up calculator body: pick inputs, see average float, expected value and every outcome. */
 export default function TradeUpDemo() {
@@ -30,55 +35,67 @@ export default function TradeUpDemo() {
     );
 
   return (
-    <div className="oi-app flex flex-col gap-3 p-4">
+    <div
+      className="oi-app flex flex-col gap-3 p-4"
+      style={{
+        width: DEMO_VISIBLE_WIDTH / FIT_SCALE,
+        transform: `scale(${FIT_SCALE})`,
+        transformOrigin: "0 0",
+      }}
+    >
       <PageHeader title={copy.title} description={copy.description}>
         <span className="text-muted-foreground">
           {copy.rarity}{" "}
           <span className="text-foreground">{copy.rarities.rarity_ancient_weapon}</span>
         </span>
       </PageHeader>
-      <TradeUpInputs
-        candidates={candidates.candidates.slice(0, CANDIDATE_CAP)}
-
-        selectedIds={selectedIds}
-        inputCount={candidates.inputCount}
-        currency={candidates.currency}
-        onToggle={toggle}
-        onAutoFill={() =>
-          setSelection(candidates.candidates.slice(0, candidates.inputCount).map((c) => c.id))
-        }
-        onClear={() => setSelection([])}
-      />
-      {selection.length === 0 && <p className="text-muted-foreground">{copy.pickPrompt}</p>}
-      {result && (
-        <>
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-            <Metric label={copy.inputCost} value={formatMoney(result.inputCost, result.currency)} />
-            <Metric label={copy.averageFloat} value={formatFloat(result.averageFloat)} />
-            <Metric
-              label={copy.expectedValue}
-              value={formatMoney(result.expectedValue, result.currency)}
-            />
-            <Metric
-              label={copy.expectedReturn}
-              value={formatPercent(result.expectedValue / result.inputCost - 1)}
-              tone={result.expectedValue >= result.inputCost ? "positive" : "negative"}
-            />
-            <Metric label={copy.chanceToProfit} value={formatChance(result.chanceToProfit)} />
-          </div>
-          {result.selected < result.inputCount && (
-            <p className="text-xs text-muted-foreground">
-              {copy.selectMore(result.inputCount - result.selected)}
-            </p>
+      <div className="grid min-h-0 grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] items-start gap-3">
+        <TradeUpInputs
+          candidates={candidates.candidates.slice(0, CANDIDATE_CAP)}
+          selectedIds={selectedIds}
+          inputCount={candidates.inputCount}
+          currency={candidates.currency}
+          onToggle={toggle}
+          onAutoFill={() =>
+            setSelection(candidates.candidates.slice(0, candidates.inputCount).map((c) => c.id))
+          }
+          onClear={() => setSelection([])}
+        />
+        <div className="flex min-w-0 flex-col gap-3">
+          {selection.length === 0 && <p className="text-muted-foreground">{copy.pickPrompt}</p>}
+          {result && (
+            <>
+              <div className="grid grid-cols-6 gap-2 [&>*]:col-span-2 [&>:nth-child(n+4)]:col-span-3">
+                <Metric
+                  label={copy.inputCost}
+                  value={formatMoney(result.inputCost, result.currency)}
+                />
+                <Metric label={copy.averageFloat} value={formatFloat(result.averageFloat)} />
+                <Metric
+                  label={copy.expectedValue}
+                  value={formatMoney(result.expectedValue, result.currency)}
+                />
+                <Metric
+                  label={copy.expectedReturn}
+                  value={formatPercent(result.expectedValue / result.inputCost - 1)}
+                  tone={result.expectedValue >= result.inputCost ? "positive" : "negative"}
+                />
+                <Metric label={copy.chanceToProfit} value={formatChance(result.chanceToProfit)} />
+              </div>
+              {result.selected < result.inputCount && (
+                <p className="text-xs text-muted-foreground">
+                  {copy.selectMore(result.inputCount - result.selected)}
+                </p>
+              )}
+              <TradeUpOutcomes
+                outcomes={result.outcomes.slice(0, OUTCOME_CAP)}
+                currency={result.currency}
+                inputCost={result.inputCost}
+              />
+            </>
           )}
-          <TradeUpOutcomes
-            outcomes={result.outcomes}
-            currency={result.currency}
-            inputCost={result.inputCost}
-          />
-          <p className="text-xs text-muted-foreground">{copy.formulaNote}</p>
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 }
