@@ -4,120 +4,140 @@ import Lenis from "lenis";
 import { fetchStars, formatStars } from "../lib/github-stars/github-stars";
 import { initDownload } from "../lib/download/download.client";
 import { githubStarsConfig } from "../lib/github-stars/github-stars.config";
+import {
+  COUNT_UP,
+  LENIS_OPTIONS,
+  MAIN_CLASSES,
+  MAIN_MEDIA,
+  MAIN_SELECTORS,
+  MAIN_STORAGE,
+  MS_PER_SECOND,
+  PARALLAX,
+  REVEAL_START,
+} from "./main.config";
 
 gsap.registerPlugin(ScrollTrigger);
-
-const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* Star count: the build-time number is refreshed once per session so a static deploy never goes stale. */
 (async () => {
   const slots = document.querySelectorAll<HTMLElement>(`[${githubStarsConfig.attr}]`);
   if (!slots.length) return;
-  const cached = sessionStorage.getItem(githubStarsConfig.storageKey);
+  let cached: string | null = null;
+  try {
+    cached = sessionStorage.getItem(githubStarsConfig.storageKey);
+  } catch {
+    /* Storage is optional. */
+  }
   const stars = cached !== null ? Number(cached) : await fetchStars();
   if (stars === null || Number.isNaN(stars)) return;
-  sessionStorage.setItem(githubStarsConfig.storageKey, String(stars));
+  try {
+    sessionStorage.setItem(githubStarsConfig.storageKey, String(stars));
+  } catch {
+    /* Storage is optional. */
+  }
   slots.forEach((el) => {
-    const n = el.querySelector<HTMLElement>("[data-stars-n]");
+    const n = el.querySelector<HTMLElement>(MAIN_SELECTORS.starsNumber);
     if (n) n.textContent = formatStars(stars);
     el.hidden = false;
   });
-})();
+})().catch(() => {
+  /* Keep the server-rendered count if the request fails. */
+});
 
-/* Header: a fixed pill whenever the page is past half a screen, fading in and out at that line (works with or without motion). */
-const floatHeader = document.querySelector<HTMLElement>(".hdr");
-if (floatHeader) {
-  const sentinel = document.createElement("div");
-  sentinel.setAttribute("aria-hidden", "true");
-  sentinel.style.cssText =
-    "position:absolute;top:50vh;left:0;width:1px;height:1px;pointer-events:none";
-  document.body.prepend(sentinel);
-  const FADE_MS = reduced ? 0 : 350;
-  let fadeTimer: number | undefined;
-  new IntersectionObserver(([entry]) => {
-    window.clearTimeout(fadeTimer);
-    if (!entry.isIntersecting && entry.boundingClientRect.top < 0) {
-      floatHeader.classList.remove("is-fading");
-      floatHeader.classList.add("is-float");
-    } else if (floatHeader.classList.contains("is-float")) {
-      // Back above the half-screen mark: fade the pill out, then hand the header back to the page flow.
-      floatHeader.classList.add("is-fading");
-      fadeTimer = window.setTimeout(
-        () => floatHeader.classList.remove("is-float", "is-fading"),
-        FADE_MS,
-      );
-    }
-  }).observe(sentinel);
+let seen = false;
+try {
+  seen = sessionStorage.getItem(MAIN_STORAGE.seen) !== null;
+  sessionStorage.setItem(MAIN_STORAGE.seen, MAIN_STORAGE.seenValue);
+} catch {
+  /* Motion and downloads must also work with storage blocked. */
 }
 
-/* Mobile menu */
-const menuBtn = document.querySelector<HTMLButtonElement>("[data-menu]");
-const menuNav = document.getElementById("primary-nav");
-if (menuBtn && menuNav) {
-  const label = menuBtn.querySelector<HTMLElement>("[data-menu-label]");
-  const set = (open: boolean) => {
-    menuBtn.setAttribute("aria-expanded", String(open));
-    menuNav.classList.toggle("is-open", open);
-    if (label) label.textContent = open ? "Close" : "Menu";
-  };
-  menuBtn.addEventListener("click", () => set(menuBtn.getAttribute("aria-expanded") !== "true"));
-  menuNav.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => set(false)));
-  addEventListener("keydown", (e) => {
-    if (e.key === "Escape") set(false);
-  });
-}
+const currencyFormat = () =>
+  new Intl.NumberFormat(COUNT_UP.locale, { style: "currency", currency: COUNT_UP.currency });
 
-const seen = document.documentElement.classList.contains("seen");
-sessionStorage.setItem("oi-seen", "1");
-
-if (!reduced) {
+// matchMedia reverts GSAP effects and runs cleanup when the preference changes.
+const motion = gsap.matchMedia();
+motion.add(MAIN_MEDIA.noReducedMotion, () => {
+  document.documentElement.classList.add(MAIN_CLASSES.motion);
   // One clock: Lenis rides the GSAP ticker, ScrollTrigger reads Lenis.
-  const lenis = new Lenis({ lerp: 0.1, anchors: true });
+  const lenis = new Lenis({ ...LENIS_OPTIONS });
   lenis.on("scroll", ScrollTrigger.update);
-  gsap.ticker.add((t) => lenis.raf(t * 1000));
+  const tick = (seconds: number) => lenis.raf(seconds * MS_PER_SECOND);
+  gsap.ticker.add(tick);
   gsap.ticker.lagSmoothing(0);
 
-  // Reveals
-  document.querySelectorAll<HTMLElement>("[data-reveal]").forEach((el) => {
-    ScrollTrigger.create({
-      trigger: el,
-      start: "top 90%",
-      once: true,
-      onEnter: () => el.classList.add("is-in"),
-    });
+  // First-screen content paints immediately; only offscreen content reveals up.
+  const reveals = document.querySelectorAll<HTMLElement>(MAIN_SELECTORS.reveal);
+  reveals.forEach((el) => {
+    if (el.classList.contains(MAIN_CLASSES.revealed)) return;
+    if (el.getBoundingClientRect().top < window.innerHeight) {
+      el.classList.add(MAIN_CLASSES.revealed);
+      return;
+    }
+    const reveal = () => {
+      el.classList.remove(MAIN_CLASSES.pending);
+      el.classList.add(MAIN_CLASSES.revealed);
+    };
+    ScrollTrigger.create({ trigger: el, start: REVEAL_START, once: true, onEnter: reveal });
+    if (!el.classList.contains(MAIN_CLASSES.revealed)) el.classList.add(MAIN_CLASSES.pending);
   });
 
-  // Late layout shifts (the hero island collapses five stacked demos into one once it
-  // hydrates) move every section below it after ScrollTrigger has cached its positions.
-  // Refresh once the shift settles so deeper triggers re-measure instead of firing late.
-  const recalc = () => ScrollTrigger.refresh();
+  // An empty data-parallax opts into gentle motion; a number is travel in pixels.
+  // Clamp travel so accidental values cannot pull artwork far out of its panel.
+  document.querySelectorAll<HTMLElement>(MAIN_SELECTORS.parallax).forEach((el) => {
+    const requested = Number(el.dataset.parallax);
+    const distance =
+      el.dataset.parallax?.trim() && Number.isFinite(requested)
+        ? gsap.utils.clamp(-PARALLAX.maxDistance, PARALLAX.maxDistance, requested)
+        : PARALLAX.defaultDistance;
+    gsap.fromTo(
+      el,
+      { y: -distance },
+      {
+        y: distance,
+        ease: "none",
+        scrollTrigger: {
+          trigger: el.parentElement ?? el,
+          start: PARALLAX.start,
+          end: PARALLAX.end,
+          scrub: PARALLAX.scrub,
+        },
+      },
+    );
+  });
+
+  // Island hydration and font loading can change trigger positions.
+  let refreshFrame = 0;
+  const recalc = () => {
+    cancelAnimationFrame(refreshFrame);
+    refreshFrame = requestAnimationFrame(() => ScrollTrigger.refresh());
+  };
   window.addEventListener("load", recalc);
-  if ("ResizeObserver" in window) {
-    const stage = document.querySelector(".hero__stage");
-    if (stage) new ResizeObserver(recalc).observe(stage);
-  }
+  const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(recalc);
+  const main = document.querySelector("main");
+  if (main) observer?.observe(main);
 
   // Count-up for the readout. The server-rendered value stays in the DOM for crawlers.
   // The roll waits until the stat is actually in view — spending it on load means the
   // "it's alive" moment happens off-screen for anyone who lands and scrolls.
-  const count = document.querySelector<HTMLElement>("[data-count]");
-  const text = count?.querySelector<HTMLElement>("[data-count-text]");
+  const count = document.querySelector<HTMLElement>(MAIN_SELECTORS.count);
+  const text = count?.querySelector<HTMLElement>(MAIN_SELECTORS.countText);
   if (count && text) {
     const target = Number(count.dataset.count);
-    const fmt = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+    const fmt = currencyFormat();
     if (seen) text.textContent = fmt.format(target);
     else {
       text.textContent = fmt.format(0);
       ScrollTrigger.create({
         trigger: count,
-        start: "top 92%",
+        start: COUNT_UP.start,
         once: true,
         onEnter: () => {
           const o = { v: 0 };
           gsap.to(o, {
             v: target,
-            duration: 1.2,
-            ease: "expo.out",
+            duration: COUNT_UP.durationSeconds,
+            ease: COUNT_UP.ease,
             onUpdate: () => {
               text.textContent = fmt.format(o.v);
             },
@@ -126,6 +146,20 @@ if (!reduced) {
       });
     }
   }
-}
+
+  return () => {
+    gsap.ticker.remove(tick);
+    lenis.destroy();
+    observer?.disconnect();
+    cancelAnimationFrame(refreshFrame);
+    window.removeEventListener("load", recalc);
+    document.documentElement.classList.remove(MAIN_CLASSES.motion);
+    reveals.forEach((el) => el.classList.remove(MAIN_CLASSES.pending));
+    // A preference change mid-count must restore the full, meaningful value.
+    if (count && text) {
+      text.textContent = currencyFormat().format(Number(count.dataset.count));
+    }
+  };
+});
 
 void initDownload();

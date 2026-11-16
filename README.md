@@ -58,13 +58,13 @@ docker compose up -d
 
 Open <http://localhost:3000>, press **Show QR code**, and scan it in the Steam mobile app. Data lives in the `openinventory-data` volume.
 
-| Variable                      | Default                                         | Purpose                                                                                                                                              |
-| ----------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `OPENINVENTORY_PASSWORD`      | unset                                           | Require HTTP basic auth (any username). Set it if anyone but you can reach the port.                                                                 |
-| `OPENINVENTORY_PORT`          | `3000` in Docker, `4174` otherwise              | Listen port.                                                                                                                                         |
-| `OPENINVENTORY_HOST`          | `0.0.0.0` in Docker, `127.0.0.1` otherwise      | Listen address.                                                                                                                                      |
-| `OPENINVENTORY_DATA_DIR`      | `/data` in Docker, `~/.openinventory` otherwise | SQLite database and Steam sessions.                                                                                                                  |
-| `OPENINVENTORY_WEB_DIR`       | set in Docker                                   | Built web app to serve. Unset in dev.                                                                                                                |
+| Variable                      | Default                                         | Purpose                                                                                                                                                                                   |
+| ----------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OPENINVENTORY_PASSWORD`      | unset                                           | Require HTTP basic auth (any username). Set it if anyone but you can reach the port.                                                                                                      |
+| `OPENINVENTORY_PORT`          | `3000` in Docker, `4174` otherwise              | Listen port.                                                                                                                                                                              |
+| `OPENINVENTORY_HOST`          | `0.0.0.0` in Docker, `127.0.0.1` otherwise      | Listen address.                                                                                                                                                                           |
+| `OPENINVENTORY_DATA_DIR`      | `/data` in Docker, `~/.openinventory` otherwise | SQLite database and Steam sessions.                                                                                                                                                       |
+| `OPENINVENTORY_WEB_DIR`       | set in Docker                                   | Built web app to serve. Unset in dev.                                                                                                                                                     |
 | `OPENINVENTORY_ALLOWED_HOSTS` | unset                                           | Extra hostnames accepted when no password is set (`nas.lan,.home.example`; a leading dot matches subdomains). IPs, `localhost`, `*.local`, `*.ts.net` and single-label names always work. |
 
 ## Good to know

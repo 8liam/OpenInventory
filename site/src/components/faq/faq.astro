@@ -1,19 +1,33 @@
 ---
-import { faq } from '../../data/site.config';
+import { faq, site } from '../../data/site.config';
+import { faqPresentation } from './faq.config';
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.items.map(({ q, a }) => ({
+    '@type': 'Question', name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
 ---
 <section class="faq" id={faq.id} aria-labelledby="faq-title">
   <div class="wrap faq__grid">
-    <h2 id="faq-title" class="h-l faq__title" data-reveal>{faq.heading}</h2>
+    <div class="faq__intro">
+      <h2 id="faq-title" class="faq__title" data-reveal>{faqPresentation.heading}</h2>
+      <p class="faq__note">{faqPresentation.note}</p>
+      <a class="faq__link" href={`${site.repo}/issues`}>{faqPresentation.linkLabel}<span aria-hidden="true">↗</span></a>
+    </div>
     <div class="faq__list">
       {faq.items.map((f, i) => (
-        <details class="qa" name="faq" open={i === 0} data-reveal style={`--d:${i * 0.05}s`}>
-          <summary class="qa__q">
+        <details class="faq__item" name="faq" open={i === 0}>
+          <summary class="faq__question">
             <span>{f.q}</span>
-            <span class="qa__icon" aria-hidden="true"></span>
+            <span class="faq__icon" aria-hidden="true"></span>
           </summary>
-          <p class="qa__a muted">{f.a}</p>
+          <div class="faq__content"><p class="faq__answer">{f.a}</p></div>
         </details>
       ))}
     </div>
   </div>
 </section>
+<script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')} />

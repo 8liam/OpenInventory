@@ -1,0 +1,77 @@
+---
+import { bento } from './bento.config';
+import BentoCapacity from './bento-capacity/bento-capacity.astro';
+import BentoLocal from './bento-local/bento-local.astro';
+import BentoPlatforms from './bento-platforms/bento-platforms.astro';
+import BentoPrices from './bento-prices/bento-prices.astro';
+import BentoReadonly from './bento-readonly/bento-readonly.astro';
+import BentoSignin from './bento-signin/bento-signin.astro';
+---
+<section class="bento" id={bento.id} aria-labelledby="bento-heading">
+  <div class="wrap">
+    <header class="bento__head" data-reveal>
+      <p class="bento__eyebrow">{bento.eyebrow}</p>
+      <h2 id="bento-heading" class="bento__heading">{bento.heading} <span>{bento.accent}</span></h2>
+    </header>
+    <div class="bento__grid">
+      {bento.cards.map((card, index) => (
+        <article
+          class:list={['bento__card', `bento__card--${card.kind}`]}
+          style={`--d:${((index % bento.staggerColumns) * bento.stagger).toFixed(2)}s`}
+          data-reveal
+        >
+          <div class="bento__art" aria-hidden="true">
+            {card.kind === 'prices' && <BentoPrices />}
+            {card.kind === 'local' && <BentoLocal />}
+            {card.kind === 'signin' && <BentoSignin />}
+            {card.kind === 'capacity' && <BentoCapacity />}
+            {card.kind === 'readonly' && <BentoReadonly />}
+            {card.kind === 'platforms' && <BentoPlatforms />}
+          </div>
+          <div class="bento__copy">
+            <p class="bento__eyebrow">{card.eyebrow}</p>
+            <h3>{card.title}</h3>
+            <p class="bento__body">{card.body}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+<script>
+  import { BENTO_PLAY } from './bento.play';
+
+  const grid = document.querySelector<HTMLElement>(BENTO_PLAY.selectors.grid);
+
+  // Feeds the card spotlight: writes the pointer position to --mx/--my. Pure enhancement; the CSS falls back to top-centre.
+  grid?.addEventListener('pointermove', (event) => {
+    const card = (event.target as Element).closest<HTMLElement>(BENTO_PLAY.selectors.card);
+    if (!card) return;
+    const box = card.getBoundingClientRect();
+    card.style.setProperty('--mx', `${event.clientX - box.left}px`);
+    card.style.setProperty('--my', `${event.clientY - box.top}px`);
+  });
+
+  // Touch screens have no hover, so each illustration plays its mini interaction once as its card scrolls into view.
+  const canHover = window.matchMedia(BENTO_PLAY.media.canHover).matches;
+  const calm = window.matchMedia(BENTO_PLAY.media.reducedMotion).matches;
+  if (grid && !canHover && !calm && 'IntersectionObserver' in window) {
+    const timers = new WeakMap<Element, number>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const card = entry.target;
+          window.clearTimeout(timers.get(card));
+          if (entry.isIntersecting) {
+            card.classList.add(BENTO_PLAY.playClass);
+            timers.set(card, window.setTimeout(() => card.classList.remove(BENTO_PLAY.playClass), BENTO_PLAY.playMs));
+          } else {
+            card.classList.remove(BENTO_PLAY.playClass);
+          }
+        }
+      },
+      { threshold: BENTO_PLAY.threshold },
+    );
+    grid.querySelectorAll(BENTO_PLAY.selectors.card).forEach((card) => observer.observe(card));
+  }
+</script>

@@ -4,7 +4,13 @@ import ItemsDemo from "@demo/demo/items-demo";
 import StorageDemo from "@demo/demo/storage-demo";
 import CasesDemo from "@demo/demo/cases-demo";
 import TradeUpDemo from "@demo/demo/tradeup-demo";
-import { DEMO_HEIGHT, DEMO_MIN_SCALE, DEMO_VISIBLE_WIDTH, DEMO_WIDTH } from "./feature-demo.config";
+import {
+  DEMO_HEIGHT,
+  DEMO_MIN_SCALE,
+  DEMO_VISIBLE_WIDTH,
+  DEMO_WIDTH,
+  FEATURE_DEMO_LABELS,
+} from "./feature-demo.config";
 
 const DEMOS: Record<string, () => ReactNode> = {
   dashboard: DashboardDemo,
@@ -50,22 +56,22 @@ export default function FeatureDemo({ id }: { id: string }) {
         <Demo />
       </div>
       <button ref={openRef} type="button" className="fdemo__open" onClick={() => setExpanded(true)}>
-        Explore full {id} demo
+        {FEATURE_DEMO_LABELS.open(id)}
       </button>
       {expanded && (
         <dialog
           ref={dialogRef}
           className="fdemo__dialog"
-          aria-label={`${id} demo`}
+          aria-label={FEATURE_DEMO_LABELS.dialog(id)}
           onClose={() => {
             setExpanded(false);
             openRef.current?.focus();
           }}
         >
           <div className="fdemo__dialog-head">
-            <span>OpenInventory · {id} demo</span>
+            <span>{FEATURE_DEMO_LABELS.dialogTitle(id)}</span>
             <button type="button" onClick={() => dialogRef.current?.close()}>
-              Close demo
+              {FEATURE_DEMO_LABELS.close}
             </button>
           </div>
           <div className="fdemo__dialog-body" data-lenis-prevent>

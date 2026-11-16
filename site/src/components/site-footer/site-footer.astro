@@ -2,18 +2,30 @@
 import { footer, site } from '../../data/site.config';
 import GithubLink from '../github-link/github-link.astro';
 import { fetchStars } from '../../lib/github-stars/github-stars';
+import { footerConfig, LOGO_PATH, LOGO_VIEWBOX } from './footer.config';
 const stars = await fetchStars();
 ---
 <footer class="foot">
-  <div class="rules" aria-hidden="true"></div>
-  <div class="wrap">
-    <div class="foot__top">
-      <GithubLink href={site.repo} label={footer.cta} stars={stars} />
-      <ul class="foot__links">
-        {footer.links.map((l) => <li><a class="link" href={l.href} rel="noopener">{l.label}</a></li>)}
-      </ul>
+  <div class="wrap foot__top">
+    <div class="foot__identity">
+      <a class="foot__brand" href="/" aria-label={footerConfig.homeLabel}>
+        <svg class="foot__logo" viewBox={LOGO_VIEWBOX} width="32" height="32" aria-hidden="true" focusable="false"><path fill="currentColor" d={LOGO_PATH} /></svg>
+        <span>{site.name}</span>
+      </a>
+      <p class="foot__tagline">{footerConfig.tagline}</p>
+      <GithubLink href={site.repo} label={footer.cta} stars={stars} variant="chip" />
     </div>
-    <p class="foot__word" aria-hidden="true">{footer.wordmark}</p>
-    <p class="foot__legal muted">{footer.legal}</p>
+    <nav class="foot__nav" aria-label={footerConfig.navigationLabel}>
+      {footerConfig.columns.map(column => (
+        <div class="foot__column">
+          <h3 class="foot__heading">{column.title}</h3>
+          <ul class="foot__links">
+            {column.links.map(link => <li><a href={link.href} rel="noopener">{link.label}</a></li>)}
+          </ul>
+        </div>
+      ))}
+    </nav>
   </div>
+  <p class="foot__word" aria-hidden="true">{footer.wordmark}</p>
+  <div class="wrap"><p class="foot__legal">{footer.legal}</p></div>
 </footer>

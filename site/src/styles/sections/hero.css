@@ -1,0 +1,268 @@
+/* Imported into @layer site by styles/index.css. */
+.hero {
+  --hero-overlap: clamp(9rem, 24vw, 21rem);
+  position: relative;
+  isolation: isolate;
+  margin-top: 0.75rem;
+  padding-bottom: clamp(3rem, 5vw, 5rem);
+}
+
+.hero__sky {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-inline: var(--gutter);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--sky-top), var(--sky-mid) 48%, var(--sky-low));
+  box-shadow: inset 0 0 0 1px var(--c-line);
+  padding: clamp(2.5rem, 5vw, 4.5rem) 1.25rem calc(var(--hero-overlap) + 3rem);
+}
+
+.hero__head {
+  position: relative;
+  z-index: var(--z-content);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 64rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.hero__announcement {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 0.375rem 0.875rem 0.375rem 0.375rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--c-line-strong);
+  background: rgb(var(--c-bg-rgb) / 0.55);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  color: var(--c-fg);
+  font-size: var(--t-xs);
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.hero__new {
+  padding: 0.35rem 0.55rem;
+  border-radius: var(--radius-pill);
+  color: var(--c-accent-ink);
+  background: var(--c-accent);
+  font-weight: 600;
+}
+
+.hero__announcement-arrow {
+  transition: transform 200ms var(--ease-out);
+}
+.hero__announcement-arrow {
+  color: var(--c-accent);
+}
+.hero__announcement:hover .hero__announcement-arrow {
+  transform: translateX(3px);
+}
+@media (hover: hover) {
+  .hero__announcement {
+    transition:
+      border-color 0.25s,
+      background-color 0.25s;
+  }
+  .hero__announcement:hover {
+    border-color: rgb(var(--c-accent-rgb) / 0.5);
+    background: rgb(var(--c-bg-rgb) / 0.75);
+  }
+}
+.hero__announcement:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 4px;
+}
+
+.hero__title {
+  margin: clamp(2rem, 4vw, 3.5rem) 0 0;
+  font-family: var(--f-body);
+  font-size: var(--t-mega);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.055em;
+  text-wrap: balance;
+  color: var(--c-fg);
+  text-shadow: 0 2px 40px rgb(var(--c-bg-rgb) / 0.6);
+}
+
+.hero__accent {
+  display: block;
+  color: var(--c-accent);
+  background: linear-gradient(
+    100deg,
+    var(--c-accent-hi) 0%,
+    var(--c-accent) 55%,
+    var(--c-accent-lo) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  padding-bottom: 0.08em; /* keeps descenders inside the clipped box */
+}
+
+.hero__lede {
+  max-width: 36rem;
+  margin: 1.5rem 0 0;
+  font-size: var(--t-body);
+  line-height: 1.65;
+  color: var(--c-muted);
+  text-wrap: balance;
+}
+
+.hero__cta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 1.75rem;
+}
+
+.hero__cta .btn {
+  flex: 1 1 13rem;
+  max-width: 18rem;
+  justify-content: center;
+  min-height: 48px;
+  max-width: 100%;
+  border-radius: var(--radius-pill);
+  font-size: var(--t-s);
+}
+
+.hero__cta .btn--solid {
+  background: var(--c-accent);
+  border-color: var(--c-accent);
+  color: var(--c-accent-ink);
+  font-weight: 600;
+}
+.hero__cta .ghl {
+  background: rgb(var(--c-bg-rgb) / 0.4);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--c-fg);
+  border: 1px solid var(--c-line-strong);
+}
+@media (hover: hover) {
+  .hero__cta .btn--solid:hover {
+    background: var(--c-accent-hi);
+    border-color: var(--c-accent-hi);
+    box-shadow: 0 10px 36px -8px rgb(var(--c-accent-rgb) / 0.6);
+  }
+  .hero__cta .ghl:hover {
+    background: rgb(var(--c-fg-rgb) / 0.08);
+    border-color: rgb(var(--c-fg-rgb) / 0.4);
+    box-shadow: none;
+  }
+}
+.hero__cta .btn:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 4px;
+}
+.hero__cta .btn__icon {
+  display: inline-flex;
+}
+.hero__cta .btn__icon:has(svg:not([hidden])) {
+  flex-shrink: 0;
+}
+.hero__cta .btn__icon:not(:has(svg:not([hidden]))) {
+  display: none;
+}
+
+.hero__platforms {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  font-size: var(--t-s);
+  color: var(--c-fg);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-pill);
+  background: rgb(10 10 10 / 0.72);
+  border: 1px solid var(--c-line);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  width: fit-content;
+  margin-inline: auto;
+}
+
+.hero__platform-list li {
+  color: var(--c-fg);
+}
+.hero__platform-list {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.hero__platform-list li {
+  display: flex;
+  align-items: center;
+}
+
+.hero__stage {
+  position: relative;
+  z-index: var(--z-content);
+  width: min(calc(100% - 2 * var(--gutter)), 70rem);
+  margin: calc(-1 * var(--hero-overlap)) auto 0;
+  scroll-margin-top: 6rem;
+}
+
+@media (min-width: 40rem) {
+  .hero__cta .btn {
+    flex: 0 0 auto;
+  }
+}
+
+@media (min-width: 48rem) {
+  .hero__sky {
+    padding-inline: 3rem;
+  }
+  .hero__announcement {
+    font-size: var(--t-s);
+  }
+  .hero__lede {
+    margin-top: 1.75rem;
+  }
+  .hero__cta {
+    margin-top: 2rem;
+  }
+  .hero__platforms {
+    margin-top: 1.75rem;
+  }
+}
+
+/* Load stagger: pure CSS so it also plays without JS. `backwards` fill keeps main.ts's
+   scroll-armed pending state intact once the animation ends. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero [data-reveal] {
+    animation: hero-rise 0.9s var(--ease-out) var(--d, 0s) backwards;
+  }
+  @keyframes hero-rise {
+    from {
+      opacity: 0;
+      translate: 0 24px;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__announcement-arrow {
+    transition: none;
+  }
+}
+
+.hero__cta [hidden] {
+  display: none;
+}

@@ -1,29 +1,61 @@
 ---
 import { story } from '../../data/site.config';
 import FeatureDemo from './feature-demo';
+import { featuresConfig } from './features.config';
+import type { FeatureFigureTone } from './features.types';
+
+const formatFigure = (c: (typeof story.chapters)[number]['figure']): string =>
+  `${c.prefix}${c.value.toLocaleString(featuresConfig.locale, {
+    minimumFractionDigits: c.decimals,
+    maximumFractionDigits: c.decimals,
+  })}${c.suffix}`;
+const toneOf = (value: number): FeatureFigureTone => (value < 0 ? 'negative' : 'positive');
 ---
 <section class="features" id={story.id} aria-labelledby="features-title">
   <div class="wrap">
     <header class="features__head">
-      <h2 id="features-title" class="h-l" data-reveal>{story.heading}</h2>
-      <p class="features__note muted" data-reveal>{story.note}</p>
+      <h2 id="features-title" class="features__heading" data-reveal>{story.heading}</h2>
+      <p class="features__note" data-reveal style="--d: 0.08s">{story.note}</p>
     </header>
 
     <ol class="features__list">
       {story.chapters.map((c, i) => (
-        <li class="fchap" data-reveal>
-          <div class="fchap__copy">
+        <li class="fchap">
+          <div class="fchap__copy" data-reveal>
             <p class="fchap__idx mono">
-              {String(i + 1).padStart(2, '0')} <span aria-hidden="true">·</span> {c.view}
+              <span class="fchap__num">{String(i + 1).padStart(featuresConfig.indexPadLength, '0')}</span>
+              <span class="fchap__view">{c.view}</span>
             </p>
             <h3 class="fchap__title">{c.title}</h3>
-            <p class="fchap__body muted">{c.body}</p>
+            <p class="fchap__body">{c.body}</p>
             <ul class="fchap__points">
-              {c.points.map((p) => <li class="muted">{p}</li>)}
+              {c.points.map((p) => (
+                <li>
+                  <svg viewBox="0 0 20 20" width="20" height="20" fill="none" aria-hidden="true">
+                    <path d={featuresConfig.checkIconPath} stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span>{p}</span>
+                </li>
+              ))}
             </ul>
+            <figure class={`fchap__figure fchap__figure--${toneOf(c.figure.value)}`}>
+              <strong class="fchap__value">{formatFigure(c.figure)}</strong>
+              <figcaption>{c.figure.label}</figcaption>
+            </figure>
           </div>
-          <div class="fchap__panel">
-            <FeatureDemo id={c.id} client:visible />
+          <div
+            class="fchap__panel"
+            aria-describedby={`feature-hint-${c.id}`}
+            data-reveal
+            style={`--d: ${featuresConfig.copyRevealDelaySeconds}s`}
+          >
+            <div class="fchap__screen">
+              <FeatureDemo id={c.id} client:visible />
+            </div>
+            <p class="fchap__hint" id={`feature-hint-${c.id}`}>
+              <span class="fchap__hint-dot" aria-hidden="true"></span>
+              {c.hint}
+            </p>
           </div>
         </li>
       ))}

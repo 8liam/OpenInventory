@@ -1,0 +1,315 @@
+/* Imported into @layer site by styles/index.css. */
+/* "Glow field": near-black panel, lime aurora rising from the bottom, perspective ledger grid, drifting beams, grain.
+   The parent supplies size and radius. The field never participates in layout. */
+.glow-field {
+  --gf-rgb: var(--c-accent-rgb);
+  --mx: 0;
+  --my: 0;
+  /* Where the "ground" sits above the panel bottom. In the hero the app stage overlaps the lower part of the panel,
+     so the horizon is lifted to meet its top edge (--hero-overlap comes from .hero). */
+  --gf-floor: max(0px, calc(var(--hero-overlap, 0px) + 1.5rem));
+  --gf-y: calc(100% - var(--gf-floor));
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+  user-select: none;
+  contain: layout paint;
+  background:
+    radial-gradient(ellipse 120% 70% at 50% 0%, rgb(255 255 255 / 0.035), transparent 60%),
+    linear-gradient(180deg, #0b0b0c 0%, var(--c-bg) 55%, #070907 100%);
+}
+
+.glow-field > * {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ── Aurora: layered radial glows breathing at the horizon ── */
+.glow-field__aurora {
+  background:
+    radial-gradient(
+      ellipse 62% 40% at 50% calc(var(--gf-y) + 6%),
+      rgb(var(--gf-rgb) / 0.34),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 40% 30% at 20% calc(var(--gf-y) + 3%),
+      rgb(var(--gf-rgb) / 0.24),
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 40% 30% at 82% calc(var(--gf-y) + 5%),
+      rgb(111 214 58 / 0.24),
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 120% 56% at 50% calc(var(--gf-y) + 14%),
+      rgb(var(--gf-rgb) / 0.14),
+      transparent 76%
+    );
+  transform-origin: 50% var(--gf-y);
+  animation: gf-breathe 9s ease-in-out infinite alternate;
+}
+
+/* Conic fan: soft rays radiating up from below the panel, rotating very slowly. */
+.glow-field__rays {
+  inset: -30% -20% calc(var(--gf-floor) - 12%);
+  background: conic-gradient(
+    from 180deg at 50% 100%,
+    transparent 0deg 62deg,
+    rgb(var(--gf-rgb) / 0.16) 78deg,
+    transparent 92deg 104deg,
+    rgb(var(--gf-rgb) / 0.1) 116deg,
+    transparent 130deg 150deg,
+    rgb(var(--gf-rgb) / 0.14) 164deg,
+    transparent 180deg 360deg
+  );
+  mask-image: linear-gradient(0deg, #000 8%, transparent 78%);
+  transform-origin: 50% 100%;
+  animation: gf-sway 38s ease-in-out infinite alternate;
+  opacity: 0.8;
+}
+
+/* A thin, bright horizon line with its own bloom. */
+.glow-field__horizon {
+  top: auto;
+  bottom: var(--gf-floor);
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 4%,
+    rgb(var(--gf-rgb) / 0.75) 50%,
+    transparent 96%
+  );
+  box-shadow:
+    0 0 40px 10px rgb(var(--gf-rgb) / 0.25),
+    0 -6px 90px 24px rgb(var(--gf-rgb) / 0.1);
+}
+
+/* ── Perspective dot/ledger grid fading toward the top ── */
+.glow-field__plane {
+  top: auto;
+  bottom: calc(var(--gf-floor) * 0.6);
+  height: calc(78% - var(--gf-floor) * 0.6);
+  perspective: 520px;
+  perspective-origin: 50% 0%;
+  mask-image: linear-gradient(0deg, #000 0%, rgb(0 0 0 / 0.55) 40%, transparent 94%);
+}
+
+.glow-field__grid {
+  position: absolute;
+  inset: 0 -60% -24%;
+  transform: rotateX(62deg);
+  transform-origin: 50% 100%;
+  --cell: 64px;
+  background:
+    radial-gradient(circle at 0 0, rgb(var(--gf-rgb) / 0.95) 1.5px, transparent 2.2px) 0 0 /
+      var(--cell) var(--cell),
+    linear-gradient(rgb(var(--gf-rgb) / 0.2) 1px, transparent 1px) 0 0 / var(--cell) var(--cell),
+    linear-gradient(90deg, rgb(var(--gf-rgb) / 0.1) 1px, transparent 1px) 0 0 / var(--cell)
+      var(--cell);
+  opacity: 0.95;
+  animation: gf-grid 5.5s linear infinite;
+}
+
+/* ── Drifting light beams ── */
+.glow-field__beams {
+  mix-blend-mode: screen;
+}
+.glow-field__beams i {
+  position: absolute;
+  top: -20%;
+  bottom: -10%;
+  width: 18%;
+  left: var(--bx);
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgb(var(--gf-rgb) / 0.16) 38%,
+    rgb(var(--gf-rgb) / 0.06) 70%,
+    transparent
+  );
+  transform: skewX(var(--bs)) translate3d(0, 0, 0);
+  filter: blur(22px);
+  opacity: 0.8;
+  animation: gf-drift var(--bd) ease-in-out infinite alternate;
+}
+.glow-field__beams i:nth-child(1) {
+  --bx: 14%;
+  --bs: -16deg;
+  --bd: 21s;
+}
+.glow-field__beams i:nth-child(2) {
+  --bx: 46%;
+  --bs: 12deg;
+  --bd: 27s;
+  width: 12%;
+  animation-delay: -9s;
+}
+.glow-field__beams i:nth-child(3) {
+  --bx: 74%;
+  --bs: -10deg;
+  --bd: 24s;
+  animation-delay: -15s;
+}
+
+/* ── Floating CS2 skins ── */
+.glow-field__skins {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.glow-field__skin {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--size);
+  height: var(--size);
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  /* Pointer parallax: nearer skins travel further against the cursor. */
+  transform: translate3d(
+    calc(var(--mx) * var(--depth) * -1px),
+    calc(var(--my) * var(--depth) * -0.7px),
+    0
+  );
+  will-change: transform;
+}
+
+.glow-field__skin::before {
+  content: "";
+  position: absolute;
+  inset: -34%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(var(--gf-rgb) / 0.2), transparent 66%);
+}
+
+.glow-field__skin img {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 14px rgb(var(--gf-rgb) / 0.4)) drop-shadow(0 14px 18px rgb(0 0 0 / 0.65));
+  transform: rotate(var(--rot));
+  animation: gf-float var(--dur) ease-in-out var(--delay) infinite alternate;
+}
+
+/* ── Legibility veil: darken the headline column, keep the glow at the edges and bottom ── */
+.glow-field__veil {
+  background:
+    radial-gradient(ellipse 52% 44% at 50% 36%, rgb(var(--c-bg-rgb) / 0.72), transparent 100%),
+    linear-gradient(180deg, rgb(var(--c-bg-rgb) / 0.5), transparent 30%);
+}
+
+/* ── Film grain ── */
+.glow-field__grain {
+  opacity: 0.1;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.4 -0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+/* ── Closing band: no skins, ground sits on the panel bottom, wider centred bloom ── */
+.glow-field--band {
+  --gf-floor: 0px;
+}
+.glow-field--band .glow-field__aurora {
+  background:
+    radial-gradient(ellipse 80% 78% at 50% 112%, rgb(var(--gf-rgb) / 0.62), transparent 72%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgb(var(--gf-rgb) / 0.07), transparent 100%),
+    radial-gradient(ellipse 36% 34% at 12% 104%, rgb(var(--gf-rgb) / 0.4), transparent 72%),
+    radial-gradient(ellipse 36% 34% at 90% 104%, rgb(111 214 58 / 0.24), transparent 72%);
+}
+.glow-field--band .glow-field__plane {
+  height: 90%;
+}
+.glow-field--band .glow-field__veil {
+  background: radial-gradient(
+    ellipse 48% 54% at 50% 46%,
+    rgb(var(--c-bg-rgb) / 0.6),
+    transparent 100%
+  );
+}
+
+/* ── Motion ── */
+@keyframes gf-breathe {
+  from {
+    opacity: 0.72;
+    transform: scale(1) translate3d(0, 2%, 0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.08) translate3d(0, -1%, 0);
+  }
+}
+@keyframes gf-sway {
+  from {
+    transform: rotate(-5deg);
+    opacity: 0.55;
+  }
+  to {
+    transform: rotate(5deg);
+    opacity: 0.9;
+  }
+}
+@keyframes gf-grid {
+  to {
+    background-position:
+      0 var(--cell),
+      0 var(--cell),
+      0 0;
+  }
+}
+@keyframes gf-drift {
+  from {
+    transform: skewX(var(--bs)) translate3d(-8vw, 0, 0);
+    opacity: 0.4;
+  }
+  to {
+    transform: skewX(var(--bs)) translate3d(8vw, 0, 0);
+    opacity: 0.9;
+  }
+}
+@keyframes gf-float {
+  from {
+    translate: 0 -10px;
+    rotate: -2.5deg;
+  }
+  to {
+    translate: 0 10px;
+    rotate: 2.5deg;
+  }
+}
+
+@media (max-width: 1100px) {
+  .glow-field__skin[data-tier="2"] {
+    display: none;
+  }
+}
+@media (max-width: 720px) {
+  .glow-field__skins {
+    display: none;
+  }
+  .glow-field__grid {
+    --cell: 44px;
+  }
+  .glow-field__beams i:nth-child(3) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-field *,
+  .glow-field *::before {
+    animation: none !important;
+  }
+  .glow-field__skin {
+    transform: none;
+  }
+}

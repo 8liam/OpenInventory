@@ -1,0 +1,26 @@
+---
+import { bento } from '../bento.config';
+import { sampleItem } from '../bento.data';
+import BentoIcon from '../bento-icon/bento-icon.astro';
+import BentoThumb from '../bento-thumb/bento-thumb.astro';
+
+const { local } = bento;
+const items = local.thumbItems.map(sampleItem);
+const THUMB = 36;
+---
+<div class="bento__stage bento__ui bento__local">
+  <div class="bento__terminal">
+    <div class="bento__terminal-bar"><i /><i /><i /></div>
+    <div class="bento__terminal-body">
+      <p class="bento__cmd"><span class="bento__prompt">{local.shellPrompt}</span> <span class="bento__typed" style={`--len:${local.command.length}`}>{local.command}</span><b class="bento__caret" /></p>
+      <p class="bento__out">{local.output}</p>
+    </div>
+  </div>
+  <div class="bento__db">
+    <span class="bento__db-icon"><BentoIcon name="database" size={18} /></span>
+    <div class="bento__db-text"><strong>{local.dbPath}</strong><small>{local.dbKind} · {local.caption}</small></div>
+  </div>
+  <div class="bento__thumbs">
+    {items.map((item, index) => <span class="bento__slot" style={`--i:${index}`}><BentoThumb item={item} size={THUMB} skeleton /></span>)}
+  </div>
+</div>

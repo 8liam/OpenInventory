@@ -1,0 +1,1092 @@
+/* Imported with layer(site) from index.css: do not wrap in another @layer site, a nested sublayer loses to base.css resets. */
+.how {
+  padding-block: var(--section-y);
+}
+.how__lead {
+  max-width: 44rem;
+  margin-inline: auto;
+  text-align: center;
+}
+.how__eyebrow {
+  display: inline-flex;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-pill);
+  background: var(--c-surface);
+  color: var(--c-muted);
+  font-size: var(--t-xs);
+  font-weight: 500;
+}
+.how__heading {
+  margin-top: 1.25rem;
+  color: var(--c-fg);
+  font-size: var(--t-xl);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+}
+.how__body {
+  margin: 1.25rem auto 0;
+  max-width: 40rem;
+  text-wrap: balance;
+  color: var(--c-muted);
+  line-height: 1.7;
+}
+.how__steps {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
+  margin-top: 3rem;
+  padding: 0;
+  list-style: none;
+}
+.how__step {
+  min-width: 0;
+}
+.how__card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.25rem, 2.3vw, 2rem);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgb(var(--c-ink) / 0.025), transparent 40%), var(--c-surface);
+  box-shadow: var(--shadow-card);
+  transition:
+    translate 0.4s var(--ease-out),
+    border-color 0.4s var(--ease-out);
+}
+.how__number {
+  grid-area: num;
+  align-self: flex-start;
+  justify-self: start;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-pill);
+  border-color: rgb(var(--c-accent-rgb) / 0.3);
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+  font: 400 var(--t-xs)/1.5 var(--f-mono);
+}
+.how__title {
+  grid-area: title;
+  margin-top: 1.25rem;
+  color: var(--c-fg);
+  font-size: var(--t-m);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+}
+.how__description {
+  grid-area: desc;
+  margin-top: 0.75rem;
+  margin-bottom: 1.75rem;
+  color: var(--c-muted);
+  font-size: var(--t-s);
+  line-height: 1.75;
+}
+
+/* The illustration is the app's own UI, rebuilt in em so the whole scene scales like an image:
+   1em is 16px at full size (22em wide) and shrinks with the card via the container width. */
+.how__illustration {
+  grid-area: ill;
+  margin-top: auto;
+  padding: 0.9rem;
+  container-type: inline-size;
+  border: 1px solid var(--c-line);
+  border-radius: calc(var(--radius) * 0.6);
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 55%, rgb(var(--c-accent-rgb) / 0.1), transparent 70%),
+    var(--c-bg);
+  box-shadow: 0 1px 0 rgb(var(--c-ink) / 0.04) inset;
+}
+.how__stage {
+  --slot: 2.05em;
+  --thumb: 1.75em;
+  --unit-gap: 1.6em;
+  --unit-w: calc((22em - var(--unit-gap)) / 2);
+  --hop: calc(var(--unit-w) + var(--unit-gap));
+  width: 22em;
+  max-width: 100%;
+  min-height: 15.5em;
+  margin-inline: auto;
+  display: grid;
+  align-content: center;
+  font-size: min(1rem, 4.545cqw);
+  line-height: 1.4;
+  background: transparent;
+}
+.how__stage svg {
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.how__stage p {
+  margin: 0;
+}
+
+/* App button (primary) and pill vocabulary. */
+.how__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.46em;
+  padding-inline: 0.92em;
+  border-radius: 0.46em;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.8125em;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ── 1. The app's sign-in card ── */
+.how__login {
+  padding: 1em;
+  border: 1px solid var(--border);
+  border-radius: 0.7em;
+  background: var(--card);
+}
+.how__login-title {
+  color: var(--foreground);
+  font-size: 0.9375em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.how__login-lead {
+  margin-top: 0.3em;
+  color: var(--muted-foreground);
+  font-size: 0.8125em;
+}
+.how__login-stage {
+  display: grid;
+  margin-top: 0.9em;
+}
+.how__login-stage > * {
+  grid-area: 1 / 1;
+}
+.how__login-btn {
+  width: 100%;
+  align-self: center;
+  opacity: 0;
+}
+.how__login-qr {
+  display: grid;
+  justify-items: center;
+  gap: 0.55em;
+  opacity: 0;
+}
+.how__qr-box {
+  width: 6.2em;
+  aspect-ratio: 1;
+  padding: 0.45em;
+  border-radius: 0.4em;
+  background: var(--c-fg);
+}
+.how__qr-box svg {
+  width: 100%;
+  height: 100%;
+  fill: var(--c-bg);
+  stroke: none;
+}
+.how__login-waiting {
+  color: var(--muted-foreground);
+  font-size: 0.75em;
+  text-align: center;
+}
+.how__login-done {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 0.6em;
+}
+.how__done-badge {
+  width: 3.3em;
+  height: 3.3em;
+}
+.how__done-ring {
+  fill: color-mix(in srgb, var(--success) 12%, transparent);
+  stroke: color-mix(in srgb, var(--success) 55%, transparent);
+  stroke-width: 2;
+}
+.how__done-check {
+  stroke: var(--success);
+  stroke-width: 4;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+.how__status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  padding: 0.25em 0.8em;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+  color: var(--success);
+  font-size: 0.8125em;
+  font-weight: 500;
+}
+.how__status-pill::before {
+  content: "";
+  width: 0.45em;
+  height: 0.45em;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ── 2. The app's dashboard value card ── */
+.how__dash {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.75em;
+  background: var(--card);
+}
+.how__dash-top {
+  padding: 0.85em 1em 0.75em;
+}
+.how__dash-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5em;
+}
+.how__dash-label {
+  color: var(--muted-foreground);
+  font-size: 0.75em;
+}
+.how__saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.22em 0.6em 0.22em 0.5em;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-size: 0.6875em;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.how__saved svg {
+  width: 1.15em;
+  height: 1.15em;
+  stroke-width: 1.8;
+}
+.how__saved-dot {
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: var(--success);
+}
+.how__dash-total {
+  margin-top: 0.2em;
+  color: var(--foreground);
+  font-size: 2.25em;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.how__change {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  margin-top: 0.65em;
+  padding: 0.15em 0.55em;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+  color: var(--success);
+  font-size: 0.75em;
+  font-variant-numeric: tabular-nums;
+}
+.how__change svg {
+  width: 1em;
+  height: 1em;
+}
+.how__chart {
+  border-top: 1px solid var(--border);
+}
+.how__chart svg {
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  stroke: none;
+  stroke-width: 0;
+}
+.how__grid-dot {
+  fill: var(--muted-foreground);
+  opacity: 0.35;
+}
+.how__line {
+  fill: none;
+  stroke: var(--success);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+.how__snap {
+  fill: var(--success);
+  stroke: var(--card);
+  stroke-width: 1.2;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.how__last {
+  fill: var(--success);
+}
+.how__pulse {
+  fill: var(--success);
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* ── 3. Storage unit cards and the app's transfer bar / status ── */
+.how__units {
+  display: grid;
+  grid-template-columns: var(--unit-w) var(--unit-gap) var(--unit-w);
+}
+.how__unit {
+  position: relative;
+  min-width: 0;
+  padding: 0.7em;
+  border: 1px solid var(--border);
+  border-radius: 0.55em;
+  background: var(--card);
+}
+.how__unit-head {
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  min-width: 0;
+}
+.how__unit-name {
+  overflow: hidden;
+  color: var(--foreground);
+  font-size: 0.8125em;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.how__unit-head svg {
+  width: 0.8em;
+  height: 0.8em;
+  color: var(--muted-foreground);
+}
+.how__unit-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4em;
+  margin-top: 0.15em;
+  color: var(--muted-foreground);
+  font-size: 0.6875em;
+  white-space: nowrap;
+}
+.how__unit-value {
+  color: var(--foreground);
+  font-size: 1.18em;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.how__thumbs {
+  position: relative;
+  height: var(--thumb);
+  margin-top: 0.6em;
+  clip-path: inset(-3em 0 -3em -30em);
+}
+.how__slot {
+  position: absolute;
+  top: 0;
+  left: calc(var(--i) * var(--slot));
+  width: var(--thumb);
+  height: var(--thumb);
+}
+.how__slot--dst-out {
+  opacity: 0;
+}
+.how__thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  border-radius: 0.3em;
+  background-color: var(--muted);
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--tint, transparent) 26%, transparent),
+    transparent 70%
+  );
+}
+.how__thumb img {
+  width: 100%;
+  height: 100%;
+  padding: 0.06em;
+  object-fit: contain;
+  filter: drop-shadow(0 0.06em 0.08em rgb(0 0 0 / 0.4));
+}
+.how__slot--mover {
+  z-index: 2;
+}
+.how__flow {
+  display: grid;
+  place-items: center;
+  color: var(--muted-foreground);
+}
+.how__flow svg {
+  width: 1.1em;
+  height: 1.1em;
+}
+.how__transfer {
+  display: grid;
+  margin-top: 0.8em;
+}
+.how__transfer > * {
+  grid-area: 1 / 1;
+}
+.how__bar,
+.how__status {
+  display: grid;
+  align-content: center;
+  gap: 0.5em;
+  padding: 0.6em 0.8em;
+  border: 1px solid var(--border);
+  border-radius: 0.55em;
+  background: var(--card);
+}
+.how__bar {
+  opacity: 0;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+}
+.how__bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8em;
+  min-width: 0;
+}
+.how__bar-selected {
+  color: var(--foreground);
+  font-size: 0.8125em;
+  font-weight: 500;
+}
+.how__bar-clear {
+  color: var(--muted-foreground);
+  font-size: 0.8125em;
+}
+.how__select {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4em;
+  min-width: 0;
+  height: 2.2em;
+  padding-inline: 0.65em 0.5em;
+  border: 1px solid var(--input);
+  border-radius: 0.4em;
+  color: var(--foreground);
+  font-size: 0.75em;
+}
+.how__select span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.how__select svg {
+  width: 1.1em;
+  height: 1.1em;
+  color: var(--muted-foreground);
+}
+.how__status-text {
+  display: grid;
+  color: var(--foreground);
+  font-size: 0.75em;
+  font-variant-numeric: tabular-nums;
+}
+.how__status-text > * {
+  grid-area: 1 / 1;
+}
+.how__status-a {
+  opacity: 0;
+}
+.how__track {
+  height: 0.25em;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--muted);
+}
+.how__track-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+  transform-origin: left;
+}
+
+/* ── Layout: three across only where the scene still reads; a text + picture row in between ── */
+@media (min-width: 48rem) {
+  .how__card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 24rem);
+    grid-template-rows: auto auto auto 1fr;
+    grid-template-areas: "num ill" "title ill" "desc ill" "fill ill";
+    column-gap: 2.5rem;
+  }
+  .how__illustration {
+    align-self: center;
+    margin-top: 0;
+  }
+}
+@media (min-width: 72rem) {
+  .how__steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .how__card {
+    display: flex;
+    flex-direction: column;
+  }
+  .how__illustration {
+    align-self: stretch;
+    margin-top: auto;
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .how__card:hover {
+    translate: 0 -4px;
+    border-color: var(--c-line-strong);
+  }
+}
+
+/* ── Motion. Base styles above are the finished frame (JS off, reduced motion, after playback).
+   how.astro sets data-how="armed" (first frame, paused) then "play"; keyframes end on the base values. ── */
+.how__illustration[data-how="armed"] {
+  --how-run: paused;
+}
+.how__illustration[data-how="play"] {
+  --how-run: running;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .how__illustration[data-how="rest"] .how__pulse {
+    animation: how-ping 2.2s ease-out infinite;
+  }
+
+  /* 1. press -> QR -> waiting -> Connected */
+  .how__illustration:not([data-how="rest"]) .how__login-btn {
+    animation: how-login-btn var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__login-qr {
+    animation: how-login-qr var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__qr-box svg {
+    animation: how-login-wipe var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__login-waiting {
+    animation: how-login-wait var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__login-done {
+    animation: how-login-done var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__done-check {
+    animation: how-login-check var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+
+  /* 2. the history line draws; hourly snapshots land; SQLite confirms */
+  .how__illustration:not([data-how="rest"]) .how__line {
+    animation: how-line var(--how-dur) linear both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__area {
+    animation: how-area var(--how-dur) linear both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__snap {
+    animation: how-snap 0.5s var(--ease-out) both;
+    animation-delay: calc(var(--how-dur) * (0.02 + var(--p) * 0.42));
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__last {
+    animation: how-last var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__change {
+    animation: how-pop var(--how-dur) var(--ease-out) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__saved {
+    animation: how-saved var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__saved-dot {
+    animation: how-saved-dot var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+
+  /* 3. pick an item -> Move -> it hops units -> "Moved 1 of 1" */
+  .how__illustration:not([data-how="rest"]) .how__slot--mover {
+    animation: how-mover-x var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__thumb--picked {
+    animation:
+      how-mover-y var(--how-dur) both,
+      how-picked var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__slot--src {
+    animation: how-src-shift var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__slot--src-in {
+    animation: how-src-in var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__slot--dst {
+    animation: how-dst-shift var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__slot--dst-out {
+    animation: how-dst-out var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__unit--to {
+    animation: how-arrive var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__flow {
+    animation: how-flow var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__bar {
+    animation: how-bar var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__bar-move {
+    animation: how-press var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__status {
+    animation: how-status var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__status-a {
+    animation: how-status-a var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__status-b {
+    animation: how-status-b var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+  .how__illustration:not([data-how="rest"]) .how__track-fill {
+    animation: how-track var(--how-dur) both;
+    animation-play-state: var(--how-run);
+  }
+}
+
+@keyframes how-ping {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(3);
+  }
+}
+
+@keyframes how-login-btn {
+  0%,
+  7% {
+    opacity: 1;
+    transform: scale(1);
+    filter: none;
+  }
+  10% {
+    opacity: 1;
+    transform: scale(0.94);
+    filter: brightness(1.2);
+  }
+  14% {
+    opacity: 1;
+    transform: scale(1);
+    filter: none;
+  }
+  19%,
+  100% {
+    opacity: 0;
+    transform: scale(0.98);
+    filter: none;
+  }
+}
+@keyframes how-login-qr {
+  0%,
+  14% {
+    opacity: 0;
+    transform: translateY(0.5em);
+  }
+  20%,
+  44% {
+    opacity: 1;
+    transform: none;
+  }
+  50%,
+  100% {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+@keyframes how-login-wipe {
+  0%,
+  15% {
+    clip-path: inset(0 0 100% 0);
+  }
+  29%,
+  100% {
+    clip-path: inset(0);
+  }
+}
+@keyframes how-login-wait {
+  0%,
+  24% {
+    opacity: 0.35;
+  }
+  31% {
+    opacity: 1;
+  }
+  37% {
+    opacity: 0.5;
+  }
+  44%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes how-login-done {
+  0%,
+  50% {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  57% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  63%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes how-login-check {
+  0%,
+  54% {
+    stroke-dashoffset: 1;
+  }
+  68%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes how-line {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  1% {
+    opacity: 1;
+  }
+  44%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+@keyframes how-area {
+  0% {
+    clip-path: inset(-2px 100% -2px 0);
+    opacity: 0;
+  }
+  1% {
+    opacity: 1;
+  }
+  44%,
+  100% {
+    clip-path: inset(-2px 0 -2px 0);
+    opacity: 1;
+  }
+}
+@keyframes how-snap {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes how-last {
+  0%,
+  42% {
+    opacity: 0;
+  }
+  48%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes how-pop {
+  0%,
+  3% {
+    opacity: 0;
+    transform: translateY(0.4em);
+  }
+  14%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes how-saved {
+  0%,
+  44% {
+    opacity: 0.3;
+    border-color: var(--border);
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    opacity: 1;
+    border-color: color-mix(in srgb, var(--success) 60%, transparent);
+    box-shadow: 0 0 0 0.35em color-mix(in srgb, var(--success) 14%, transparent);
+  }
+  64%,
+  100% {
+    opacity: 1;
+    border-color: var(--border);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+@keyframes how-saved-dot {
+  0%,
+  44% {
+    transform: scale(0.4);
+  }
+  52% {
+    transform: scale(1.6);
+  }
+  62%,
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes how-mover-x {
+  0%,
+  30% {
+    transform: translateX(calc(var(--hop) * -1));
+    animation-timing-function: cubic-bezier(0.45, 0, 0.35, 1);
+  }
+  50%,
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes how-mover-y {
+  0%,
+  30% {
+    transform: translateY(0) scale(1);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
+  }
+  40% {
+    transform: translateY(-1.5em) scale(1.18);
+    animation-timing-function: cubic-bezier(0.6, 0, 0.8, 0.4);
+  }
+  50%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes how-picked {
+  0%,
+  40% {
+    box-shadow: 0 0 0 0.12em var(--primary);
+  }
+  52%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+@keyframes how-src-shift {
+  0%,
+  32% {
+    transform: translateX(var(--slot));
+  }
+  48%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes how-src-in {
+  0%,
+  32% {
+    opacity: 0;
+    transform: translateX(var(--slot));
+  }
+  48%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes how-dst-shift {
+  0%,
+  40% {
+    transform: translateX(calc(var(--slot) * -1));
+  }
+  52%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes how-dst-out {
+  0%,
+  40% {
+    opacity: 1;
+    transform: translateX(calc(var(--slot) * -1));
+  }
+  52%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes how-arrive {
+  0%,
+  48% {
+    border-color: var(--border);
+    box-shadow: 0 0 0 0 transparent;
+  }
+  54% {
+    border-color: color-mix(in srgb, var(--primary) 70%, transparent);
+    box-shadow: 0 0 0 0.3em color-mix(in srgb, var(--primary) 18%, transparent);
+  }
+  76%,
+  100% {
+    border-color: var(--border);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+@keyframes how-flow {
+  0%,
+  28% {
+    color: var(--muted-foreground);
+    transform: none;
+  }
+  38% {
+    color: var(--primary);
+    transform: translateX(0.3em);
+  }
+  52%,
+  100% {
+    color: var(--muted-foreground);
+    transform: none;
+  }
+}
+@keyframes how-bar {
+  0%,
+  19% {
+    opacity: 1;
+    transform: none;
+  }
+  26%,
+  100% {
+    opacity: 0;
+    transform: translateY(-0.4em);
+  }
+}
+@keyframes how-press {
+  0%,
+  12% {
+    transform: scale(1);
+    filter: none;
+  }
+  16% {
+    transform: scale(0.92);
+    filter: brightness(1.2);
+  }
+  20%,
+  100% {
+    transform: scale(1);
+    filter: none;
+  }
+}
+@keyframes how-status {
+  0%,
+  22% {
+    opacity: 0;
+    transform: translateY(0.4em);
+  }
+  29%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes how-status-a {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  55%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes how-status-b {
+  0%,
+  52% {
+    opacity: 0;
+  }
+  58%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes how-track {
+  0%,
+  27% {
+    transform: scaleX(0);
+  }
+  50%,
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .how__card {
+    transition: none;
+  }
+  .how [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
