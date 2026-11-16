@@ -1,13 +1,13 @@
 @font-face {
   font-family: "Geist";
-  src: url("/fonts/geist-400_700-normal.woff2") format("woff2");
+  src: url("/fonts/geist-400_700-normal.19f9c92546aa.woff2") format("woff2");
   font-weight: 400 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Geist Mono";
-  src: url("/fonts/geist-mono-400_500-normal.woff2") format("woff2");
+  src: url("/fonts/geist-mono-400_500-normal.684ad5b531f8.woff2") format("woff2");
   font-weight: 400 500;
   font-style: normal;
   font-display: swap;
@@ -23,17 +23,26 @@
   src: local("Arial");
   font-weight: 400 500;
   size-adjust: 102.5%;
+  ascent-override: 98.05%;
+  descent-override: 28.78%;
+  line-gap-override: 0%;
 }
 @font-face {
   font-family: "Geist Fallback";
   src: local("Arial");
   font-weight: 600 700;
   size-adjust: 99%;
+  ascent-override: 101.52%;
+  descent-override: 29.8%;
+  line-gap-override: 0%;
 }
 @font-face {
   font-family: "Geist Mono Fallback";
   src: local("Courier New");
   size-adjust: 100%;
+  ascent-override: 100.5%;
+  descent-override: 29.5%;
+  line-gap-override: 0%;
 }
 
 :root {
