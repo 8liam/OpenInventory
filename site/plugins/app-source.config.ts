@@ -58,6 +58,15 @@ export const APP_PATCHES: readonly AppPatch[] = [
     file: "components/item-thumb/item-thumb.component.tsx",
     replacements: [
       {
+        // Each island must match SSR even if another island has already loaded this image.
+        from: "loadedUrl === imageUrl || isImageLoaded(imageUrl)",
+        to: "loadedUrl === imageUrl",
+      },
+      {
+        from: "isImageLoaded, markImageLoaded",
+        to: "markImageLoaded",
+      },
+      {
         from: 'import { useState } from "react";',
         to: 'import { useEffect, useRef, useState } from "react";',
       },

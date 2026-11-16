@@ -1,3 +1,4 @@
+import { howMotion } from "./how-motion.config";
 import { TRANSFER_BAR } from "~/components/transfer-bar/transfer-bar.config";
 import { COPY } from "~/lib/copy/copy.config";
 import { STORAGE_LIMITS } from "~/lib/storage/storage.config";
@@ -69,15 +70,5 @@ export const howConfig = {
     fill: 0.5,
   },
 
-  motion: {
-    selector: "[data-how]",
-    cardSelector: ".how__card",
-    /** Ratio of the illustration that must be on screen before its story plays. */
-    visibleRatio: 0.55,
-    /** Cards on the same row start a beat apart. */
-    staggerMs: 140,
-    /** Must match each illustration's keyframe length in how.css (--how-dur). */
-    durationsMs: [5200, 4600, 5600],
-    reducedMotionQuery: "(prefers-reduced-motion: reduce)",
-  },
+  motion: howMotion,
 } as const;
