@@ -1,5 +1,5 @@
 ---
-import { GLOW_SKINS } from './cloud-field.config';
+import { GLOW_SKINS, SKIN_DELIVERY } from './cloud-skins.config';
 import type { CloudFieldProps } from './cloud-field.types';
 
 type Props = CloudFieldProps;
@@ -18,7 +18,10 @@ const skinVars = (skin: (typeof skins)[number]) =>
     <ul class="glow-field__skins">
       {skins.map((skin) => (
         <li class="glow-field__skin" data-tier={skin.tier} style={skinVars(skin)}>
-          <img src={skin.src} alt="" width="96" height="96" loading="lazy" decoding="async" draggable="false" />
+          <picture>
+            <source media={SKIN_DELIVERY.hiddenMedia[skin.tier]} srcset={SKIN_DELIVERY.placeholder} />
+            <img src={skin.src} srcset={skin.srcSet} sizes={`${skin.size}px`} alt="" width="96" height="96" loading={variant === 'hero' ? 'eager' : 'lazy'} fetchpriority="low" decoding="async" draggable="false" />
+          </picture>
         </li>
       ))}
     </ul>

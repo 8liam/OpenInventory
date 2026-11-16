@@ -1,6 +1,7 @@
 // One-off: resolves the demo's item names against ByMykel/CSGO-API and saves 96px WebP thumbnails.
 // Needs /tmp/skins_not_grouped.json and /tmp/stickers.json (see README). Run: node scripts/fetch-item-images.mjs
 import fs from "node:fs";
+import { createHash } from "node:crypto";
 import sharp from "sharp";
 
 const skins = JSON.parse(fs.readFileSync("/tmp/skins_not_grouped.json", "utf8"));
@@ -61,16 +62,31 @@ const find = (list, name) => {
   );
 };
 const baseWeapons = JSON.parse(fs.readFileSync("/tmp/base_weapons.json", "utf8"));
+const previousManifest = JSON.parse(fs.readFileSync("src/mock/data/item-images.json", "utf8"));
 const manifest = {};
+const THUMBNAIL_SIZE = 96;
+const HERO_SIZE = 256;
+const WEBP_QUALITY = 82;
+const HASH_LENGTH = 12;
+const saveThumbnail = async (buffer, slug, size = THUMBNAIL_SIZE) => {
+  const image = await sharp(buffer)
+    .resize(size, size, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .webp({ quality: WEBP_QUALITY })
+    .toBuffer();
+  const hash = createHash("sha256").update(image).digest("hex").slice(0, HASH_LENGTH);
+  const suffix = size === THUMBNAIL_SIZE ? "" : `-${size}`;
+  const file = `/demo/${slug}${suffix}.${hash}.webp`;
+  fs.writeFileSync(`public${file}`, image);
+  return file;
+};
 {
   const hit = baseWeapons.find((x) => x.name === "Butterfly Knife");
   const res = await fetch(hit.image);
-  await sharp(Buffer.from(await res.arrayBuffer()))
-    .resize(96, 96, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
-    .webp({ quality: 82 })
-    .toFile("public/demo/butterfly-knife-vanilla.webp");
+  const buffer = Buffer.from(await res.arrayBuffer());
+  const file = await saveThumbnail(buffer, "butterfly-knife-vanilla");
   manifest["★ Butterfly Knife | Vanilla"] = {
-    file: "/demo/butterfly-knife-vanilla.webp",
+    file,
+    heroFile: await saveThumbnail(buffer, "butterfly-knife-vanilla", HERO_SIZE),
     color: "#eb4b4b",
     rarity: "Extraordinary",
     kind: "skin",
@@ -95,12 +111,13 @@ for (const [kind, list, names] of [
       console.log("FAIL", name, res.status);
       continue;
     }
-    await sharp(Buffer.from(await res.arrayBuffer()))
-      .resize(96, 96, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
-      .webp({ quality: 82 })
-      .toFile(`public/demo/${slug}.webp`);
+    const buffer = Buffer.from(await res.arrayBuffer());
+    const file = await saveThumbnail(buffer, slug);
     manifest[name] = {
-      file: `/demo/${slug}.webp`,
+      file,
+      ...(previousManifest[name]?.heroFile
+        ? { heroFile: await saveThumbnail(buffer, slug, HERO_SIZE) }
+        : {}),
       color: hit.rarity?.color ?? null,
       rarity: hit.rarity?.name ?? null,
       kind,
