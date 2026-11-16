@@ -5,6 +5,7 @@
   --gf-rgb: var(--c-accent-rgb);
   --mx: 0;
   --my: 0;
+  --sp: 0;
   /* Where the "ground" sits above the panel bottom. In the hero the app stage overlaps the lower part of the panel,
      so the horizon is lifted to meet its top edge (--hero-overlap comes from .hero). */
   --gf-floor: max(0px, calc(var(--hero-overlap, 0px) + 1.5rem));
@@ -180,7 +181,10 @@
   animation-delay: -15s;
 }
 
-/* ── Floating CS2 skins ── */
+/* ── Floating CS2 skins ──
+   Three depth planes (data-layer). Each li carries pointer + scroll parallax (transform), the picture fades in
+   on a stagger and the img floats (translate/rotate); the silhouette gets a rim light and a cast shadow in filter.
+   Everything animates transform/opacity only. */
 .glow-field__skins {
   margin: 0;
   padding: 0;
@@ -188,27 +192,40 @@
 }
 
 .glow-field__skin {
+  --sk-scale: 1;
+  --sk-blur: 0px;
+  --sk-dim: 1;
+  --sk-shadow: 0.6;
   position: absolute;
   left: var(--x);
   top: var(--y);
-  width: var(--size);
-  height: var(--size);
-  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
-  /* Pointer parallax: nearer skins travel further against the cursor. */
+  width: calc(var(--size) * var(--sk-scale));
+  height: calc(var(--size) * var(--sk-scale));
+  margin: calc(var(--size) * var(--sk-scale) / -2) 0 0 calc(var(--size) * var(--sk-scale) / -2);
+  /* Pointer parallax against the cursor, scroll parallax along the page; magnitude is per skin depth. */
   transform: translate3d(
     calc(var(--mx) * var(--depth) * -1px),
-    calc(var(--my) * var(--depth) * -0.7px),
+    calc(var(--my) * var(--depth) * -0.7px + var(--sp) * var(--scroll) * 1px),
     0
   );
   will-change: transform;
 }
 
-.glow-field__skin::before {
-  content: "";
+.glow-field__skin[data-layer="mid"] {
+  --sk-dim: 0.92;
+  --sk-shadow: 0.5;
+}
+.glow-field__skin[data-layer="far"] {
+  --sk-blur: 1.6px;
+  --sk-dim: 0.6;
+  --sk-shadow: 0.35;
+}
+
+.glow-field__skin picture {
   position: absolute;
-  inset: -34%;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgb(var(--gf-rgb) / 0.2), transparent 66%);
+  inset: 0;
+  display: block;
+  animation: gf-skin-in 1.15s var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)) var(--enter, 0s) both;
 }
 
 .glow-field__skin img {
@@ -217,8 +234,11 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 0 14px rgb(var(--gf-rgb) / 0.4)) drop-shadow(0 14px 18px rgb(0 0 0 / 0.65));
-  transform: rotate(var(--rot));
+  /* Crisp 1px rim light hugging the silhouette, then a soft cast shadow; no coloured blob. */
+  filter: blur(var(--sk-blur)) brightness(var(--sk-dim))
+    drop-shadow(0 0 1px rgb(var(--gf-rgb) / 0.55))
+    drop-shadow(0 calc(var(--size) * 0.07) calc(var(--size) * 0.09) rgb(0 0 0 / var(--sk-shadow)));
+  rotate: var(--rot);
   animation: gf-float var(--dur) ease-in-out var(--delay) infinite alternate;
 }
 
@@ -292,16 +312,28 @@
 }
 @keyframes gf-float {
   from {
-    translate: 0 -10px;
-    rotate: -2.5deg;
+    translate: 0 calc(var(--float) * -1);
+    rotate: calc(var(--rot) - var(--tilt));
   }
   to {
-    translate: 0 10px;
-    rotate: 2.5deg;
+    translate: 0 var(--float);
+    rotate: calc(var(--rot) + var(--tilt));
   }
 }
-
+@keyframes gf-skin-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 @media (max-width: 1100px) {
+  .glow-field__skin {
+    --sk-scale: 0.76;
+  }
   .glow-field__skin[data-tier="2"] {
     display: none;
   }

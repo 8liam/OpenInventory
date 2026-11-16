@@ -1,12 +1,12 @@
 ---
-import { GLOW_SKINS, SKIN_DELIVERY } from './cloud-skins.config';
+import { GLOW_SKINS, SKIN_DELIVERY, SKIN_MOTION } from './cloud-skins.config';
 import type { CloudFieldProps } from './cloud-field.types';
 
 type Props = CloudFieldProps;
 const { variant = 'hero' } = Astro.props;
 const skins = GLOW_SKINS[variant];
-const skinVars = (skin: (typeof skins)[number]) =>
-  `--x:${skin.x}%;--y:${skin.y}%;--size:${skin.size}px;--depth:${skin.depth};--rot:${skin.rotate}deg;--dur:${skin.duration}s;--delay:${skin.delay}s`;
+const skinVars = (skin: (typeof skins)[number], index: number) =>
+  `--x:${skin.x}%;--y:${skin.y}%;--size:${skin.size}px;--depth:${skin.depth};--scroll:${skin.scroll};--rot:${skin.rotate}deg;--float:${skin.float}px;--tilt:${skin.tilt}deg;--dur:${skin.duration}s;--delay:${skin.delay}s;--enter:${(SKIN_MOTION.enterStart + index * SKIN_MOTION.enterStagger).toFixed(2)}s`;
 ---
 <div class:list={['glow-field', `glow-field--${variant}`]} data-glow-field={variant} aria-hidden="true">
   <div class="glow-field__aurora"></div>
@@ -16,11 +16,11 @@ const skinVars = (skin: (typeof skins)[number]) =>
   <div class="glow-field__plane"><div class="glow-field__grid"></div></div>
   {skins.length > 0 && (
     <ul class="glow-field__skins">
-      {skins.map((skin) => (
-        <li class="glow-field__skin" data-tier={skin.tier} style={skinVars(skin)}>
+      {skins.map((skin, index) => (
+        <li class="glow-field__skin" data-tier={skin.tier} data-layer={skin.layer} style={skinVars(skin, index)}>
           <picture>
             <source media={SKIN_DELIVERY.hiddenMedia[skin.tier]} srcset={SKIN_DELIVERY.placeholder} />
-            <img src={skin.src} srcset={skin.srcSet} sizes={`${skin.size}px`} alt="" width="96" height="96" loading={variant === 'hero' ? 'eager' : 'lazy'} fetchpriority="low" decoding="async" draggable="false" />
+            <img src={skin.src} srcset={skin.srcSet} sizes={`${skin.size}px`} alt="" width={skin.size} height={skin.size} loading={variant === 'hero' ? 'eager' : 'lazy'} fetchpriority="low" decoding="async" draggable="false" />
           </picture>
         </li>
       ))}

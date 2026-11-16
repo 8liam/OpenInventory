@@ -1,16 +1,18 @@
 import { GLOW_FIELD as CONFIG } from "./cloud-field.config";
 
 /**
- * Optional enhancement: eases the pointer position (-1..1) into --mx / --my on the field so the
- * skins can parallax in CSS. Without JS, or with reduced motion / a coarse pointer, nothing runs.
+ * Optional enhancement: feeds the pointer position (-1..1, eased) and scroll progress (0..1) into CSS
+ * variables on the field, so each skin can parallax at its own depth using transform only.
+ * Without JS or with reduced motion nothing runs; coarse pointers get scroll parallax only.
  */
-function mount(root: HTMLElement): void {
+function mount(root: HTMLElement, usePointer: boolean): void {
   const host = root.parentElement;
   if (!host) return;
   let targetX = 0;
   let targetY = 0;
   let x = 0;
   let y = 0;
+  let scrollProgress = -1;
   let frame = 0;
   let visible = false;
 
@@ -29,6 +31,14 @@ function mount(root: HTMLElement): void {
   const schedule = () => {
     if (!frame && visible) frame = requestAnimationFrame(paint);
   };
+  const onScroll = () => {
+    const rect = host.getBoundingClientRect();
+    if (!rect.height) return;
+    const next = Math.max(0, Math.min(1, -rect.top / rect.height));
+    if (Math.abs(next - scrollProgress) < CONFIG.settleEpsilon) return;
+    scrollProgress = next;
+    root.style.setProperty(CONFIG.scrollVar, next.toFixed(4));
+  };
   const onMove = (event: PointerEvent) => {
     const rect = host.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
@@ -42,18 +52,26 @@ function mount(root: HTMLElement): void {
     schedule();
   };
 
-  host.addEventListener("pointermove", onMove, { passive: true });
-  host.addEventListener("pointerleave", onLeave, { passive: true });
+  if (usePointer) {
+    host.addEventListener("pointermove", onMove, { passive: true });
+    host.addEventListener("pointerleave", onLeave, { passive: true });
+  }
   new IntersectionObserver(([entry]) => {
     visible = entry?.isIntersecting ?? false;
-    if (visible) schedule();
+    if (visible) {
+      onScroll();
+      schedule();
+      window.addEventListener("scroll", onScroll, { passive: true });
+    } else {
+      window.removeEventListener("scroll", onScroll);
+    }
   }).observe(root);
 }
 
 const motion = window.matchMedia(CONFIG.reducedMotionQuery);
 const pointer = window.matchMedia(CONFIG.finePointerQuery);
-if (!motion.matches && pointer.matches) {
+if (!motion.matches) {
   document.querySelectorAll<HTMLElement>(CONFIG.selector).forEach((root) => {
-    if (root.querySelector(".glow-field__skin")) mount(root);
+    if (root.querySelector(".glow-field__skin")) mount(root, pointer.matches);
   });
 }
