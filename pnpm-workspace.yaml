@@ -7,6 +7,7 @@ catalog:
   vite: npm:@voidzero-dev/vite-plus-core@1.1.0
   vite-plus: 1.1.0
 overrides:
+  minimatch@>=7.0.0 <11.0.1: ^11.0.1
   adm-zip: ^0.6.1
   # steam-appticket 1.x ships protobufjs 6-generated code; 6.x has no patched release.
   "steam-appticket@1>protobufjs": 7.6.6
