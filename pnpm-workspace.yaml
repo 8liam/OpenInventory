@@ -8,6 +8,7 @@ catalog:
   vite-plus: 1.1.0
 overrides:
   adm-zip: ^0.6.1
+  minimatch@>=7.0.0 <11.0.1: ^11.0.1
   vite@*: "catalog:"
 peerDependencyRules:
   allowAny:
