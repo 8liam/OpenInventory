@@ -35,12 +35,12 @@ export default function FeatureDemo({ id, Demo }: FeatureDemoProps) {
     if (!expanded || !dialog) return;
     dialog.showModal();
     // Safari lacks `closedby`: light-dismiss by hand when a click lands on the backdrop.
-    if ('closedBy' in HTMLDialogElement.prototype) return;
+    if ("closedBy" in HTMLDialogElement.prototype) return;
     const onBackdropClick = (event: MouseEvent) => {
       if (event.target === dialog) dialog.close();
     };
-    dialog.addEventListener('click', onBackdropClick);
-    return () => dialog.removeEventListener('click', onBackdropClick);
+    dialog.addEventListener("click", onBackdropClick);
+    return () => dialog.removeEventListener("click", onBackdropClick);
   }, [expanded]);
 
   if (!Demo) return null;
