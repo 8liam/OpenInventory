@@ -31,7 +31,16 @@ export default function FeatureDemo({ id, Demo }: FeatureDemoProps) {
   }, []);
 
   useEffect(() => {
-    if (expanded) dialogRef.current?.showModal();
+    const dialog = dialogRef.current;
+    if (!expanded || !dialog) return;
+    dialog.showModal();
+    // Safari lacks `closedby`: light-dismiss by hand when a click lands on the backdrop.
+    if ('closedBy' in HTMLDialogElement.prototype) return;
+    const onBackdropClick = (event: MouseEvent) => {
+      if (event.target === dialog) dialog.close();
+    };
+    dialog.addEventListener('click', onBackdropClick);
+    return () => dialog.removeEventListener('click', onBackdropClick);
   }, [expanded]);
 
   if (!Demo) return null;
@@ -50,6 +59,8 @@ export default function FeatureDemo({ id, Demo }: FeatureDemoProps) {
         <dialog
           ref={dialogRef}
           className="fdemo__dialog"
+          closedby="any"
+          data-lenis-prevent
           aria-label={FEATURE_DEMO_LABELS.dialog(id)}
           onClose={() => {
             setExpanded(false);
