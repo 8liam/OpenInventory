@@ -227,6 +227,7 @@
   background: var(--c-app-bg);
   color: var(--c-fg);
   overflow: hidden;
+  overscroll-behavior: contain;
 }
 .fdemo__dialog[open] {
   display: flex;
@@ -234,6 +235,8 @@
 }
 .fdemo__dialog::backdrop {
   background: rgb(var(--c-ink) / 0.65);
+  overflow: hidden;
+  overscroll-behavior: contain;
 }
 .fdemo__dialog-head {
   display: flex;
