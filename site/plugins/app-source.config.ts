@@ -80,6 +80,11 @@ export const APP_PATCHES: readonly AppPatch[] = [
       },
     ],
   },
+  {
+    // Several demos share one page, so the app's single `#page-heading` target would be duplicated.
+    file: "components/page-header/page-header.component.tsx",
+    replacements: [{ from: "id={PAGE_HEADER.headingId} ", to: "" }],
+  },
   // Contrast and hover feedback on already-active controls.
   {
     file: "components/pill/pill.component.tsx",
