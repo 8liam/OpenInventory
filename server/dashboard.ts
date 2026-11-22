@@ -7,6 +7,7 @@ import type {
   ValueChange,
 } from "../src/lib/items/dashboard.types.ts";
 import { itemRowKey } from "../src/lib/items/item-key.ts";
+import { attachedCharmsValue } from "../src/lib/items/charm-value.ts";
 import { INVENTORY_LOCATION_ID, type ItemView } from "../src/lib/items/item.types.ts";
 import { DASHBOARD } from "../src/lib/storage/storage.config.ts";
 import type { ValueSnapshot } from "./db/db.types.ts";
@@ -72,6 +73,7 @@ export function buildDashboard(args: {
   const { items, history, currency, priceUpdatedAt, unitsLoaded, unitsTotal } = args;
   const now = args.now ?? Date.now();
   const { inventoryValue, storageValue, totalValue } = summarizeValue(items);
+  const charmsValue = items.reduce((sum, item) => sum + (attachedCharmsValue(item) ?? 0), 0);
 
   const category = new Map<string, { value: number; count: number; color?: string }>();
   const rarity = new Map<string, { value: number; count: number; color?: string }>();
@@ -153,6 +155,7 @@ export function buildDashboard(args: {
       itemCount: items.length,
       inventoryValue,
       storageValue,
+      charmsValue,
       unitsLoaded,
       unitsTotal,
     },

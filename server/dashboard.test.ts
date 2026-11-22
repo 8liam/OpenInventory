@@ -231,3 +231,18 @@ test("an account that starts reporting later adds to the total from then on", ()
     [10, 10, 100],
   );
 });
+
+test("charm value is reported on its own and never added to the total", () => {
+  const charm = { name: "Charm", imageUrl: null, pattern: null, videoUrl: null };
+  const dash = build([
+    item("a", { charms: [{ ...charm, marketHashName: "Charm | A", price: 4 }] }),
+    item("b", {
+      charms: [
+        { ...charm, marketHashName: "Charm | B", price: 1.5 },
+        { ...charm, marketHashName: "Charm | C", price: null },
+      ],
+    }),
+  ]);
+  assert.equal(dash.totals.charmsValue, 5.5);
+  assert.equal(dash.totals.value, 20);
+});

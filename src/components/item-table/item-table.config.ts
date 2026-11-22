@@ -38,6 +38,7 @@ export const ITEM_TABLE = {
     direction,
   })) satisfies readonly DataTableSortOption[],
   sortLabel: ITEM_SORT_LABEL,
+  charmsValueClass: "block text-xs font-normal text-muted-foreground",
   initialSort: { columnId: "price", direction: "desc" } satisfies SortState,
   /** Enough rows to fill a tall screen; the rest are clipped. */
   skeletonRows: 16,

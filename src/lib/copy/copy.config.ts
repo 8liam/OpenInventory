@@ -170,6 +170,10 @@ export const COPY = {
     scope: (label: string) => `Covers: ${label}`,
     ariaFor: (label: string) => `Refresh ${label}`,
   },
+  itemGridCard: {
+    charmsValuePrefix: "+ ",
+    charmsValueTitle: "Market value of the attached charms, not included in the price",
+  },
   itemColumns: {
     item: "Item",
     location: "Location",
@@ -185,6 +189,8 @@ export const COPY = {
     inventory: "Inventory",
     storage: "Storage units",
     items: "Items",
+    charms: "Charms",
+    charmsDetail: "not in total",
     change: { day: "24h", week: "7d", month: "30d" },
     historyTitle: "Value over time",
     historyEmpty:
