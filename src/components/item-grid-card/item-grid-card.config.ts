@@ -25,6 +25,7 @@ export const ITEM_GRID_CARD = {
     wear: "mt-0.5 truncate text-[11px] leading-4 text-muted-foreground",
     figures: "mt-1.5 flex items-baseline justify-between gap-2",
     price: "tabular text-base font-semibold leading-tight",
+    charmsValue: "tabular shrink-0 text-xs text-muted-foreground",
     status: "tabular shrink-0 text-xs text-muted-foreground",
     /** Pinned to the bottom so attachments, note and location line up across a row of cards. */
     footer: "mt-auto flex min-w-0 flex-col gap-1.5 pt-2",

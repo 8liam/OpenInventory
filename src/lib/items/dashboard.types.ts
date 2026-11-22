@@ -53,6 +53,8 @@ export type Dashboard = {
     readonly itemCount: number;
     readonly inventoryValue: number;
     readonly storageValue: number;
+    /** Market value of charms attached to weapons; already excluded from `value`. */
+    readonly charmsValue: number;
     readonly unitsLoaded: number;
     readonly unitsTotal: number;
   };

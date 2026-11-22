@@ -6,6 +6,7 @@ import { HighlightDisclosure } from "~/components/highlight-disclosure/highlight
 import { ItemCell } from "~/components/item-cell/item-cell.component";
 import { ITEM_CELL } from "~/components/item-cell/item-cell.config";
 import { COPY } from "~/lib/copy/copy.config";
+import { attachedCharmsValue } from "~/lib/items/charm-value";
 import { itemRowKey } from "~/lib/items/item-key";
 import { highlightSortValue } from "~/lib/items/highlights";
 import type { ItemView } from "~/lib/items/item.types";
@@ -39,7 +40,23 @@ export function ItemTable({
       header: COPY.itemColumns.price,
       align: "right",
       sortValue: (r) => r.price,
-      cell: (r) => (r.price === null ? COPY.common.empty : formatMoney(r.price, currency)),
+      cell: (r) => {
+        const charmsValue = attachedCharmsValue(r);
+        return (
+          <>
+            {r.price === null ? COPY.common.empty : formatMoney(r.price, currency)}
+            {charmsValue !== null && (
+              <span
+                className={ITEM_TABLE.charmsValueClass}
+                title={COPY.itemGridCard.charmsValueTitle}
+              >
+                {COPY.itemGridCard.charmsValuePrefix}
+                {formatMoney(charmsValue, currency)}
+              </span>
+            )}
+          </>
+        );
+      },
     };
     const location: DataTableColumn<ItemView>[] = showLocation
       ? [

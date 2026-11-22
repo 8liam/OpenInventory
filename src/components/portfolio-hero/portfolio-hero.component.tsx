@@ -17,6 +17,15 @@ export function PortfolioHero({ dashboard, currency }: PortfolioHeroProps) {
       detail: `${totals.unitsLoaded}/${totals.unitsTotal} units`,
     },
     { label: copy.items, value: formatInteger(totals.itemCount) },
+    ...(totals.charmsValue > 0
+      ? [
+          {
+            label: copy.charms,
+            value: formatMoney(totals.charmsValue, currency),
+            detail: copy.charmsDetail,
+          },
+        ]
+      : []),
   ];
   return (
     <section className="@container overflow-hidden rounded-xl border bg-card">

@@ -10,6 +10,7 @@ import {
 } from "~/components/item-highlights/item-highlights.component";
 import { splitItemName } from "~/components/item-label/item-label.utils";
 import { charmTooltipDetail } from "~/lib/items/charm-tooltip";
+import { attachedCharmsValue } from "~/lib/items/charm-value";
 import { COPY } from "~/lib/copy/copy.config";
 import { cn } from "~/utils/cn";
 import { formatFloat, formatMoney } from "~/utils/format";
@@ -40,6 +41,7 @@ export function ItemGridCard({
   const stickers = item.stickers.filter((sticker) => sticker.imageUrl !== null);
   const hiddenStickers = stickers.length - maxStickers;
   const hasAttachments = stickers.length > 0 || item.charms.length > 0;
+  const charmsValue = attachedCharmsValue(item);
   const charmVideos = item.charms.filter((charm) => charm.videoUrl !== null);
   const hasChips = charmVideos.length > 0 || item.videoUrl !== null;
   const hasFooter = hasAttachments || hasChips || showLocation;
@@ -100,6 +102,12 @@ export function ItemGridCard({
         <p className={classes.price}>
           {item.price === null ? COPY.common.empty : formatMoney(item.price, currency)}
         </p>
+        {charmsValue !== null && (
+          <p className={classes.charmsValue} title={COPY.itemGridCard.charmsValueTitle}>
+            {COPY.itemGridCard.charmsValuePrefix}
+            {formatMoney(charmsValue, currency)}
+          </p>
+        )}
         {status !== null && (
           <p
             className={classes.status}
