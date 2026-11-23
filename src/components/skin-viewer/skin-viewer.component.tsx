@@ -1,20 +1,22 @@
 import { Rotate3d } from "lucide-react";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useContext, useState } from "react";
 import { buildSkinViewerUrl } from "~/lib/skin-viewer/skin-viewer";
+import { SkinViewerConsentContext } from "./skin-viewer-consent.context";
 import { SKIN_VIEWER } from "./skin-viewer.config";
 import type { SkinViewerButtonProps } from "./skin-viewer.types";
 
-/** Loaded on first open: keeps the settings store and the dialog out of the initial bundle. */
+/** Loaded on first open: keeps the dialog out of the initial bundle. */
 const SkinViewerDialog = lazy(() => import("./skin-viewer-dialog.component"));
 
 /**
  * Icon button that opens a 3D preview of a skin in a modal. Renders nothing for items without a
- * def and paint index. The dialog (and its iframe) mounts only while open.
+ * def and paint index, or when no consent provider is mounted. The dialog (and its iframe) mounts only while open.
  */
 export function SkinViewerButton({ item, className }: SkinViewerButtonProps) {
   const url = buildSkinViewerUrl(item);
+  const consent = useContext(SkinViewerConsentContext);
   const [open, setOpen] = useState(false);
-  if (url === null) return null;
+  if (url === null || consent === null) return null;
 
   // The dialog sits inside a selectable card, so its clicks and keys must not reach the card.
   return (
@@ -34,7 +36,12 @@ export function SkinViewerButton({ item, className }: SkinViewerButtonProps) {
       </button>
       {open && (
         <Suspense fallback={null}>
-          <SkinViewerDialog url={url} name={item.name} onClose={() => setOpen(false)} />
+          <SkinViewerDialog
+            url={url}
+            name={item.name}
+            consent={consent}
+            onClose={() => setOpen(false)}
+          />
         </Suspense>
       )}
     </span>

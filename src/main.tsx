@@ -2,6 +2,7 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
+import { SkinViewerConsentProvider } from "./components/skin-viewer/skin-viewer-consent-provider.component";
 import { initTheme } from "./lib/settings/settings.store";
 import { routeTree } from "./routeTree.gen";
 
@@ -20,6 +21,8 @@ if (!rootElement) throw new Error("Missing #root element");
 
 createRoot(rootElement).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <SkinViewerConsentProvider>
+      <RouterProvider router={router} />
+    </SkinViewerConsentProvider>
   </StrictMode>,
 );
