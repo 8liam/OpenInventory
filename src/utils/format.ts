@@ -1,5 +1,6 @@
 import {
-  FLOAT_EXACT_FRACTION_DIGITS,
+  FLOAT_EXACT_MAX_FRACTION_DIGITS,
+  FLOAT_EXACT_MAX_SIGNIFICANT_DIGITS,
   FLOAT_FRACTION_DIGITS,
   FORMAT_LOCALE,
   PERCENT_FRACTION_DIGITS,
@@ -70,10 +71,28 @@ export function formatFloat(value: number): string {
   }).format(value);
 }
 
+/** Fraction digits of the shortest decimal that parses back to the same 32-bit float. */
+function exactFractionDigits(value: number): number {
+  if (!Number.isFinite(value) || value === 0) return FLOAT_FRACTION_DIGITS;
+  const target = Math.fround(value);
+  for (let digits = 1; digits <= FLOAT_EXACT_MAX_SIGNIFICANT_DIGITS; digits++) {
+    const candidate = Number(value.toPrecision(digits));
+    if (Math.fround(candidate) !== target) continue;
+    const exponent = Math.floor(Math.log10(Math.abs(candidate)));
+    return Math.min(
+      FLOAT_EXACT_MAX_FRACTION_DIGITS,
+      Math.max(FLOAT_FRACTION_DIGITS, digits - 1 - exponent),
+    );
+  }
+  return FLOAT_EXACT_MAX_FRACTION_DIGITS;
+}
+
+/** The shortest decimal that identifies a 32-bit float, never fewer than the plain float's digits. */
 export function formatFloatExact(value: number): string {
-  return getFormatter("float-exact", {
-    minimumFractionDigits: FLOAT_EXACT_FRACTION_DIGITS,
-    maximumFractionDigits: FLOAT_EXACT_FRACTION_DIGITS,
+  const digits = exactFractionDigits(value);
+  return getFormatter(`float-exact:${digits}`, {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
   }).format(value);
 }
 
