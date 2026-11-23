@@ -1,4 +1,5 @@
 import {
+  FLOAT_EXACT_FRACTION_DIGITS,
   FLOAT_FRACTION_DIGITS,
   FORMAT_LOCALE,
   PERCENT_FRACTION_DIGITS,
@@ -66,6 +67,13 @@ export function formatFloat(value: number): string {
   return getFormatter("float", {
     minimumFractionDigits: FLOAT_FRACTION_DIGITS,
     maximumFractionDigits: FLOAT_FRACTION_DIGITS,
+  }).format(value);
+}
+
+export function formatFloatExact(value: number): string {
+  return getFormatter("float-exact", {
+    minimumFractionDigits: FLOAT_EXACT_FRACTION_DIGITS,
+    maximumFractionDigits: FLOAT_EXACT_FRACTION_DIGITS,
   }).format(value);
 }
 

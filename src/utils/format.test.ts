@@ -6,6 +6,7 @@ import {
   formatChance,
   formatCompactMoney,
   formatFloat,
+  formatFloatExact,
   formatInteger,
   formatMoney,
   formatPercent,
@@ -43,6 +44,7 @@ test("percentages keep sub-1% precision and sign", () => {
 
 test("floats use a fixed number of digits and integers drop decimals", () => {
   assert.equal(formatFloat(0.07), "0.0700");
+  assert.equal(formatFloatExact(0.07), "0.07000000");
   assert.equal(formatInteger(1234.6), "1,235");
 });
 

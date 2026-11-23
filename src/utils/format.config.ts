@@ -1,6 +1,8 @@
 export const FORMAT_LOCALE = "en-US";
 export const PERCENT_FRACTION_DIGITS = 2;
 export const FLOAT_FRACTION_DIGITS = 4;
+/** Floats are 32-bit, so eight digits tell two close floats apart. */
+export const FLOAT_EXACT_FRACTION_DIGITS = 8;
 export const EMPTY_VALUE = "—";
 
 export const RELATIVE_TIME = {
