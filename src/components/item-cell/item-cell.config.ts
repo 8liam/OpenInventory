@@ -5,6 +5,7 @@ export const ITEM_CELL = {
   maxStickers: 5,
   patternLabel: "Pattern",
   compactLineClass: "mt-1 flex min-w-0 items-center gap-1.5 overflow-hidden",
+  chipsClass: "flex min-w-0 shrink items-center gap-1.5 overflow-hidden",
   // Attachments clip on their own so the Inspect button (a non-shrinking slot) stays on the line.
   attachmentsClass: "flex min-w-0 items-center gap-0.5 overflow-hidden",
   inspectSlotClass: "shrink-0",

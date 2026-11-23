@@ -82,6 +82,16 @@ export function ItemCell({
       ))}
     </span>
   );
+  const hasChips = videoChip !== null || noteChip !== null || hasAttachments;
+  // Everything but Inspect clips inside this group, so a narrow row never pushes the button out.
+  const chips = hasChips && (
+    <div className={ITEM_CELL.chipsClass}>
+      {videoChip}
+      {noteChip}
+      {attachments}
+    </div>
+  );
+
   return (
     <ItemLabel
       name={item.name}
@@ -129,17 +139,13 @@ export function ItemCell({
           inspectButton !== null) && (
           <div className={ITEM_CELL.compactLineClass}>
             <HighlightDisclosure item={item} showCount />
-            {videoChip}
-            {noteChip}
-            {attachments}
+            {chips}
             {inspectButton}
           </div>
         )
       ) : (
         <ItemHighlights item={item}>
-          {videoChip}
-          {noteChip}
-          {attachments}
+          {chips}
           {inspectButton}
         </ItemHighlights>
       )}
