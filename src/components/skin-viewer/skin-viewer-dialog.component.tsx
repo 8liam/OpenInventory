@@ -41,7 +41,10 @@ export default function SkinViewerDialog({
     function onMessage(event: MessageEvent<unknown>) {
       const message = parseSkinViewerMessage(event, iframe.current?.contentWindow);
       if (message === null) return;
-      if (message.kind === "loaded") setStatus("loaded");
+      // Any sign of life means the embed is running and draws its own loading state.
+      if (message.kind === "ready" || message.kind === "loading" || message.kind === "loaded") {
+        setStatus("loaded");
+      }
       if (message.kind === "error") setStatus("error");
       if (message.kind === "escape") dialog.current?.close();
     }
