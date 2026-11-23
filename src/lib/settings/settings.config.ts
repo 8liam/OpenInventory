@@ -68,8 +68,6 @@ export const LEGACY_THEME_KEY = "theme";
 /** How close to a skin's min/max float still counts as a low/high float highlight. */
 export const FLOAT_THRESHOLD_IDS = ["off", "1", "3", "5", "10"] as const;
 export const DEFAULT_FLOAT_THRESHOLD = "3";
-/** The 3D preview loads from a third party, so it stays off until the user agrees. */
-export const DEFAULT_SKIN_VIEWER_CONSENT = false;
 /** Share of the skin's float range at each end; 0 turns the highlight off. */
 export const FLOAT_THRESHOLD_FRACTIONS = {
   off: 0,

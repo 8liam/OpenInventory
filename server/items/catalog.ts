@@ -413,7 +413,6 @@ export async function loadCatalog(db: CatalogCache): Promise<Catalog> {
         wear: float ?? null,
         paintSeed: item.paint_seed ?? null,
         paintIndex: item.paint_index ?? null,
-        defIndex: item.def_index ?? null,
         minWear,
         maxWear,
         wearName,

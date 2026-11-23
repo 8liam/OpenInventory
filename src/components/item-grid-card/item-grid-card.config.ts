@@ -14,7 +14,6 @@ export const ITEM_GRID_CARD = {
     cardChecked: "border-primary/60 bg-muted",
     media: "relative",
     tierBadge: "absolute right-1.5 top-1.5 shadow-sm",
-    viewerButton: "absolute bottom-1.5 right-1.5",
     checkboxShown: "opacity-100",
     checkboxHidden: "opacity-0 focus-within:opacity-100 group-hover:opacity-100",
     checkbox: "size-4 accent-primary",

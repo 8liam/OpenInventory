@@ -1,5 +1,3 @@
-import { SkinViewerButton } from "~/components/skin-viewer/skin-viewer.component";
-import { canPreviewSkin } from "~/lib/skin-viewer/skin-viewer";
 import { Tooltip } from "~/components/tooltip/tooltip.component";
 import { HighlightPlayer } from "~/components/highlight-player/highlight-player.component";
 import { COPY } from "~/lib/copy/copy.config";
@@ -35,12 +33,9 @@ export function ItemCell({
   const hasHighlights = tier !== null || reasons.length > 0;
   const videoChip =
     item.videoUrl === null ? null : <HighlightPlayer videoUrl={item.videoUrl} title={item.name} />;
-  const viewerButton = canPreviewSkin(item) ? (
-    <SkinViewerButton item={item} className={ITEM_CELL.viewerSlotClass} />
-  ) : null;
   const noteChip = item.note === null ? null : <ItemNoteChip note={item.note} />;
   const attachments = hasAttachments && (
-    <span className={ITEM_CELL.attachmentsClass}>
+    <span className="flex shrink-0 items-center gap-0.5">
       {stickers.map((sticker, index) => (
         <Tooltip key={`${sticker.name}-${index}`} name={sticker.name} imageUrl={sticker.imageUrl}>
           <img
@@ -122,17 +117,12 @@ export function ItemCell({
       )}
       {/* Reasons and attachments share one line, so the row keeps its fixed height. */}
       {compact ? (
-        (hasAttachments ||
-          hasHighlights ||
-          noteChip !== null ||
-          videoChip !== null ||
-          viewerButton !== null) && (
+        (hasAttachments || hasHighlights || noteChip !== null || videoChip !== null) && (
           <div className={ITEM_CELL.compactLineClass}>
             <HighlightDisclosure item={item} showCount />
             {videoChip}
             {noteChip}
             {attachments}
-            {viewerButton}
           </div>
         )
       ) : (
@@ -140,7 +130,6 @@ export function ItemCell({
           {videoChip}
           {noteChip}
           {attachments}
-          {viewerButton}
         </ItemHighlights>
       )}
     </ItemLabel>
