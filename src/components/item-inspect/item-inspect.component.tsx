@@ -30,7 +30,11 @@ export function ItemInspectButton({ item, currency, className }: ItemInspectButt
         aria-label={`${ITEM_INSPECT.buttonLabel}: ${item.name}`}
         title={ITEM_INSPECT.buttonLabel}
         aria-haspopup="dialog"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          // Pointer clicks can leave another control focused (Safari); showModal() remembers the focused one.
+          trigger.current?.focus({ preventScroll: true });
+          setOpen(true);
+        }}
       >
         <ScanSearch size={ITEM_INSPECT.iconSize} aria-hidden />
       </button>
