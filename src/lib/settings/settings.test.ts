@@ -15,6 +15,7 @@ test("old { theme } settings migrate to colorScheme with the default palette", (
     palette: "default",
     defaultSort: "price-desc",
     floatThreshold: "3",
+    skinViewerConsent: false,
   });
 });
 
@@ -26,6 +27,7 @@ test("new settings round-trip", () => {
     palette: "nord",
     defaultSort: "float-asc",
     floatThreshold: "off",
+    skinViewerConsent: true,
   };
   assert.deepEqual(parseStoredSettings(JSON.stringify(stored)), stored);
 });

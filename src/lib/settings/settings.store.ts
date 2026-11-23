@@ -13,7 +13,16 @@ function persist(settings: Settings): void {
 
 function pickSettings(state: Settings): Settings {
   const { currency, marketplace, colorScheme, palette, defaultSort, floatThreshold } = state;
-  return { currency, marketplace, colorScheme, palette, defaultSort, floatThreshold };
+  const { skinViewerConsent } = state;
+  return {
+    currency,
+    marketplace,
+    colorScheme,
+    palette,
+    defaultSort,
+    floatThreshold,
+    skinViewerConsent,
+  };
 }
 
 /** Pushes the settings that live outside React (theme tokens, highlight rules) into place. */
@@ -39,6 +48,7 @@ export const useSettings = create<SettingsState>((set, get) => {
     setPalette: (palette) => save({ palette }),
     setDefaultSort: (defaultSort) => save({ defaultSort }),
     setFloatThreshold: (floatThreshold) => save({ floatThreshold }),
+    setSkinViewerConsent: (skinViewerConsent) => save({ skinViewerConsent }),
     resetAll: () => {
       save(FALLBACK_SETTINGS);
       useItemViewMode.getState().setMode(DEFAULT_VIEW_MODE);

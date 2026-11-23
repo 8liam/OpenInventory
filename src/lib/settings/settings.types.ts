@@ -10,6 +10,7 @@ import {
   CURRENCIES,
   DEFAULT_FLOAT_THRESHOLD,
   DEFAULT_MARKETPLACE,
+  DEFAULT_SKIN_VIEWER_CONSENT,
   FLOAT_THRESHOLD_IDS,
   MARKETPLACES,
 } from "./settings.config.ts";
@@ -29,6 +30,8 @@ export const settingsSchema = z.object({
   palette: withDefault(PALETTE_IDS, DEFAULT_PALETTE_ID),
   defaultSort: withDefault(ITEM_SORT_IDS, DEFAULT_ITEM_SORT),
   floatThreshold: withDefault(FLOAT_THRESHOLD_IDS, DEFAULT_FLOAT_THRESHOLD),
+  /** Whether the user agreed to load the 3D skin preview from a third-party host. */
+  skinViewerConsent: z._default(z.boolean(), DEFAULT_SKIN_VIEWER_CONSENT),
 });
 export type Settings = z.infer<typeof settingsSchema>;
 export type Marketplace = Settings["marketplace"];
@@ -41,6 +44,7 @@ export type SettingsState = Settings & {
   readonly setPalette: (palette: Settings["palette"]) => void;
   readonly setDefaultSort: (sort: Settings["defaultSort"]) => void;
   readonly setFloatThreshold: (threshold: Settings["floatThreshold"]) => void;
+  readonly setSkinViewerConsent: (consent: Settings["skinViewerConsent"]) => void;
   /** Puts every local preference back to its default, including the default view. */
   readonly resetAll: () => void;
 };

@@ -4,6 +4,7 @@ import {
   DEFAULT_CURRENCY,
   DEFAULT_FLOAT_THRESHOLD,
   DEFAULT_MARKETPLACE,
+  DEFAULT_SKIN_VIEWER_CONSENT,
   LEGACY_THEME_KEY,
 } from "./settings.config.ts";
 import { settingsSchema, type Settings } from "./settings.types.ts";
@@ -15,6 +16,7 @@ export const FALLBACK_SETTINGS: Settings = {
   palette: DEFAULT_PALETTE_ID,
   defaultSort: DEFAULT_ITEM_SORT,
   floatThreshold: DEFAULT_FLOAT_THRESHOLD,
+  skinViewerConsent: DEFAULT_SKIN_VIEWER_CONSENT,
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
