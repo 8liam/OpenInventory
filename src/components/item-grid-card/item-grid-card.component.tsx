@@ -3,6 +3,7 @@ import { ChipRow } from "~/components/chip-row/chip-row.component";
 import { ItemNoteChip } from "~/components/item-note-chip/item-note-chip.component";
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
 import { HighlightPlayer } from "~/components/highlight-player/highlight-player.component";
+import { SkinViewerButton } from "~/components/skin-viewer/skin-viewer.component";
 import { Tooltip } from "~/components/tooltip/tooltip.component";
 import {
   ItemHighlights,
@@ -71,6 +72,7 @@ export function ItemGridCard({
       <div className={classes.media}>
         <ItemThumb imageUrl={item.imageUrl} rarityColor={item.rarityColor} className={thumbClass} />
         <ItemTierBadge item={item} className={classes.tierBadge} />
+        <SkinViewerButton item={item} className={classes.viewerButton} />
         {selectable && (
           <label
             className={cn(
