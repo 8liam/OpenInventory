@@ -20,6 +20,11 @@ describe("canInspect", () => {
     assert.equal(canInspect(item({ wear: 0.12 })), true);
     assert.equal(canInspect(item({ wear: 0 })), true);
   });
+  it("ignores a float that is not a number", () => {
+    assert.equal(canInspect(item({ wear: Number.NaN })), false);
+    assert.equal(canInspect(item({ wear: Number.POSITIVE_INFINITY })), false);
+    assert.equal(canInspect(item({ wear: Number.NaN, paintSeed: 5 })), true);
+  });
   it("is true for a paint seed, including 0", () => {
     assert.equal(canInspect(item({ paintSeed: 0 })), true);
   });

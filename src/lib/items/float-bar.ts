@@ -3,11 +3,12 @@ import type { BarSpan, WearBand } from "./float-bar.types.ts";
 
 const PERCENT = 100;
 
-function isOnScale(value: number | null | undefined): value is number {
+/** True for a real, finite float: the only kind the app can place on the bar or print. */
+export function isOnScale(value: number | null | undefined): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
 
-function clampToScale(value: number): number {
+export function clampToScale(value: number): number {
   return Math.min(FLOAT_SCALE.max, Math.max(FLOAT_SCALE.min, value));
 }
 

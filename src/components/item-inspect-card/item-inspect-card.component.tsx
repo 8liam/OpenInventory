@@ -2,7 +2,7 @@ import { ImageOff } from "lucide-react";
 import { Chip } from "~/components/chip/chip.component";
 import { FloatBar } from "~/components/float-bar/float-bar.component";
 import { attachedCharmsValue } from "~/lib/items/charm-value";
-import { wearBandFor } from "~/lib/items/float-bar";
+import { floatRangeSpan, isOnScale, wearBandFor } from "~/lib/items/float-bar";
 import { formatDateTime, formatFloatExact, formatMoney } from "~/utils/format";
 import { cn } from "~/utils/cn";
 import { ITEM_INSPECT_CARD } from "./item-inspect-card.config";
@@ -17,11 +17,8 @@ export function ItemInspectCard({ item, currency, now }: ItemInspectCardProps) {
   const wearName = item.wearName ?? band?.label ?? null;
   const charmsValue = attachedCharmsValue(item);
   const locked = item.tradableAfter !== null && item.tradableAfter > now;
-  const hasRange =
-    item.minWear !== null &&
-    item.minWear !== undefined &&
-    item.maxWear !== null &&
-    item.maxWear !== undefined;
+  const wear = isOnScale(item.wear) ? item.wear : null;
+  const range = floatRangeSpan(item.minWear, item.maxWear);
   const glow = item.rarityColor
     ? `radial-gradient(circle at 50% 55%, color-mix(in srgb, ${item.rarityColor} ${glowPercent}%, transparent), transparent ${glowFalloff}%)`
     : undefined;
@@ -91,10 +88,10 @@ export function ItemInspectCard({ item, currency, now }: ItemInspectCardProps) {
         </div>
       </div>
 
-      {item.wear !== null && (
+      {wear !== null && (
         <section className={classes.section} aria-label={labels.float}>
           <div className={classes.floatHeader}>
-            <span className={classes.floatValue}>{formatFloatExact(item.wear)}</span>
+            <span className={classes.floatValue}>{formatFloatExact(wear)}</span>
             <span className={classes.floatMeta}>
               {hasSeed && `${labels.paintSeed} ${item.paintSeed}`}
               {hasSeed && hasIndex && labels.metaSeparator}
@@ -102,12 +99,12 @@ export function ItemInspectCard({ item, currency, now }: ItemInspectCardProps) {
             </span>
           </div>
           <FloatBar
-            value={item.wear}
+            value={wear}
             minWear={item.minWear}
             maxWear={item.maxWear}
-            valueText={`${formatFloatExact(item.wear)}${wearName === null ? "" : `, ${wearName}`}`}
+            valueText={`${formatFloatExact(wear)}${wearName === null ? "" : `, ${wearName}`}`}
           />
-          {hasRange && (
+          {range !== null && (
             <p className={classes.floatMeta}>
               {labels.skinRange} {formatFloatExact(item.minWear ?? 0)}
               {labels.rangeSeparator}
@@ -117,7 +114,7 @@ export function ItemInspectCard({ item, currency, now }: ItemInspectCardProps) {
         </section>
       )}
 
-      {item.wear === null && hasSeed && (
+      {wear === null && hasSeed && (
         <p className={classes.floatMeta}>
           {labels.paintSeed} {item.paintSeed}
         </p>

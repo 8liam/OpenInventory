@@ -1,4 +1,4 @@
-import { bandWidth, floatPosition, floatRangeSpan } from "~/lib/items/float-bar";
+import { bandWidth, clampToScale, floatPosition, floatRangeSpan } from "~/lib/items/float-bar";
 import { WEAR_BANDS } from "~/lib/items/float-bar.config";
 import { cn } from "~/utils/cn";
 import { FLOAT_BAR } from "./float-bar.config";
@@ -9,6 +9,7 @@ const { classes } = FLOAT_BAR;
 /** A 0..1 wear scale split into the CS wear bands, with the skin's own range shaded and the float marked. */
 export function FloatBar({ value, minWear, maxWear, valueText, className }: FloatBarProps) {
   const range = floatRangeSpan(minWear, maxWear);
+  const clamped = clampToScale(value);
   return (
     <div className={cn(classes.root, className)}>
       <div
@@ -16,7 +17,7 @@ export function FloatBar({ value, minWear, maxWear, valueText, className }: Floa
         aria-label={FLOAT_BAR.label}
         aria-valuemin={0}
         aria-valuemax={1}
-        aria-valuenow={value}
+        aria-valuenow={clamped}
         aria-valuetext={valueText}
         className={classes.track}
       >
@@ -41,7 +42,7 @@ export function FloatBar({ value, minWear, maxWear, valueText, className }: Floa
             style={{ left: `${range.start}%`, width: `${range.end - range.start}%` }}
           />
         )}
-        <span className={classes.marker} style={{ left: `${floatPosition(value)}%` }} />
+        <span className={classes.marker} style={{ left: `${floatPosition(clamped)}%` }} />
       </div>
       <div aria-hidden className={classes.labels}>
         {WEAR_BANDS.map((band) => (

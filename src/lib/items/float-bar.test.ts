@@ -1,7 +1,14 @@
 /* oxlint-disable typescript/no-floating-promises -- node:test registers suites synchronously */
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { bandWidth, floatPosition, floatRangeSpan, wearBandFor } from "./float-bar.ts";
+import {
+  bandWidth,
+  clampToScale,
+  floatPosition,
+  floatRangeSpan,
+  isOnScale,
+  wearBandFor,
+} from "./float-bar.ts";
 import { WEAR_BANDS } from "./float-bar.config.ts";
 
 describe("wearBandFor", () => {
@@ -32,6 +39,20 @@ describe("floatPosition", () => {
     assert.equal(floatPosition(1), 100);
     assert.equal(floatPosition(2), 100);
     assert.equal(floatPosition(-1), 0);
+  });
+});
+
+describe("isOnScale and clampToScale", () => {
+  it("accepts only finite numbers", () => {
+    assert.equal(isOnScale(0.3), true);
+    assert.equal(isOnScale(Number.NaN), false);
+    assert.equal(isOnScale(Number.POSITIVE_INFINITY), false);
+    assert.equal(isOnScale(null), false);
+  });
+  it("clamps to the 0..1 scale", () => {
+    assert.equal(clampToScale(1.5), 1);
+    assert.equal(clampToScale(-2), 0);
+    assert.equal(clampToScale(0.4), 0.4);
   });
 });
 
