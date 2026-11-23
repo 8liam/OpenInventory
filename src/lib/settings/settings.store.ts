@@ -4,25 +4,16 @@ import { DEFAULT_VIEW_MODE } from "../items/view-mode.config";
 import { useItemViewMode } from "../items/view-mode.store";
 import { applyTheme, watchSystemScheme } from "../theme/theme.dom";
 import { SETTINGS_STORAGE_KEY } from "./settings.config";
-import { FALLBACK_SETTINGS, parseStoredSettings } from "./settings.parse";
+import {
+  FALLBACK_SETTINGS,
+  mergeStoredSettings,
+  parseStoredSettings,
+  settingsFromStorageEvent,
+} from "./settings.parse";
 import type { Settings, SettingsState } from "./settings.types";
 
 function persist(settings: Settings): void {
   localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
-}
-
-function pickSettings(state: Settings): Settings {
-  const { currency, marketplace, colorScheme, palette, defaultSort, floatThreshold } = state;
-  const { skinViewerConsent } = state;
-  return {
-    currency,
-    marketplace,
-    colorScheme,
-    palette,
-    defaultSort,
-    floatThreshold,
-    skinViewerConsent,
-  };
 }
 
 /** Pushes the settings that live outside React (theme tokens, highlight rules) into place. */
@@ -31,13 +22,20 @@ function applyPreferences(settings: Settings): void {
   setFloatThreshold(settings.floatThreshold);
 }
 
-export const useSettings = create<SettingsState>((set, get) => {
+export const useSettings = create<SettingsState>((set) => {
   const save = (patch: Partial<Settings>): void => {
-    set(patch);
-    const next = pickSettings(get());
+    const next = mergeStoredSettings(localStorage.getItem(SETTINGS_STORAGE_KEY), patch);
+    set(next);
     applyPreferences(next);
     persist(next);
   };
+  // Another tab saved settings: adopt them so this tab shows (and later writes) the current values.
+  window.addEventListener("storage", (event) => {
+    const next = settingsFromStorageEvent(event, SETTINGS_STORAGE_KEY);
+    if (next === null) return;
+    set(next);
+    applyPreferences(next);
+  });
   const stored = parseStoredSettings(localStorage.getItem(SETTINGS_STORAGE_KEY));
   setFloatThreshold(stored.floatThreshold);
   return {

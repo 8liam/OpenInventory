@@ -2,7 +2,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { ITEM_SORTS, ITEM_SORT_IDS } from "../items/item-sort.config.ts";
-import { FALLBACK_SETTINGS, parseStoredSettings } from "./settings.parse.ts";
+import {
+  FALLBACK_SETTINGS,
+  mergeStoredSettings,
+  parseStoredSettings,
+  settingsFromStorageEvent,
+} from "./settings.parse.ts";
+import { SETTINGS_STORAGE_KEY } from "./settings.config.ts";
 
 test("old { theme } settings migrate to colorScheme with the default palette", () => {
   const settings = parseStoredSettings(
@@ -78,5 +84,45 @@ test("the validated sort ids match the sort menu", () => {
   assert.deepEqual(
     ITEM_SORTS.map((sort) => sort.id),
     [...ITEM_SORT_IDS],
+  );
+});
+
+test("a patch merges onto the stored value, so withdrawn consent is not resurrected", () => {
+  const stale = { ...FALLBACK_SETTINGS, skinViewerConsent: true };
+  const stored = JSON.stringify({ ...stale, skinViewerConsent: false });
+  const next = mergeStoredSettings(stored, { currency: "EUR" });
+  assert.equal(next.currency, "EUR");
+  assert.equal(next.skinViewerConsent, false);
+});
+
+test("a patch can still change consent explicitly", () => {
+  const next = mergeStoredSettings(JSON.stringify(FALLBACK_SETTINGS), { skinViewerConsent: true });
+  assert.equal(next.skinViewerConsent, true);
+});
+
+test("storage events for the settings key carry the new settings", () => {
+  const newValue = JSON.stringify({ ...FALLBACK_SETTINGS, skinViewerConsent: true });
+  const next = settingsFromStorageEvent(
+    { key: SETTINGS_STORAGE_KEY, newValue },
+    SETTINGS_STORAGE_KEY,
+  );
+  assert.equal(next?.skinViewerConsent, true);
+});
+
+test("storage events for other keys are ignored", () => {
+  assert.equal(
+    settingsFromStorageEvent({ key: "other", newValue: "{}" }, SETTINGS_STORAGE_KEY),
+    null,
+  );
+});
+
+test("a cleared or removed settings key resets to defaults", () => {
+  assert.deepEqual(
+    settingsFromStorageEvent({ key: null, newValue: null }, SETTINGS_STORAGE_KEY),
+    FALLBACK_SETTINGS,
+  );
+  assert.deepEqual(
+    settingsFromStorageEvent({ key: SETTINGS_STORAGE_KEY, newValue: null }, SETTINGS_STORAGE_KEY),
+    FALLBACK_SETTINGS,
   );
 });
