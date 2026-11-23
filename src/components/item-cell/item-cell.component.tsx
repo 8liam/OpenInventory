@@ -35,10 +35,12 @@ export function ItemCell({
   const hasHighlights = tier !== null || reasons.length > 0;
   const videoChip =
     item.videoUrl === null ? null : <HighlightPlayer videoUrl={item.videoUrl} title={item.name} />;
-  const viewerButton = canPreviewSkin(item) ? <SkinViewerButton item={item} /> : null;
+  const viewerButton = canPreviewSkin(item) ? (
+    <SkinViewerButton item={item} className={ITEM_CELL.viewerSlotClass} />
+  ) : null;
   const noteChip = item.note === null ? null : <ItemNoteChip note={item.note} />;
   const attachments = hasAttachments && (
-    <span className="flex shrink-0 items-center gap-0.5">
+    <span className={ITEM_CELL.attachmentsClass}>
       {stickers.map((sticker, index) => (
         <Tooltip key={`${sticker.name}-${index}`} name={sticker.name} imageUrl={sticker.imageUrl}>
           <img
