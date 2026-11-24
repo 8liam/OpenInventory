@@ -1,10 +1,13 @@
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { COPY } from "~/lib/copy/copy.config";
 import { cn } from "~/utils/cn";
 import { formatSignedMoney } from "~/utils/format";
+import { CHANGE_LINE } from "./change-line.config";
 import type { ChangeLineProps } from "./change-line.types";
 
-/** Value movement over each known window, as small up/down pills. */
+const { classes } = CHANGE_LINE;
+
+/** Value movement over each known window: a sign, an icon and a period. Success green, never lime. */
 export function ChangeLine({ change, currency }: ChangeLineProps) {
   const entries = [
     [COPY.dashboard.change.day, change.day],
@@ -14,21 +17,15 @@ export function ChangeLine({ change, currency }: ChangeLineProps) {
   const known = entries.filter(([, value]) => value !== null);
   if (known.length === 0) return null;
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className={classes.root}>
       {known.map(([label, value]) => {
         const up = (value ?? 0) >= 0;
-        const Arrow = up ? ArrowUpRight : ArrowDownRight;
+        const Arrow = up ? ChevronUp : ChevronDown;
         return (
-          <span
-            key={label}
-            className={cn(
-              "tabular inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs",
-              up ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive",
-            )}
-          >
-            <Arrow size={12} />
+          <span key={label} className={cn(classes.entry, up ? classes.up : classes.down)}>
+            <Arrow size={CHANGE_LINE.iconSize} strokeWidth={CHANGE_LINE.iconStroke} aria-hidden />
             {formatSignedMoney(value ?? 0, currency)}
-            <span>{label}</span>
+            <span className={classes.label}>{label}</span>
           </span>
         );
       })}

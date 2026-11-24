@@ -1,16 +1,19 @@
 import { cn } from "~/utils/cn";
+import { PANEL } from "./panel.config";
 import type { PanelProps } from "./panel.types";
+
+const { classes } = PANEL;
 
 export function Panel({ title, action, children, className }: PanelProps) {
   return (
-    <section className={cn("rounded-xl border bg-card", className)}>
+    <section className={cn(classes.root, className)}>
       {title && (
-        <header className="flex items-center justify-between gap-3 px-4 pt-3.5">
-          <h2 className="text-[13px] font-medium">{title}</h2>
+        <header className={classes.header}>
+          <h2 className={classes.title}>{title}</h2>
           {action}
         </header>
       )}
-      <div className={title ? "p-4 pt-3" : "p-4"}>{children}</div>
+      <div className={title ? classes.bodyWithTitle : classes.body}>{children}</div>
     </section>
   );
 }

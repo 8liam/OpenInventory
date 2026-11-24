@@ -31,22 +31,25 @@ function TerminalLabel({ item }: { readonly item: ItemView }) {
   );
 }
 
+const C = TERMINAL_LIST.classes;
+
 /** Active Terminals (with their offers) first, then sealed ones that can be activated. */
 export function TerminalList({ terminals }: TerminalListProps) {
   const [now] = useState(() => Date.now());
   const active = terminals.filter((t) => t.terminal?.isActive === true);
   const sealed = terminals.filter((t) => t.terminal?.isActive === false);
   return (
-    <div className="flex flex-col gap-4">
+    <div className={C.root}>
       {active.length > 0 && (
         <Panel title={COPY.terminal.activeHeading}>
-          <div className="flex flex-col gap-6">
+          <div className={C.activeList}>
             {active.map((item) => (
-              <div key={item.id} className="flex flex-col gap-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
+              <div key={item.id} className={C.activeItem}>
+                <div className={C.activeHead}>
                   <TerminalLabel item={item} />
                   {item.terminal?.expiresAt != null && (
-                    <span className="text-xs text-muted-foreground">
+                    <span className={C.expiry}>
+                      <span aria-hidden className="live-dot" />
                       {expiryText(item.terminal.expiresAt, now)}
                     </span>
                   )}
@@ -61,9 +64,9 @@ export function TerminalList({ terminals }: TerminalListProps) {
       )}
       {sealed.length > 0 && (
         <Panel title={COPY.terminal.sealedHeading}>
-          <div className="flex flex-col gap-3">
+          <div className={C.sealedList}>
             {sealed.map((item) => (
-              <div key={item.id} className="flex flex-wrap items-center justify-between gap-2">
+              <div key={item.id} className={C.sealedItem}>
                 <TerminalLabel item={item} />
                 {item.locationId === INVENTORY_LOCATION_ID ? (
                   <TerminalActivate
@@ -73,7 +76,7 @@ export function TerminalList({ terminals }: TerminalListProps) {
                     presentation="button"
                   />
                 ) : (
-                  <span className="text-xs text-muted-foreground">{COPY.terminal.inStorage}</span>
+                  <span className={C.inStorage}>{COPY.terminal.inStorage}</span>
                 )}
               </div>
             ))}

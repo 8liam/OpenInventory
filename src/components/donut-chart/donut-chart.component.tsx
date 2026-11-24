@@ -12,7 +12,7 @@ export function DonutChart({ slices, currency, totalLabel, formatValue }: DonutC
   const total = slices.reduce((sum, s) => sum + s.value, 0);
   if (total <= 0) return null;
 
-  const { size, radius, strokeWidth, gap, dimmedOpacity, fadeMs } = DONUT_CHART;
+  const { size, radius, strokeWidth, gap, fadeMs, steps } = DONUT_CHART;
   const circumference = 2 * Math.PI * radius;
   const active = slices.find((s) => s.label === hover);
   const shown = slices.find((s) => s.label === lastHover);
@@ -25,24 +25,24 @@ export function DonutChart({ slices, currency, totalLabel, formatValue }: DonutC
     <div className="relative mx-auto" style={{ width: size, height: size }}>
       <svg viewBox="0 0 100 100" width={size} height={size} role="img" aria-label={totalLabel}>
         <g transform="rotate(-90 50 50)" fill="none" strokeWidth={strokeWidth}>
-          {segments.map(({ slice, share, start }) => {
+          {segments.map(({ slice, share, start }, index) => {
             const dash = Math.max(share - gap, 0.01);
+            const step = steps[index % steps.length] ?? DONUT_CHART.fallbackColor;
             return (
               <circle
                 key={slice.label}
                 cx={50}
                 cy={50}
                 r={radius}
-                stroke={slice.color}
+                stroke={hover === slice.label ? DONUT_CHART.activeColor : step}
                 strokeDasharray={`${(dash / 100) * circumference} ${circumference}`}
                 strokeDashoffset={-(start / 100) * circumference}
-                opacity={hover && hover !== slice.label ? dimmedOpacity : 1}
                 onPointerEnter={() => {
                   setHover(slice.label);
                   setLastHover(slice.label);
                 }}
                 onPointerLeave={() => setHover(undefined)}
-                className="transition-opacity"
+                className="transition-[stroke]"
               />
             );
           })}
@@ -53,7 +53,7 @@ export function DonutChart({ slices, currency, totalLabel, formatValue }: DonutC
         style={{ opacity: active ? 0 : 1, transitionDuration: `${fadeMs}ms` }}
       >
         <span className="max-w-full truncate text-xs text-muted-foreground">{totalLabel}</span>
-        <span className="tabular text-base font-semibold">{format(total)}</span>
+        <span className="figure text-xl">{format(total)}</span>
       </div>
       {shown && (
         <div
@@ -66,7 +66,7 @@ export function DonutChart({ slices, currency, totalLabel, formatValue }: DonutC
           }}
         >
           <span className="max-w-full truncate text-xs text-muted-foreground">{shown.label}</span>
-          <span className="tabular text-base font-semibold">{format(shown.value)}</span>
+          <span className="figure text-xl">{format(shown.value)}</span>
           <span className="tabular text-xs text-muted-foreground">
             {formatPercentPlain(shown.value / total)}
           </span>

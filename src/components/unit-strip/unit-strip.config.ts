@@ -19,6 +19,6 @@ export const UNIT_STRIP = {
     fadeBefore: "[mask-image:linear-gradient(to_right,transparent,#000_2.5rem)]",
     fadeBoth:
       "[mask-image:linear-gradient(to_right,transparent,#000_2.5rem,#000_calc(100%-6.5rem),transparent)]",
-    more: "absolute right-1 top-1/2 z-10 inline-flex h-7 -translate-y-1/2 items-center gap-1 rounded-full border bg-card px-2.5 text-xs font-medium shadow-sm hover:bg-muted @min-[56rem]/storage:hidden",
+    more: "absolute right-1 top-1/2 z-10 inline-flex h-7 -translate-y-1/2 items-center gap-1 rounded-full border bg-card px-2.5 text-xs font-medium hover:bg-muted @min-[56rem]/storage:hidden",
   },
 } as const;

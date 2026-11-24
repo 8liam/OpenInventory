@@ -203,15 +203,11 @@ export function Select({
           // Focusable, so a click on the search row's padding keeps focus inside instead of closing.
           tabIndex={-1}
           onKeyDown={onListKeyDown}
-          className="fixed z-50 flex flex-col overflow-hidden rounded-md border bg-card text-foreground shadow-lg outline-none"
+          className={SELECT.classes.popover}
         >
           {searchable && (
-            <div className="flex h-9 shrink-0 items-center gap-2 border-b px-2.5">
-              <Search
-                size={SELECT.iconSize}
-                className="shrink-0 text-muted-foreground"
-                aria-hidden
-              />
+            <div className={SELECT.classes.searchRow}>
+              <Search size={SELECT.iconSize} className={SELECT.classes.searchIcon} aria-hidden />
               <input
                 ref={search}
                 value={query}
@@ -223,7 +219,7 @@ export function Select({
                 aria-label={SELECT.searchPlaceholder}
                 aria-controls={`${id}-list`}
                 aria-activedescendant={visible.length > 0 ? `${id}-${highlight}` : undefined}
-                className="no-focus-ring min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
+                className={SELECT.classes.searchInput}
               />
             </div>
           )}
@@ -235,7 +231,7 @@ export function Select({
             aria-label={ariaLabel}
             aria-activedescendant={visible.length > 0 ? `${id}-${highlight}` : undefined}
             style={{ maxHeight: placement.maxHeight }}
-            className="no-focus-ring overflow-y-auto p-1 outline-none"
+            className={SELECT.classes.list}
           >
             {visible.map((option, index) => (
               <li
@@ -247,35 +243,26 @@ export function Select({
                 onMouseMove={() => setHighlight(index)}
                 onClick={() => choose(option)}
                 className={cn(
-                  "flex cursor-pointer items-center gap-2 rounded px-2 py-1.5",
-                  index === highlight && "bg-muted",
-                  option.disabled && "cursor-not-allowed opacity-50",
+                  SELECT.classes.option,
+                  index === highlight && SELECT.classes.optionActive,
+                  option.id === value && SELECT.classes.optionSelected,
+                  option.disabled && SELECT.classes.optionDisabled,
                 )}
               >
                 <Check
                   size={SELECT.iconSize}
-                  className={cn("shrink-0", option.id !== value && "invisible")}
+                  className={cn(SELECT.classes.check, option.id !== value && "invisible")}
                   aria-hidden
                 />
                 {option.leading}
                 <span className="min-w-0 flex-1">
                   <span className="block truncate">{option.label}</span>
-                  {option.hint && (
-                    <span className="block truncate text-xs text-muted-foreground">
-                      {option.hint}
-                    </span>
-                  )}
+                  {option.hint && <span className={SELECT.classes.hint}>{option.hint}</span>}
                 </span>
-                {option.detail && (
-                  <span className="shrink-0 text-xs text-muted-foreground tabular">
-                    {option.detail}
-                  </span>
-                )}
+                {option.detail && <span className={SELECT.classes.detail}>{option.detail}</span>}
               </li>
             ))}
-            {visible.length === 0 && (
-              <li className="px-2 py-1.5 text-muted-foreground">{SELECT.noMatches}</li>
-            )}
+            {visible.length === 0 && <li className={SELECT.classes.empty}>{SELECT.noMatches}</li>}
           </ul>
         </div>
       )}

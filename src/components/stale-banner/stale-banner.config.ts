@@ -13,5 +13,5 @@ export const STALE_BANNER = {
   messageClass: "flex min-w-0 items-center gap-2",
   iconClass: "shrink-0 text-warning",
   rootClass:
-    "flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-md border border-warning/40 bg-warning/5 px-3 py-2 text-xs",
+    "flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 border-y border-border-strong py-2.5 text-xs",
 } as const;

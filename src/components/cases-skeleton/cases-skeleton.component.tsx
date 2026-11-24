@@ -6,6 +6,7 @@ import { MONTHLY_BARS } from "~/components/monthly-bars/monthly-bars.config";
 import { OPENING_LIST } from "~/components/opening-list/opening-list.config";
 import { Panel } from "~/components/panel/panel.component";
 import { PULLED_LIST } from "~/components/pulled-list/pulled-list.config";
+import { CASE_SUMMARY } from "~/components/case-summary/case-summary.config";
 import { Skeleton } from "~/components/skeleton/skeleton.component";
 import { CASES_SKELETON, DEFAULT_OPENING_KIND } from "~/lib/cases/cases.config";
 import { COPY } from "~/lib/copy/copy.config";
@@ -35,17 +36,17 @@ function ItemRow({ thumb, side }: { readonly thumb: number; readonly side?: bool
 
 function SummarySkeleton() {
   return (
-    <section className="rounded-xl border bg-card">
-      <div className="flex flex-col gap-6 p-5 md:flex-row md:items-end md:justify-between md:p-6">
+    <section className={CASE_SUMMARY.classes.root}>
+      <div className={CASE_SUMMARY.classes.top}>
         <div>
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="mt-1 h-10 w-32 md:h-12" />
+          <Skeleton className="h-3.5 w-24" />
+          <Skeleton className="mt-3 h-12 w-32 @md:h-16" />
         </div>
-        <div className="grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-4">
+        <div className={CASE_SUMMARY.classes.stats}>
           {[0, 1, 2].map((tile) => (
-            <div key={tile}>
+            <div key={tile} className="contents">
               <Skeleton className="h-4 w-20" />
-              <Skeleton className="mt-1 h-6 w-12" />
+              <Skeleton className="h-4 w-12" />
             </div>
           ))}
         </div>

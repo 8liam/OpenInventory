@@ -7,7 +7,7 @@ export const LOAD_ERROR = {
   busyClass: "opacity-60",
   spinClass: "motion-safe:animate-spin",
   classes: {
-    root: "flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/40 bg-card px-4 py-3",
+    root: "flex shrink-0 flex-wrap items-center justify-between gap-3 border-y border-border-strong py-3",
     body: "min-w-0",
     title: "font-medium",
     message: "mt-0.5 text-destructive",

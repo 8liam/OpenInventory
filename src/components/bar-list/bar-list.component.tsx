@@ -18,9 +18,10 @@ export function BarList({
       {slices.slice(0, limit).map((slice) => {
         const color = slice.color ?? BAR_LIST.fallbackColor;
         return (
-          <li key={slice.label}>
+          <li key={slice.label} className={classes.item}>
             <div className={classes.row}>
               <span className={classes.labelGroup}>
+                <span aria-hidden className={classes.tick} style={{ background: color }} />
                 <span className={classes.label}>{slice.label}</span>
                 {showValue && (
                   <>
@@ -40,7 +41,7 @@ export function BarList({
             <div className={classes.track}>
               <div
                 className={classes.bar}
-                style={{ width: `${max > 0 ? (slice.value / max) * 100 : 0}%`, background: color }}
+                style={{ width: `${max > 0 ? (slice.value / max) * 100 : 0}%` }}
               />
             </div>
           </li>

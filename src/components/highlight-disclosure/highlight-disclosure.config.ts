@@ -43,7 +43,7 @@ export const HIGHLIGHT_DISCLOSURE = {
   countClass:
     "tabular inline-flex items-center gap-0.5 rounded bg-foreground/[0.07] px-1.5 py-px text-[11px] leading-4 text-foreground/80",
   panelClass:
-    "fixed z-50 flex flex-col gap-2 overflow-y-auto rounded-md border bg-card p-3 text-xs text-foreground shadow-lg outline-none",
+    "fixed z-50 flex flex-col gap-2 overflow-y-auto rounded-md border bg-card p-3 text-xs text-foreground border-border-strong outline-none",
   closeClass:
     "-mr-1 -mt-1 flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground max-sm:size-9 pointer-coarse:size-9",
   headClass: "flex items-start justify-between gap-2",

@@ -8,7 +8,7 @@ export const ITEMS_PAGE = {
   /** Below `sm` the controls sit in a two-column grid; from `sm` they flow in one wrapping row. */
   controlsClass: "grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center",
   searchClass:
-    "col-span-2 h-9 w-full rounded-md border border-input bg-card px-2.5 outline-none placeholder:text-muted-foreground focus:border-primary sm:h-8 sm:w-56",
+    "col-span-2 h-9 w-full rounded-md border border-input bg-card px-2.5 placeholder:text-muted-foreground focus-visible:border-accent-ink sm:h-8 sm:w-56",
   /** Each picker takes one grid cell on phones and a fixed width from `sm`. */
   selectClass: "min-w-0 sm:w-48",
   /** The account filter only shows in the all-accounts view, where it gets a full row on phones. */

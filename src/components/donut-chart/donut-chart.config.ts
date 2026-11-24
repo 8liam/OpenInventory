@@ -8,4 +8,10 @@ export const DONUT_CHART = {
   /** Cross-fade time for the centre readout when the hovered slice changes. */
   fadeMs: 150,
   fallbackColor: "var(--muted-foreground)",
+  /** Slices are grey steps in order, the biggest share first; the hovered one is the accent. */
+  steps: ["var(--fill-1)", "var(--fill-2)", "var(--fill-3)", "var(--fill-4)", "var(--fill-5)"],
+  activeColor: "var(--accent)",
+  /** Hairline between slices, in the card's colour, so neighbouring greys stay apart. */
+  separatorColor: "var(--card)",
+  separatorWidth: 0.6,
 } as const;

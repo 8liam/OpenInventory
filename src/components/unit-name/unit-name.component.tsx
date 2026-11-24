@@ -67,7 +67,7 @@ export function UnitName({ name, onRename }: UnitNameProps) {
           disabled={saving}
           onChange={(event) => setDraft(event.target.value)}
           onKeyDown={onKeyDown}
-          className="h-7 min-w-0 flex-1 rounded border bg-background px-2 text-sm outline-none focus:border-primary/60"
+          className="h-7 min-w-0 flex-1 rounded border bg-background px-2 text-sm focus-visible:border-accent-ink"
         />
         <button
           type="submit"

@@ -19,7 +19,7 @@ function Section({ title, rows }: InsightSectionProps) {
                 to="/items"
                 search={{ q: row.query }}
                 title={INSIGHTS.findItem}
-                className="min-w-0 rounded-sm focus-visible:outline-2 focus-visible:outline-primary"
+                className="min-w-0 rounded-sm focus-visible:outline-2 focus-visible:outline-accent-ink"
               >
                 <ItemLabel
                   name={row.name}

@@ -177,7 +177,7 @@ export function DataTable<Row>({
                 checked={allSelected}
                 onChange={(e) => selection.onToggleAll(e.target.checked)}
                 aria-label={DATA_TABLE.selectAllLabel}
-                className="size-4 accent-primary"
+                className="size-4 accent-accent-ink"
               />
             </label>
           </div>
@@ -282,9 +282,9 @@ export function DataTable<Row>({
                         : undefined
                   }
                   className={cn(
-                    "absolute inset-x-0 grid items-center border-b px-4 focus-visible:outline-offset-[-2px]",
-                    clickable && "cursor-pointer hover:bg-muted",
-                    checked && "bg-muted",
+                    DATA_TABLE.rowClass,
+                    clickable && DATA_TABLE.rowClickableClass,
+                    checked && DATA_TABLE.rowCheckedClass,
                   )}
                   style={{
                     height: virtualRow.size,
@@ -305,7 +305,7 @@ export function DataTable<Row>({
                           onClick={(e) => e.stopPropagation()}
                           tabIndex={-1}
                           aria-label={DATA_TABLE.selectRowLabel}
-                          className="size-4 accent-primary"
+                          className="size-4 accent-accent-ink"
                         />
                       </label>
                     </div>
@@ -316,7 +316,7 @@ export function DataTable<Row>({
                       role="gridcell"
                       className={cn(
                         "truncate",
-                        column.align === "right" && "text-right tabular-nums",
+                        column.align === "right" && DATA_TABLE.numericCellClass,
                       )}
                     >
                       {column.cell(row)}

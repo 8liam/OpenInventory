@@ -1,7 +1,8 @@
 export const EMPTY_STATE = {
   iconSize: 16,
-  rootClass: "flex shrink-0 items-start gap-3 rounded-lg border border-dashed bg-card px-4 py-3",
+  /** Says why and stays left-aligned under a strong rule; no box, no illustration. */
+  rootClass: "flex shrink-0 items-start gap-3 border-t border-border-strong pt-4 pb-1",
   iconClass: "mt-0.5 shrink-0 text-muted-foreground",
-  titleClass: "font-medium",
+  titleClass: "text-[15px] font-semibold",
   bodyClass: "mt-0.5 text-xs text-muted-foreground",
 } as const;

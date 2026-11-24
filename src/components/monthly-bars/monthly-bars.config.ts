@@ -21,7 +21,7 @@ export const MONTHLY_BARS = {
     ends: "tabular mt-1.5 flex justify-between text-[11px] text-muted-foreground",
     details: "mt-3 text-xs",
     summary:
-      "w-fit cursor-pointer rounded text-muted-foreground underline-offset-2 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+      "w-fit cursor-pointer rounded text-muted-foreground underline-offset-2 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink",
     list: "mt-2 grid grid-cols-2 gap-x-5 gap-y-1 sm:grid-cols-3 lg:grid-cols-4",
     item: "flex justify-between gap-2 border-b py-1",
     count: "tabular font-medium",

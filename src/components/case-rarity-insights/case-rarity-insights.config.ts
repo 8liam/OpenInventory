@@ -22,7 +22,7 @@ export const CASE_RARITY_INSIGHTS = {
     streakNote: "text-xs text-muted-foreground xl:col-start-1 xl:row-start-2",
     explainer: "mt-4 border-t pt-3 text-xs leading-relaxed text-muted-foreground",
     explainerSummary:
-      "cursor-pointer rounded-sm font-medium text-foreground outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring",
+      "cursor-pointer rounded-sm font-medium text-foreground outline-offset-2 focus-visible:outline-2 focus-visible:outline-accent-ink",
     explainerBody: "mt-2 space-y-2",
     oddsPanel: "xl:col-span-3",
     empty: "text-sm text-muted-foreground",

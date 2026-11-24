@@ -13,10 +13,10 @@ export const TOOLTIP = {
   imageSize: 48,
   triggerClass: "inline-flex shrink-0 rounded-sm outline-offset-2 focus-visible:outline-2",
   bubbleClass:
-    "pointer-events-none fixed z-50 -translate-x-1/2 flex items-center gap-3 rounded-md border bg-card px-3 py-2 text-xs text-foreground shadow-lg",
+    "pointer-events-none fixed z-50 -translate-x-1/2 flex items-center gap-3 rounded-md border border-border-strong bg-card px-2.5 py-2 text-xs text-foreground",
   imageClass: "shrink-0 object-contain",
   textClass: "min-w-0",
-  kindClass: "text-[10px] font-medium uppercase tracking-wide text-muted-foreground",
-  titleClass: "text-sm font-medium break-words",
-  detailClass: "mt-0.5 text-muted-foreground",
+  kindClass: "text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground",
+  titleClass: "text-[13px] font-medium break-words",
+  detailClass: "mt-0.5 font-mono text-[11px] tabular-nums text-muted-foreground",
 } as const;

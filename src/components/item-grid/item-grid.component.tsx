@@ -155,7 +155,7 @@ export function ItemGrid({
                 )
               }
               aria-label={ITEM_GRID.selectAllLabel}
-              className="size-4 accent-primary"
+              className="size-4 accent-accent-ink"
             />
             {ITEM_GRID.selectAllText}
           </label>

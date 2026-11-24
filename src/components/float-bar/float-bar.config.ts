@@ -4,24 +4,25 @@ export const FLOAT_BAR = {
   label: "Float",
   rangeLabel: "Skin range",
   rangeAriaLabel: (min: string, max: string) => `Skin range ${min} to ${max}`,
-  /** Tailwind colour per band, from cleanest to most worn. */
+  /** Wear zones are grey steps drawn to scale, cleanest first. Float is content, never the accent. */
   bandClass: {
-    fn: "bg-success/70",
-    mw: "bg-success/40",
-    ft: "bg-warning/50",
-    ww: "bg-warning/75",
-    bs: "bg-destructive/60",
+    fn: "bg-fill-1",
+    mw: "bg-fill-2",
+    ft: "bg-fill-3",
+    ww: "bg-fill-4",
+    bs: "bg-fill-5",
   } as const satisfies Record<WearBandId, string>,
   classes: {
     root: "flex flex-col gap-1",
-    track: "relative flex h-3 w-full rounded-full",
-    clip: "absolute inset-0 flex overflow-hidden rounded-full",
+    track: "relative flex h-3 w-full",
+    clip: "absolute inset-0 flex gap-px overflow-hidden bg-card",
     segment: "h-full shrink-0",
-    dim: "absolute inset-y-0 bg-card/70",
-    range: "absolute inset-y-0 rounded-sm ring-1 ring-foreground/60",
+    /** Outside this skin's float range: hatched, as on the spec sheet. */
+    dim: "absolute inset-y-0 bg-card [background-image:repeating-linear-gradient(135deg,var(--control-border)_0_1px,transparent_1px_5px)]",
+    range: "absolute inset-y-0 border-x border-foreground",
     marker:
-      "absolute -top-1 -bottom-1 w-0.5 -translate-x-1/2 rounded-full bg-foreground shadow-[0_0_0_1.5px_var(--card)]",
-    labels: "flex w-full text-[10px] leading-3 text-muted-foreground",
+      "absolute -top-1.5 -bottom-1.5 w-[3px] -translate-x-1/2 border-x border-card bg-foreground",
+    labels: "flex w-full font-mono text-[10px] leading-3 text-muted-foreground",
     labelCell: "shrink-0 overflow-hidden text-center",
   },
 } as const;

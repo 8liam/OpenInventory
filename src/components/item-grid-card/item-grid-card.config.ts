@@ -6,26 +6,26 @@ export const ITEM_GRID_CARD = {
   selectRowLabel: "Select item",
   /** A 24px hit area on desktop; 36px on phones and touch screens. */
   checkboxClass:
-    "absolute left-1.5 top-1.5 flex rounded bg-background/80 p-1 transition-opacity max-sm:p-2.5 [@media(hover:none)]:opacity-100 [@media(pointer:coarse)]:p-2.5",
+    "absolute left-1.5 top-1.5 flex rounded-sm bg-background p-1 transition-opacity max-sm:p-2.5 [@media(hover:none)]:opacity-100 [@media(pointer:coarse)]:p-2.5",
   locationSeparator: "·",
   classes: {
     card: "group relative flex h-full min-w-0 flex-col rounded-lg border bg-card p-3 text-left transition-colors focus-visible:outline-offset-2",
     cardSelectable: "cursor-pointer hover:bg-muted",
-    cardChecked: "border-primary/60 bg-muted",
+    cardChecked: "border-accent-ink bg-accent/12 hover:bg-accent/15",
     media: "relative",
-    tierBadge: "absolute right-1.5 top-1.5 shadow-sm",
+    tierBadge: "absolute right-1.5 top-1.5",
     inspectButton: "absolute bottom-1.5 right-1.5",
     checkboxShown: "opacity-100",
     checkboxHidden: "opacity-0 focus-within:opacity-100 group-hover:opacity-100",
-    checkbox: "size-4 accent-primary",
+    checkbox: "size-4 accent-accent-ink",
     text: "mt-2.5 min-w-0",
     weapon:
-      "mb-0.5 truncate text-[11px] uppercase leading-none tracking-wide text-muted-foreground",
+      "mb-0.5 truncate text-[10.5px] font-medium uppercase leading-none tracking-[0.08em] text-muted-foreground",
     skin: "line-clamp-2 break-words text-sm font-medium leading-tight",
     muted: "font-normal text-muted-foreground",
     wear: "mt-0.5 truncate text-[11px] leading-4 text-muted-foreground",
     figures: "mt-1.5 flex items-baseline justify-between gap-2",
-    price: "tabular text-base font-semibold leading-tight",
+    price: "font-mono text-sm font-medium tabular-nums leading-tight",
     charmsValue: "tabular shrink-0 text-xs text-muted-foreground",
     status: "tabular shrink-0 text-xs text-muted-foreground",
     /** Pinned to the bottom so attachments, note and location line up across a row of cards. */

@@ -56,11 +56,11 @@ export function AppShell() {
         {APP_SHELL.skipLink}
       </a>
       <div className="flex h-dvh flex-col md:flex-row">
-        <aside className="hidden w-56 shrink-0 flex-col border-r md:flex">
+        <aside className={APP_SHELL.sidebarClass}>
           <div className="px-4 py-4 desktop-mac:pt-12">
             <Logo />
           </div>
-          <nav className="flex flex-1 flex-col gap-2 px-2">
+          <nav className={APP_SHELL.sidebarNavClass}>
             {NAV_ITEMS.map(({ to, key, icon }) => {
               const Icon = ICONS[icon];
               return (
@@ -69,7 +69,7 @@ export function AppShell() {
                   to={to}
                   preload="intent"
                   activeOptions={{ exact: to === "/" }}
-                  className="flex h-8 items-center gap-2.5 rounded-md px-2.5 text-muted-foreground transition-none data-[status=active]:transition-colors data-[status=active]:duration-200 data-[status=active]:ease-out not-data-[status=active]:hover:bg-muted not-data-[status=active]:hover:text-foreground data-[status=active]:bg-accent data-[status=active]:text-accent-foreground"
+                  className={APP_SHELL.sidebarLinkClass}
                 >
                   <Icon size={15} strokeWidth={1.75} />
                   {COPY.nav[key]}
@@ -98,10 +98,7 @@ export function AppShell() {
           <TransferStatus />
         </div>
 
-        <nav
-          className="flex shrink-0 border-t pb-[env(safe-area-inset-bottom)] md:hidden"
-          aria-label="Primary"
-        >
+        <nav className={APP_SHELL.tabBarClass} aria-label="Primary">
           {NAV_ITEMS.map(({ to, key, icon }) => {
             const Icon = ICONS[icon];
             return (
@@ -110,10 +107,11 @@ export function AppShell() {
                 to={to}
                 preload="intent"
                 activeOptions={{ exact: to === "/" }}
-                className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] text-muted-foreground max-[360px]:tracking-tight"
-                activeProps={{ className: "text-foreground" }}
+                className={APP_SHELL.tabLinkClass}
               >
-                <Icon size={18} strokeWidth={1.75} />
+                <span className={APP_SHELL.tabIconClass}>
+                  <Icon size={17} strokeWidth={1.75} />
+                </span>
                 {COPY.nav[key]}
               </Link>
             );

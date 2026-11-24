@@ -1,11 +1,14 @@
 import { ChangeLine } from "~/components/change-line/change-line.component";
 import { HistoryPanel } from "~/components/history-panel/history-panel.component";
+import { MoneyFigure } from "~/components/money-figure/money-figure.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { formatInteger, formatMoney } from "~/utils/format";
 import { PORTFOLIO_HERO } from "./portfolio-hero.config";
 import type { PortfolioHeroProps } from "./portfolio-hero.types";
 
-/** The page's focal point: total value, its movement, the split, and the history line. */
+const { classes } = PORTFOLIO_HERO;
+
+/** The page's focal point: total value as a ledger figure, its movement, the split, and the history line. */
 export function PortfolioHero({ dashboard, currency }: PortfolioHeroProps) {
   const copy = COPY.dashboard;
   const { totals } = dashboard;
@@ -28,35 +31,35 @@ export function PortfolioHero({ dashboard, currency }: PortfolioHeroProps) {
       : []),
   ];
   return (
-    <section className="@container overflow-hidden rounded-xl border bg-card">
-      {/* Sized by the card, not the viewport: the sidebar narrows it at tablet widths. */}
-      <div className="flex flex-col gap-6 p-5 @2xl:flex-row @2xl:items-end @2xl:justify-between md:p-6">
-        <div>
-          <p className="text-xs text-muted-foreground">{copy.totalValue}</p>
-          <p className="tabular mt-1 text-[40px] font-semibold leading-none tracking-tight md:text-5xl">
-            {formatMoney(totals.value, currency)}
+    <section className={classes.root}>
+      {/* Sized by the section, not the viewport: the sidebar narrows it at tablet widths. */}
+      <div className={classes.top}>
+        <div className="min-w-0">
+          <p className="kicker">{copy.totalValue}</p>
+          <p className={classes.figure}>
+            <MoneyFigure amount={totals.value} currency={currency} />
           </p>
-          <div className="mt-3 min-h-5">
+          <div className={classes.change}>
             <ChangeLine change={dashboard.change} currency={currency} />
           </div>
         </div>
-        <dl className="flex flex-wrap gap-x-6 gap-y-3 @2xl:gap-x-8">
+        <dl className={classes.stats}>
           {stats.map((stat) => (
-            <div key={stat.label} className="min-w-0">
-              <dt className="text-xs text-muted-foreground">{stat.label}</dt>
-              <dd className="tabular mt-1 text-base font-medium">{stat.value}</dd>
-              {stat.detail && (
-                <dd className="tabular text-xs text-muted-foreground">{stat.detail}</dd>
-              )}
+            <div key={stat.label} className="contents">
+              <dt className={classes.statLabel}>{stat.label}</dt>
+              <dd className={classes.statValue}>
+                {stat.value}
+                {stat.detail && <span className={classes.statDetail}>{stat.detail}</span>}
+              </dd>
             </div>
           ))}
         </dl>
       </div>
-      <div className="border-t">
+      <div className={classes.chart}>
         {dashboard.history.length >= PORTFOLIO_HERO.minHistoryPoints ? (
           <HistoryPanel history={dashboard.history} currency={currency} />
         ) : (
-          <p className="py-10 text-center text-muted-foreground">{copy.historyEmpty}</p>
+          <p className={classes.empty}>{copy.historyEmpty}</p>
         )}
       </div>
     </section>
