@@ -8,12 +8,25 @@ import { renderWithRouter } from "~test/router";
 import { screen } from "~test/ui";
 import { Insights } from "./insights.component";
 
-const FLOAT = { id: "a1", name: "AK-47 | Redline", wear: 0.0123, imageUrl: null, rarityColor: null, price: null };
+const FLOAT = {
+  id: "a1",
+  name: "AK-47 | Redline",
+  wear: 0.0123,
+  imageUrl: null,
+  rarityColor: null,
+  price: null,
+};
 
 describe("Insights", () => {
   test("empty lists say so under each heading", async () => {
-    await renderWithRouter(<Insights currency="USD" insights={{ lowestFloats: [], highestFloats: [], stacks: [] }} />);
-    for (const title of [COPY.insights.lowestFloats, COPY.insights.highestFloats, COPY.insights.stacks]) {
+    await renderWithRouter(
+      <Insights currency="USD" insights={{ lowestFloats: [], highestFloats: [], stacks: [] }} />,
+    );
+    for (const title of [
+      COPY.insights.lowestFloats,
+      COPY.insights.highestFloats,
+      COPY.insights.stacks,
+    ]) {
       assert.ok(screen.getByRole("heading", { name: title }));
     }
     assert.equal(screen.getAllByText(COPY.insights.empty).length, 3);
@@ -21,7 +34,10 @@ describe("Insights", () => {
 
   test("float rows show the wear and link to the item in Items", async () => {
     await renderWithRouter(
-      <Insights currency="USD" insights={{ lowestFloats: [FLOAT], highestFloats: [], stacks: [] }} />,
+      <Insights
+        currency="USD"
+        insights={{ lowestFloats: [FLOAT], highestFloats: [], stacks: [] }}
+      />,
     );
     assert.ok(screen.getByText(formatFloat(FLOAT.wear)));
     const link = screen.getByRole("link");
@@ -33,7 +49,11 @@ describe("Insights", () => {
     await renderWithRouter(
       <Insights
         currency="USD"
-        insights={{ lowestFloats: [], highestFloats: [], stacks: [makeHolding({ name: "Case", count: 4, totalValue: 6 })] }}
+        insights={{
+          lowestFloats: [],
+          highestFloats: [],
+          stacks: [makeHolding({ name: "Case", count: 4, totalValue: 6 })],
+        }}
       />,
     );
     assert.ok(screen.getByText(/×4/));

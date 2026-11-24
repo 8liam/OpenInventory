@@ -32,7 +32,11 @@ describe("SyncError", () => {
   test("shows the failure and Try again requests a refresh for that account", async () => {
     render(<SyncError />);
     await api.push(
-      appSnapshot([accountState(STEAM_ID_A, { snapshot: storageSnapshot({ syncError: "CS2 is running elsewhere" }) })]),
+      appSnapshot([
+        accountState(STEAM_ID_A, {
+          snapshot: storageSnapshot({ syncError: "CS2 is running elsewhere" }),
+        }),
+      ]),
     );
     assert.equal(screen.getByRole("alert").textContent?.includes("CS2 is running elsewhere"), true);
     await setupUser().click(screen.getByRole("button", { name: SYNC_ERROR.retry }));
@@ -44,7 +48,10 @@ describe("SyncError", () => {
     render(<SyncError />);
     await api.push(
       appSnapshot([
-        accountState(STEAM_ID_A, { displayName: "Alpha", snapshot: storageSnapshot({ syncError: "boom" }) }),
+        accountState(STEAM_ID_A, {
+          displayName: "Alpha",
+          snapshot: storageSnapshot({ syncError: "boom" }),
+        }),
         accountState(STEAM_ID_B, { displayName: "Bravo" }),
       ]),
     );
@@ -56,7 +63,9 @@ describe("SyncError", () => {
     render(<SyncError />);
     await api.push(
       appSnapshot([
-        accountState(STEAM_ID_A, { snapshot: storageSnapshot({ syncError: "boom", loadingUnits: true }) }),
+        accountState(STEAM_ID_A, {
+          snapshot: storageSnapshot({ syncError: "boom", loadingUnits: true }),
+        }),
       ]),
     );
     const button = screen.getByRole("button", { name: SYNC_ERROR.retrying }) as HTMLButtonElement;

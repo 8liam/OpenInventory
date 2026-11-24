@@ -3,7 +3,14 @@ import assert from "node:assert/strict";
 import { afterEach, beforeEach, describe, test } from "node:test";
 import { useAddAccountDialog } from "~/lib/accounts/add-account-dialog.store";
 import { COPY } from "~/lib/copy/copy.config";
-import { accountState, appSnapshot, installFakeApi, STEAM_ID_A, STEAM_ID_B, type FakeApi } from "~test/fake-api";
+import {
+  accountState,
+  appSnapshot,
+  installFakeApi,
+  STEAM_ID_A,
+  STEAM_ID_B,
+  type FakeApi,
+} from "~test/fake-api";
 import { render, screen, setupUser } from "~test/ui";
 import { AccountsPanel } from "./accounts-panel.component";
 

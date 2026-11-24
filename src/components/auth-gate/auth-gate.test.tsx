@@ -4,7 +4,14 @@ import { afterEach, beforeEach, describe, test } from "node:test";
 import { COPY } from "~/lib/copy/copy.config";
 import { CONNECTION_PROBLEM } from "~/components/connection-problem/connection-problem.config";
 import { SNAPSHOT_CONNECTION } from "~/lib/storage/storage.config";
-import { accountState, appSnapshot, FakeEventSource, installFakeApi, STEAM_ID_A, type FakeApi } from "~test/fake-api";
+import {
+  accountState,
+  appSnapshot,
+  FakeEventSource,
+  installFakeApi,
+  STEAM_ID_A,
+  type FakeApi,
+} from "~test/fake-api";
 import { act, render, screen } from "~test/ui";
 import { AuthGate } from "./auth-gate.component";
 

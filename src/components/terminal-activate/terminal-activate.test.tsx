@@ -3,7 +3,14 @@ import assert from "node:assert/strict";
 import { afterEach, beforeEach, describe, test } from "node:test";
 import { COPY } from "~/lib/copy/copy.config";
 import { STORAGE_API } from "~/lib/storage/storage.config";
-import { accountState, appSnapshot, installFakeApi, STEAM_ID_A, STEAM_ID_B, type FakeApi } from "~test/fake-api";
+import {
+  accountState,
+  appSnapshot,
+  installFakeApi,
+  STEAM_ID_A,
+  STEAM_ID_B,
+  type FakeApi,
+} from "~test/fake-api";
 import { render, screen, setupUser, waitFor } from "~test/ui";
 import { TerminalActivate } from "./terminal-activate.component";
 
@@ -23,7 +30,9 @@ describe("TerminalActivate", () => {
   });
 
   test("the button presentation also renders an Activate button", () => {
-    render(<TerminalActivate itemId="t1" accountId={STEAM_ID_A} name="Terminal" presentation="button" />);
+    render(
+      <TerminalActivate itemId="t1" accountId={STEAM_ID_A} name="Terminal" presentation="button" />,
+    );
     assert.ok(screen.getByRole("button", { name: copy.activate }));
   });
 

@@ -6,7 +6,11 @@ import { SettingsSection } from "./settings-section.component";
 
 test("SettingsSection is a region named by its h2, with description, action and rows", () => {
   render(
-    <SettingsSection title="Pricing" description="How prices show" action={<button type="button">Add</button>}>
+    <SettingsSection
+      title="Pricing"
+      description="How prices show"
+      action={<button type="button">Add</button>}
+    >
       <p>row</p>
     </SettingsSection>,
   );

@@ -8,7 +8,13 @@ import { ITEM_INSPECT_DIALOG } from "./item-inspect-dialog.config";
 
 describe("ItemInspectDialog", () => {
   test("opens as a modal named after the item", () => {
-    render(<ItemInspectDialog item={makeItem({ name: "AK-47 | Redline" })} currency="USD" onClose={() => {}} />);
+    render(
+      <ItemInspectDialog
+        item={makeItem({ name: "AK-47 | Redline" })}
+        currency="USD"
+        onClose={() => {}}
+      />,
+    );
     assert.ok(screen.getByRole("dialog", { name: "AK-47 | Redline" }));
   });
 

@@ -13,12 +13,19 @@ const FEW: readonly SelectOption[] = [
   { id: "c", label: "Charlie", disabled: true },
 ];
 
-const MANY: readonly SelectOption[] = Array.from({ length: SELECT.searchThreshold + 3 }, (_, index) => ({
-  id: `id-${index}`,
-  label: `Option ${index}`,
-}));
+const MANY: readonly SelectOption[] = Array.from(
+  { length: SELECT.searchThreshold + 3 },
+  (_, index) => ({
+    id: `id-${index}`,
+    label: `Option ${index}`,
+  }),
+);
 
-function mount(options: readonly SelectOption[], value: string, onChange: (id: string) => void = () => {}) {
+function mount(
+  options: readonly SelectOption[],
+  value: string,
+  onChange: (id: string) => void = () => {},
+) {
   return render(<Select ariaLabel="Pick" value={value} options={options} onChange={onChange} />);
 }
 
@@ -33,7 +40,10 @@ describe("Select", () => {
   });
 
   test("triggerLabel and triggerDetail show in the trigger, not the list label", () => {
-    mount([{ id: "a", label: "Long full name", triggerLabel: "Short", triggerDetail: "…1234" }], "a");
+    mount(
+      [{ id: "a", label: "Long full name", triggerLabel: "Short", triggerDetail: "…1234" }],
+      "a",
+    );
     const trigger = screen.getByRole("combobox");
     assert.ok(trigger.textContent?.includes("Short"));
     assert.ok(trigger.textContent?.includes("…1234"));
@@ -46,8 +56,14 @@ describe("Select", () => {
     assert.equal(screen.getByRole("combobox").getAttribute("aria-expanded"), "true");
     const options = within(screen.getByRole("listbox", { name: "Pick" })).getAllByRole("option");
     assert.equal(options.length, FEW.length);
-    assert.equal(screen.getByRole("option", { name: /Bravo/ }).getAttribute("aria-selected"), "true");
-    assert.equal(screen.getByRole("option", { name: /Alpha/ }).getAttribute("aria-selected"), "false");
+    assert.equal(
+      screen.getByRole("option", { name: /Bravo/ }).getAttribute("aria-selected"),
+      "true",
+    );
+    assert.equal(
+      screen.getByRole("option", { name: /Alpha/ }).getAttribute("aria-selected"),
+      "false",
+    );
   });
 
   test("choosing an option reports it, closes the list and refocuses the trigger", async () => {
@@ -141,7 +157,15 @@ describe("Select", () => {
   });
 
   test("iconTrigger renders an icon-only button named by ariaLabel", () => {
-    render(<Select ariaLabel="Switch" value="a" options={FEW} onChange={() => {}} iconTrigger={ArrowLeftRight} />);
+    render(
+      <Select
+        ariaLabel="Switch"
+        value="a"
+        options={FEW}
+        onChange={() => {}}
+        iconTrigger={ArrowLeftRight}
+      />,
+    );
     const trigger = screen.getByRole("combobox", { name: "Switch" });
     assert.ok(!trigger.textContent?.includes("Alpha"));
   });

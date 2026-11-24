@@ -13,13 +13,26 @@ test("ThemePicker lists every palette by name with the value checked", () => {
   render(<ThemePicker ariaLabel="Theme" scheme="dark" value={FIRST.id} onChange={() => {}} />);
   assert.ok(screen.getByRole("radiogroup", { name: "Theme" }));
   assert.equal(screen.getAllByRole("radio").length, PALETTE_LIST.length);
-  assert.equal(screen.getByRole("radio", { name: FIRST.name }).getAttribute("aria-checked"), "true");
-  assert.equal(screen.getByRole("radio", { name: SECOND.name }).getAttribute("aria-checked"), "false");
+  assert.equal(
+    screen.getByRole("radio", { name: FIRST.name }).getAttribute("aria-checked"),
+    "true",
+  );
+  assert.equal(
+    screen.getByRole("radio", { name: SECOND.name }).getAttribute("aria-checked"),
+    "false",
+  );
 });
 
 test("ThemePicker reports the chosen palette id", async () => {
   const picked: string[] = [];
-  render(<ThemePicker ariaLabel="Theme" scheme="light" value={FIRST.id} onChange={(id) => picked.push(id)} />);
+  render(
+    <ThemePicker
+      ariaLabel="Theme"
+      scheme="light"
+      value={FIRST.id}
+      onChange={(id) => picked.push(id)}
+    />,
+  );
   await setupUser().click(screen.getByRole("radio", { name: SECOND.name }));
   assert.deepEqual(picked, [SECOND.id]);
 });

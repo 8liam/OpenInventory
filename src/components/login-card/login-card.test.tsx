@@ -11,9 +11,7 @@ import { LoginCard } from "./login-card.component";
 const BUTTON = "Show it";
 
 function card(login: AuthState, extra: { headingLevel?: 1 | 2 } = {}) {
-  return (
-    <LoginCard login={login} title="Title" body="Body text" buttonLabel={BUTTON} {...extra} />
-  );
+  return <LoginCard login={login} title="Title" body="Body text" buttonLabel={BUTTON} {...extra} />;
 }
 
 describe("LoginCard", () => {

@@ -15,8 +15,21 @@ const ROWS: readonly Row[] = [
 ];
 
 const COLUMNS: readonly DataTableColumn<Row>[] = [
-  { id: "name", header: "Name", width: "1fr", sortValue: (row) => row.name, cell: (row) => row.name },
-  { id: "price", header: "Price", width: "80px", align: "right", sortValue: (row) => row.price, cell: (row) => `$${row.price}` },
+  {
+    id: "name",
+    header: "Name",
+    width: "1fr",
+    sortValue: (row) => row.name,
+    cell: (row) => row.name,
+  },
+  {
+    id: "price",
+    header: "Price",
+    width: "80px",
+    align: "right",
+    sortValue: (row) => row.price,
+    cell: (row) => `$${row.price}`,
+  },
 ];
 
 function props(overrides: Partial<DataTableProps<Row>> = {}): DataTableProps<Row> {
@@ -24,7 +37,10 @@ function props(overrides: Partial<DataTableProps<Row>> = {}): DataTableProps<Row
 }
 
 function bodyNames(): string[] {
-  return screen.getAllByRole("row").slice(1).map((row) => within(row).getAllByRole("gridcell")[0]?.textContent ?? "");
+  return screen
+    .getAllByRole("row")
+    .slice(1)
+    .map((row) => within(row).getAllByRole("gridcell")[0]?.textContent ?? "");
 }
 
 describe("DataTable", () => {
@@ -38,12 +54,22 @@ describe("DataTable", () => {
   test("clicking a sortable header sorts descending first, then ascending", async () => {
     render(<DataTable {...props()} />);
     const user = setupUser();
-    await user.click(within(screen.getByRole("columnheader", { name: "Name" })).getByRole("button"));
+    await user.click(
+      within(screen.getByRole("columnheader", { name: "Name" })).getByRole("button"),
+    );
     assert.deepEqual(bodyNames(), ["Charlie", "Bravo", "Alpha"]);
-    assert.equal(screen.getByRole("columnheader", { name: "Name" }).getAttribute("aria-sort"), "descending");
-    await user.click(within(screen.getByRole("columnheader", { name: "Name" })).getByRole("button"));
+    assert.equal(
+      screen.getByRole("columnheader", { name: "Name" }).getAttribute("aria-sort"),
+      "descending",
+    );
+    await user.click(
+      within(screen.getByRole("columnheader", { name: "Name" })).getByRole("button"),
+    );
     assert.deepEqual(bodyNames(), ["Alpha", "Bravo", "Charlie"]);
-    assert.equal(screen.getByRole("columnheader", { name: "Name" }).getAttribute("aria-sort"), "ascending");
+    assert.equal(
+      screen.getByRole("columnheader", { name: "Name" }).getAttribute("aria-sort"),
+      "ascending",
+    );
   });
 
   test("initialSort applies on first render", () => {
@@ -75,7 +101,9 @@ describe("DataTable", () => {
     const boxes = screen.getAllByRole("checkbox");
     assert.equal(boxes.length, ROWS.length + 1);
     const user = setupUser();
-    await user.click(screen.getAllByRole("checkbox", { name: DATA_TABLE.selectRowLabel })[0] as HTMLElement);
+    await user.click(
+      screen.getAllByRole("checkbox", { name: DATA_TABLE.selectRowLabel })[0] as HTMLElement,
+    );
     assert.deepEqual(toggled, [1]);
     await user.click(screen.getByRole("checkbox", { name: DATA_TABLE.selectAllLabel }));
     assert.equal(all.length, 1);

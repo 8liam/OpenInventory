@@ -12,7 +12,13 @@ const NOW = Date.UTC(2026, 0, 1);
 
 describe("ItemInspectCard", () => {
   test("shows the price and location facts", () => {
-    render(<ItemInspectCard item={makeItem({ price: 12.5, locationName: "Unit A" })} currency="USD" now={NOW} />);
+    render(
+      <ItemInspectCard
+        item={makeItem({ price: 12.5, locationName: "Unit A" })}
+        currency="USD"
+        now={NOW}
+      />,
+    );
     assert.ok(screen.getByText(formatMoney(12.5, "USD")));
     assert.ok(screen.getByText("Unit A"));
   });
@@ -23,7 +29,9 @@ describe("ItemInspectCard", () => {
   });
 
   test("a float on the scale shows the meter and the skin's range", () => {
-    render(<ItemInspectCard item={makeItem({ wear: 0.12, minWear: 0.06, maxWear: 0.8 })} now={NOW} />);
+    render(
+      <ItemInspectCard item={makeItem({ wear: 0.12, minWear: 0.06, maxWear: 0.8 })} now={NOW} />,
+    );
     assert.ok(screen.getByRole("meter"));
     assert.ok(screen.getByText(new RegExp(labels.skinRange)));
   });
@@ -47,7 +55,16 @@ describe("ItemInspectCard", () => {
   test("stickers and charms are listed, charms with pattern and price", () => {
     const item = makeItem({
       stickers: [{ name: "Sticker | Crown", imageUrl: null }],
-      charms: [{ name: "Charm | Lil Ava", imageUrl: null, pattern: 77, videoUrl: null, marketHashName: null, price: 3 }],
+      charms: [
+        {
+          name: "Charm | Lil Ava",
+          imageUrl: null,
+          pattern: 77,
+          videoUrl: null,
+          marketHashName: null,
+          price: 3,
+        },
+      ],
     });
     render(<ItemInspectCard item={item} currency="USD" now={NOW} />);
     assert.ok(screen.getByText(/Crown/));
@@ -65,7 +82,12 @@ describe("ItemInspectCard", () => {
   });
 
   test("a note and collections appear as facts", () => {
-    render(<ItemInspectCard item={makeItem({ note: "keep", collections: ["Mirage", "Dust"] })} now={NOW} />);
+    render(
+      <ItemInspectCard
+        item={makeItem({ note: "keep", collections: ["Mirage", "Dust"] })}
+        now={NOW}
+      />,
+    );
     assert.ok(screen.getByText("keep"));
     assert.ok(screen.getByText(`Mirage${labels.listSeparator}Dust`));
   });

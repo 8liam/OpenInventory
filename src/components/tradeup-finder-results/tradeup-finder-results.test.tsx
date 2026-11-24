@@ -30,7 +30,15 @@ function contract(name: string, profit: number): TradeUpFinderResult {
       chanceToProfit: 0.5,
       currency: "USD",
       outcomes: [
-        { name: "M4A4 | Howl", imageUrl: null, rarityColor: null, probability: 1, float: 0.1, wearName: "FT", price: 50 },
+        {
+          name: "M4A4 | Howl",
+          imageUrl: null,
+          rarityColor: null,
+          probability: 1,
+          float: 0.1,
+          wearName: "FT",
+          price: 50,
+        },
       ],
     },
   };
@@ -48,7 +56,9 @@ describe("TradeUpFinderResults", () => {
   afterEach(() => api.restore());
 
   test("loading shows a busy placeholder", async () => {
-    await renderWithRouter(<TradeUpFinderResults finder={{ status: REMOTE_STATUS.loading }} onOpen={() => {}} />);
+    await renderWithRouter(
+      <TradeUpFinderResults finder={{ status: REMOTE_STATUS.loading }} onOpen={() => {}} />,
+    );
     assert.equal(screen.getByRole("status").getAttribute("aria-busy"), "true");
   });
 
@@ -56,7 +66,12 @@ describe("TradeUpFinderResults", () => {
     let retries = 0;
     await renderWithRouter(
       <TradeUpFinderResults
-        finder={{ status: REMOTE_STATUS.error, message: "boom", retry: () => void (retries += 1), retrying: false }}
+        finder={{
+          status: REMOTE_STATUS.error,
+          message: "boom",
+          retry: () => void (retries += 1),
+          retrying: false,
+        }}
         onOpen={() => {}}
       />,
     );
@@ -71,7 +86,9 @@ describe("TradeUpFinderResults", () => {
   });
 
   test("each contract is a collapsed row that expands to show inputs and outcomes", async () => {
-    await renderWithRouter(<TradeUpFinderResults finder={ready([contract("AK-47 | Redline", 5)])} onOpen={() => {}} />);
+    await renderWithRouter(
+      <TradeUpFinderResults finder={ready([contract("AK-47 | Redline", 5)])} onOpen={() => {}} />,
+    );
     const toggle = screen.getByRole("button", { name: new RegExp(TRADEUP_DESIGN.contract) });
     assert.equal(toggle.getAttribute("aria-expanded"), "false");
     await setupUser().click(toggle);
@@ -82,7 +99,9 @@ describe("TradeUpFinderResults", () => {
   test("Open in Trade-up passes the contract back", async () => {
     const opened: TradeUpFinderResult[] = [];
     const found = contract("AK-47 | Redline", 5);
-    await renderWithRouter(<TradeUpFinderResults finder={ready([found])} onOpen={(c) => opened.push(c)} />);
+    await renderWithRouter(
+      <TradeUpFinderResults finder={ready([found])} onOpen={(c) => opened.push(c)} />,
+    );
     const user = setupUser();
     await user.click(screen.getByRole("button", { name: new RegExp(TRADEUP_DESIGN.contract) }));
     await user.click(screen.getByRole("button", { name: TRADEUP_DESIGN.open }));
@@ -96,7 +115,13 @@ describe("TradeUpFinderResults", () => {
         onOpen={() => {}}
       />,
     );
-    await setupUser().type(screen.getByRole("searchbox", { name: COPY.common.searchPlaceholder }), "asiimov");
-    assert.equal(screen.getAllByRole("button", { name: new RegExp(TRADEUP_DESIGN.contract) }).length, 1);
+    await setupUser().type(
+      screen.getByRole("searchbox", { name: COPY.common.searchPlaceholder }),
+      "asiimov",
+    );
+    assert.equal(
+      screen.getAllByRole("button", { name: new RegExp(TRADEUP_DESIGN.contract) }).length,
+      1,
+    );
   });
 });

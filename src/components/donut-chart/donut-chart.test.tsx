@@ -33,7 +33,14 @@ describe("DonutChart", () => {
   });
 
   test("formatValue replaces the money formatting", () => {
-    render(<DonutChart slices={SLICES} currency="USD" totalLabel="Items" formatValue={(v) => `${v} items`} />);
+    render(
+      <DonutChart
+        slices={SLICES}
+        currency="USD"
+        totalLabel="Items"
+        formatValue={(v) => `${v} items`}
+      />,
+    );
     assert.ok(screen.getByText("100 items"));
   });
 

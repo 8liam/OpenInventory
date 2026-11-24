@@ -20,7 +20,10 @@ describe("TradeUpFinderControls", () => {
     );
     assert.ok(screen.getByRole("region", { name: copy.title }));
     assert.ok(screen.getByRole("combobox", { name: copy.statTrakLabel }));
-    assert.equal((screen.getByRole("checkbox", { name: copy.includeStorage }) as HTMLInputElement).checked, false);
+    assert.equal(
+      (screen.getByRole("checkbox", { name: copy.includeStorage }) as HTMLInputElement).checked,
+      false,
+    );
   });
 
   test("toggling the checkbox reports the new value", async () => {
@@ -49,7 +52,9 @@ describe("TradeUpFinderControls", () => {
     );
     const user = setupUser();
     await user.click(screen.getByRole("combobox", { name: copy.statTrakLabel }));
-    const other = screen.getAllByRole("option").find((option) => option.getAttribute("aria-selected") === "false");
+    const other = screen
+      .getAllByRole("option")
+      .find((option) => option.getAttribute("aria-selected") === "false");
     assert.ok(other);
     await user.click(other);
     assert.equal(seen.length, 1);

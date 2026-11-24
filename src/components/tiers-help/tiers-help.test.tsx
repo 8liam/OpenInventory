@@ -46,6 +46,9 @@ describe("TiersHelp", () => {
     const user = setupUser();
     await user.click(screen.getByRole("button", { name: tiersHelp.trigger }));
     await user.click(screen.getByRole("button", { name: "outside" }));
-    assert.equal(screen.getByRole("button", { name: tiersHelp.trigger }).getAttribute("aria-expanded"), "false");
+    assert.equal(
+      screen.getByRole("button", { name: tiersHelp.trigger }).getAttribute("aria-expanded"),
+      "false",
+    );
   });
 });

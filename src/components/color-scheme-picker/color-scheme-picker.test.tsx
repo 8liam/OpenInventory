@@ -12,7 +12,13 @@ if (!PALETTE) throw new Error("no palette");
 
 test("ColorSchemePicker offers every scheme as a radio, the value checked", () => {
   render(
-    <ColorSchemePicker ariaLabel="Colour scheme" value="dark" palette={PALETTE} labels={LABELS} onChange={() => {}} />,
+    <ColorSchemePicker
+      ariaLabel="Colour scheme"
+      value="dark"
+      palette={PALETTE}
+      labels={LABELS}
+      onChange={() => {}}
+    />,
   );
   assert.ok(screen.getByRole("radiogroup", { name: "Colour scheme" }));
   assert.equal(screen.getAllByRole("radio").length, COLOR_SCHEMES.length);
@@ -23,7 +29,13 @@ test("ColorSchemePicker offers every scheme as a radio, the value checked", () =
 test("ColorSchemePicker reports the clicked scheme", async () => {
   const picked: string[] = [];
   render(
-    <ColorSchemePicker ariaLabel="Scheme" value="system" palette={PALETTE} labels={LABELS} onChange={(s) => picked.push(s)} />,
+    <ColorSchemePicker
+      ariaLabel="Scheme"
+      value="system"
+      palette={PALETTE}
+      labels={LABELS}
+      onChange={(s) => picked.push(s)}
+    />,
   );
   await setupUser().click(screen.getByRole("radio", { name: "Light" }));
   assert.deepEqual(picked, ["light"]);

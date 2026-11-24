@@ -5,7 +5,14 @@ import { useAddAccountDialog } from "~/lib/accounts/add-account-dialog.store";
 import { COPY } from "~/lib/copy/copy.config";
 import { AUTH_STATUS, STORAGE_API } from "~/lib/storage/storage.config";
 import type { AppSnapshot } from "~/lib/storage/storage.types";
-import { accountState, appSnapshot, installFakeApi, STEAM_ID_A, STEAM_ID_B, type FakeApi } from "~test/fake-api";
+import {
+  accountState,
+  appSnapshot,
+  installFakeApi,
+  STEAM_ID_A,
+  STEAM_ID_B,
+  type FakeApi,
+} from "~test/fake-api";
 import { act, render, screen, setupUser, waitFor } from "~test/ui";
 import { AddAccountDialog } from "./add-account-dialog.component";
 
@@ -55,10 +62,14 @@ describe("AddAccountDialog", () => {
   test("cancelling mid sign-in also abandons the login on the server", async () => {
     render(<AddAccountDialog />);
     const base = appSnapshot([accountState(STEAM_ID_A)]);
-    await api.push(withLogin(base, { login: { status: AUTH_STATUS.qrPending, qrSvg: "<svg></svg>" } }));
+    await api.push(
+      withLogin(base, { login: { status: AUTH_STATUS.qrPending, qrSvg: "<svg></svg>" } }),
+    );
     await act(async () => useAddAccountDialog.getState().openAdd());
     await setupUser().click(screen.getByRole("button", { name: copy.cancel }));
-    await waitFor(() => assert.ok(api.calls.some((call) => call.path === STORAGE_API.accountLoginCancel)));
+    await waitFor(() =>
+      assert.ok(api.calls.some((call) => call.path === STORAGE_API.accountLoginCancel)),
+    );
   });
 
   test("a finished sign-in closes the dialog and records the outcome", async () => {

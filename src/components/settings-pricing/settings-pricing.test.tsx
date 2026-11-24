@@ -15,7 +15,11 @@ beforeEach(() => {
 
 test("SettingsPricing shows the stored currency and marketplace", () => {
   render(<SettingsPricing />);
-  assert.ok(screen.getByRole("combobox", { name: copy.currency }).textContent?.includes(FALLBACK_SETTINGS.currency));
+  assert.ok(
+    screen
+      .getByRole("combobox", { name: copy.currency })
+      .textContent?.includes(FALLBACK_SETTINGS.currency),
+  );
   assert.ok(screen.getByRole("combobox", { name: copy.marketplace }));
 });
 

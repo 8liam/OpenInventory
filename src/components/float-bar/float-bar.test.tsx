@@ -23,7 +23,9 @@ describe("FloatBar", () => {
   });
 
   test("accepts the skin's own range, or none", () => {
-    const { rerender } = render(<FloatBar value={0.1} minWear={0.06} maxWear={0.8} valueText="x" />);
+    const { rerender } = render(
+      <FloatBar value={0.1} minWear={0.06} maxWear={0.8} valueText="x" />,
+    );
     assert.ok(screen.getByRole("meter"));
     rerender(<FloatBar value={0.1} minWear={null} maxWear={null} valueText="x" />);
     assert.ok(screen.getByRole("meter"));

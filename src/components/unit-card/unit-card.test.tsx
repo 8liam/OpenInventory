@@ -30,11 +30,15 @@ describe("UnitCard", () => {
 
   test("the slot meter reports how full the unit is", () => {
     render(<UnitCard {...props()} />);
-    assert.ok(screen.getByRole("img", { name: UNIT_CARD.labels.slots(2, UNIT_CARD.crate.capacity) }));
+    assert.ok(
+      screen.getByRole("img", { name: UNIT_CARD.labels.slots(2, UNIT_CARD.crate.capacity) }),
+    );
   });
 
   test("a unit that has not loaded shows a dash for its value", () => {
-    render(<UnitCard {...props({ unit: { id: "u1", name: "Unit A", itemCount: 2, loaded: false } })} />);
+    render(
+      <UnitCard {...props({ unit: { id: "u1", name: "Unit A", itemCount: 2, loaded: false } })} />,
+    );
     assert.ok(screen.getAllByText(COPY.common.empty).length >= 1);
   });
 

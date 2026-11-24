@@ -100,7 +100,9 @@ describe("AccountGate", () => {
   });
 
   test("an idle account is asked to connect once", async () => {
-    const idle = accountState(STEAM_ID_A, { snapshot: storageSnapshot({ auth: { status: AUTH_STATUS.idle } }) });
+    const idle = accountState(STEAM_ID_A, {
+      snapshot: storageSnapshot({ auth: { status: AUTH_STATUS.idle } }),
+    });
     await mount("/storage");
     await api.push(appSnapshot([idle]));
     await waitFor(() => assert.equal(api.calls.length, 1));

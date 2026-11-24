@@ -32,7 +32,9 @@ describe("InventoryPrefetch", () => {
     api.respond(STORAGE_API.items, () => ({ body: { items: [] } }));
     render(<InventoryPrefetch />);
     await api.push(appSnapshot([accountState(STEAM_ID_A)]));
-    await waitFor(() => assert.ok(api.calls.some((call) => call.path.startsWith(STORAGE_API.items))));
+    await waitFor(() =>
+      assert.ok(api.calls.some((call) => call.path.startsWith(STORAGE_API.items))),
+    );
     const call = api.calls.find((c) => c.path.startsWith(STORAGE_API.items));
     assert.ok(call?.path.includes(`account=${STEAM_ID_A}`));
   });
@@ -41,7 +43,9 @@ describe("InventoryPrefetch", () => {
     render(<InventoryPrefetch />);
     await api.push(
       appSnapshot([
-        accountState(STEAM_ID_A, { snapshot: storageSnapshot({ auth: { status: AUTH_STATUS.connecting, detail: "x" } }) }),
+        accountState(STEAM_ID_A, {
+          snapshot: storageSnapshot({ auth: { status: AUTH_STATUS.connecting, detail: "x" } }),
+        }),
       ]),
     );
     await new Promise((resolve) => setTimeout(resolve, 50));

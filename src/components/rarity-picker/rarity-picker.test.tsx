@@ -15,21 +15,38 @@ describe("RarityPicker", () => {
     render(<RarityPicker label="Rarity" options={OPTIONS} value="b" onChange={() => {}} />);
     const radios = screen.getAllByRole("radio");
     assert.equal(radios.length, 3);
-    assert.equal(screen.getByRole("radio", { name: "Industrial" }).getAttribute("aria-checked"), "true");
+    assert.equal(
+      screen.getByRole("radio", { name: "Industrial" }).getAttribute("aria-checked"),
+      "true",
+    );
     assert.equal(screen.getByRole("radio", { name: "Industrial" }).getAttribute("tabindex"), "0");
     assert.equal(screen.getByRole("radio", { name: "Consumer" }).getAttribute("tabindex"), "-1");
   });
 
   test("click selects", async () => {
     const picked: string[] = [];
-    render(<RarityPicker label="Rarity" options={OPTIONS} value="a" onChange={(id) => picked.push(id)} />);
+    render(
+      <RarityPicker
+        label="Rarity"
+        options={OPTIONS}
+        value="a"
+        onChange={(id) => picked.push(id)}
+      />,
+    );
     await setupUser().click(screen.getByRole("radio", { name: "Mil-spec" }));
     assert.deepEqual(picked, ["c"]);
   });
 
   test("arrow keys move and wrap the selection", async () => {
     const picked: string[] = [];
-    render(<RarityPicker label="Rarity" options={OPTIONS} value="c" onChange={(id) => picked.push(id)} />);
+    render(
+      <RarityPicker
+        label="Rarity"
+        options={OPTIONS}
+        value="c"
+        onChange={(id) => picked.push(id)}
+      />,
+    );
     const user = setupUser();
     screen.getByRole("radio", { name: "Mil-spec" }).focus();
     await user.keyboard("{ArrowRight}");

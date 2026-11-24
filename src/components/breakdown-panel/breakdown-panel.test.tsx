@@ -35,7 +35,9 @@ describe("BreakdownPanel", () => {
   });
 
   test("a tail of tiny slices is folded into Other", () => {
-    const many = Array.from({ length: BREAKDOWN_PANEL.rowLimit + 3 }, (_, i) => makeSlice(`Type ${i}`, 10 - i * 0.1, 1));
+    const many = Array.from({ length: BREAKDOWN_PANEL.rowLimit + 3 }, (_, i) =>
+      makeSlice(`Type ${i}`, 10 - i * 0.1, 1),
+    );
     render(<BreakdownPanel dashboard={makeDashboard({ byCategory: many })} currency="USD" />);
     assert.ok(screen.getByText(COPY.dashboard.otherLabel));
   });

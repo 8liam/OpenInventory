@@ -47,6 +47,7 @@ describe("ExportItems", () => {
 
   test("with nothing to export both buttons are disabled", () => {
     render(<ExportItems items={[]} currency="USD" />);
-    for (const button of screen.getAllByRole("button")) assert.equal((button as HTMLButtonElement).disabled, true);
+    for (const button of screen.getAllByRole("button"))
+      assert.equal((button as HTMLButtonElement).disabled, true);
   });
 });

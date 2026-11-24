@@ -27,7 +27,9 @@ describe("ChangeLine", () => {
   });
 
   test("renders nothing when every window is unknown", () => {
-    const { container } = render(<ChangeLine currency="USD" change={{ day: null, week: null, month: null }} />);
+    const { container } = render(
+      <ChangeLine currency="USD" change={{ day: null, week: null, month: null }} />,
+    );
     assert.equal(container.textContent, "");
   });
 });

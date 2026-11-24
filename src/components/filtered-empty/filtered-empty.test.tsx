@@ -7,7 +7,12 @@ import { FilteredEmpty } from "./filtered-empty.component";
 test("FilteredEmpty explains and its action fires", async () => {
   let cleared = 0;
   render(
-    <FilteredEmpty title="No match" body="Filters hid all" actionLabel="Clear" onAction={() => void (cleared += 1)} />,
+    <FilteredEmpty
+      title="No match"
+      body="Filters hid all"
+      actionLabel="Clear"
+      onAction={() => void (cleared += 1)}
+    />,
   );
   assert.ok(screen.getByRole("status"));
   assert.ok(screen.getByText("No match"));

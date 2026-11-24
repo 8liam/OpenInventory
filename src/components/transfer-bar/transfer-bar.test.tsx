@@ -25,7 +25,14 @@ describe("TransferBar", () => {
 
   test("is a labelled region with the selection count and a Clear button", async () => {
     let cleared = 0;
-    render(<TransferBar selected={[ITEM]} units={UNITS} busy={false} onClear={() => void (cleared += 1)} />);
+    render(
+      <TransferBar
+        selected={[ITEM]}
+        units={UNITS}
+        busy={false}
+        onClear={() => void (cleared += 1)}
+      />,
+    );
     assert.ok(screen.getByRole("region", { name: TRANSFER_BAR.regionLabel }));
     assert.ok(screen.getByText(TRANSFER_BAR.selectedLabel(1)));
     await setupUser().click(screen.getByRole("button", { name: TRANSFER_BAR.clear }));
@@ -34,11 +41,17 @@ describe("TransferBar", () => {
 
   test("Move stays disabled until a destination is chosen", async () => {
     render(<TransferBar selected={[ITEM]} units={UNITS} busy={false} onClear={() => {}} />);
-    assert.equal((screen.getByRole("button", { name: TRANSFER_BAR.move }) as HTMLButtonElement).disabled, true);
+    assert.equal(
+      (screen.getByRole("button", { name: TRANSFER_BAR.move }) as HTMLButtonElement).disabled,
+      true,
+    );
     const user = setupUser();
     await user.click(screen.getByRole("combobox", { name: TRANSFER_BAR.destination }));
     await user.click(screen.getByRole("option", { name: /Unit A/ }));
-    assert.equal((screen.getByRole("button", { name: TRANSFER_BAR.move }) as HTMLButtonElement).disabled, false);
+    assert.equal(
+      (screen.getByRole("button", { name: TRANSFER_BAR.move }) as HTMLButtonElement).disabled,
+      false,
+    );
   });
 
   test("from the inventory the destinations are the units, not the inventory itself", async () => {
@@ -53,12 +66,22 @@ describe("TransferBar", () => {
     const full = [{ id: "u1", name: "Unit A", itemCount: 1000, loaded: true }];
     render(<TransferBar selected={[ITEM]} units={full} busy={false} onClear={() => {}} />);
     await setupUser().click(screen.getByRole("combobox", { name: TRANSFER_BAR.destination }));
-    assert.equal(screen.getByRole("option", { name: /Unit A/ }).getAttribute("aria-disabled"), "true");
+    assert.equal(
+      screen.getByRole("option", { name: /Unit A/ }).getAttribute("aria-disabled"),
+      "true",
+    );
   });
 
   test("Move asks to confirm, then posts the transfer and clears the selection", async () => {
     let cleared = 0;
-    render(<TransferBar selected={[ITEM]} units={UNITS} busy={false} onClear={() => void (cleared += 1)} />);
+    render(
+      <TransferBar
+        selected={[ITEM]}
+        units={UNITS}
+        busy={false}
+        onClear={() => void (cleared += 1)}
+      />,
+    );
     const user = setupUser();
     await user.click(screen.getByRole("combobox", { name: TRANSFER_BAR.destination }));
     await user.click(screen.getByRole("option", { name: /Unit A/ }));
@@ -89,7 +112,14 @@ describe("TransferBar", () => {
   test("a failed transfer shows the error and keeps the selection", async () => {
     api.respond(STORAGE_API.transfer, () => ({ status: 409, body: { error: "unit full" } }));
     let cleared = 0;
-    render(<TransferBar selected={[ITEM]} units={UNITS} busy={false} onClear={() => void (cleared += 1)} />);
+    render(
+      <TransferBar
+        selected={[ITEM]}
+        units={UNITS}
+        busy={false}
+        onClear={() => void (cleared += 1)}
+      />,
+    );
     const user = setupUser();
     await user.click(screen.getByRole("combobox", { name: TRANSFER_BAR.destination }));
     await user.click(screen.getByRole("option", { name: /Unit A/ }));
@@ -103,7 +133,10 @@ describe("TransferBar", () => {
     const other = makeItem({ id: "i2", locationId: "u1" });
     render(<TransferBar selected={[ITEM, other]} units={UNITS} busy={false} onClear={() => {}} />);
     assert.ok(screen.getByText(TRANSFER_BAR.mixed));
-    assert.equal((screen.getByRole("button", { name: TRANSFER_BAR.move }) as HTMLButtonElement).disabled, true);
+    assert.equal(
+      (screen.getByRole("button", { name: TRANSFER_BAR.move }) as HTMLButtonElement).disabled,
+      true,
+    );
   });
 
   test("items from two accounts cannot be moved together", () => {
@@ -115,6 +148,9 @@ describe("TransferBar", () => {
   test("while another transfer runs the bar says so and cannot move", () => {
     render(<TransferBar selected={[ITEM]} units={UNITS} busy onClear={() => {}} />);
     assert.ok(screen.getByText(TRANSFER_BAR.busy));
-    assert.equal((screen.getByRole("button", { name: TRANSFER_BAR.move }) as HTMLButtonElement).disabled, true);
+    assert.equal(
+      (screen.getByRole("button", { name: TRANSFER_BAR.move }) as HTMLButtonElement).disabled,
+      true,
+    );
   });
 });

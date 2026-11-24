@@ -25,7 +25,12 @@ describe("PortfolioHero", () => {
     const base = makeDashboard();
     const { rerender } = render(<PortfolioHero dashboard={base} currency="USD" />);
     assert.ok(screen.queryByText(copy.charms) === null);
-    rerender(<PortfolioHero dashboard={{ ...base, totals: { ...base.totals, charmsValue: 12 } }} currency="USD" />);
+    rerender(
+      <PortfolioHero
+        dashboard={{ ...base, totals: { ...base.totals, charmsValue: 12 } }}
+        currency="USD"
+      />,
+    );
     assert.ok(screen.getByText(copy.charms));
   });
 

@@ -3,7 +3,15 @@ import assert from "node:assert/strict";
 import { afterEach, beforeEach, describe, test } from "node:test";
 import type { TransferState } from "~/lib/storage/storage.types";
 import { STORAGE_API } from "~/lib/storage/storage.config";
-import { accountState, appSnapshot, installFakeApi, STEAM_ID_A, STEAM_ID_B, storageSnapshot, type FakeApi } from "~test/fake-api";
+import {
+  accountState,
+  appSnapshot,
+  installFakeApi,
+  STEAM_ID_A,
+  STEAM_ID_B,
+  storageSnapshot,
+  type FakeApi,
+} from "~test/fake-api";
 import { render, screen, setupUser, waitFor } from "~test/ui";
 import { TransferStatus } from "./transfer-status.component";
 import { TRANSFER_STATUS } from "./transfer-status.config";
@@ -12,7 +20,14 @@ function withTransfer(id: string, transfer: TransferState, displayName = "Alpha"
   return accountState(id, { displayName, snapshot: storageSnapshot({ transfer }) });
 }
 
-const RUNNING: TransferState = { status: "running", total: 10, done: 4, fromName: "Inventory", toName: "Unit A", plan: null };
+const RUNNING: TransferState = {
+  status: "running",
+  total: 10,
+  done: 4,
+  fromName: "Inventory",
+  toName: "Unit A",
+  plan: null,
+};
 const FINISHED: TransferState = {
   status: "finished",
   total: 10,
@@ -44,7 +59,9 @@ describe("TransferStatus", () => {
     const bar = screen.getByRole("progressbar", { name: TRANSFER_STATUS.progressLabel });
     assert.equal(bar.getAttribute("aria-valuenow"), "4");
     assert.equal(bar.getAttribute("aria-valuemax"), "10");
-    assert.ok(screen.getByText(TRANSFER_STATUS.running(4, 10, "Inventory", "Unit A"), { exact: false }));
+    assert.ok(
+      screen.getByText(TRANSFER_STATUS.running(4, 10, "Inventory", "Unit A"), { exact: false }),
+    );
   });
 
   test("Cancel posts the account and shows that it is stopping", async () => {
@@ -65,7 +82,11 @@ describe("TransferStatus", () => {
   });
 
   test("failures beyond the limit fold into a count", async () => {
-    const many = Array.from({ length: TRANSFER_STATUS.maxFailuresShown + 3 }, (_, i) => ({ itemId: String(i), name: `Item ${i}`, reason: "no" }));
+    const many = Array.from({ length: TRANSFER_STATUS.maxFailuresShown + 3 }, (_, i) => ({
+      itemId: String(i),
+      name: `Item ${i}`,
+      reason: "no",
+    }));
     render(<TransferStatus />);
     await api.push(appSnapshot([withTransfer(STEAM_ID_A, { ...FINISHED, failures: many })]));
     assert.ok(screen.getByText(TRANSFER_STATUS.moreFailures(3)));
@@ -73,14 +94,21 @@ describe("TransferStatus", () => {
 
   test("an organiser plan names its steps", async () => {
     render(<TransferStatus />);
-    await api.push(appSnapshot([withTransfer(STEAM_ID_A, { ...FINISHED, plan: { step: 2, steps: 2 }, failures: [] })]));
+    await api.push(
+      appSnapshot([
+        withTransfer(STEAM_ID_A, { ...FINISHED, plan: { step: 2, steps: 2 }, failures: [] }),
+      ]),
+    );
     assert.ok(screen.getByText(TRANSFER_STATUS.planFinished(8, 10, 2), { exact: false }));
   });
 
   test("each account with a transfer gets its own banner", async () => {
     render(<TransferStatus />);
     await api.push(
-      appSnapshot([withTransfer(STEAM_ID_A, RUNNING, "Alpha"), withTransfer(STEAM_ID_B, RUNNING, "Bravo")]),
+      appSnapshot([
+        withTransfer(STEAM_ID_A, RUNNING, "Alpha"),
+        withTransfer(STEAM_ID_B, RUNNING, "Bravo"),
+      ]),
     );
     assert.equal(screen.getAllByRole("progressbar").length, 2);
   });

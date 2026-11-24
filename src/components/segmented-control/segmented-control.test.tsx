@@ -15,7 +15,10 @@ describe("SegmentedControl", () => {
     render(<SegmentedControl ariaLabel="Mode" value="b" options={OPTIONS} onChange={() => {}} />);
     assert.ok(screen.getByRole("radiogroup", { name: "Mode" }));
     assert.equal(screen.getByRole("radio", { name: "Bravo" }).getAttribute("aria-checked"), "true");
-    assert.equal(screen.getByRole("radio", { name: "Alpha" }).getAttribute("aria-checked"), "false");
+    assert.equal(
+      screen.getByRole("radio", { name: "Alpha" }).getAttribute("aria-checked"),
+      "false",
+    );
   });
 
   test("only the checked radio is in the tab order", () => {
@@ -26,14 +29,28 @@ describe("SegmentedControl", () => {
 
   test("click selects", async () => {
     const picked: string[] = [];
-    render(<SegmentedControl ariaLabel="Mode" value="a" options={OPTIONS} onChange={(id) => picked.push(id)} />);
+    render(
+      <SegmentedControl
+        ariaLabel="Mode"
+        value="a"
+        options={OPTIONS}
+        onChange={(id) => picked.push(id)}
+      />,
+    );
     await setupUser().click(screen.getByRole("radio", { name: "Charlie" }));
     assert.deepEqual(picked, ["c"]);
   });
 
   test("arrow keys move the selection and wrap", async () => {
     const picked: string[] = [];
-    render(<SegmentedControl ariaLabel="Mode" value="c" options={OPTIONS} onChange={(id) => picked.push(id)} />);
+    render(
+      <SegmentedControl
+        ariaLabel="Mode"
+        value="c"
+        options={OPTIONS}
+        onChange={(id) => picked.push(id)}
+      />,
+    );
     const user = setupUser();
     screen.getByRole("radio", { name: "Charlie" }).focus();
     await user.keyboard("{ArrowRight}");

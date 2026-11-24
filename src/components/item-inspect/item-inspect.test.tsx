@@ -14,7 +14,9 @@ describe("ItemInspectButton", () => {
 
   test("an item with a float gets a labelled button", () => {
     render(<ItemInspectButton item={makeItem({ name: "AK-47 | Redline", wear: 0.2 })} />);
-    const button = screen.getByRole("button", { name: `${ITEM_INSPECT.buttonLabel}: AK-47 | Redline` });
+    const button = screen.getByRole("button", {
+      name: `${ITEM_INSPECT.buttonLabel}: AK-47 | Redline`,
+    });
     assert.equal(button.getAttribute("aria-haspopup"), "dialog");
   });
 

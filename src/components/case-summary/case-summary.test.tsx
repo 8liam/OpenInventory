@@ -11,7 +11,11 @@ const stats = COPY.cases.stats;
 
 describe("CaseSummary", () => {
   test("cases show gold counts and cases to first gold, plus StatTrak", () => {
-    render(<CaseSummary stats={makeCaseStats({ kind: "case", gold: 2, casesToFirstGold: 40, statTrak: 10 })} />);
+    render(
+      <CaseSummary
+        stats={makeCaseStats({ kind: "case", gold: 2, casesToFirstGold: 40, statTrak: 10 })}
+      />,
+    );
     assert.ok(screen.getByText(stats.gold));
     assert.ok(screen.getByText(stats.toFirstGold));
     assert.ok(screen.getByText(formatInteger(40)));

@@ -19,7 +19,13 @@ const OUTCOME: TradeUpOutcome = {
 
 describe("TradeUpOutcomes", () => {
   test("lists each possible outcome with its price", () => {
-    render(<TradeUpOutcomes outcomes={[OUTCOME, { ...OUTCOME, name: "AK-47 | Redline", price: null }]} inputCost={20} currency="USD" />);
+    render(
+      <TradeUpOutcomes
+        outcomes={[OUTCOME, { ...OUTCOME, name: "AK-47 | Redline", price: null }]}
+        inputCost={20}
+        currency="USD"
+      />,
+    );
     assert.ok(screen.getByText("Howl"));
     assert.ok(screen.getByText("Redline"));
     assert.ok(screen.getByText(formatMoney(40, "USD")));

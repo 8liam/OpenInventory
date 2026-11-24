@@ -10,7 +10,8 @@ describe("CaseRarityInsights", () => {
   test("lists each rarity with its streak", () => {
     const stats = makeCaseStats();
     render(<CaseRarityInsights stats={stats} />);
-    for (const rarity of stats.caseRarities) assert.ok(screen.getAllByText(rarity.label).length >= 1);
+    for (const rarity of stats.caseRarities)
+      assert.ok(screen.getAllByText(rarity.label).length >= 1);
     assert.ok(screen.getByText(COPY.cases.streaksTitle));
   });
 

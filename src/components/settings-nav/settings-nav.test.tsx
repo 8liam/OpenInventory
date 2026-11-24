@@ -19,7 +19,14 @@ test("SettingsNav marks the current page with aria-current", () => {
 
 test("SettingsNav reports the chosen category", async () => {
   const picked: string[] = [];
-  render(<SettingsNav ariaLabel="Settings" items={ITEMS} value="look" onChange={(id) => picked.push(id)} />);
+  render(
+    <SettingsNav
+      ariaLabel="Settings"
+      items={ITEMS}
+      value="look"
+      onChange={(id) => picked.push(id)}
+    />,
+  );
   await setupUser().click(screen.getByRole("button", { name: "General" }));
   assert.deepEqual(picked, ["general"]);
 });

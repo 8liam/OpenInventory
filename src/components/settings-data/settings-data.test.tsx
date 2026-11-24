@@ -5,7 +5,13 @@ import { COPY } from "~/lib/copy/copy.config";
 import { FALLBACK_SETTINGS } from "~/lib/settings/settings.parse";
 import { useSettings } from "~/lib/settings/settings.store";
 import { STORAGE_API } from "~/lib/storage/storage.config";
-import { accountState, appSnapshot, installFakeApi, STEAM_ID_A, type FakeApi } from "~test/fake-api";
+import {
+  accountState,
+  appSnapshot,
+  installFakeApi,
+  STEAM_ID_A,
+  type FakeApi,
+} from "~test/fake-api";
 import { render, screen, setupUser, waitFor } from "~test/ui";
 import { SettingsData } from "./settings-data.component";
 

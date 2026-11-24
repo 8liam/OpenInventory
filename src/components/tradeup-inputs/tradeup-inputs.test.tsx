@@ -45,7 +45,11 @@ describe("TradeUpInputs", () => {
     const events: string[] = [];
     await renderWithRouter(
       <TradeUpInputs
-        {...props({ selectedIds: new Set(["a"]), onAutoFill: () => events.push("fill"), onClear: () => events.push("clear") })}
+        {...props({
+          selectedIds: new Set(["a"]),
+          onAutoFill: () => events.push("fill"),
+          onClear: () => events.push("clear"),
+        })}
       />,
     );
     const user = setupUser();
@@ -56,8 +60,14 @@ describe("TradeUpInputs", () => {
 
   test("with nothing to pick or clear both buttons are disabled", async () => {
     await renderWithRouter(<TradeUpInputs {...props({ candidates: [] })} />);
-    assert.equal((screen.getByRole("button", { name: copy.autoFill }) as HTMLButtonElement).disabled, true);
-    assert.equal((screen.getByRole("button", { name: copy.clear }) as HTMLButtonElement).disabled, true);
+    assert.equal(
+      (screen.getByRole("button", { name: copy.autoFill }) as HTMLButtonElement).disabled,
+      true,
+    );
+    assert.equal(
+      (screen.getByRole("button", { name: copy.clear }) as HTMLButtonElement).disabled,
+      true,
+    );
   });
 
   test("ticking a candidate toggles it", async () => {
@@ -69,7 +79,11 @@ describe("TradeUpInputs", () => {
 
   test("a selected skin fills a slot that removes it when pressed", async () => {
     const toggled: string[] = [];
-    await renderWithRouter(<TradeUpInputs {...props({ selectedIds: new Set(["a"]), onToggle: (id) => toggled.push(id) })} />);
+    await renderWithRouter(
+      <TradeUpInputs
+        {...props({ selectedIds: new Set(["a"]), onToggle: (id) => toggled.push(id) })}
+      />,
+    );
     await setupUser().click(screen.getByRole("button", { name: new RegExp(copy.remove) }));
     assert.deepEqual(toggled, ["a"]);
   });

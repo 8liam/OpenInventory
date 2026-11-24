@@ -22,7 +22,13 @@ function sync(overrides: Record<string, unknown>): Sync {
 }
 
 function props(overrides: Partial<SyncBannerProps> = {}): SyncBannerProps {
-  return { sync: sync({}), onSync: () => {}, requestPending: false, requestError: null, ...overrides };
+  return {
+    sync: sync({}),
+    onSync: () => {},
+    requestPending: false,
+    requestError: null,
+    ...overrides,
+  };
 }
 
 describe("SyncBanner", () => {
@@ -38,7 +44,10 @@ describe("SyncBanner", () => {
     let syncs = 0;
     render(
       <SyncBanner
-        {...props({ sync: sync({ state: "running", pages: 3, events: 12 }), onSync: () => void (syncs += 1) })}
+        {...props({
+          sync: sync({ state: "running", pages: 3, events: 12 }),
+          onSync: () => void (syncs += 1),
+        })}
       />,
     );
     const button = screen.getByRole("button", { name: copy.syncing });
@@ -67,7 +76,9 @@ describe("SyncBanner", () => {
 
   test("after a sync it shows when, and warns when the history is partial", () => {
     render(
-      <SyncBanner {...props({ sync: sync({ lastSyncAt: Date.UTC(2026, 0, 2), complete: false }) })} />,
+      <SyncBanner
+        {...props({ sync: sync({ lastSyncAt: Date.UTC(2026, 0, 2), complete: false }) })}
+      />,
     );
     assert.ok(screen.getByText(new RegExp(copy.lastSync)));
     assert.ok(screen.getByText(copy.partial));

@@ -46,7 +46,14 @@ describe("ItemGridCard", () => {
   test("a selectable card toggles on click and reports its checked state", async () => {
     let toggles = 0;
     await renderWithRouter(
-      <ItemGridCard {...props({ selectable: true, checked: true, checkboxVisible: true, onToggle: () => void (toggles += 1) })} />,
+      <ItemGridCard
+        {...props({
+          selectable: true,
+          checked: true,
+          checkboxVisible: true,
+          onToggle: () => void (toggles += 1),
+        })}
+      />,
     );
     const cell = screen.getByRole("gridcell");
     assert.equal(cell.getAttribute("aria-selected"), "true");
@@ -57,7 +64,9 @@ describe("ItemGridCard", () => {
   test("the checkbox is labelled and does not double-toggle", async () => {
     let toggles = 0;
     await renderWithRouter(
-      <ItemGridCard {...props({ selectable: true, checkboxVisible: true, onToggle: () => void (toggles += 1) })} />,
+      <ItemGridCard
+        {...props({ selectable: true, checkboxVisible: true, onToggle: () => void (toggles += 1) })}
+      />,
     );
     await setupUser().click(screen.getByRole("checkbox", { name: ITEM_GRID_CARD.selectRowLabel }));
     assert.ok(toggles <= 1);
@@ -74,7 +83,12 @@ describe("ItemGridCard", () => {
     const keys: string[] = [];
     let focused = 0;
     await renderWithRouter(
-      <ItemGridCard {...props({ onKeyDown: (event) => keys.push(event.key), onFocus: () => void (focused += 1) })} />,
+      <ItemGridCard
+        {...props({
+          onKeyDown: (event) => keys.push(event.key),
+          onFocus: () => void (focused += 1),
+        })}
+      />,
     );
     const user = setupUser();
     await user.click(screen.getByRole("gridcell"));

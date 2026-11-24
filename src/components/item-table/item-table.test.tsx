@@ -24,7 +24,9 @@ describe("ItemTable", () => {
   });
 
   test("an item without a price shows a dash", async () => {
-    await renderWithRouter(<ItemTable items={[ITEMS[2] as (typeof ITEMS)[number]]} currency="USD" />);
+    await renderWithRouter(
+      <ItemTable items={[ITEMS[2] as (typeof ITEMS)[number]]} currency="USD" />,
+    );
     assert.ok(screen.getAllByText(COPY.common.empty).length >= 1);
   });
 
@@ -41,7 +43,12 @@ describe("ItemTable", () => {
   test("with a selection handler each row has a checkbox that reports the new set", async () => {
     const seen: ReadonlySet<string>[] = [];
     await renderWithRouter(
-      <ItemTable items={ITEMS} currency="USD" selected={new Set()} onSelectionChange={(next) => seen.push(next)} />,
+      <ItemTable
+        items={ITEMS}
+        currency="USD"
+        selected={new Set()}
+        onSelectionChange={(next) => seen.push(next)}
+      />,
     );
     await setupUser().click(screen.getAllByRole("checkbox")[1] as HTMLElement);
     assert.equal(seen.length, 1);

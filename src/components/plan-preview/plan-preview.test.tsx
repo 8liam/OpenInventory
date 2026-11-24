@@ -10,9 +10,16 @@ import { PLAN_PREVIEW } from "./plan-preview.config";
 
 const UNITS = [{ id: "u1", name: "Unit A", itemCount: 0, loaded: true }];
 const NAMES = new Map(UNITS.map((unit) => [unit.id, unit.name]));
-const RULE: OrganiserRule = { id: "r1", targetUnitId: "u1", conditions: [{ kind: "category", value: "Rifle" }] };
+const RULE: OrganiserRule = {
+  id: "r1",
+  targetUnitId: "u1",
+  conditions: [{ kind: "category", value: "Rifle" }],
+};
 
-function plan(items = [makeItem({ id: "a", category: "Rifle" })], rules: readonly OrganiserRule[] = [RULE]) {
+function plan(
+  items = [makeItem({ id: "a", category: "Rifle" })],
+  rules: readonly OrganiserRule[] = [RULE],
+) {
   return computePlan({ items, units: UNITS, rules });
 }
 

@@ -8,7 +8,9 @@ import { ItemSearch } from "./item-search.component";
 describe("ItemSearch", () => {
   test("is a labelled search box showing the value", () => {
     render(<ItemSearch value="ak" onChange={() => {}} />);
-    const box = screen.getByRole("searchbox", { name: COPY.common.searchPlaceholder }) as HTMLInputElement;
+    const box = screen.getByRole("searchbox", {
+      name: COPY.common.searchPlaceholder,
+    }) as HTMLInputElement;
     assert.equal(box.value, "ak");
   });
 

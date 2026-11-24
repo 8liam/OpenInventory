@@ -4,7 +4,13 @@ import { afterEach, beforeEach, describe, test } from "node:test";
 import { authStatusText } from "~/lib/accounts/account-status";
 import { COPY } from "~/lib/copy/copy.config";
 import { AUTH_STATUS, STORAGE_API } from "~/lib/storage/storage.config";
-import { accountState, installFakeApi, STEAM_ID_A, storageSnapshot, type FakeApi } from "~test/fake-api";
+import {
+  accountState,
+  installFakeApi,
+  STEAM_ID_A,
+  storageSnapshot,
+  type FakeApi,
+} from "~test/fake-api";
 import { render, screen, setupUser, waitFor } from "~test/ui";
 import { AccountRow } from "./account-row.component";
 
@@ -37,7 +43,9 @@ describe("AccountRow", () => {
   });
 
   test("choosing No label clears it", async () => {
-    render(<AccountRow account={accountState(STEAM_ID_A, { label: "main" })} onRemoved={() => {}} />);
+    render(
+      <AccountRow account={accountState(STEAM_ID_A, { label: "main" })} onRemoved={() => {}} />,
+    );
     const user = setupUser();
     await user.click(screen.getByRole("combobox", { name: copy.labelAria("Alpha") }));
     await user.click(screen.getByRole("option", { name: copy.unlabelled }));

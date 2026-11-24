@@ -63,7 +63,10 @@ describe("OrganiserPanel", () => {
     await addRifleRule();
     assert.ok(screen.getByText("type is Rifle → Unit A"));
     assert.ok(screen.queryByText(ORGANISER_PANEL.noRules) === null);
-    assert.equal(screen.getByRole("button", { name: ORGANISER_PANEL.run }).getAttribute("aria-disabled"), "false");
+    assert.equal(
+      screen.getByRole("button", { name: ORGANISER_PANEL.run }).getAttribute("aria-disabled"),
+      "false",
+    );
   });
 
   test("a rule can be removed again", async () => {
@@ -80,7 +83,9 @@ describe("OrganiserPanel", () => {
     const user = setupUser();
     await user.click(screen.getByRole("button", { name: ORGANISER_PANEL.run }));
     assert.equal(api.calls.length, 0);
-    await user.click(screen.getByRole("checkbox", { name: ORGANISER_PANEL.dialog.acknowledgement }));
+    await user.click(
+      screen.getByRole("checkbox", { name: ORGANISER_PANEL.dialog.acknowledgement }),
+    );
     await user.click(screen.getByRole("button", { name: ORGANISER_PANEL.dialog.confirm }));
     await waitFor(() => assert.equal(api.calls.length, 1));
     assert.equal(api.calls[0]?.path, STORAGE_API.transferPlan);

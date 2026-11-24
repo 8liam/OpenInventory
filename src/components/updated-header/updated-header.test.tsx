@@ -13,7 +13,9 @@ describe("UpdatedHeader", () => {
   });
 
   test("with an update time it says when, from which source", () => {
-    render(<UpdatedHeader title="Dashboard" priceUpdatedAt={Date.now() - 3 * 60_000} source="Steam" />);
+    render(
+      <UpdatedHeader title="Dashboard" priceUpdatedAt={Date.now() - 3 * 60_000} source="Steam" />,
+    );
     assert.ok(screen.getByText(/Prices updated .* from Steam/));
   });
 

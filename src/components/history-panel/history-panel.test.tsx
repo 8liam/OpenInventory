@@ -9,19 +9,37 @@ import { HISTORY_PANEL } from "./history-panel.config";
 describe("HistoryPanel", () => {
   test("series pills switch which series is pressed", async () => {
     render(<HistoryPanel history={makeHistory(5)} currency="USD" />);
-    assert.equal(screen.getByRole("button", { name: "Total" }).getAttribute("aria-pressed"), "true");
+    assert.equal(
+      screen.getByRole("button", { name: "Total" }).getAttribute("aria-pressed"),
+      "true",
+    );
     await setupUser().click(screen.getByRole("button", { name: "Inventory" }));
-    assert.equal(screen.getByRole("button", { name: "Inventory" }).getAttribute("aria-pressed"), "true");
-    assert.equal(screen.getByRole("button", { name: "Total" }).getAttribute("aria-pressed"), "false");
+    assert.equal(
+      screen.getByRole("button", { name: "Inventory" }).getAttribute("aria-pressed"),
+      "true",
+    );
+    assert.equal(
+      screen.getByRole("button", { name: "Total" }).getAttribute("aria-pressed"),
+      "false",
+    );
   });
 
   test("a range with too few points is disabled", () => {
     render(<HistoryPanel history={makeHistory(5, Date.now())} currency="USD" />);
     // Points are a day apart, so 1D holds two and 1W holds five: both selectable.
-    assert.equal((screen.getByRole("button", { name: "All time" }) as HTMLButtonElement).disabled, false);
-    const sparse = makeHistory(2, Date.now()).map((point, index) => ({ ...point, takenAt: Date.now() - index * 400 * 86_400_000 }));
+    assert.equal(
+      (screen.getByRole("button", { name: "All time" }) as HTMLButtonElement).disabled,
+      false,
+    );
+    const sparse = makeHistory(2, Date.now()).map((point, index) => ({
+      ...point,
+      takenAt: Date.now() - index * 400 * 86_400_000,
+    }));
     const { unmount } = render(<HistoryPanel history={sparse.reverse()} currency="USD" />);
-    assert.equal((screen.getAllByRole("button", { name: "1D" }).at(-1) as HTMLButtonElement).disabled, true);
+    assert.equal(
+      (screen.getAllByRole("button", { name: "1D" }).at(-1) as HTMLButtonElement).disabled,
+      true,
+    );
     unmount();
   });
 

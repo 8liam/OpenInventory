@@ -44,20 +44,32 @@ describe("LoginOutcome", () => {
 
   test("announces an added account", async () => {
     await mount();
-    await act(async () => useAddAccountDialog.setState({ outcome: { steamId: STEAM_ID_B, added: true, target: undefined } }));
+    await act(async () =>
+      useAddAccountDialog.setState({
+        outcome: { steamId: STEAM_ID_B, added: true, target: undefined },
+      }),
+    );
     assert.equal((await screen.findByRole("status")).textContent, copy.added("Bravo"));
     assert.ok(screen.getByRole("group", { name: copy.added("Bravo") }));
   });
 
   test("announces a re-signed-in account", async () => {
     await mount();
-    await act(async () => useAddAccountDialog.setState({ outcome: { steamId: STEAM_ID_A, added: false, target: STEAM_ID_A } }));
+    await act(async () =>
+      useAddAccountDialog.setState({
+        outcome: { steamId: STEAM_ID_A, added: false, target: STEAM_ID_A },
+      }),
+    );
     assert.equal((await screen.findByRole("status")).textContent, copy.reconnected("Alpha"));
   });
 
   test("warns when a different account signed in than the one being fixed", async () => {
     await mount();
-    await act(async () => useAddAccountDialog.setState({ outcome: { steamId: STEAM_ID_B, added: false, target: STEAM_ID_A } }));
+    await act(async () =>
+      useAddAccountDialog.setState({
+        outcome: { steamId: STEAM_ID_B, added: false, target: STEAM_ID_A },
+      }),
+    );
     assert.equal(
       (await screen.findByRole("status")).textContent,
       copy.otherAccount("Bravo", "Alpha"),
@@ -66,7 +78,11 @@ describe("LoginOutcome", () => {
 
   test("View switches to that account and clears the outcome", async () => {
     await mount();
-    await act(async () => useAddAccountDialog.setState({ outcome: { steamId: STEAM_ID_B, added: true, target: undefined } }));
+    await act(async () =>
+      useAddAccountDialog.setState({
+        outcome: { steamId: STEAM_ID_B, added: true, target: undefined },
+      }),
+    );
     await setupUser().click(await screen.findByRole("button", { name: copy.switchTo("Bravo") }));
     assert.equal(useAccountSelection.getState().selected, STEAM_ID_B);
     assert.equal(useAddAccountDialog.getState().outcome, undefined);
@@ -74,7 +90,11 @@ describe("LoginOutcome", () => {
 
   test("no View button when that account is already shown; Dismiss clears", async () => {
     await mount();
-    await act(async () => useAddAccountDialog.setState({ outcome: { steamId: STEAM_ID_A, added: false, target: STEAM_ID_A } }));
+    await act(async () =>
+      useAddAccountDialog.setState({
+        outcome: { steamId: STEAM_ID_A, added: false, target: STEAM_ID_A },
+      }),
+    );
     assert.ok(screen.queryByRole("button", { name: copy.switchTo("Alpha") }) === null);
     await setupUser().click(await screen.findByRole("button", { name: copy.dismiss }));
     assert.equal(useAddAccountDialog.getState().outcome, undefined);

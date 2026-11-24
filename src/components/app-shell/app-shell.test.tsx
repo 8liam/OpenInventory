@@ -3,7 +3,13 @@ import assert from "node:assert/strict";
 import { afterEach, beforeEach, describe, test } from "node:test";
 import { useAccountSelection } from "~/lib/accounts/account-scope.store";
 import { COPY } from "~/lib/copy/copy.config";
-import { accountState, appSnapshot, installFakeApi, STEAM_ID_A, type FakeApi } from "~test/fake-api";
+import {
+  accountState,
+  appSnapshot,
+  installFakeApi,
+  STEAM_ID_A,
+  type FakeApi,
+} from "~test/fake-api";
 import { renderWithRouter } from "~test/router";
 import { screen, setupUser } from "~test/ui";
 import { AppShell } from "./app-shell.component";

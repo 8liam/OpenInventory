@@ -8,9 +8,22 @@ import { makeItem } from "~test/fixtures";
 import { act, render, screen } from "~test/ui";
 import { TerminalList } from "./terminal-list.component";
 
-const active = makeItem({ id: "a", name: "Terminal | Active", terminal: { isActive: true, expiresAt: Date.now() + 3 * 86_400_000, isFinalOffer: false } });
-const sealed = makeItem({ id: "s", name: "Terminal | Sealed", terminal: { isActive: false, expiresAt: null, isFinalOffer: false } });
-const stored = makeItem({ id: "z", name: "Terminal | Stored", locationId: "unit-1", terminal: { isActive: false, expiresAt: null, isFinalOffer: false } });
+const active = makeItem({
+  id: "a",
+  name: "Terminal | Active",
+  terminal: { isActive: true, expiresAt: Date.now() + 3 * 86_400_000, isFinalOffer: false },
+});
+const sealed = makeItem({
+  id: "s",
+  name: "Terminal | Sealed",
+  terminal: { isActive: false, expiresAt: null, isFinalOffer: false },
+});
+const stored = makeItem({
+  id: "z",
+  name: "Terminal | Stored",
+  locationId: "unit-1",
+  terminal: { isActive: false, expiresAt: null, isFinalOffer: false },
+});
 
 /** Lets the offer request finish so its state update lands inside the test. */
 async function settle(): Promise<void> {
@@ -23,7 +36,9 @@ describe("TerminalList", () => {
   let api: FakeApi;
   beforeEach(() => {
     api = installFakeApi();
-    api.respond(STORAGE_API.terminalOffer, () => ({ body: { offers: [], isFinalOffer: false, currency: "USD" } }));
+    api.respond(STORAGE_API.terminalOffer, () => ({
+      body: { offers: [], isFinalOffer: false, currency: "USD" },
+    }));
   });
   afterEach(() => api.restore());
 

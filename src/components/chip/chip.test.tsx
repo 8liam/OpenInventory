@@ -50,6 +50,9 @@ describe("Chip", () => {
         Tag
       </Chip>,
     );
-    assert.equal((screen.getByRole("button", { name: "Remove tag" }) as HTMLButtonElement).disabled, true);
+    assert.equal(
+      (screen.getByRole("button", { name: "Remove tag" }) as HTMLButtonElement).disabled,
+      true,
+    );
   });
 });

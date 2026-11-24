@@ -6,7 +6,12 @@ import { formatMoney } from "~/utils/format";
 import { render, screen } from "~test/ui";
 import { TradeUpItemTile } from "./tradeup-item-tile.component";
 
-const base = { name: "AK-47 | Redline", imageUrl: null, rarityColor: null, currency: "USD" } as const;
+const base = {
+  name: "AK-47 | Redline",
+  imageUrl: null,
+  rarityColor: null,
+  currency: "USD",
+} as const;
 
 describe("TradeUpItemTile", () => {
   test("shows the item and its price", () => {

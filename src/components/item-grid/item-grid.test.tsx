@@ -32,7 +32,12 @@ describe("ItemGrid", () => {
   test("selecting a card reports the new selection", async () => {
     const seen: ReadonlySet<string>[] = [];
     await renderWithRouter(
-      <ItemGrid items={ITEMS} currency="USD" selected={new Set()} onSelectionChange={(next) => seen.push(next)} />,
+      <ItemGrid
+        items={ITEMS}
+        currency="USD"
+        selected={new Set()}
+        onSelectionChange={(next) => seen.push(next)}
+      />,
     );
     await setupUser().click(screen.getAllByRole("gridcell")[0] as HTMLElement);
     assert.equal(seen.length, 1);
@@ -42,7 +47,12 @@ describe("ItemGrid", () => {
   test("select all picks every item", async () => {
     const seen: ReadonlySet<string>[] = [];
     await renderWithRouter(
-      <ItemGrid items={ITEMS} currency="USD" selected={new Set()} onSelectionChange={(next) => seen.push(next)} />,
+      <ItemGrid
+        items={ITEMS}
+        currency="USD"
+        selected={new Set()}
+        onSelectionChange={(next) => seen.push(next)}
+      />,
     );
     await setupUser().click(screen.getByRole("checkbox", { name: ITEM_GRID.selectAllLabel }));
     assert.equal(seen[0]?.size, ITEMS.length);

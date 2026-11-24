@@ -38,7 +38,11 @@ describe("StaleBanner", () => {
     let refreshed = 0;
     render(<StaleBanner />);
     await act(async () =>
-      markStale(key, { message: "x", lastSuccessAt: Date.now() - 1000, refresh: () => void (refreshed += 1) }),
+      markStale(key, {
+        message: "x",
+        lastSuccessAt: Date.now() - 1000,
+        refresh: () => void (refreshed += 1),
+      }),
     );
     assert.equal(screen.getByRole("status").textContent, STALE_BANNER.refreshFailed);
     await setupUser().click(screen.getByRole("button", { name: STALE_BANNER.retry }));

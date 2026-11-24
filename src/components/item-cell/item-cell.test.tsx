@@ -38,7 +38,10 @@ describe("ItemCell", () => {
     const item = makeItem({ terminal: { isActive: true, expiresAt: null, isFinalOffer: false } });
     await renderWithRouter(<ItemCell item={item} />);
     assert.ok(screen.getAllByText(COPY.terminal.active, { exact: false }).length >= 1);
-    assert.equal(screen.getByRole("link", { name: COPY.terminal.viewOffer }).getAttribute("href"), "/terminals");
+    assert.equal(
+      screen.getByRole("link", { name: COPY.terminal.viewOffer }).getAttribute("href"),
+      "/terminals",
+    );
   });
 
   test("a plain item has no terminal link", async () => {

@@ -24,7 +24,9 @@ describe("OfferPanel", () => {
   afterEach(() => api.restore());
 
   test("asks Steam for the offer of this terminal and account", async () => {
-    api.respond(STORAGE_API.terminalOffer, () => ({ body: { offers: [offer()], isFinalOffer: false, currency: "USD" } }));
+    api.respond(STORAGE_API.terminalOffer, () => ({
+      body: { offers: [offer()], isFinalOffer: false, currency: "USD" },
+    }));
     render(<OfferPanel terminalId="t1" accountId={STEAM_ID_A} />);
     await screen.findByText("Redline");
     assert.ok(api.calls[0]?.path.startsWith(STORAGE_API.terminalOffer));
@@ -32,13 +34,17 @@ describe("OfferPanel", () => {
   });
 
   test("an offer is shown with a Next offer button while more may come", async () => {
-    api.respond(STORAGE_API.terminalOffer, () => ({ body: { offers: [offer()], isFinalOffer: false, currency: "USD" } }));
+    api.respond(STORAGE_API.terminalOffer, () => ({
+      body: { offers: [offer()], isFinalOffer: false, currency: "USD" },
+    }));
     render(<OfferPanel terminalId="t1" accountId={STEAM_ID_A} />);
     assert.ok(await screen.findByRole("button", { name: copy.nextOffer }));
   });
 
   test("the final offer says so and has no Next button", async () => {
-    api.respond(STORAGE_API.terminalOffer, () => ({ body: { offers: [offer()], isFinalOffer: true, currency: "USD" } }));
+    api.respond(STORAGE_API.terminalOffer, () => ({
+      body: { offers: [offer()], isFinalOffer: true, currency: "USD" },
+    }));
     render(<OfferPanel terminalId="t1" accountId={STEAM_ID_A} />);
     assert.ok(await screen.findByText(copy.finalOffer));
     assert.ok(screen.queryByRole("button", { name: copy.nextOffer }) === null);
@@ -51,9 +57,15 @@ describe("OfferPanel", () => {
   });
 
   test("Next offer needs confirmation, then asks for it and remembers the previous one", async () => {
-    api.respond(STORAGE_API.terminalOffer, () => ({ body: { offers: [offer({ price: 10 })], isFinalOffer: false, currency: "USD" } }));
+    api.respond(STORAGE_API.terminalOffer, () => ({
+      body: { offers: [offer({ price: 10 })], isFinalOffer: false, currency: "USD" },
+    }));
     api.respond(STORAGE_API.terminalNextOffer, () => ({
-      body: { offers: [offer({ name: "M4A4 | Howl", price: 99 })], isFinalOffer: true, currency: "USD" },
+      body: {
+        offers: [offer({ name: "M4A4 | Howl", price: 99 })],
+        isFinalOffer: true,
+        currency: "USD",
+      },
     }));
     render(<OfferPanel terminalId="t1" accountId={STEAM_ID_A} />);
     const user = setupUser();
@@ -61,7 +73,9 @@ describe("OfferPanel", () => {
     assert.ok(!api.calls.some((call) => call.path.startsWith(STORAGE_API.terminalNextOffer)));
     await user.click(screen.getByRole("checkbox", { name: copy.nextCheckbox }));
     await user.click(screen.getByRole("button", { name: copy.nextConfirm }));
-    await waitFor(() => assert.ok(api.calls.some((call) => call.path.startsWith(STORAGE_API.terminalNextOffer))));
+    await waitFor(() =>
+      assert.ok(api.calls.some((call) => call.path.startsWith(STORAGE_API.terminalNextOffer))),
+    );
     assert.ok(await screen.findByText("Howl"));
     assert.ok(screen.getByText(copy.earlierOffers));
   });

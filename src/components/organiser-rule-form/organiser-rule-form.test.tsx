@@ -51,7 +51,9 @@ describe("OrganiserRuleForm", () => {
     const user = setupUser();
     await user.click(screen.getByRole("button", { name: RULE_FORM.addCondition }));
     assert.equal(screen.getAllByLabelText(RULE_FORM.valueLabel).length, 2);
-    await user.click(screen.getAllByRole("button", { name: RULE_FORM.removeCondition })[0] as HTMLElement);
+    await user.click(
+      screen.getAllByRole("button", { name: RULE_FORM.removeCondition })[0] as HTMLElement,
+    );
     assert.equal(screen.getAllByLabelText(RULE_FORM.valueLabel).length, 1);
   });
 
@@ -61,6 +63,9 @@ describe("OrganiserRuleForm", () => {
     for (let i = 1; i < ORGANISER_LIMITS.maxConditionsPerRule; i += 1) {
       await user.click(screen.getByRole("button", { name: RULE_FORM.addCondition }));
     }
-    assert.equal((screen.getByRole("button", { name: RULE_FORM.addCondition }) as HTMLButtonElement).disabled, true);
+    assert.equal(
+      (screen.getByRole("button", { name: RULE_FORM.addCondition }) as HTMLButtonElement).disabled,
+      true,
+    );
   });
 });
