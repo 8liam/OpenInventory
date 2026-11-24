@@ -6,6 +6,7 @@ import {
   PERCENT_FRACTION_DIGITS,
   RELATIVE_TIME,
 } from "./format.config.ts";
+import type { MoneyParts } from "./format.types.ts";
 
 const formatters = new Map<string, Intl.NumberFormat>();
 
@@ -20,6 +21,24 @@ function getFormatter(key: string, options: Intl.NumberFormatOptions): Intl.Numb
 
 export function formatMoney(amount: number, currency: string): string {
   return getFormatter(`money:${currency}`, { style: "currency", currency }).format(amount);
+}
+
+/**
+ * Money split for display: the currency sign, the whole units and the fraction (decimal point
+ * included), so a hero figure can step the sign and cents down to muted grey. Joined, the three
+ * parts equal `formatMoney`.
+ */
+export function formatMoneyParts(amount: number, currency: string): MoneyParts {
+  const parts = getFormatter(`money:${currency}`, { style: "currency", currency }).formatToParts(
+    amount,
+  );
+  const result = { sign: "", whole: "", fraction: "" };
+  for (const part of parts) {
+    if (part.type === "currency" || part.type === "minusSign") result.sign += part.value;
+    else if (part.type === "decimal" || part.type === "fraction") result.fraction += part.value;
+    else result.whole += part.value;
+  }
+  return result;
 }
 
 /** Short form for chart axes, e.g. $1.2K. */

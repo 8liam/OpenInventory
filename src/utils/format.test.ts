@@ -9,6 +9,7 @@ import {
   formatFloatExact,
   formatInteger,
   formatMoney,
+  formatMoneyParts,
   formatPercent,
   formatRelativeTime,
   formatSignedMoney,
@@ -23,6 +24,18 @@ test("money formats in the requested currency", () => {
   assert.equal(formatMoney(1234.5, "USD"), "$1,234.50");
   assert.equal(formatMoney(0, "USD"), "$0.00");
   assert.match(formatMoney(10, "EUR"), /€10\.00/);
+});
+
+test("money parts split sign, whole units and fraction, and join back", () => {
+  assert.deepEqual(formatMoneyParts(48213.07, "USD"), {
+    sign: "$",
+    whole: "48,213",
+    fraction: ".07",
+  });
+  const negative = formatMoneyParts(-5, "USD");
+  assert.equal(negative.sign + negative.whole + negative.fraction, formatMoney(-5, "USD"));
+  const yen = formatMoneyParts(1200, "JPY");
+  assert.equal(yen.fraction, "");
 });
 
 test("compact money shortens large amounts", () => {
