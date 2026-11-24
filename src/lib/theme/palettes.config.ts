@@ -1,6 +1,9 @@
 import type { PaletteId, Palette } from "./theme.types.ts";
 import { PALETTE_IDS } from "./theme.config.ts";
 
+const LIGHT_THUMB_BG = "#808080";
+const DARK_THUMB_BG = "#787878";
+
 /*
  * Published colours of each scheme mapped onto the tokens. Where a published colour missed the
  * readability floors in palettes.test.ts (Tokyo Night Day, Nord light, Rosé Pine Dawn,
@@ -13,6 +16,7 @@ export const PALETTES = {
     id: "default",
     name: "Default",
     light: {
+      "thumb-bg": "#8b8b8b",
       background: "#fcfcfd",
       foreground: "#27272a",
       card: "#ffffff",
@@ -33,6 +37,7 @@ export const PALETTES = {
       "skeleton-highlight": "#f6f6f8",
     },
     dark: {
+      "thumb-bg": "#757575",
       background: "#0a0a0a",
       foreground: "#f5f5f5",
       card: "#111111",
@@ -57,6 +62,7 @@ export const PALETTES = {
     id: "catppuccin",
     name: "Catppuccin",
     light: {
+      "thumb-bg": LIGHT_THUMB_BG,
       background: "#eff1f5",
       foreground: "#4c4f69",
       card: "#e6e9ef",
@@ -77,6 +83,7 @@ export const PALETTES = {
       "skeleton-highlight": "#e9ecf2",
     },
     dark: {
+      "thumb-bg": DARK_THUMB_BG,
       background: "#1e1e2e",
       foreground: "#cdd6f4",
       card: "#181825",
@@ -101,6 +108,7 @@ export const PALETTES = {
     id: "tokyo-night",
     name: "Tokyo Night",
     light: {
+      "thumb-bg": LIGHT_THUMB_BG,
       background: "#e1e2e7",
       foreground: "#343b58",
       card: "#e9e9ed",
@@ -121,6 +129,7 @@ export const PALETTES = {
       "skeleton-highlight": "#dcdee6",
     },
     dark: {
+      "thumb-bg": DARK_THUMB_BG,
       background: "#1a1b26",
       foreground: "#c0caf5",
       card: "#16161e",
@@ -145,6 +154,7 @@ export const PALETTES = {
     id: "nord",
     name: "Nord",
     light: {
+      "thumb-bg": LIGHT_THUMB_BG,
       background: "#eceff4",
       foreground: "#2e3440",
       card: "#e5e9f0",
@@ -165,6 +175,7 @@ export const PALETTES = {
       "skeleton-highlight": "#e8ecf2",
     },
     dark: {
+      "thumb-bg": "#949494",
       background: "#2e3440",
       foreground: "#eceff4",
       card: "#3b4252",
@@ -189,6 +200,7 @@ export const PALETTES = {
     id: "dracula",
     name: "Dracula",
     light: {
+      "thumb-bg": LIGHT_THUMB_BG,
       background: "#fffbeb",
       foreground: "#1f1f1f",
       card: "#f6f1dc",
@@ -209,6 +221,7 @@ export const PALETTES = {
       "skeleton-highlight": "#f4efd9",
     },
     dark: {
+      "thumb-bg": DARK_THUMB_BG,
       background: "#282a36",
       foreground: "#f8f8f2",
       card: "#21222c",
@@ -233,6 +246,7 @@ export const PALETTES = {
     id: "gruvbox",
     name: "Gruvbox",
     light: {
+      "thumb-bg": LIGHT_THUMB_BG,
       background: "#fbf1c7",
       foreground: "#3c3836",
       card: "#f2e5bc",
@@ -253,6 +267,7 @@ export const PALETTES = {
       "skeleton-highlight": "#f2e5bc",
     },
     dark: {
+      "thumb-bg": DARK_THUMB_BG,
       background: "#282828",
       foreground: "#ebdbb2",
       card: "#1d2021",
@@ -277,6 +292,7 @@ export const PALETTES = {
     id: "rose-pine",
     name: "Rosé Pine",
     light: {
+      "thumb-bg": LIGHT_THUMB_BG,
       background: "#faf4ed",
       foreground: "#575279",
       card: "#fffaf3",
@@ -297,6 +313,7 @@ export const PALETTES = {
       "skeleton-highlight": "#f6f0ea",
     },
     dark: {
+      "thumb-bg": DARK_THUMB_BG,
       background: "#191724",
       foreground: "#e0def4",
       card: "#1f1d2e",
@@ -321,6 +338,7 @@ export const PALETTES = {
     id: "solarized",
     name: "Solarized",
     light: {
+      "thumb-bg": LIGHT_THUMB_BG,
       background: "#fdf6e3",
       foreground: "#586e75",
       card: "#eee8d5",
@@ -341,6 +359,7 @@ export const PALETTES = {
       "skeleton-highlight": "#f1ead6",
     },
     dark: {
+      "thumb-bg": "#7f7f7f",
       background: "#002b36",
       foreground: "#93a1a1",
       card: "#073642",
@@ -365,6 +384,7 @@ export const PALETTES = {
     id: "github",
     name: "GitHub",
     light: {
+      "thumb-bg": LIGHT_THUMB_BG,
       background: "#ffffff",
       foreground: "#1f2328",
       card: "#f6f8fa",
@@ -385,6 +405,7 @@ export const PALETTES = {
       "skeleton-highlight": "#f3f5f8",
     },
     dark: {
+      "thumb-bg": DARK_THUMB_BG,
       background: "#0d1117",
       foreground: "#e6edf3",
       card: "#151b23",
@@ -409,6 +430,7 @@ export const PALETTES = {
     id: "one",
     name: "One",
     light: {
+      "thumb-bg": LIGHT_THUMB_BG,
       background: "#fafafa",
       foreground: "#383a42",
       card: "#f0f0f1",
@@ -429,6 +451,7 @@ export const PALETTES = {
       "skeleton-highlight": "#f3f3f4",
     },
     dark: {
+      "thumb-bg": DARK_THUMB_BG,
       background: "#282c34",
       foreground: "#abb2bf",
       card: "#21252b",

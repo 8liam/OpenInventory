@@ -1,6 +1,7 @@
 import { ImageOff } from "lucide-react";
 import { Chip } from "~/components/chip/chip.component";
 import { FloatBar } from "~/components/float-bar/float-bar.component";
+import { ItemThumbHalftone } from "~/components/item-thumb/item-thumb.component";
 import { attachedCharmsValue } from "~/lib/items/charm-value";
 import { floatRangeSpan, isOnScale, wearBandFor } from "~/lib/items/float-bar";
 import { formatDateTime, formatFloatExact, formatMoney } from "~/utils/format";
@@ -12,16 +13,13 @@ const { classes, labels } = ITEM_INSPECT_CARD;
 
 /** Everything the app knows about one skin: image, float bar, stickers, charms, price and location. */
 export function ItemInspectCard({ item, currency, now }: ItemInspectCardProps) {
-  const { imageSize, glowPercent, glowFalloff } = ITEM_INSPECT_CARD;
+  const { imageSize } = ITEM_INSPECT_CARD;
   const band = wearBandFor(item.wear);
   const wearName = item.wearName ?? band?.label ?? null;
   const charmsValue = attachedCharmsValue(item);
   const locked = item.tradableAfter !== null && item.tradableAfter > now;
   const wear = isOnScale(item.wear) ? item.wear : null;
   const range = floatRangeSpan(item.minWear, item.maxWear);
-  const glow = item.rarityColor
-    ? `radial-gradient(circle at 50% 55%, color-mix(in srgb, ${item.rarityColor} ${glowPercent}%, transparent), transparent ${glowFalloff}%)`
-    : undefined;
   const hasSeed = item.paintSeed !== null && item.paintSeed !== undefined;
   const hasIndex = item.paintIndex !== null && item.paintIndex !== undefined;
   const facts: readonly Fact[] = [
@@ -49,7 +47,15 @@ export function ItemInspectCard({ item, currency, now }: ItemInspectCardProps) {
 
   return (
     <div className={classes.root}>
-      <div className={classes.hero} style={{ backgroundImage: glow }}>
+      <div className={classes.hero}>
+        <ItemThumbHalftone rarityColor={item.rarityColor} />
+        {item.rarityColor !== null && (
+          <span
+            aria-hidden
+            className={classes.rarityBar}
+            style={{ background: item.rarityColor }}
+          />
+        )}
         {item.imageUrl === null ? (
           <div className={classes.placeholder}>
             <ImageOff size={ITEM_INSPECT_CARD.placeholderIconSize} aria-hidden />

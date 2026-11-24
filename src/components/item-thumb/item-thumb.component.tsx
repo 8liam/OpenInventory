@@ -4,25 +4,38 @@ import { cn } from "~/utils/cn";
 import { ITEM_THUMB } from "./item-thumb.config";
 import type { ItemThumbProps } from "./item-thumb.types";
 
-export function ItemThumb({ imageUrl, rarityColor, size, className }: ItemThumbProps) {
-  const { angle, tintPercent, tintFalloff } = ITEM_THUMB;
+/** Shared one-layer mask. Only the paint colour changes between items. */
+export function ItemThumbHalftone({ rarityColor }: Pick<ItemThumbProps, "rarityColor">) {
+  return (
+    <span
+      aria-hidden
+      className={ITEM_THUMB.classes.halftone}
+      style={{ color: rarityColor ?? undefined }}
+    />
+  );
+}
+
+export function ItemThumb({
+  imageUrl,
+  rarityColor,
+  showRarityBar = true,
+  size,
+  className,
+}: ItemThumbProps) {
   const [loadedUrl, setLoadedUrl] = useState<string>();
   // A URL decoded earlier (or preloaded) shows at once instead of fading in again.
   const loaded = imageUrl !== null && (loadedUrl === imageUrl || isImageLoaded(imageUrl));
   return (
-    <div
-      className={cn(
-        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted",
-        className,
+    <div className={cn(ITEM_THUMB.classes.root, className)} style={{ width: size, height: size }}>
+      <ItemThumbHalftone rarityColor={rarityColor} />
+      {/* Rarity is item data: a 2px key along the bottom edge, never a wash. */}
+      {showRarityBar && rarityColor && (
+        <span
+          aria-hidden
+          className={ITEM_THUMB.classes.rarity}
+          style={{ background: rarityColor }}
+        />
       )}
-      style={{
-        width: size,
-        height: size,
-        backgroundImage: rarityColor
-          ? `linear-gradient(${angle}deg, color-mix(in srgb, ${rarityColor} ${tintPercent}%, transparent), transparent ${tintFalloff}%)`
-          : undefined,
-      }}
-    >
       {imageUrl && !loaded && (
         <span aria-hidden className="skeleton absolute inset-0 rounded-[inherit] opacity-60" />
       )}
@@ -39,10 +52,7 @@ export function ItemThumb({ imageUrl, rarityColor, size, className }: ItemThumbP
             setLoadedUrl(imageUrl);
           }}
           onError={() => setLoadedUrl(imageUrl)}
-          className={cn(
-            "size-full object-contain p-0.5 drop-shadow-sm transition-opacity duration-300",
-            loaded ? "opacity-100" : "opacity-0",
-          )}
+          className={cn(ITEM_THUMB.classes.image, loaded ? "opacity-100" : "opacity-0")}
         />
       )}
     </div>

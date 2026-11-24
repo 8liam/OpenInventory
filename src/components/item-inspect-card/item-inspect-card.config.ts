@@ -1,9 +1,9 @@
+import { ITEM_THUMB_BACKDROP } from "~/components/item-thumb/item-thumb.config";
+
 export const ITEM_INSPECT_CARD = {
   imageSize: 176,
   attachmentSize: 40,
   placeholderIconSize: 28,
-  glowPercent: 38,
-  glowFalloff: 70,
   empty: "—",
   labels: {
     statTrak: "StatTrak",
@@ -28,9 +28,11 @@ export const ITEM_INSPECT_CARD = {
   },
   classes: {
     root: "flex flex-col gap-4 p-4",
-    hero: "relative flex h-48 items-center justify-center overflow-hidden rounded-lg border bg-muted",
-    heroImage: "size-44 max-w-full object-contain drop-shadow-lg",
-    placeholder: "flex flex-col items-center gap-2 text-xs text-muted-foreground",
+    hero: `relative flex h-48 items-center justify-center overflow-hidden rounded-md border ${ITEM_THUMB_BACKDROP}`,
+    /** Rarity is item data: a 2px key at the left edge, never a glow. */
+    rarityBar: "absolute inset-y-3 left-0 w-0.5",
+    heroImage: "size-44 max-w-full object-contain",
+    placeholder: "flex flex-col items-center gap-2 text-xs text-black",
     identity: "flex min-w-0 flex-col gap-2",
     customName: "break-words text-sm text-muted-foreground",
     badges: "flex flex-wrap items-center gap-1.5",

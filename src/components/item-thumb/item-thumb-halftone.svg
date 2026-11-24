@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 96">
+  <defs>
+    <pattern id="small" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r=".65" />
+      <circle cx="6" cy="6" r=".65" />
+    </pattern>
+    <pattern id="medium" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r=".95" />
+      <circle cx="6" cy="6" r=".95" />
+    </pattern>
+    <pattern id="large" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.35" />
+      <circle cx="6" cy="6" r="1.35" />
+    </pattern>
+  </defs>
+  <ellipse cx="90" cy="67" rx="75" ry="59" fill="url(#small)" />
+  <ellipse cx="90" cy="67" rx="56" ry="42" fill="url(#medium)" />
+  <ellipse cx="90" cy="67" rx="36" ry="27" fill="url(#large)" />
+</svg>

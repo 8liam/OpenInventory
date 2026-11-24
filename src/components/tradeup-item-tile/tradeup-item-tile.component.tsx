@@ -24,7 +24,12 @@ export function TradeUpItemTile({
         profit !== null && (positive ? "border-success/30" : "border-destructive/30"),
       )}
     >
-      <ItemThumb imageUrl={imageUrl} rarityColor={null} className="h-20 w-full rounded-none" />
+      <ItemThumb
+        imageUrl={imageUrl}
+        rarityColor={rarityColor}
+        showRarityBar={false}
+        className="h-20 w-full rounded-none"
+      />
       <div
         className="space-y-1 border-t-2 p-2 text-xs"
         style={{ borderTopColor: rarityColor ?? undefined }}

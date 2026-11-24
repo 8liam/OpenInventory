@@ -34,6 +34,16 @@ for (const palette of PALETTE_LIST) {
       assert.ok(muted >= MIN_CONTRAST.mutedText, `${label} muted-foreground ${muted.toFixed(2)}`);
       assert.ok(onPrimary >= MIN_CONTRAST.onPrimary, `${label} primary ${onPrimary.toFixed(2)}`);
     });
+
+    test(`${label} thumbnail stands out against its surfaces`, () => {
+      for (const surface of ["background", "card"] as const) {
+        const ratio = contrastRatio(variant["thumb-bg"], variant[surface]);
+        assert.ok(
+          ratio >= MIN_CONTRAST.thumbnail,
+          `${label} thumb-bg on ${surface} ${ratio.toFixed(2)}`,
+        );
+      }
+    });
   }
 }
 

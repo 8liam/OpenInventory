@@ -3,6 +3,7 @@ export const THEME_TOKENS = [
   "background",
   "foreground",
   "card",
+  "thumb-bg",
   "muted",
   "muted-foreground",
   "border",
@@ -47,6 +48,7 @@ export const THEME_DOM = {
 
 /** Basic readability floors enforced on every palette variant. */
 export const MIN_CONTRAST = {
+  thumbnail: 3,
   text: 4.5,
   mutedText: 3.5,
   onPrimary: 4.5,

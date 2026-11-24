@@ -1,0 +1,14 @@
+.item-thumb-halftone {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  color: var(--thumb-halftone-neutral);
+  background-color: color-mix(
+    in srgb,
+    currentColor var(--thumb-halftone-tint),
+    var(--thumb-halftone-ink)
+  );
+  opacity: 0.9;
+  mask: url("./item-thumb-halftone.svg") right center / auto 100% no-repeat;
+}
