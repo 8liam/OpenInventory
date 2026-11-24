@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { ItemSearch } from "~/components/item-search/item-search.component";
 import { TRADEUP_DESIGN } from "~/lib/tradeup/tradeup-page.config";
 import { Button } from "~/components/button/button.component";
@@ -12,9 +12,9 @@ import { formatFloat, formatMoney } from "~/utils/format";
 import { TRADEUP_INPUTS } from "./tradeup-inputs.config";
 import type { TradeUpInputsProps } from "./tradeup-inputs.types";
 
-const { classes } = TRADEUP_INPUTS;
+const { classes, funnel } = TRADEUP_INPUTS;
 
-/** Input slots on top, then every skin you can add, cheapest first. */
+/** Input slots on top, a funnel down to the outcome, then every skin you can add, cheapest first. */
 export function TradeUpInputs({
   candidates,
   selectedIds,
@@ -46,33 +46,83 @@ export function TradeUpInputs({
         </div>
       }
     >
-      <ul className="mb-3 grid grid-cols-5 gap-2 sm:grid-cols-10">
-        {Array.from({ length: inputCount }, (_, slot) => {
-          const item = selected[slot];
-          return (
-            <li key={slot}>
-              {item ? (
-                <button
-                  className="flex w-full min-w-0 flex-col items-center rounded-lg border p-2 text-xs"
-                  type="button"
-                  title={TRADEUP_INPUTS.slotLabel(item.name, item.rarityName, copy.remove)}
-                  aria-label={TRADEUP_INPUTS.slotLabel(item.name, item.rarityName, copy.remove)}
-                  onClick={() => onToggle(item.id)}
-                >
-                  <ItemThumb
-                    imageUrl={item.imageUrl}
-                    rarityColor={item.rarityColor}
-                    size={TRADEUP_INPUTS.slotSize}
-                  />
-                  <span className="w-full truncate">{item.name}</span>
-                </button>
-              ) : (
-                <span className="block min-h-16 rounded-md border border-dashed" />
-              )}
-            </li>
-          );
-        })}
-      </ul>
+      <div
+        className={classes.visual}
+        style={
+          {
+            maxWidth: `${inputCount * TRADEUP_INPUTS.slotMaxWidthRem}rem`,
+            "--slot-cols": TRADEUP_INPUTS.slotGridColumns(inputCount),
+          } as CSSProperties
+        }
+      >
+        <ul className={classes.slots}>
+          {Array.from({ length: inputCount }, (_, slot) => {
+            const item = selected[slot];
+            return (
+              <li key={slot}>
+                {item ? (
+                  <button
+                    className={cn(classes.slot, classes.slotFilled)}
+                    type="button"
+                    title={TRADEUP_INPUTS.slotLabel(item.name, item.rarityName, copy.remove)}
+                    aria-label={TRADEUP_INPUTS.slotLabel(item.name, item.rarityName, copy.remove)}
+                    onClick={() => onToggle(item.id)}
+                  >
+                    <span aria-hidden className={classes.slotNumber}>
+                      {TRADEUP_INPUTS.slotNumber(slot)}
+                    </span>
+                    {item.rarityColor && (
+                      <span
+                        aria-hidden
+                        className={classes.slotRarity}
+                        style={{ background: item.rarityColor }}
+                      />
+                    )}
+                    <ItemThumb
+                      imageUrl={item.imageUrl}
+                      rarityColor={item.rarityColor}
+                      showRarityBar={false}
+                      size={TRADEUP_INPUTS.slotSize}
+                      className={classes.slotThumb}
+                    />
+                    <span className={classes.slotFloat}>
+                      {item.wear === null ? COPY.common.empty : formatFloat(item.wear)}
+                    </span>
+                    <span className={classes.slotName}>{item.name}</span>
+                  </button>
+                ) : (
+                  <span className={cn(classes.slot, classes.slotEmpty)}>
+                    <span aria-hidden className={classes.slotNumber}>
+                      {TRADEUP_INPUTS.slotNumber(slot)}
+                    </span>
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+        <svg
+          aria-hidden
+          className={classes.funnel}
+          viewBox={`0 0 ${funnel.width} ${funnel.height}`}
+          preserveAspectRatio="none"
+        >
+          {Array.from({ length: inputCount }, (_, slot) => {
+            const x = ((slot + 0.5) / inputCount) * funnel.width;
+            const apex =
+              funnel.width / 2 + ((slot + 0.5) / inputCount - 0.5) * 2 * funnel.apexHalfWidth;
+            return (
+              <path
+                key={slot}
+                d={`M${x} 0 C${x} ${funnel.height / 2} ${apex} ${funnel.height / 2} ${apex} ${funnel.height}`}
+                fill="none"
+                vectorEffect="non-scaling-stroke"
+                className={slot < selected.length ? classes.funnelLineOn : classes.funnelLine}
+              />
+            );
+          })}
+        </svg>
+      </div>
       <ItemSearch value={query} onChange={setQuery} />
       {candidates.length === 0 ? (
         <p className="text-muted-foreground">{copy.noCandidates}</p>
