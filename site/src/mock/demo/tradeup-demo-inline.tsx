@@ -1,5 +1,6 @@
 import { Button } from "~/components/button/button.component";
 import { ItemCell } from "~/components/item-cell/item-cell.component";
+import { ItemInspectButton } from "~/components/item-inspect/item-inspect.component";
 import { Panel } from "~/components/panel/panel.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { cn } from "~/utils/cn";
@@ -37,11 +38,16 @@ export function TradeUpInlineInputs({
           const isSelected = selectedIds.has(item.id);
           const disabled = !isSelected && selected >= inputCount;
           return (
-            <li key={item.id}>
+            <li
+              key={item.id}
+              className={cn(
+                "flex items-center gap-x-3 border-b px-2 last:border-0 hover:bg-muted",
+                isSelected && "bg-muted/60",
+              )}
+            >
               <label
                 className={cn(
-                  "grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 border-b px-2 py-2 last:border-0 hover:bg-muted",
-                  isSelected && "bg-muted/60",
+                  "grid min-w-0 flex-1 cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 py-2",
                   disabled && "cursor-not-allowed opacity-40",
                 )}
               >
@@ -56,6 +62,9 @@ export function TradeUpInlineInputs({
                   {item.price === null ? COPY.common.empty : formatMoney(item.price, currency)}
                 </span>
               </label>
+              <div className="flex w-6 shrink-0">
+                <ItemInspectButton item={item} currency={currency} />
+              </div>
             </li>
           );
         })}

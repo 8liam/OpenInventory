@@ -2,5 +2,5 @@ export const ITEM_INSPECT = {
   iconSize: 14,
   buttonLabel: "Inspect",
   buttonClass:
-    "inline-flex size-6 items-center justify-center rounded-md border bg-background/80 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+    "focus-inset inline-flex size-6 shrink-0 items-center justify-center rounded-md border border-control bg-background text-muted-foreground transition-colors hover:border-accent-ink hover:text-accent-ink",
 } as const;

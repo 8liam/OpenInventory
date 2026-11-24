@@ -3,6 +3,7 @@ import { ItemSearch } from "~/components/item-search/item-search.component";
 import { TRADEUP_DESIGN } from "~/lib/tradeup/tradeup-page.config";
 import { Button } from "~/components/button/button.component";
 import { ItemCell } from "~/components/item-cell/item-cell.component";
+import { ItemInspectButton } from "~/components/item-inspect/item-inspect.component";
 import { ItemThumb } from "~/components/item-thumb/item-thumb.component";
 import { Panel } from "~/components/panel/panel.component";
 import { COPY } from "~/lib/copy/copy.config";
@@ -10,6 +11,8 @@ import { cn } from "~/utils/cn";
 import { formatFloat, formatMoney } from "~/utils/format";
 import { TRADEUP_INPUTS } from "./tradeup-inputs.config";
 import type { TradeUpInputsProps } from "./tradeup-inputs.types";
+
+const { classes } = TRADEUP_INPUTS;
 
 /** Input slots on top, then every skin you can add, cheapest first. */
 export function TradeUpInputs({
@@ -84,13 +87,12 @@ export function TradeUpInputs({
               !isSelected &&
               (full || (lockedStatTrak !== undefined && item.isStatTrak !== lockedStatTrak));
             return (
-              <li key={item.id}>
+              <li
+                key={item.id}
+                className={cn(classes.candidateRow, isSelected && classes.candidateSelected)}
+              >
                 <label
-                  className={cn(
-                    "grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 border-b px-2 py-1.5 hover:bg-muted lg:grid-cols-[auto_minmax(0,1fr)_4rem_7rem_5rem] lg:gap-x-3",
-                    isSelected && "bg-muted/60",
-                    disabled && "cursor-not-allowed opacity-40",
-                  )}
+                  className={cn(classes.candidateLabel, disabled && classes.candidateDisabled)}
                 >
                   <input
                     type="checkbox"
@@ -115,6 +117,9 @@ export function TradeUpInputs({
                     {item.price === null ? COPY.common.empty : formatMoney(item.price, currency)}
                   </span>
                 </label>
+                <div className={classes.candidateInspect}>
+                  <ItemInspectButton item={item} currency={currency} />
+                </div>
               </li>
             );
           })}

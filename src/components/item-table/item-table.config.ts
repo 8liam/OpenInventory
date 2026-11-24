@@ -4,6 +4,7 @@ import type {
   SortState,
 } from "~/components/data-table/data-table.types";
 import { ITEM_SORT_LABEL, ITEM_SORTS } from "~/lib/items/item-sort.config";
+import { ITEM_INSPECT } from "~/components/item-inspect/item-inspect.config";
 
 export const ITEM_TABLE = {
   /**
@@ -16,9 +17,8 @@ export const ITEM_TABLE = {
   detailSeparator: " · ",
   /**
    * Grid tracks, shared by the table and its loading skeleton. Minimums keep prices and floats
-   * whole; when the table can't fit them all, Note hides first, then Type, then Location, then Account.
-   * When even item, float, highlights and price don't fit the table's own width, it switches
-   * to the narrow (compact) tracks: item and price, with the rest under the name.
+   * whole; when the table can't fit them all, Type hides first, then Location, then Account.
+   * Compact rows keep the item, price and inspect action, with the other details under the name.
    */
   columns: {
     item: { wide: { width: "4fr", minWidth: 208 }, narrow: { width: "minmax(0, 1fr)" } },
@@ -29,6 +29,15 @@ export const ITEM_TABLE = {
     highlights: { width: "0.7fr", minWidth: 76 },
     price: { wide: { width: "0.9fr", minWidth: 96 }, narrow: { width: "92px" } },
   } satisfies Record<string, FittableColumn | { wide: FittableColumn; narrow: FittableColumn }>,
+  inspectColumn: {
+    id: "inspect",
+    header: ITEM_INSPECT.buttonLabel,
+    hideHeader: true,
+    align: "right",
+    width: "24px",
+    minWidth: 24,
+  },
+  inspectClass: "flex justify-end",
   /** The compact table's sort menu, standing in for the Float and Highlights headers. */
   sortOptions: ITEM_SORTS.map(({ id, label, triggerLabel, field, direction }) => ({
     id,
