@@ -1,6 +1,6 @@
 .item-thumb-halftone {
   --thumb-screen-min-size: 72px;
-  --thumb-dot-opacity: 0.7;
+  --thumb-dot-opacity: 0.5;
   --thumb-neutral: light-dark(#6b6b6b, #818181);
 
   position: absolute;
