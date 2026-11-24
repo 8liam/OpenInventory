@@ -56,8 +56,8 @@ type WindowRecord = Record<string, unknown>;
 export const OBSERVED_SIZE = { width: 1280, height: 800 } as const;
 
 class NoopObserver {
-  observe(): void {}
-  unobserve(): void {}
+  observe(_target?: unknown): void {}
+  unobserve(_target?: unknown): void {}
   disconnect(): void {}
   takeRecords(): readonly unknown[] {
     return [];
@@ -112,17 +112,18 @@ export function installDom(): Window {
     writable: true,
   });
   // happy-dom has no layout engine; the app reads these for measuring, so give them inert stand-ins.
-  win.ResizeObserver = FixedSizeResizeObserver as never;
-  win.IntersectionObserver ??= NoopObserver as never;
-  target["ResizeObserver"] = win.ResizeObserver;
-  target["IntersectionObserver"] = win.IntersectionObserver;
+  target["ResizeObserver"] = FixedSizeResizeObserver;
+  target["IntersectionObserver"] = NoopObserver;
   for (const [name, value] of [
     ["offsetWidth", OBSERVED_SIZE.width],
     ["clientWidth", OBSERVED_SIZE.width],
     ["offsetHeight", OBSERVED_SIZE.height],
     ["clientHeight", OBSERVED_SIZE.height],
   ] as const) {
-    Object.defineProperty(win.HTMLElement.prototype, name, { configurable: true, get: () => value });
+    Object.defineProperty(win.HTMLElement.prototype, name, {
+      configurable: true,
+      get: () => value,
+    });
   }
   win.HTMLElement.prototype.scrollIntoView = function scrollIntoView(): void {};
   return win;

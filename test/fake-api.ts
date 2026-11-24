@@ -116,10 +116,7 @@ export function storageSnapshot(overrides: Partial<StorageSnapshot> = {}): Stora
   };
 }
 
-export function accountState(
-  steamId: string,
-  overrides: Partial<AccountState> = {},
-): AccountState {
+export function accountState(steamId: string, overrides: Partial<AccountState> = {}): AccountState {
   return {
     steamId,
     label: null,

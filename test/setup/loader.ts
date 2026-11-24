@@ -20,7 +20,8 @@ function isFile(path: string): boolean {
 function withExtension(path: string): string | undefined {
   if (isFile(path)) return path;
   for (const ext of EXTENSIONS) if (isFile(path + ext)) return path + ext;
-  for (const ext of EXTENSIONS) if (isFile(resolvePath(path, `index${ext}`))) return resolvePath(path, `index${ext}`);
+  for (const ext of EXTENSIONS)
+    if (isFile(resolvePath(path, `index${ext}`))) return resolvePath(path, `index${ext}`);
   return undefined;
 }
 
