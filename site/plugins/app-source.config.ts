@@ -85,36 +85,4 @@ export const APP_PATCHES: readonly AppPatch[] = [
     file: "components/page-header/page-header.component.tsx",
     replacements: [{ from: "id={PAGE_HEADER.headingId} ", to: "" }],
   },
-  // Contrast and hover feedback on already-active controls.
-  {
-    file: "components/pill/pill.component.tsx",
-    replacements: [
-      {
-        from: '"border-foreground bg-foreground text-background"',
-        to: '"border-foreground bg-foreground text-background hover:bg-foreground/85"',
-      },
-    ],
-  },
-  {
-    file: "components/breakdown-panel/breakdown-panel.component.tsx",
-    replacements: [
-      {
-        from: '"rounded px-2 py-1 text-xs text-muted-foreground transition-colors"',
-        to: '"rounded px-2 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground"',
-      },
-      {
-        from: 'active === tab.key && "bg-card font-medium text-foreground shadow-sm"',
-        to: 'active === tab.key && "bg-card font-medium text-foreground shadow-sm hover:bg-accent"',
-      },
-    ],
-  },
-  {
-    file: "components/unit-card/unit-card.component.tsx",
-    replacements: [
-      {
-        from: 'className="absolute inset-0 rounded-lg"',
-        to: 'className="absolute inset-0 rounded-lg transition-colors hover:bg-foreground/5"',
-      },
-    ],
-  },
 ];
