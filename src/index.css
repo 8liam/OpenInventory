@@ -9,8 +9,11 @@
 @custom-variant desktop-mac (&:where([data-desktop="mac"] *));
 
 /*
- * Design tokens. Values follow T3 Code's neutral palette: near-black canvas,
- * 6% white hairlines, one green primary. Light theme mirrors it on zinc.
+ * Design tokens. Dark-first printed spec sheet: monotone greys, one lime accent (#a0ff69 on
+ * #0a0a0a), colour otherwise only for status. Depth comes from surface steps and 1px hairlines,
+ * never shadows or gradients. The palette tokens below are first-paint defaults; applyTheme
+ * rewrites them from palettes.config.ts. Derived tokens further down reference them, so every
+ * colour scheme picks them up.
  */
 :root,
 [data-theme="light"] {
@@ -26,10 +29,14 @@
   --input: #d4d4d8;
   --accent: #a0ff69;
   --accent-foreground: #0a0a0a;
-  /* The accent as text or an icon on the background; the bright green is unreadable on white. */
-  --accent-strong: #3f8f17;
-  --primary: #357a12;
-  --primary-foreground: #ffffff;
+  /* Lime pulled to OKLCH L 0.50 at hue 136: accent text, strokes and focus on light (5.63:1). */
+  --accent-strong: #3a7310;
+  --control-border: #8a8a93;
+  /* Lime is 1.2:1 on light, so every lime fill carries a 1px ink edge. */
+  --accent-edge: #3a7310;
+  --primary: #a0ff69;
+  --primary-foreground: #0a0a0a;
+  --primary-edge: #3a7310;
   --success: #047857;
   --destructive: #b91c1c;
   /* Behind white text on solid destructive buttons; --destructive is tuned for text instead. */
@@ -54,8 +61,11 @@
   --accent: #a0ff69;
   --accent-foreground: #0a0a0a;
   --accent-strong: #a0ff69;
+  --control-border: #636363;
+  --accent-edge: transparent;
   --primary: #a0ff69;
   --primary-foreground: #0a0a0a;
+  --primary-edge: transparent;
   --success: #10b981;
   --destructive: #f87171;
   --destructive-solid: #dc2626;
@@ -64,31 +74,69 @@
   --skeleton-highlight: rgb(255 255 255 / 0.1);
 }
 
+/* Derived from the palette tokens, so they follow the colour scheme picker. */
+:root {
+  /* Accent as a line or letter: text, strokes, chart marks, the focus ring. */
+  --accent-ink: var(--accent-strong);
+  /* Frames: a step above the decorative hairline. */
+  --border-strong: color-mix(in srgb, var(--foreground) 12%, transparent);
+  /* Grey steps for data (wear zones, donut slices, stored slots), lightest share last. */
+  --fill-1: var(--foreground);
+  --fill-2: color-mix(in srgb, var(--foreground) 61%, var(--background));
+  --fill-3: color-mix(in srgb, var(--foreground) 35%, var(--background));
+  --fill-4: color-mix(in srgb, var(--foreground) 20%, var(--background));
+  --fill-5: color-mix(in srgb, var(--foreground) 12%, var(--background));
+  --slot-empty: color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+
+[data-theme="light"] {
+  --border-strong: var(--input);
+  --fill-2: color-mix(in srgb, var(--foreground) 65%, var(--background));
+  --fill-3: color-mix(in srgb, var(--foreground) 43%, var(--background));
+  --fill-4: color-mix(in srgb, var(--foreground) 19%, var(--background));
+  --fill-5: color-mix(in srgb, var(--foreground) 8%, var(--background));
+  --slot-empty: var(--border);
+}
+
 @theme inline {
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  /* Prices read like a ledger: serif, lining, tabular. Mono stays for floats, ids and counts. */
+  --font-display: ui-serif, "New York", "Iowan Old Style", Charter, Georgia, serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-control: var(--control-border);
   --color-input: var(--input);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-strong: var(--accent-strong);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-edge: var(--accent-edge);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-edge: var(--primary-edge);
   --color-success: var(--success);
   --color-destructive: var(--destructive);
   --color-destructive-solid: var(--destructive-solid);
-  /* Hovered solid buttons darken, so their white text only gains contrast. */
+  /* Hovered solid buttons darken, so their dark or white text only gains contrast. */
   --color-primary-hover: color-mix(in oklab, var(--primary) 88%, black);
   --color-destructive-solid-hover: color-mix(in oklab, var(--destructive-solid) 88%, black);
   --color-warning: var(--warning);
-  --radius-lg: 0.625rem;
-  --radius-md: 0.5rem;
-  --radius-sm: 0.375rem;
+  --color-fill-1: var(--fill-1);
+  --color-fill-2: var(--fill-2);
+  --color-fill-3: var(--fill-3);
+  --color-fill-4: var(--fill-4);
+  --color-fill-5: var(--fill-5);
+  --color-slot-empty: var(--slot-empty);
+  --radius-xl: 0.5rem;
+  --radius-lg: 0.5rem;
+  --radius-md: 0.375rem;
+  --radius-sm: 0.25rem;
 }
 
 html,
@@ -114,29 +162,76 @@ body {
   }
 }
 
-input[type="checkbox"] {
-  accent-color: var(--accent);
+/* Native checkboxes and radios take the ink, which clears 3:1 on both themes. */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--accent-ink);
 }
 
-/* Keyboard focus is an accent border instead of the browser's outline. */
+/* Keyboard focus: a 2px accent-ink ring, offset so it never sits on a lime fill. */
 :focus-visible {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 1px var(--primary);
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 2px;
+}
+
+/* Inside clipping containers (rows, lists, strips) the ring sits on the inside edge. */
+.focus-inset:focus-visible {
+  outline-offset: -2px;
 }
 
 /* For controls whose container already shows focus (e.g. a dropdown's own search box). */
 .no-focus-ring:focus-visible {
-  border-color: revert-layer;
-  box-shadow: none;
+  outline: none;
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--primary) 30%, transparent);
+  background: var(--accent);
+  color: var(--accent-foreground);
 }
 
 .tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/* Big money figures: serif, lining, tabular. */
+.figure {
+  font-family: var(--font-display);
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+/* Small caps-style section labels: the spec sheet's kicker. */
+.kicker {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+/* The live dot: the accent's one status. Blinks in two steps, still under reduced motion. */
+@keyframes live-blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.live-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent-edge);
+  animation: live-blink 1600ms steps(2, jump-none) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-dot {
+    animation: none;
+  }
 }
 
 /* iOS zooms into focused inputs below 16px. */
@@ -148,22 +243,16 @@ input[type="checkbox"] {
   }
 }
 
-/* Placeholder blocks shown while data loads: a soft highlight sweeping across. */
-@keyframes skeleton-shimmer {
-  to {
-    background-position-x: -200%;
+/* Placeholder blocks shown while data loads: a flat block that pulses in opacity only. */
+@keyframes skeleton-fade {
+  50% {
+    opacity: 0.45;
   }
 }
 
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--skeleton) 30%,
-    var(--skeleton-highlight) 50%,
-    var(--skeleton) 70%
-  );
-  background-size: 200% 100%;
-  animation: skeleton-shimmer 1.6s linear infinite;
+  background: var(--skeleton);
+  animation: skeleton-fade 1.4s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -186,6 +275,27 @@ input[type="checkbox"] {
 @media (prefers-reduced-motion: reduce) {
   .skeleton-ring {
     animation: none;
+  }
+}
+
+/* Transfer conveyor: one tile rides the belt from the left dock to the right, then the next. */
+@keyframes belt-ride {
+  from {
+    left: -2.5rem;
+  }
+  to {
+    left: 100%;
+  }
+}
+
+.belt-tile {
+  animation: belt-ride 1.4s cubic-bezier(0.2, 0, 0, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .belt-tile {
+    animation: none;
+    left: calc(50% - 1.25rem);
   }
 }
 

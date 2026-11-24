@@ -57,6 +57,16 @@ for (const palette of PALETTE_LIST) {
       assert.ok(text >= MIN_CONTRAST.text, `${label} foreground ${text.toFixed(2)}`);
       assert.ok(muted >= MIN_CONTRAST.mutedText, `${label} muted-foreground ${muted.toFixed(2)}`);
       assert.ok(onPrimary >= MIN_CONTRAST.onPrimary, `${label} primary ${onPrimary.toFixed(2)}`);
+      // accent-strong is the accent as text, strokes and focus (--accent-ink), so it needs text contrast.
+      const ink = contrastRatio(variant["accent-strong"], variant.background);
+      assert.ok(ink >= MIN_CONTRAST.text, `${label} accent-strong ${ink.toFixed(2)}`);
+      for (const surface of ["background", "card"] as const) {
+        const control = contrastRatio(variant["control-border"], variant[surface]);
+        assert.ok(
+          control >= MIN_CONTRAST.control,
+          `${label} control-border on ${surface} ${control.toFixed(2)}`,
+        );
+      }
     });
 
     test(`${label} rarity dots stand out against their tinted tile`, () => {
