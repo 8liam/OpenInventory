@@ -18,10 +18,8 @@
   --background: #fcfcfd;
   --foreground: #27272a;
   --card: #ffffff;
-  --thumb-bg: #8b8b8b;
-  --thumb-halftone-neutral: #505050;
-  --thumb-halftone-ink: #171717;
-  --thumb-halftone-tint: 82%;
+  --thumb-base-tint: 12%;
+  --thumb-dot-tint: 65%;
   --muted: #f4f4f5;
   --muted-foreground: #6b6b74;
   --border: #e4e4e7;
@@ -46,10 +44,9 @@
   --background: #0a0a0a;
   --foreground: #f5f5f5;
   --card: #111111;
-  --thumb-bg: #757575;
-  --thumb-halftone-neutral: #a3a3a3;
-  --thumb-halftone-ink: #eeeeee;
-  --thumb-halftone-tint: 67%;
+  --thumb-base-tint: 18%;
+  --thumb-dot-tint: 100%;
+  --thumb-art-tone: contrast(0.82) brightness(1.13);
   --muted: rgb(255 255 255 / 0.03);
   --muted-foreground: #818181;
   --border: rgb(255 255 255 / 0.06);

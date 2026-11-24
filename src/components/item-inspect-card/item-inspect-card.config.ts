@@ -32,7 +32,8 @@ export const ITEM_INSPECT_CARD = {
     /** Rarity is item data: a 2px key at the left edge, never a glow. */
     rarityBar: "absolute inset-y-3 left-0 w-0.5",
     heroImage: "size-44 max-w-full object-contain",
-    placeholder: "flex flex-col items-center gap-2 text-xs text-black",
+    placeholder:
+      "flex flex-col items-center gap-2 rounded-sm bg-card px-2 py-1 text-xs text-foreground",
     identity: "flex min-w-0 flex-col gap-2",
     customName: "break-words text-sm text-muted-foreground",
     badges: "flex flex-wrap items-center gap-1.5",

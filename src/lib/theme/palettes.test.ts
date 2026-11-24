@@ -1,10 +1,34 @@
 /* oxlint-disable typescript/no-floating-promises -- node:test registers suites synchronously */
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { contrastRatio } from "../../utils/contrast.ts";
+import { contrastRatio, parseColor } from "../../utils/contrast.ts";
+import { TRADE_UP } from "../storage/storage.config.ts";
 import { PALETTE_LIST, PALETTES } from "./palettes.config.ts";
 import { MIN_CONTRAST, PALETTE_IDS, RESOLVED_SCHEMES, THEME_TOKENS } from "./theme.config.ts";
 import { getPalette, pickVariant, resolveColorScheme } from "./theme.ts";
+
+const appCss = readFileSync(new URL("../../index.css", import.meta.url), "utf8");
+const thumbnailRarities = [...Object.values(TRADE_UP.rarityColors), "#e4ae39"];
+const minimumDotContrast = 1.8;
+
+function thumbnailTint(scheme: "light" | "dark", token: "base" | "dot"): number {
+  const theme = appCss.match(new RegExp(`\\[data-theme="${scheme}"\\]\\s*\\{([^}]+)\\}`))?.[1];
+  const percent = theme?.match(new RegExp(`--thumb-${token}-tint:\\s*(\\d+)%`))?.[1];
+  assert.ok(percent, `${scheme} thumbnail ${token} tint is missing`);
+  return Number(percent) / 100;
+}
+
+function mixSrgb(first: string, second: string, weight: number): string {
+  const background = parseColor(second);
+  const channels = parseColor(first).map((channel, index) => {
+    const mixed = channel * weight + (background[index] ?? 0) * (1 - weight);
+    return Math.round(mixed * 255)
+      .toString(16)
+      .padStart(2, "0");
+  });
+  return `#${channels.join("")}`;
+}
 
 test("every palette id has a registry entry with a matching id and a name", () => {
   assert.equal(PALETTE_LIST.length, PALETTE_IDS.length);
@@ -35,12 +59,17 @@ for (const palette of PALETTE_LIST) {
       assert.ok(onPrimary >= MIN_CONTRAST.onPrimary, `${label} primary ${onPrimary.toFixed(2)}`);
     });
 
-    test(`${label} thumbnail stands out against its surfaces`, () => {
-      for (const surface of ["background", "card"] as const) {
-        const ratio = contrastRatio(variant["thumb-bg"], variant[surface]);
+    test(`${label} rarity dots stand out against their tinted tile`, () => {
+      const baseTint = thumbnailTint(scheme, "base");
+      const dotTint = thumbnailTint(scheme, "dot");
+      for (const rarity of thumbnailRarities) {
+        const tile = mixSrgb(rarity, variant.card, baseTint);
+        const dot = mixSrgb(rarity, "#000000", dotTint);
+        const ratio = contrastRatio(dot, tile);
+        assert.notEqual(tile, variant.card, `${label} tile must carry the ${rarity} tint`);
         assert.ok(
-          ratio >= MIN_CONTRAST.thumbnail,
-          `${label} thumb-bg on ${surface} ${ratio.toFixed(2)}`,
+          ratio >= minimumDotContrast,
+          `${label} ${rarity} dot on ${tile} ${ratio.toFixed(2)}`,
         );
       }
     });

@@ -49,10 +49,9 @@
   --background: #0a0a0a;
   --foreground: #f5f5f5;
   --card: color-mix(in srgb, #0a0a0a 97%, white);
-  --thumb-bg: #757575;
-  --thumb-halftone-neutral: #a3a3a3;
-  --thumb-halftone-ink: #eeeeee;
-  --thumb-halftone-tint: 67%;
+  --thumb-base-tint: 18%;
+  --thumb-dot-tint: 100%;
+  --thumb-art-tone: contrast(0.82) brightness(1.13);
   --muted: rgb(255 255 255 / 0.03);
   --muted-foreground: #8d8d8d;
   --border: rgb(255 255 255 / 0.08);

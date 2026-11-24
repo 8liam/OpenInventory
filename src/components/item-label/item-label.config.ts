@@ -1,4 +1,5 @@
 export const ITEM_LABEL = {
+  compactThumbClass: "max-sm:size-8!",
   nameSeparator: " | ",
   /**
    * How the skin name fits: `single` truncates to one line (fixed-height wide table rows),

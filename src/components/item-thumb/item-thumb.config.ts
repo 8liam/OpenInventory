@@ -1,5 +1,5 @@
 /** Shared by thumbnails and the larger inspect stage. */
-export const ITEM_THUMB_BACKDROP = "isolate bg-(--thumb-bg)";
+export const ITEM_THUMB_BACKDROP = "isolate bg-card";
 
 export const ITEM_THUMB = {
   classes: {

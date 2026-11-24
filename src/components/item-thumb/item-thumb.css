@@ -1,14 +1,24 @@
 .item-thumb-halftone {
+  --thumb-screen-min-size: 72px;
+  --thumb-neutral: light-dark(#6b6b6b, #818181);
+
   position: absolute;
   z-index: -1;
   inset: 0;
   pointer-events: none;
-  color: var(--thumb-halftone-neutral);
-  background-color: color-mix(
-    in srgb,
-    currentColor var(--thumb-halftone-tint),
-    var(--thumb-halftone-ink)
-  );
-  opacity: 0.9;
-  mask: url("./item-thumb-halftone.svg") right center / auto 100% no-repeat;
+  color: var(--thumb-neutral);
+  background-color: color-mix(in srgb, currentColor var(--thumb-base-tint), var(--card));
+}
+
+.item-thumb-halftone::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background-color: color-mix(in srgb, currentColor var(--thumb-dot-tint), black);
+  mask: url("./item-thumb-halftone.svg") center / max(var(--thumb-screen-min-size), 100%)
+    max(var(--thumb-screen-min-size), 100%) no-repeat;
+}
+
+.item-thumb-halftone ~ img {
+  filter: var(--thumb-art-tone, none);
 }
