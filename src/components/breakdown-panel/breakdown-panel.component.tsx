@@ -15,7 +15,9 @@ export function BreakdownPanel({
   headingLevel = 2,
 }: BreakdownPanelProps) {
   const [active, setActive] = useState<BreakdownKey>(BREAKDOWN_PANEL.defaultTab);
-  const slices = colorSlices(dashboard[active], COPY.dashboard.otherLabel);
+  const [highlight, setHighlight] = useState<string>();
+  const scheme = BREAKDOWN_PANEL.tabs.find((tab) => tab.key === active)?.scheme;
+  const slices = colorSlices(dashboard[active], COPY.dashboard.otherLabel, scheme);
   const Heading = `h${headingLevel}` as const;
   return (
     <section className={cn(BREAKDOWN_PANEL.classes.section, className)}>
@@ -28,7 +30,10 @@ export function BreakdownPanel({
               role="tab"
               type="button"
               aria-selected={active === tab.key}
-              onClick={() => setActive(tab.key)}
+              onClick={() => {
+                setActive(tab.key);
+                setHighlight(undefined);
+              }}
               className={cn(
                 BREAKDOWN_PANEL.classes.tab,
                 active === tab.key && BREAKDOWN_PANEL.classes.tabActive,
@@ -39,9 +44,21 @@ export function BreakdownPanel({
           ))}
         </div>
       </header>
-      <DonutChart slices={slices} currency={currency} totalLabel={COPY.dashboard.totalValue} />
+      <DonutChart
+        slices={slices}
+        currency={currency}
+        totalLabel={COPY.dashboard.totalValue}
+        activeLabel={highlight}
+        onActiveChange={setHighlight}
+      />
       <div className="mt-5">
-        <BarList slices={slices} currency={currency} limit={slices.length} />
+        <BarList
+          slices={slices}
+          currency={currency}
+          limit={slices.length}
+          activeLabel={highlight}
+          onActiveChange={setHighlight}
+        />
       </div>
     </section>
   );

@@ -1,15 +1,21 @@
+import { CHART_PALETTE } from "~/lib/theme/chart-palette.config";
+
 export const BREAKDOWN_PANEL = {
+  /**
+   * Each tab picks how its slices are coloured: categorical hues for Type and Location, CS2's own
+   * rarity colours for Rarity, and a one-hue ramp from Factory New to Battle-Scarred for Wear.
+   */
   tabs: [
-    { key: "byCategory", label: "Type" },
-    { key: "byRarity", label: "Rarity" },
-    { key: "byWear", label: "Wear" },
-    { key: "byLocation", label: "Location" },
+    { key: "byCategory", label: "Type", scheme: "categorical" },
+    { key: "byRarity", label: "Rarity", scheme: "rarity" },
+    { key: "byWear", label: "Wear", scheme: "wear" },
+    { key: "byLocation", label: "Location", scheme: "categorical" },
   ],
   defaultTab: "byCategory",
   rowLimit: 8,
-  otherColor: "var(--fill-5)",
-  /** Grey steps used in order when the data supplies no colour (everything except rarity). */
-  palette: ["var(--fill-1)", "var(--fill-2)", "var(--fill-3)", "var(--fill-4)", "var(--fill-5)"],
+  /** The folded tail has no category of its own, so it stays neutral. */
+  otherColor: CHART_PALETTE.neutral,
+  defaultScheme: "categorical",
   classes: {
     section: "rounded-lg border bg-card p-4",
     header: "mb-4 flex flex-wrap items-center justify-between gap-3",

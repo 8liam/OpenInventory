@@ -31,3 +31,28 @@ test("colorSlices keeps a colour the slice already has", () => {
   const out = colorSlices([makeSlice("A", 1, 1, "#123456")], "Other");
   assert.equal(out[0]?.color, "#123456");
 });
+
+test("colorSlices folds a slice the data already calls Other into the one Other row", () => {
+  const out = colorSlices(
+    [makeSlice("A", 5), makeSlice("Other", 2, 3), makeSlice("B", 1)],
+    "Other",
+  );
+  assert.deepEqual(
+    out.map((s) => s.label),
+    ["A", "B", "Other"],
+  );
+  assert.equal(out[2]?.value, 2);
+  assert.equal(out[2]?.count, 3);
+});
+
+test("colorSlices gives the wear ramp in Factory New to Battle-Scarred order", () => {
+  const out = colorSlices(
+    [makeSlice("Field-Tested", 5), makeSlice("Factory New", 1)],
+    "Other",
+    "wear",
+  );
+  assert.deepEqual(
+    out.map((s) => s.color),
+    ["var(--wear-3)", "var(--wear-1)"],
+  );
+});
