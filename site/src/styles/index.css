@@ -65,32 +65,11 @@
 
 /* The vendored app: tokens scoped to its frame, plus a small reset (Tailwind's preflight stays off). */
 .oi-app {
+  /* Palette and chart colours come from the app's own config: see src/lib/app-tokens. */
   color-scheme: dark;
-  /* The app's default dark palette (src/lib/theme/palettes.config.ts). */
-  --background: #0a0a0a;
-  --foreground: #f5f5f5;
-  --card: #111111;
   --thumb-base-tint: 18%;
   --thumb-dot-tint: 100%;
   --thumb-art-tone: contrast(0.82) brightness(1.13);
-  --muted: rgb(255 255 255 / 0.03);
-  --muted-foreground: #818181;
-  --border: rgb(255 255 255 / 0.06);
-  --input: rgb(255 255 255 / 0.08);
-  --accent: #a0ff69;
-  --accent-foreground: #0a0a0a;
-  --accent-strong: #a0ff69;
-  --control-border: #636363;
-  --accent-edge: transparent;
-  --primary-edge: transparent;
-  --primary: #a0ff69;
-  --primary-foreground: #0a0a0a;
-  --success: #10b981;
-  --destructive: #f87171;
-  --destructive-solid: #dc2626;
-  --warning: #fbbf24;
-  --skeleton: rgb(255 255 255 / 0.06);
-  --skeleton-highlight: rgb(255 255 255 / 0.1);
   /* Derived exactly as the app's src/index.css derives them. */
   --accent-ink: var(--accent-strong);
   --border-strong: color-mix(in srgb, var(--foreground) 12%, transparent);
@@ -100,20 +79,6 @@
   --fill-4: color-mix(in srgb, var(--foreground) 20%, var(--background));
   --fill-5: color-mix(in srgb, var(--foreground) 12%, var(--background));
   --slot-empty: color-mix(in srgb, var(--foreground) 10%, transparent);
-  /* Data-visualisation palette, dark values from the app's src/index.css. */
-  --chart-1: #87bafd;
-  --chart-2: #c97409;
-  --chart-3: #2bd2c2;
-  --chart-4: #d8559b;
-  --chart-5: #b385fb;
-  --chart-6: #f3c935;
-  --chart-7: #0f99c9;
-  --chart-8: #fd968f;
-  --wear-1: #b5e2fd;
-  --wear-2: #74ccfe;
-  --wear-3: #33b4f2;
-  --wear-4: #109bd5;
-  --wear-5: #0481b3;
 }
 
 /* The landing's global `button { border: 0 }` (layer site) resets border colour to currentColor and outranks the app reset below; restore the app's token. */
