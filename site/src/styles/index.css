@@ -34,10 +34,15 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-success: var(--success);
   --color-destructive: var(--destructive);
+  --color-destructive-solid: var(--destructive-solid);
+  /* Hovered solid buttons darken, so their dark or white text only gains contrast. */
+  --color-primary-hover: color-mix(in oklab, var(--primary) 88%, black);
+  --color-destructive-solid-hover: color-mix(in oklab, var(--destructive-solid) 88%, black);
   --color-warning: var(--warning);
   /* Tokens the app's spec-sheet components use; values sit on .oi-app below. */
   --color-accent-foreground: var(--accent-foreground);
@@ -60,51 +65,20 @@
 
 /* The vendored app: tokens scoped to its frame, plus a small reset (Tailwind's preflight stays off). */
 .oi-app {
+  /* Palette and chart colours come from the app's own config: see src/lib/app-tokens. */
   color-scheme: dark;
-  --background: #0a0a0a;
-  --foreground: #f5f5f5;
-  --card: color-mix(in srgb, #0a0a0a 97%, white);
   --thumb-base-tint: 18%;
   --thumb-dot-tint: 100%;
   --thumb-art-tone: contrast(0.82) brightness(1.13);
-  --muted: rgb(255 255 255 / 0.03);
-  --muted-foreground: #8d8d8d;
-  --border: rgb(255 255 255 / 0.08);
-  --input: rgb(255 255 255 / 0.1);
-  --accent: rgb(255 255 255 / 0.04);
-  --primary: oklch(57.1% 0.21 264);
-  --primary-foreground: #ffffff;
-  --success: #10b981;
-  --destructive: #f87171;
-  --warning: #fbbf24;
-  --skeleton: rgb(255 255 255 / 0.06);
-  --skeleton-highlight: rgb(255 255 255 / 0.1);
-  --accent-foreground: var(--foreground);
-  --accent-ink: var(--primary);
-  --accent-edge: transparent;
-  --primary-edge: transparent;
-  --border-strong: rgb(255 255 255 / 0.12);
-  --control-border: #636363;
-  --fill-1: #f5f5f5;
-  --fill-2: #9a9a9a;
-  --fill-3: #5c5c5c;
-  --fill-4: #3a3a3a;
-  --fill-5: #262626;
-  --slot-empty: rgb(255 255 255 / 0.1);
-  /* Data-visualisation palette, dark values from the app's src/index.css. */
-  --chart-1: #87bafd;
-  --chart-2: #c97409;
-  --chart-3: #2bd2c2;
-  --chart-4: #d8559b;
-  --chart-5: #b385fb;
-  --chart-6: #f3c935;
-  --chart-7: #0f99c9;
-  --chart-8: #fd968f;
-  --wear-1: #b5e2fd;
-  --wear-2: #74ccfe;
-  --wear-3: #33b4f2;
-  --wear-4: #109bd5;
-  --wear-5: #0481b3;
+  /* Derived exactly as the app's src/index.css derives them. */
+  --accent-ink: var(--accent-strong);
+  --border-strong: color-mix(in srgb, var(--foreground) 12%, transparent);
+  --fill-1: var(--foreground);
+  --fill-2: color-mix(in srgb, var(--foreground) 61%, var(--background));
+  --fill-3: color-mix(in srgb, var(--foreground) 35%, var(--background));
+  --fill-4: color-mix(in srgb, var(--foreground) 20%, var(--background));
+  --fill-5: color-mix(in srgb, var(--foreground) 12%, var(--background));
+  --slot-empty: color-mix(in srgb, var(--foreground) 10%, transparent);
 }
 
 /* The landing's global `button { border: 0 }` (layer site) resets border colour to currentColor and outranks the app reset below; restore the app's token. */
@@ -207,9 +181,16 @@
     outline-offset: -2px;
   }
   .oi-app :focus-visible {
-    outline: 2px solid var(--primary);
+    outline: 2px solid var(--accent-ink);
     outline-offset: 2px;
     border-radius: 4px;
+  }
+  .oi-app .no-focus-ring:focus-visible {
+    outline: none;
+  }
+  .oi-app input[type="checkbox"],
+  .oi-app input[type="radio"] {
+    accent-color: var(--accent-ink);
   }
 }
 

@@ -131,7 +131,7 @@
   letter-spacing: 0.02em;
 }
 
-/* ── Shared: the app's own UI vocabulary, rebuilt with tokens (Tailwind never scans this folder, and the vendored .oi-app scope would paint the primary blue, so the app's measurements are copied here and its primary maps to the lime accent) ── */
+/* ── Shared: the app's own UI vocabulary, rebuilt with tokens (Tailwind never scans this folder, so the app's measurements are copied here and its primary maps to the lime accent) ── */
 .bento__ui {
   --ui-fg: var(--c-fg);
   --ui-muted: #8d8d8d;

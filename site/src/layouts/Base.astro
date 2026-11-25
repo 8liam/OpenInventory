@@ -1,6 +1,7 @@
 ---
 import Analytics from '@vercel/analytics/astro';
 import { site } from '../data/site.config';
+import { appTokenCss } from '../lib/app-tokens/app-tokens';
 import '../styles/index.css';
 
 interface Props { title?: string; description?: string; noindex?: boolean }
@@ -35,6 +36,7 @@ const jsonLd = {
     {noindex && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content={site.themeColor} />
     <meta name="color-scheme" content="dark" />
+    <style is:inline set:html={appTokenCss()} />
     <link rel="icon" href="/logo.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="sitemap" href="/sitemap-index.xml" />

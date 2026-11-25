@@ -38,7 +38,7 @@ export default function StorageDemo() {
     <div className="oi-app flex h-[640px] flex-col gap-3 p-4">
       <PageHeader title={copy.title} description={copy.description} />
       <div className="flex min-h-0 flex-1 flex-col gap-3 md:flex-row">
-        <div className="flex shrink-0 gap-2 overflow-hidden md:w-60 md:flex-col">
+        <div className="flex shrink-0 gap-2 overflow-hidden md:w-72 md:flex-col">
           {units.map((unit) => (
             <UnitCard
               key={unit.id}
