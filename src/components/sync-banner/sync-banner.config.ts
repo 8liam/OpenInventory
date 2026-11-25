@@ -4,7 +4,7 @@ export const SYNC_BANNER = {
   busyClass: "opacity-60",
   spinClass: "motion-safe:animate-spin",
   classes: {
-    root: "flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card px-4 py-3",
+    root: "flex flex-wrap items-center justify-between gap-3 border-y border-border-strong py-3",
     status: "min-w-0 text-xs text-muted-foreground",
     progress: "tabular",
     error: "text-destructive",

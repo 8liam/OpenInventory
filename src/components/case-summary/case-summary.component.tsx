@@ -1,7 +1,10 @@
 import { STATTRAK_KINDS } from "~/lib/cases/cases.config";
 import { COPY } from "~/lib/copy/copy.config";
 import { formatDate, formatInteger } from "~/utils/format";
+import { CASE_SUMMARY } from "./case-summary.config";
 import type { CaseSummaryProps } from "./case-summary.types";
+
+const { classes } = CASE_SUMMARY;
 
 /** Headline counter for the selected kind, plus the stats that make sense for it. */
 export function CaseSummary({ stats }: CaseSummaryProps) {
@@ -24,19 +27,17 @@ export function CaseSummary({ stats }: CaseSummaryProps) {
     ? [...base, { label: copy.stats.statTrak, value: count(stats.statTrak) }]
     : base;
   return (
-    <section className="rounded-xl border bg-card">
-      <div className="flex flex-col gap-6 p-5 md:flex-row md:items-end md:justify-between md:p-6">
-        <div>
-          <p className="text-xs text-muted-foreground">{copy.kinds[stats.kind].headline}</p>
-          <p className="tabular mt-1 text-[40px] font-semibold leading-none tracking-tight md:text-5xl">
-            {formatInteger(stats.total)}
-          </p>
+    <section className={classes.root}>
+      <div className={classes.top}>
+        <div className="min-w-0">
+          <p className="kicker">{copy.kinds[stats.kind].headline}</p>
+          <p className={classes.figure}>{formatInteger(stats.total)}</p>
         </div>
-        <dl className="grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-4">
+        <dl className={classes.stats}>
           {tiles.map((tile) => (
-            <div key={tile.label}>
-              <dt className="text-xs text-muted-foreground">{tile.label}</dt>
-              <dd className="tabular mt-1 text-base font-medium">{tile.value}</dd>
+            <div key={tile.label} className="contents">
+              <dt className={classes.statLabel}>{tile.label}</dt>
+              <dd className={classes.statValue}>{tile.value}</dd>
             </div>
           ))}
         </dl>

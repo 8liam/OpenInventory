@@ -2,6 +2,7 @@
 @layer theme, base, site, utilities;
 
 @import "./tokens.css";
+@import "../../../src/components/item-thumb/item-thumb.css" layer(site);
 @import "./base.css" layer(site);
 /* One CSS file per section component; each is owned by exactly one component. */
 @import "./sections/header.css" layer(site);
@@ -24,6 +25,7 @@
 @theme inline {
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-display: ui-serif, "New York", "Iowan Old Style", Charter, Georgia, serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -37,9 +39,23 @@
   --color-success: var(--success);
   --color-destructive: var(--destructive);
   --color-warning: var(--warning);
-  --radius-lg: 0.625rem;
-  --radius-md: 0.5rem;
-  --radius-sm: 0.375rem;
+  /* Tokens the app's spec-sheet components use; values sit on .oi-app below. */
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-edge: var(--accent-edge);
+  --color-primary-edge: var(--primary-edge);
+  --color-border-strong: var(--border-strong);
+  --color-control: var(--control-border);
+  --color-fill-1: var(--fill-1);
+  --color-fill-2: var(--fill-2);
+  --color-fill-3: var(--fill-3);
+  --color-fill-4: var(--fill-4);
+  --color-fill-5: var(--fill-5);
+  --color-slot-empty: var(--slot-empty);
+  --radius-xl: 0.5rem;
+  --radius-lg: 0.5rem;
+  --radius-md: 0.375rem;
+  --radius-sm: 0.25rem;
 }
 
 /* The vendored app: tokens scoped to its frame, plus a small reset (Tailwind's preflight stays off). */
@@ -48,6 +64,9 @@
   --background: #0a0a0a;
   --foreground: #f5f5f5;
   --card: color-mix(in srgb, #0a0a0a 97%, white);
+  --thumb-base-tint: 18%;
+  --thumb-dot-tint: 100%;
+  --thumb-art-tone: contrast(0.82) brightness(1.13);
   --muted: rgb(255 255 255 / 0.03);
   --muted-foreground: #8d8d8d;
   --border: rgb(255 255 255 / 0.08);
@@ -60,6 +79,32 @@
   --warning: #fbbf24;
   --skeleton: rgb(255 255 255 / 0.06);
   --skeleton-highlight: rgb(255 255 255 / 0.1);
+  --accent-foreground: var(--foreground);
+  --accent-ink: var(--primary);
+  --accent-edge: transparent;
+  --primary-edge: transparent;
+  --border-strong: rgb(255 255 255 / 0.12);
+  --control-border: #636363;
+  --fill-1: #f5f5f5;
+  --fill-2: #9a9a9a;
+  --fill-3: #5c5c5c;
+  --fill-4: #3a3a3a;
+  --fill-5: #262626;
+  --slot-empty: rgb(255 255 255 / 0.1);
+  /* Data-visualisation palette, dark values from the app's src/index.css. */
+  --chart-1: #87bafd;
+  --chart-2: #c97409;
+  --chart-3: #2bd2c2;
+  --chart-4: #d8559b;
+  --chart-5: #b385fb;
+  --chart-6: #f3c935;
+  --chart-7: #0f99c9;
+  --chart-8: #fd968f;
+  --wear-1: #b5e2fd;
+  --wear-2: #74ccfe;
+  --wear-3: #33b4f2;
+  --wear-4: #109bd5;
+  --wear-5: #0481b3;
 }
 
 /* The landing's global `button { border: 0 }` (layer site) resets border colour to currentColor and outranks the app reset below; restore the app's token. */
@@ -132,6 +177,34 @@
   }
   .oi-app .tabular {
     font-variant-numeric: tabular-nums;
+  }
+  /* Spec-sheet helpers from the app's src/index.css. */
+  .oi-app .figure {
+    font-family: ui-serif, "New York", "Iowan Old Style", Charter, Georgia, serif;
+    font-variant-numeric: lining-nums tabular-nums;
+    font-weight: 400;
+    letter-spacing: -0.03em;
+  }
+  .oi-app .kicker {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+  .oi-app .live-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--primary);
+  }
+  .oi-app .belt-tile {
+    left: calc(50% - 1.25rem);
+  }
+  .oi-app .focus-inset:focus-visible {
+    outline-offset: -2px;
   }
   .oi-app :focus-visible {
     outline: 2px solid var(--primary);

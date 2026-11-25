@@ -39,7 +39,7 @@ export function TradeUpFinderControls({
           type="checkbox"
           checked={includeStorage}
           onChange={(event) => onIncludeStorageChange(event.target.checked)}
-          className="size-4 accent-primary"
+          className="size-4 accent-accent-ink"
         />
         {copy.includeStorage}
       </label>

@@ -10,6 +10,12 @@ export const THEME_TOKENS = [
   "accent",
   "accent-foreground",
   "accent-strong",
+  /** Edges of inputs, tracks and checkboxes; at least 3:1 against the card and the page. */
+  "control-border",
+  /** A 1px line round accent fills where the fill alone is too faint against the page. */
+  "accent-edge",
+  /** The same edge for primary buttons. */
+  "primary-edge",
   "primary",
   "primary-foreground",
   "success",
@@ -50,4 +56,6 @@ export const MIN_CONTRAST = {
   text: 4.5,
   mutedText: 3.5,
   onPrimary: 4.5,
+  /** Non-text contrast (WCAG 1.4.11) for control edges. */
+  control: 3,
 } as const;

@@ -1,9 +1,12 @@
 import {
+  FLOAT_EXACT_MAX_FRACTION_DIGITS,
+  FLOAT_EXACT_MAX_SIGNIFICANT_DIGITS,
   FLOAT_FRACTION_DIGITS,
   FORMAT_LOCALE,
   PERCENT_FRACTION_DIGITS,
   RELATIVE_TIME,
 } from "./format.config.ts";
+import type { MoneyParts } from "./format.types.ts";
 
 const formatters = new Map<string, Intl.NumberFormat>();
 
@@ -18,6 +21,24 @@ function getFormatter(key: string, options: Intl.NumberFormatOptions): Intl.Numb
 
 export function formatMoney(amount: number, currency: string): string {
   return getFormatter(`money:${currency}`, { style: "currency", currency }).format(amount);
+}
+
+/**
+ * Money split for display: the currency sign, the whole units and the fraction (decimal point
+ * included), so a hero figure can step the sign and cents down to muted grey. Joined, the three
+ * parts equal `formatMoney`.
+ */
+export function formatMoneyParts(amount: number, currency: string): MoneyParts {
+  const parts = getFormatter(`money:${currency}`, { style: "currency", currency }).formatToParts(
+    amount,
+  );
+  const result = { sign: "", whole: "", fraction: "" };
+  for (const part of parts) {
+    if (part.type === "currency" || part.type === "minusSign") result.sign += part.value;
+    else if (part.type === "decimal" || part.type === "fraction") result.fraction += part.value;
+    else result.whole += part.value;
+  }
+  return result;
 }
 
 /** Short form for chart axes, e.g. $1.2K. */
@@ -66,6 +87,31 @@ export function formatFloat(value: number): string {
   return getFormatter("float", {
     minimumFractionDigits: FLOAT_FRACTION_DIGITS,
     maximumFractionDigits: FLOAT_FRACTION_DIGITS,
+  }).format(value);
+}
+
+/** Fraction digits of the shortest decimal that parses back to the same 32-bit float. */
+function exactFractionDigits(value: number): number {
+  if (!Number.isFinite(value) || value === 0) return FLOAT_FRACTION_DIGITS;
+  const target = Math.fround(value);
+  for (let digits = 1; digits <= FLOAT_EXACT_MAX_SIGNIFICANT_DIGITS; digits++) {
+    const candidate = Number(value.toPrecision(digits));
+    if (Math.fround(candidate) !== target) continue;
+    const exponent = Math.floor(Math.log10(Math.abs(candidate)));
+    return Math.min(
+      FLOAT_EXACT_MAX_FRACTION_DIGITS,
+      Math.max(FLOAT_FRACTION_DIGITS, digits - 1 - exponent),
+    );
+  }
+  return FLOAT_EXACT_MAX_FRACTION_DIGITS;
+}
+
+/** The shortest decimal that identifies a 32-bit float, never fewer than the plain float's digits. */
+export function formatFloatExact(value: number): string {
+  const digits = exactFractionDigits(value);
+  return getFormatter(`float-exact:${digits}`, {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
   }).format(value);
 }
 

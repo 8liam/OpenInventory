@@ -5,13 +5,15 @@ const HEX_SHORT_LENGTH = 3;
 const HEX_RADIX = 16;
 const PERCENT = 100;
 
-function toLinear(channel: number): number {
+/** sRGB channel (0..1) to linear light. */
+export function toLinear(channel: number): number {
   return channel <= SRGB.linearThreshold
     ? channel / SRGB.linearDivisor
     : ((channel + SRGB.gammaOffset) / SRGB.gammaDivisor) ** SRGB.gammaExponent;
 }
 
-function fromLinear(channel: number): number {
+/** Linear light to an sRGB channel (0..1), clamped to the gamut. */
+export function fromLinear(channel: number): number {
   const clamped = Math.min(1, Math.max(0, channel));
   return clamped <= SRGB.linearThreshold / SRGB.linearDivisor
     ? clamped * SRGB.linearDivisor

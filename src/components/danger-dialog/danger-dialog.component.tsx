@@ -63,10 +63,10 @@ export function DangerDialog({
       onClose={reset}
       onCancel={(event) => working && event.preventDefault()}
     >
-      <div className="flex flex-col gap-3 p-5">
+      <div className={DANGER_DIALOG.bodyClass}>
         <div className="flex items-center gap-2 text-destructive">
           <TriangleAlert size={DANGER_DIALOG.iconSize} aria-hidden />
-          <h2 id={titleId} className="font-semibold">
+          <h2 id={titleId} className="text-base font-semibold text-foreground">
             {title}
           </h2>
         </div>
@@ -92,23 +92,23 @@ export function DangerDialog({
             {error}
           </p>
         )}
-        <div className="flex justify-end gap-2">
-          <Button disabled={working} onClick={() => dialog.current?.close()}>
-            {cancelLabel}
-          </Button>
-          <Button
-            variant="destructive"
-            disabled={!acknowledged}
-            aria-disabled={working}
-            className={working ? "cursor-wait opacity-50" : undefined}
-            onClick={confirm}
-          >
-            {working ? workingLabel : confirmLabel}
-          </Button>
-          <span role="status" className="sr-only">
-            {working ? workingLabel : ""}
-          </span>
-        </div>
+      </div>
+      <div className={DANGER_DIALOG.footerClass}>
+        <Button disabled={working} onClick={() => dialog.current?.close()}>
+          {cancelLabel}
+        </Button>
+        <Button
+          variant="destructive"
+          disabled={!acknowledged}
+          aria-disabled={working}
+          className={working ? "cursor-wait opacity-50" : undefined}
+          onClick={confirm}
+        >
+          {working ? workingLabel : confirmLabel}
+        </Button>
+        <span role="status" className="sr-only">
+          {working ? workingLabel : ""}
+        </span>
       </div>
     </dialog>
   );

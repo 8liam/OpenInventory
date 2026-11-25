@@ -5,6 +5,7 @@ import type { DataTableColumn, DataTableCompact } from "~/components/data-table/
 import { HighlightDisclosure } from "~/components/highlight-disclosure/highlight-disclosure.component";
 import { ItemCell } from "~/components/item-cell/item-cell.component";
 import { ITEM_CELL } from "~/components/item-cell/item-cell.config";
+import { ItemInspectButton } from "~/components/item-inspect/item-inspect.component";
 import { COPY } from "~/lib/copy/copy.config";
 import { attachedCharmsValue } from "~/lib/items/charm-value";
 import { itemRowKey } from "~/lib/items/item-key";
@@ -30,6 +31,12 @@ export function ItemTable({
 }: ItemTableProps) {
   const { columns, compact } = useMemo(() => {
     const sizes = ITEM_TABLE.columns;
+    const inspect: DataTableColumn<ItemView> = {
+      ...ITEM_TABLE.inspectColumn,
+      cell: (r) => (
+        <ItemInspectButton item={r} currency={currency} className={ITEM_TABLE.inspectClass} />
+      ),
+    };
     const name: Omit<DataTableColumn<ItemView>, "width" | "cell"> = {
       id: "item",
       header: COPY.itemColumns.item,
@@ -117,6 +124,7 @@ export function ItemTable({
         cell: (r) => <HighlightDisclosure item={r} />,
       },
       { ...price, ...sizes.price.wide },
+      inspect,
     ];
     // Compact rows carry where the item is and its float, the owner and the highlight button under the name.
     const narrow: DataTableCompact<ItemView> = {
@@ -144,6 +152,7 @@ export function ItemTable({
         },
         // The sort menu already says "Price"; the header stays for screen readers only.
         { ...price, ...sizes.price.narrow, sortValue: undefined, hideHeader: true },
+        inspect,
       ],
       rowHeight: accountNames
         ? ITEM_TABLE.rowHeight.narrowWithAccount

@@ -5,8 +5,7 @@ export const SCHEME_PREVIEW = {
   fade: {
     text: 55,
     muted: 22,
-    tint: 28,
-    tintEnd: 6,
+    tint: 14,
     navIcon: 60,
     navLabel: 32,
     navLabelActive: 70,

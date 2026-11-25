@@ -104,7 +104,7 @@ export function TransferBar({ selected, units, accountName, busy, onClear }: Tra
 
   return (
     <div
-      className="flex shrink-0 flex-col gap-2 rounded-lg border bg-card px-4 py-3 shadow-sm"
+      className="flex shrink-0 flex-col gap-2 rounded-lg border bg-card px-4 py-3"
       role="region"
       aria-label={TRANSFER_BAR.regionLabel}
     >

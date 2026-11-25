@@ -1,7 +1,11 @@
+import { Check } from "lucide-react";
 import { cn } from "~/utils/cn";
+import { PILL } from "./pill.config";
 import type { PillProps } from "./pill.types";
 
-/** A toggle chip: filled when active, quiet otherwise. */
+const { classes } = PILL;
+
+/** A toggle chip: lime with a tick when active, an outline otherwise. */
 export function Pill({ active, disabled, onClick, children }: PillProps) {
   return (
     <button
@@ -9,13 +13,11 @@ export function Pill({ active, disabled, onClick, children }: PillProps) {
       aria-pressed={active}
       disabled={disabled}
       onClick={onClick}
-      className={cn(
-        "rounded-lg border px-3 py-1 text-xs transition-colors disabled:opacity-40",
-        active
-          ? "border-foreground bg-foreground text-background"
-          : "text-muted-foreground hover:text-foreground",
-      )}
+      className={cn(classes.base, active ? classes.active : classes.idle)}
     >
+      {active && (
+        <Check size={PILL.checkSize} strokeWidth={2.5} className={classes.check} aria-hidden />
+      )}
       {children}
     </button>
   );

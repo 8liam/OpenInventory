@@ -11,7 +11,7 @@ export type ItemLabelProps = {
   readonly customName?: string | null;
   /** Defaults to `responsive`; a fixed-height row passes the fit its height allows. */
   readonly nameFit?: ItemLabelNameFit;
-  /** On the tightest compact tables, give the name the thumbnail's width. */
+  /** Use a smaller thumbnail on narrow compact tables. */
   readonly compactOnNarrow?: boolean;
   /** Rendered under the name, e.g. stickers. */
   readonly children?: ReactNode;

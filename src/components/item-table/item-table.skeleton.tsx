@@ -15,6 +15,7 @@ export function ItemTableSkeleton({
   selectable,
 }: ItemTableSkeletonProps) {
   const sizes = ITEM_TABLE.columns;
+  const inspect = { ...ITEM_TABLE.inspectColumn, header: "", cell: null };
   const item = {
     id: "item",
     header: COPY.itemColumns.item,
@@ -76,12 +77,10 @@ export function ItemTableSkeleton({
     },
     highlights,
     { ...price, ...sizes.price.wide },
+    inspect,
   ];
   const compact = {
-    columns: [
-      { ...item, ...sizes.item.narrow },
-      { ...price, ...sizes.price.narrow },
-    ],
+    columns: [{ ...item, ...sizes.item.narrow }, { ...price, ...sizes.price.narrow }, inspect],
     rowHeight: showAccount ? ITEM_TABLE.rowHeight.narrowWithAccount : ITEM_TABLE.rowHeight.narrow,
   };
   return (

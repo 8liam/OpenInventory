@@ -8,17 +8,16 @@ import type { BreakdownPanelSkeletonProps } from "./breakdown-panel.types";
 /** The real title and tabs (they need no data), with a ring and rows where the numbers go. */
 export function BreakdownPanelSkeleton({ className }: BreakdownPanelSkeletonProps) {
   return (
-    <section className={cn("rounded-xl border bg-card p-4", className)}>
-      <header className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-[13px] font-medium">{COPY.dashboard.breakdownTitle}</h2>
-        <div className="flex rounded-md bg-muted p-0.5">
+    <section className={cn(BREAKDOWN_PANEL.classes.section, className)}>
+      <header className={BREAKDOWN_PANEL.classes.header}>
+        <h2 className={BREAKDOWN_PANEL.classes.title}>{COPY.dashboard.breakdownTitle}</h2>
+        <div className={BREAKDOWN_PANEL.classes.tablist}>
           {BREAKDOWN_PANEL.tabs.map((tab) => (
             <span
               key={tab.key}
               className={cn(
-                "rounded px-2 py-1 text-xs text-muted-foreground",
-                tab.key === BREAKDOWN_PANEL.defaultTab &&
-                  "bg-card font-medium text-foreground shadow-sm",
+                BREAKDOWN_PANEL.classes.tab,
+                tab.key === BREAKDOWN_PANEL.defaultTab && BREAKDOWN_PANEL.classes.tabActive,
               )}
             >
               {tab.label}

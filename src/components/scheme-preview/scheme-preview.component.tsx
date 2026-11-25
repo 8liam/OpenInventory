@@ -82,9 +82,7 @@ function MiniUi({ variant }: MiniUiProps) {
             <div key={card} className={classes.card} style={s.surface}>
               <div
                 className={classes.thumb}
-                style={{
-                  background: `linear-gradient(135deg, ${mix(variant.primary, fade.tint)}, ${mix(variant.primary, fade.tintEnd)})`,
-                }}
+                style={{ background: mix(variant["muted-foreground"], fade.tint) }}
               />
               <span className={classes.weaponLine} style={s.muted} />
               <span className={classes.nameLine} style={s.text} />

@@ -29,7 +29,13 @@ export const DATA_TABLE = {
   /** A stable gutter keeps the rows' width (and so the chosen layout) the same with or without a scrollbar. */
   scrollClass: "min-h-0 flex-1 overflow-auto [scrollbar-gutter:stable]",
   skeletonScrollClass: "min-h-0 flex-1 overflow-hidden [scrollbar-gutter:stable]",
-  headerClass: "grid shrink-0 border-b text-xs text-muted-foreground",
+  headerClass: "grid shrink-0 border-b border-border-strong text-[11px] text-muted-foreground",
+  rowClass:
+    "absolute inset-x-0 grid items-center border-b px-4 focus-visible:outline-offset-[-2px]",
+  rowClickableClass: "cursor-pointer hover:bg-muted",
+  /** Selected: a lime tint, an ink tick down the left and a ticked box. Reads without colour. */
+  rowCheckedClass: "bg-accent/12 shadow-[inset_2px_0_0_var(--accent-ink)] hover:bg-accent/15",
+  numericCellClass: "text-right font-mono text-xs tabular-nums",
   sortSelectClass: "w-full max-w-48",
   sortIconSize: 12,
   selectAllLabel: "Select all rows",

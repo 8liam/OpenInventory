@@ -11,3 +11,8 @@ export type UnitCardProps = {
   readonly onSelect: () => void;
   readonly onRename: (name: string) => Promise<void>;
 };
+
+export type CrateDotsProps = {
+  /** Items in the unit; slots fill in order. */
+  readonly count: number;
+};

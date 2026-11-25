@@ -96,7 +96,7 @@ export function ItemNoteEditor({ item }: ItemNoteEditorProps) {
           disabled={saving}
           onChange={(event) => setDraft(event.target.value)}
           onKeyDown={onKeyDown}
-          className="h-8 min-w-0 flex-1 rounded border bg-background px-2 text-sm outline-none focus:border-primary/60 sm:max-w-md"
+          className="h-8 min-w-0 flex-1 rounded border bg-background px-2 text-sm focus-visible:border-accent-ink sm:max-w-md"
         />
         <button
           type="submit"

@@ -66,9 +66,7 @@ export function OfferPanel({ terminalId, accountId }: OfferPanelProps) {
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-xs text-muted-foreground">{copy.offerNote}</p>
           {response.isFinalOffer ? (
-            <span className="rounded-md border px-2.5 py-1 text-xs font-medium">
-              {copy.finalOffer}
-            </span>
+            <span className={OFFER_PANEL.classes.final}>{copy.finalOffer}</span>
           ) : (
             <Button variant="secondary" onClick={() => setConfirming(true)}>
               {copy.nextOffer}
@@ -78,9 +76,9 @@ export function OfferPanel({ terminalId, accountId }: OfferPanelProps) {
       )}
       {earlier.length > 0 && response && (
         <div className="flex flex-col gap-1.5">
-          <p className="text-xs font-medium text-muted-foreground">{copy.earlierOffers}</p>
+          <p className={OFFER_PANEL.classes.earlierTitle}>{copy.earlierOffers}</p>
           {earlier.map((offer) => (
-            <div key={offer.id} className="flex items-center justify-between gap-3 text-sm">
+            <div key={offer.id} className={OFFER_PANEL.classes.earlierRow}>
               <div className="flex min-w-0 items-center gap-2">
                 <ItemThumb
                   imageUrl={offer.imageUrl}
@@ -89,7 +87,7 @@ export function OfferPanel({ terminalId, accountId }: OfferPanelProps) {
                 />
                 <span className="truncate">{offer.name}</span>
               </div>
-              <span className="shrink-0 text-muted-foreground tabular">
+              <span className={OFFER_PANEL.classes.earlierPrice}>
                 {offer.price === null ? "—" : formatMoney(offer.price, response.currency)}
               </span>
             </div>

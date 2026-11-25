@@ -43,7 +43,7 @@ export function HistoryPanel({ history, currency }: HistoryPanelProps) {
   }
 
   return (
-    <div className="px-4 pb-3 pt-4">
+    <div className="pb-3 pt-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap gap-1.5">
           {HISTORY_PANEL.series.map((s) => (

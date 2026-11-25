@@ -1,4 +1,4 @@
-import { RefreshCw } from "lucide-react";
+import { CircleX, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/button/button.component";
 import { accountName } from "~/lib/accounts/account-names";
@@ -28,12 +28,10 @@ function SyncErrorBanner({ account, named }: SyncErrorBannerProps) {
   }
 
   return (
-    <div
-      className="flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/40 bg-card px-4 py-3"
-      role="alert"
-    >
-      <p className="min-w-0 text-destructive">
-        {named ? COPY.accounts.bannerFor(accountName(account), syncError) : syncError}
+    <div className={SYNC_ERROR.classes.root} role="alert">
+      <p className={SYNC_ERROR.classes.message}>
+        <CircleX size={SYNC_ERROR.alertIconSize} className={SYNC_ERROR.classes.icon} aria-hidden />
+        <span>{named ? COPY.accounts.bannerFor(accountName(account), syncError) : syncError}</span>
       </p>
       <Button small disabled={busy} onClick={() => void retry()}>
         <RefreshCw

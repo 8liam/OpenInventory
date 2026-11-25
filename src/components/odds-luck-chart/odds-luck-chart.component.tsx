@@ -4,6 +4,7 @@ import { axisPosition, compareToOdds } from "~/lib/cases/odds-luck";
 import { formatInteger } from "~/utils/format";
 import { ODDS_LUCK_CHART } from "./odds-luck-chart.config";
 import type { AxisLabel, OddsLuckChartProps } from "./odds-luck-chart.types";
+import { dataColor } from "~/lib/theme/chart-palette";
 
 const { classes, copy } = ODDS_LUCK_CHART;
 
@@ -31,7 +32,7 @@ export function OddsLuckChart({ rarities, total }: OddsLuckChartProps) {
         const pulled = copy.pulled(formatInteger(rarity.count));
         const expected = copy.expected(luck.expected.toFixed(ODDS_LUCK_CHART.expectedDecimals));
         const status = copy.status[luck.status];
-        const colour = `#${rarity.color}`;
+        const colour = dataColor(`#${rarity.color}`);
         const stemStart = Math.min(centre, luck.position);
         return (
           <div

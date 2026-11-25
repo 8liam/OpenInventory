@@ -13,15 +13,16 @@ export const MONTHLY_BARS = {
     chart: "flex items-end gap-1",
     /** Bars never grow past this width, so a couple of months don't become slabs. */
     column: "flex h-full min-w-0 max-w-14 flex-1 flex-col justify-end gap-1",
-    bar: "w-full rounded-t bg-primary/80 transition-colors hover:bg-primary",
+    bar: "w-full rounded-t bg-(--chart-1) opacity-85 transition-opacity hover:opacity-100",
     value: "tabular text-center text-[11px] font-medium leading-none",
     month: "tabular truncate text-center text-[11px] text-muted-foreground",
     /** Many months: slim bars share the width and the chart's own height. */
-    slimBar: "min-w-0 flex-1 rounded-t bg-primary/80 transition-colors hover:bg-primary",
+    slimBar:
+      "min-w-0 flex-1 rounded-t bg-(--chart-1) opacity-85 transition-opacity hover:opacity-100",
     ends: "tabular mt-1.5 flex justify-between text-[11px] text-muted-foreground",
     details: "mt-3 text-xs",
     summary:
-      "w-fit cursor-pointer rounded text-muted-foreground underline-offset-2 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+      "w-fit cursor-pointer rounded text-muted-foreground underline-offset-2 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink",
     list: "mt-2 grid grid-cols-2 gap-x-5 gap-y-1 sm:grid-cols-3 lg:grid-cols-4",
     item: "flex justify-between gap-2 border-b py-1",
     count: "tabular font-medium",

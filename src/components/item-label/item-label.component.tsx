@@ -17,12 +17,12 @@ export function ItemLabel({
 }: ItemLabelProps) {
   const [weapon, skin] = splitItemName(name);
   return (
-    <div className="flex min-w-0 items-center gap-3">
+    <div className={cn("flex min-w-0 items-center gap-3", compactOnNarrow && "max-sm:gap-2")}>
       <ItemThumb
         imageUrl={imageUrl}
         rarityColor={rarityColor}
         size={size}
-        className={compactOnNarrow ? "max-sm:hidden" : undefined}
+        className={compactOnNarrow ? ITEM_LABEL.compactThumbClass : undefined}
       />
       {/* Fills the row, so the highlight line's container query sees the real space available. */}
       <div className="min-w-0 flex-1">

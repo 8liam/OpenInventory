@@ -35,7 +35,7 @@ export function ItemCell({
     item.videoUrl === null ? null : <HighlightPlayer videoUrl={item.videoUrl} title={item.name} />;
   const noteChip = item.note === null ? null : <ItemNoteChip note={item.note} />;
   const attachments = hasAttachments && (
-    <span className="flex shrink-0 items-center gap-0.5">
+    <span className={ITEM_CELL.attachmentsClass}>
       {stickers.map((sticker, index) => (
         <Tooltip key={`${sticker.name}-${index}`} name={sticker.name} imageUrl={sticker.imageUrl}>
           <img
@@ -77,6 +77,15 @@ export function ItemCell({
       ))}
     </span>
   );
+  const hasChips = videoChip !== null || noteChip !== null || hasAttachments;
+  const chips = hasChips && (
+    <div className={ITEM_CELL.chipsClass}>
+      {videoChip}
+      {noteChip}
+      {attachments}
+    </div>
+  );
+
   return (
     <ItemLabel
       name={item.name}
@@ -117,20 +126,14 @@ export function ItemCell({
       )}
       {/* Reasons and attachments share one line, so the row keeps its fixed height. */}
       {compact ? (
-        (hasAttachments || hasHighlights || noteChip !== null || videoChip !== null) && (
+        (hasHighlights || hasChips) && (
           <div className={ITEM_CELL.compactLineClass}>
             <HighlightDisclosure item={item} showCount />
-            {videoChip}
-            {noteChip}
-            {attachments}
+            {chips}
           </div>
         )
       ) : (
-        <ItemHighlights item={item}>
-          {videoChip}
-          {noteChip}
-          {attachments}
-        </ItemHighlights>
+        <ItemHighlights item={item}>{chips}</ItemHighlights>
       )}
     </ItemLabel>
   );
