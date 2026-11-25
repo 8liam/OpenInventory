@@ -1,7 +1,7 @@
 import { ImageOff } from "lucide-react";
 import { Chip } from "~/components/chip/chip.component";
 import { FloatBar } from "~/components/float-bar/float-bar.component";
-import { ItemThumbHalftone } from "~/components/item-thumb/item-thumb.component";
+import { ItemThumbBackdrop } from "~/components/item-thumb/item-thumb.component";
 import { attachedCharmsValue } from "~/lib/items/charm-value";
 import { floatRangeSpan, isOnScale, wearBandFor } from "~/lib/items/float-bar";
 import { formatDateTime, formatFloatExact, formatMoney } from "~/utils/format";
@@ -48,7 +48,7 @@ export function ItemInspectCard({ item, currency, now }: ItemInspectCardProps) {
   return (
     <div className={classes.root}>
       <div className={classes.hero}>
-        <ItemThumbHalftone rarityColor={item.rarityColor} />
+        <ItemThumbBackdrop rarityColor={item.rarityColor} />
         {item.rarityColor !== null && (
           <span
             aria-hidden

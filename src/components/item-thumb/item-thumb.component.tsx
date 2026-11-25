@@ -5,11 +5,11 @@ import { ITEM_THUMB } from "./item-thumb.config";
 import type { ItemThumbProps } from "./item-thumb.types";
 
 /** Shared one-layer mask. Only the paint colour changes between items. */
-export function ItemThumbHalftone({ rarityColor }: Pick<ItemThumbProps, "rarityColor">) {
+export function ItemThumbBackdrop({ rarityColor }: Pick<ItemThumbProps, "rarityColor">) {
   return (
     <span
       aria-hidden
-      className={ITEM_THUMB.classes.halftone}
+      className={ITEM_THUMB.classes.backdrop}
       style={{ color: rarityColor ?? undefined }}
     />
   );
@@ -27,7 +27,7 @@ export function ItemThumb({
   const loaded = imageUrl !== null && (loadedUrl === imageUrl || isImageLoaded(imageUrl));
   return (
     <div className={cn(ITEM_THUMB.classes.root, className)} style={{ width: size, height: size }}>
-      <ItemThumbHalftone rarityColor={rarityColor} />
+      <ItemThumbBackdrop rarityColor={rarityColor} />
       {/* Rarity is item data: a 2px key along the bottom edge, never a wash. */}
       {showRarityBar && rarityColor && (
         <span
