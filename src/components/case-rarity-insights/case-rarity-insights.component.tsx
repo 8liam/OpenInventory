@@ -4,6 +4,7 @@ import { COPY } from "~/lib/copy/copy.config";
 import { formatInteger } from "~/utils/format";
 import { CASE_RARITY_INSIGHTS } from "./case-rarity-insights.config";
 import type { CaseRarityInsightsProps } from "./case-rarity-insights.types";
+import { dataColor } from "~/lib/theme/chart-palette";
 
 const { classes, copy: insightCopy } = CASE_RARITY_INSIGHTS;
 
@@ -27,7 +28,7 @@ export function CaseRarityInsights({ stats }: CaseRarityInsightsProps) {
               <dt className={classes.streakTerm}>
                 <span
                   className={classes.streakDot}
-                  style={{ backgroundColor: `#${rarity.color}` }}
+                  style={{ backgroundColor: dataColor(`#${rarity.color}`) }}
                   aria-hidden="true"
                 />
                 {rarity.label}

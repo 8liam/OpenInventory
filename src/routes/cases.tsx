@@ -28,6 +28,7 @@ import {
 import { useRestoreFocusOnRecovery } from "~/lib/storage/recovered-focus.hooks";
 import { postJson, usePageVisible, useRemoteData } from "~/lib/storage/storage.client";
 import { STORAGE_API } from "~/lib/storage/storage.config";
+import { dataColor } from "~/lib/theme/chart-palette";
 
 export const Route = createFileRoute("/cases")({ component: CasesPage });
 
@@ -72,10 +73,11 @@ function CasesPage() {
   // A refetch keeps the previous response on screen; never show another kind's numbers under this pill.
   const stats = response?.stats.kind === kind ? response.stats : undefined;
   const emptyText = kind === "case" ? copy.empty : copy.emptyOther;
+  // CS2's rarity colours, darkened on the light card only where they would miss 3:1.
   const raritySlices = buildRaritySlices(stats?.rarity ?? [], stats?.total ?? 0, {
     label: copy.unknownRarity,
     color: CASES_PAGE.unknownRarityColor,
-  });
+  }).map((slice) => ({ ...slice, color: dataColor(slice.color) }));
   return (
     <>
       <PageHeader title={copy.title} description={copy.description} account={accountLabel} />
