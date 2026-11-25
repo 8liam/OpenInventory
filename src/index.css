@@ -74,6 +74,43 @@
   --skeleton-highlight: rgb(255 255 255 / 0.1);
 }
 
+/*
+ * Data-visualisation palette (src/lib/theme/chart-palette.config.ts, checked by its test).
+ * Charts may use colour; UI chrome stays monotone plus lime. Measured against the default cards.
+ */
+:root,
+[data-theme="light"] {
+  --chart-1: #0051a0;
+  --chart-2: #794402;
+  --chart-3: #179a8e;
+  --chart-4: #a82571;
+  --chart-5: #9769dc;
+  --chart-6: #a18308;
+  --chart-7: #077fa8;
+  --chart-8: #bc4945;
+  --wear-1: #033d57;
+  --wear-2: #0a5475;
+  --wear-3: #046b96;
+  --wear-4: #0481b3;
+  --wear-5: #3c96c5;
+}
+
+[data-theme="dark"] {
+  --chart-1: #87bafd;
+  --chart-2: #c97409;
+  --chart-3: #2bd2c2;
+  --chart-4: #d8559b;
+  --chart-5: #b385fb;
+  --chart-6: #f3c935;
+  --chart-7: #0f99c9;
+  --chart-8: #fd968f;
+  --wear-1: #b5e2fd;
+  --wear-2: #74ccfe;
+  --wear-3: #33b4f2;
+  --wear-4: #109bd5;
+  --wear-5: #0481b3;
+}
+
 /* Derived from the palette tokens, so they follow the colour scheme picker. */
 :root {
   /* Accent as a line or letter: text, strokes, chart marks, the focus ring. */

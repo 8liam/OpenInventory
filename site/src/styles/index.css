@@ -91,6 +91,20 @@
   --fill-4: #3a3a3a;
   --fill-5: #262626;
   --slot-empty: rgb(255 255 255 / 0.1);
+  /* Data-visualisation palette, dark values from the app's src/index.css. */
+  --chart-1: #87bafd;
+  --chart-2: #c97409;
+  --chart-3: #2bd2c2;
+  --chart-4: #d8559b;
+  --chart-5: #b385fb;
+  --chart-6: #f3c935;
+  --chart-7: #0f99c9;
+  --chart-8: #fd968f;
+  --wear-1: #b5e2fd;
+  --wear-2: #74ccfe;
+  --wear-3: #33b4f2;
+  --wear-4: #109bd5;
+  --wear-5: #0481b3;
 }
 
 /* The landing's global `button { border: 0 }` (layer site) resets border colour to currentColor and outranks the app reset below; restore the app's token. */
