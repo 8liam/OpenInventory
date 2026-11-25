@@ -64,7 +64,10 @@ for (const theme of THEMES) {
   });
 
   test(`${theme} CSS tokens match the config`, () => {
-    const css = readFileSync(new URL("../../index.css", import.meta.url), "utf8");
+    const css = readFileSync(new URL("../../index.css", import.meta.url), "utf8").replace(
+      /\r\n/g,
+      "\n",
+    );
     const selector = theme === "dark" ? '[data-theme="dark"] {' : ':root,\n[data-theme="light"] {';
     const blocks = css
       .split(selector)
